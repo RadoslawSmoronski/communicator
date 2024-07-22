@@ -1,0 +1,22 @@
+h1 {
+    color: aqua;
+}
+
+.note{
+    height: 250px;
+    width: 150px;
+    text-align: center;
+    padding-top: 10px;
+    margin: 10px;
+    background-color: rgb(238, 199, 25);
+    border: solid #000;
+    border-width: 2px;
+    white-space: pre-wrap;
+}
+
+#notes{
+    display: flex;
+    flex-direction:row;
+    flex-wrap: wrap;
+    width: 100%;
+}
