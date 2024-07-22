@@ -29,10 +29,9 @@ class App02 extends React.Component{
                 password: this.state.password
             })
         };
-
-        const response = await fetch('http://localhost:5205/', requestOptions);
-        const data = await response.json();
-        console.log(data);
+        fetch('http://localhost:5205/api/account/login', requestOptions)
+        .then(response => response.json())
+        .then(data => console.log(data));
 
         this.setState({username: "", password: ""});
     }
