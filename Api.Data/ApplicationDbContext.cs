@@ -1,7 +1,12 @@
-﻿namespace Api.Data
-{
-    public class ApplicationDbContext
-    {
+﻿using Microsoft.EntityFrameworkCore;
 
+namespace Api.Data
+{
+    public class ApplicationDbContext : DbContext
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+
+        }
     }
 }
