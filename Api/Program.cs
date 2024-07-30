@@ -20,6 +20,7 @@ namespace Api
             builder.Services.AddDbContext<ApplicationDbContext>
                 (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
             // Add CORS configuration
             builder.Services.AddCors(options =>
             {
@@ -33,6 +34,22 @@ namespace Api
             });
 
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                try
+                {
+                    dbContext.Database.OpenConnection();
+                    dbContext.Database.CloseConnection();
+                    Console.WriteLine("The application successfully connected to the database.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Database error: {ex.Message}");
+                    Environment.Exit(1);
+                }
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
