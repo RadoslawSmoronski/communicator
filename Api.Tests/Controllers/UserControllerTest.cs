@@ -92,5 +92,28 @@ namespace Api.Tests.Controllers
             response.Message.Should().Be("The user has been successfully logged in.");
             response.User.Should().BeEquivalentTo(loginDto);
         }
+
+        [Fact]
+        public async Task LoginAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters()
+        {
+            //Arrange
+            var userController = new UserController(_userManager, _signInManager);
+            var loginDto = new LoginDto() { UserName = "login", Password = "password" };
+
+            A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
+                .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Failed));
+
+            //Act
+            var result = await userController.LoginAsync(loginDto) as BadRequestObjectResult;
+
+            //Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+
+            var response = result.Value as LoginResponseDto;
+            response.Succeeded.Should().BeFalse();
+            response.Message.Should().Be("Validation failed.");
+            response.User.Should().BeEquivalentTo(loginDto);
+        }
     }
 }

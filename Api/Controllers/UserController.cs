@@ -81,5 +81,12 @@ namespace Api.Controllers
             }
         }
 
+        [HttpGet("getUsers")]
+        public async Task<IActionResult> GetUsersAsync()
+        {
+            var users = _userManager.Users.ToList();
+            return Ok(users);
+        }
+
     }
 }

@@ -22,7 +22,7 @@ namespace Api
             builder.Services.AddDbContext<ApplicationDbContext>
                 (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.Configure<IdentityOptions>(options =>
+            builder.Services.AddIdentity<UserAccount, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 6;
@@ -35,7 +35,9 @@ namespace Api
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
 
                 options.User.RequireUniqueEmail = false;
-            });
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
 
             // Add CORS configuration
@@ -80,7 +82,7 @@ namespace Api
             // Use CORS before Authorization
             app.UseCors("AllowSpecificOrigin");
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             app.MapControllers();
 
