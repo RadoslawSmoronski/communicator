@@ -15,11 +15,13 @@ namespace Api.Tests.Controllers
     public class UserControllerTest
     {
         private readonly UserManager<UserAccount> _userManager;
+        private readonly SignInManager<UserAccount> _signInManager;
 
         public UserControllerTest()
         {
             // Initialize UserManager with necessary parameters
             _userManager = A.Fake<UserManager<UserAccount>>();
+            _signInManager = A.Fake<SignInManager<UserAccount>>();
         }
 
         [Fact]
@@ -67,5 +69,29 @@ namespace Api.Tests.Controllers
             response.Message.Should().Be("Validation failed.");
             response.User.Should().BeEquivalentTo(registerDto);
         }
+
+        [Fact]
+        public async Task LoginAsync_ShouldReturnTrue_WhenCalledWithValidParameters()
+        {
+            {
+                // Arrange
+                var userController = new UserController(_userManager);
+                var loginDto = new LoginDto() { UserName = "login", Password = "password" };
+
+                A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
+                    .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Success));
+
+                // Act
+                var result = await userController.LoginAsync(loginDto.UserName, loginDto.Password, false);
+
+                // Assert
+                result.Should().NotBeNull();
+                result!.StatusCode.Should().Be(200);
+
+                var response = result.Value as LoginResponseDto;
+                response.Succeeded.Should().BeTrue();
+                response.Message.Should().Be("The user has been successfully logged in.");
+                response.User.Should().BeEquivalentTo(registerDto);
+            }
     }
 }
