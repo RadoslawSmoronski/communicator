@@ -90,9 +90,25 @@ namespace Api.Controllers
         }
 
         [HttpGet("findUserByUserName/{username}")]
-        public async Task<IActionResult> FindUserByNameAsync([FromRoute] string username)
+        public async Task<IActionResult> FindUserByUserNameAsync([FromRoute] string username)
         {
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
+
+
+            if (user != null)
+            {
+                return Ok(user);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("findUserById/{id}")]
+        public async Task<IActionResult> FindUserByIdAsync([FromRoute] string id)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
 
 
             if (user != null)
