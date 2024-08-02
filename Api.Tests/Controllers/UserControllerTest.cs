@@ -64,7 +64,7 @@ namespace Api.Tests.Controllers
 
             var response = result.Value as RegisterResponseDto;
             response.Succeeded.Should().BeFalse();
-            response.Message.Should().Be("Validation failed");
+            response.Message.Should().Be("Validation failed.");
             response.User.Should().BeEquivalentTo(registerDto);
         }
     }

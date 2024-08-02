@@ -45,7 +45,7 @@ namespace Api.Controllers
                 var response = new RegisterResponseDto()
                 {
                     Succeeded = false,
-                    Message = "Validation failed",
+                    Message = "Validation failed.",
                     User = registerDto
                 };
                 return BadRequest(response);
