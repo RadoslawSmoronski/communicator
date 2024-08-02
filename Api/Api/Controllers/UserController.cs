@@ -3,6 +3,7 @@ using Api.Models.Dtos;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers
 {
@@ -86,6 +87,22 @@ namespace Api.Controllers
         {
             var users = _userManager.Users.ToList();
             return Ok(users);
+        }
+
+        [HttpGet("findUserByUserName/{username}")]
+        public async Task<IActionResult> FindUserByNameAsync([FromRoute] string username)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
+
+
+            if (user != null)
+            {
+                return Ok(user);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
     }
