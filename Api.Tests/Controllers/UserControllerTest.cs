@@ -28,7 +28,7 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturnTrue_WhenCalledWithValidParameters()
         {
             // Arrange
-            var userController = new UserController(_userManager);
+            var userController = new UserController(_userManager, _signInManager);
             var registerDto = new RegisterDto() { UserName = "login", Password = "password" };
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
@@ -51,7 +51,7 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters()
         {
             // Arrange
-            var userController = new UserController(_userManager);
+            var userController = new UserController(_userManager, _signInManager);
             var registerDto = new RegisterDto() { UserName = "test", Password = "password1" };
             var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
@@ -73,25 +73,24 @@ namespace Api.Tests.Controllers
         [Fact]
         public async Task LoginAsync_ShouldReturnTrue_WhenCalledWithValidParameters()
         {
-            {
-                // Arrange
-                var userController = new UserController(_userManager);
-                var loginDto = new LoginDto() { UserName = "login", Password = "password" };
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager);
+            var loginDto = new LoginDto() { UserName = "login", Password = "password" };
 
-                A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
-                    .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Success));
+            A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
+                .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Success));
 
-                // Act
-                var result = await userController.LoginAsync(loginDto.UserName, loginDto.Password, false);
+            // Act
+            var result = await userController.LoginAsync(loginDto) as OkObjectResult;
 
-                // Assert
-                result.Should().NotBeNull();
-                result!.StatusCode.Should().Be(200);
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(200);
 
-                var response = result.Value as LoginResponseDto;
-                response.Succeeded.Should().BeTrue();
-                response.Message.Should().Be("The user has been successfully logged in.");
-                response.User.Should().BeEquivalentTo(registerDto);
-            }
+            var response = result.Value as LoginResponseDto;
+            response.Succeeded.Should().BeTrue();
+            response.Message.Should().Be("The user has been successfully logged in.");
+            response.User.Should().BeEquivalentTo(loginDto);
+        }
     }
 }
