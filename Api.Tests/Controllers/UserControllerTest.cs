@@ -1,33 +1,47 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Api.Models;
 using Api.Controllers;
+using Api.Models.Dtos;
+using Microsoft.AspNetCore.Mvc;
+using Xunit;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Api.Tests.Controllers
 {
     public class UserControllerTest
     {
+        private readonly UserManager<UserAccount> _userManager;
+
+        public UserControllerTest()
+        {
+            // Initialize UserManager with necessary parameters
+            _userManager = A.Fake<UserManager<UserAccount>>();
+        }
+
         [Fact]
-        public void Register_ShouldReturnTrue_WhenCalledWithValidParameters()
+        public async Task RegisterAsync_ShouldReturnTrue_WhenCalledWithValidParameters()
         {
             // Arrange
-            var userController = A.Fake<UserController>();
-            var registerDto = new RegisterDto(UserName: "login", Password: "password123");
+            var userController = new UserController(_userManager);
+            var registerDto = new RegisterDto() { UserName = "login", Password = "password" };
+
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
+                .Returns(Task.FromResult(IdentityResult.Success));
 
             // Act
-            var result = userController.Register(registerDto);
+            var result = await userController.RegisterAsync(registerDto) as OkObjectResult;
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<RegisterDto>();
-            result.Should().Be().EquivalentTo(registerDto);
+            result!.StatusCode.Should().Be(200);
+
+            var response = result.Value as RegisterResponseDto;
+            ((string)response!.Message).Should().Be("The user has been successfully created.");
+            ((RegisterDto)response.User).Should().BeEquivalentTo(registerDto);
         }
     }
 }

@@ -16,8 +16,4 @@
     <ProjectReference Include="..\Api.Data\Api.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>
