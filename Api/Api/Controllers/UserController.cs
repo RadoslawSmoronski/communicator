@@ -106,7 +106,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("findUserById/{id}")]
-        public async Task<IActionResult> FindUserByIdAsync([FromRoute] string id)
+        public async Task<IActionResult> FindUserByIdAsync([FromRoute] int id)
         {
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
 
