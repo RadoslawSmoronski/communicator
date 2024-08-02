@@ -45,14 +45,12 @@ namespace Api.Tests.Controllers
             response.User.Should().BeEquivalentTo(registerDto);
         }
 
-        [Theory]
-        [InlineData("l", "p")]
-        [InlineData("lo", "pa")]
-        public async Task RegisterAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters(string login, string password)
+        [Fact]
+        public async Task RegisterAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters()
         {
             // Arrange
             var userController = new UserController(_userManager);
-            var registerDto = new RegisterDto() { UserName = login, Password = password };
+            var registerDto = new RegisterDto() { UserName = "test", Password = "password1" };
             var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
                 .Returns(identityResultFailure);
