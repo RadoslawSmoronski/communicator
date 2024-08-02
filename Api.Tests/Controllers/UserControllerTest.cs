@@ -40,8 +40,34 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(200);
 
             var response = result.Value as RegisterResponseDto;
-            ((string)response!.Message).Should().Be("The user has been successfully created.");
-            ((RegisterDto)response.User).Should().BeEquivalentTo(registerDto);
+            response.Succeeded.Should().BeTrue();
+            response.Message.Should().Be("The user has been successfully created.");
+            response.User.Should().BeEquivalentTo(registerDto);
+        }
+
+        [Theory]
+        [InlineData("l", "p")]
+        [InlineData("lo", "pa")]
+        public async Task RegisterAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters(string login, string password)
+        {
+            // Arrange
+            var userController = new UserController(_userManager);
+            var registerDto = new RegisterDto() { UserName = login, Password = password };
+            var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
+                .Returns(identityResultFailure);
+
+            // Act
+            var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+
+            var response = result.Value as RegisterResponseDto;
+            response.Succeeded.Should().BeFalse();
+            response.Message.Should().Be("Validation failed");
+            response.User.Should().BeEquivalentTo(registerDto);
         }
     }
 }

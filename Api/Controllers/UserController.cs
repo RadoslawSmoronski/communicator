@@ -18,7 +18,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAsync([FromQuery] RegisterDto registerDto)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
             var hasher = new PasswordHasher<IdentityUser>();
 
@@ -34,6 +34,7 @@ namespace Api.Controllers
             {
                 var response = new RegisterResponseDto()
                 {
+                    Succeeded = true,
                     Message = "The user has been successfully created.",
                     User = registerDto
                 };
@@ -43,7 +44,8 @@ namespace Api.Controllers
             {
                 var response = new RegisterResponseDto()
                 {
-                    Message = "null",
+                    Succeeded = false,
+                    Message = "Validation failed",
                     User = registerDto
                 };
                 return BadRequest(response);
