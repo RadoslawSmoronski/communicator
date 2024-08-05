@@ -9,6 +9,6 @@ namespace Api.Models.Dtos.Controllers.UserController
     public class FindUserDto
     {
         public int Id { get; set; }
-        public int UserName { get; set; }
+        public string UserName { get; set; } = String.Empty;
     }
 }
