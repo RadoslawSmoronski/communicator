@@ -143,7 +143,27 @@ namespace Api.Controllers
             return await DeleteUserAsync(user);
         }
 
-        public async Task<IActionResult> DeleteUserAsync(UserAccount? user)
+        [HttpDelete("deleteUserById/{id}")]
+        public async Task<IActionResult> DeleteUserByIdAsync([FromRoute] int id)
+        {
+            var _id = id.ToString();
+            
+            if (!string.IsNullOrEmpty(_id))
+            {
+                var user = await _userManager.FindByIdAsync(_id);
+                return await DeleteUserAsync(user);
+            }
+
+            var response = new DeleteResponseDto()
+            {
+                Succeeded = false,
+                Message = "Id not specified as int.",
+                User = null
+            };
+            return BadRequest(response);
+        }
+
+        private async Task<IActionResult> DeleteUserAsync(UserAccount? user)
         {
             if (user == null)
             {

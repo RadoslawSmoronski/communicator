@@ -121,7 +121,7 @@ namespace Api.Tests.Controllers
             response.User.Should().BeEquivalentTo(loginDto);
         }
 
-        [Fact] public async Task DeleteAsyncByName_ShouldReturnTrue_WhenCalledWithValidParameters()
+        [Fact] public async Task DeleteAsyncByUserName_ShouldReturnTrue_WhenCalledWithValidParameters()
         {
             //Arrange
             var login = "login";
@@ -141,6 +141,37 @@ namespace Api.Tests.Controllers
 
             //Act
             var result = await userController.DeleteUserByUserNameAsync(login) as OkObjectResult;
+
+            //Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(200);
+
+            var response = result.Value as DeleteResponseDto;
+            response.Succeeded.Should().BeTrue();
+            response.Message.Should().Be("Deleted user.");
+        }
+
+        [Fact]
+        public async Task DeleteAsyncById_ShouldReturnTrue_WhenCalledWithValidParameters()
+        {
+            //Arrange
+            var id = 1;
+            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var hasher = new PasswordHasher<IdentityUser>();
+            var user = new UserAccount()
+            {
+                UserName = "login",
+                PasswordHash = hasher.HashPassword(null, "password")
+            };
+
+            A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))
+                .Returns(Task.FromResult(user));
+
+            A.CallTo(() => _userManager.DeleteAsync(user))
+                .Returns(Task.FromResult(IdentityResult.Success));
+
+            //Act
+            var result = await userController.DeleteUserByIdAsync(id) as OkObjectResult;
 
             //Assert
             result.Should().NotBeNull();
