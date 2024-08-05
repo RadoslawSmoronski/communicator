@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Controllers.UserController
 {
-    public class DeleteDto
+    public class LoginDto
     {
         public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }

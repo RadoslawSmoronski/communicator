@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Api.Models.Dtos.Controllers.UserController;
 using AutoMapper;
+using System.Collections.Generic;
 
 namespace Api.Tests.Controllers
 {
@@ -117,6 +118,33 @@ namespace Api.Tests.Controllers
             response.Succeeded.Should().BeFalse();
             response.Message.Should().Be("Validation failed.");
             response.User.Should().BeEquivalentTo(loginDto);
+        }
+
+        [Fact] public async Task DeleteAsyncByName_ShouldReturnTrue_WhenCalledWithValidParameters()
+        {
+            //Arrange
+            var login = "login";
+            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var hasher = new PasswordHasher<IdentityUser>();
+            var user = new UserAccount()
+            {
+                UserName = login,
+                PasswordHash = hasher.HashPassword(null, "password")
+            };
+
+            A.CallTo(() => _userManager.DeleteAsync(user))
+                .Returns(Task.FromResult(IdentityResult.Success));
+
+            //Act
+            var result = await userController.DeleteAsyncByName(login) as OkObjectResult;
+
+            //Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(200);
+
+            var response = result.Value as DeleteResponseDto;
+            response.Succeeded.Should().BeTrue();
+            response.Message.Should().Be("The user has been successfully deleted.");
         }
     }
 }
