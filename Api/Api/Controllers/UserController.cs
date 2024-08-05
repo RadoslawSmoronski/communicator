@@ -1,5 +1,7 @@
 ﻿using Api.Models;
 using Api.Models.Dtos;
+using Api.Models.Dtos.Controllers.UserController;
+using AutoMapper;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +15,22 @@ namespace Api.Controllers
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
+        private readonly IMapper _mapper;
+        private UserManager<UserAccount> userManager;
+        private SignInManager<UserAccount> signInManager;
 
-        public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager)
+        public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
+            IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _mapper = mapper;
+        }
+
+        public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager)
+        {
+            this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
         [HttpPost("register")]
@@ -97,7 +110,8 @@ namespace Api.Controllers
 
             if (user != null)
             {
-                return Ok(user);
+                var findUserDto = _mapper.Map<FindUserDto>(user);
+                return Ok(findUserDto);
             }
             else
             {
@@ -113,7 +127,8 @@ namespace Api.Controllers
 
             if (user != null)
             {
-                return Ok(user);
+                var findUserDto = _mapper.Map<FindUserDto>(user);
+                return Ok(findUserDto);
             }
             else
             {

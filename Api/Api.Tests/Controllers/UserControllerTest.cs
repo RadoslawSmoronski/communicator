@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Api.Models;
 using Api.Controllers;
-using Api.Models.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Api.Models.Dtos.Controllers.UserController;
+using AutoMapper;
 
 namespace Api.Tests.Controllers
 {
@@ -16,19 +17,21 @@ namespace Api.Tests.Controllers
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
+        private readonly IMapper _mapper;
 
         public UserControllerTest()
         {
             // Initialize UserManager with necessary parameters
             _userManager = A.Fake<UserManager<UserAccount>>();
             _signInManager = A.Fake<SignInManager<UserAccount>>();
+            _mapper = A.Fake<IMapper>();
         }
 
         [Fact]
         public async Task RegisterAsync_ShouldReturnTrue_WhenCalledWithValidParameters()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager);
+            var userController = new UserController(_userManager, _signInManager, _mapper);
             var registerDto = new RegisterDto() { UserName = "login", Password = "password" };
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
@@ -51,7 +54,7 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager);
+            var userController = new UserController(_userManager, _signInManager, _mapper);
             var registerDto = new RegisterDto() { UserName = "test", Password = "password1" };
             var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
@@ -74,7 +77,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturnTrue_WhenCalledWithValidParameters()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager);
+            var userController = new UserController(_userManager, _signInManager, _mapper);
             var loginDto = new LoginDto() { UserName = "login", Password = "password" };
 
             A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
@@ -97,7 +100,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters()
         {
             //Arrange
-            var userController = new UserController(_userManager, _signInManager);
+            var userController = new UserController(_userManager, _signInManager, _mapper);
             var loginDto = new LoginDto() { UserName = "login", Password = "password" };
 
             A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos
+namespace Api.Models.Dtos.Controllers.UserController
 {
     public class RegisterResponseDto
     {

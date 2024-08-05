@@ -15,6 +15,7 @@ namespace Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -82,7 +83,7 @@ namespace Api
             // Use CORS before Authorization
             app.UseCors("AllowSpecificOrigin");
 
-            //app.UseAuthorization();
+            app.UseAuthorization();
 
             app.MapControllers();
 
