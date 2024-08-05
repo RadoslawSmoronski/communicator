@@ -204,5 +204,28 @@ namespace Api.Tests.Controllers
             response.Succeeded.Should().BeTrue();
             response.Message.Should().Be("Deleted user.");
         }
+
+        [Fact]
+        public async Task DeleteAsyncById_ShouldReturnFalse_WhenCalledWithNotValidParameters()
+        {
+            //Arrange
+            var id = 1;
+            var userController = new UserController(_userManager, _signInManager, _mapper);
+
+            A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))
+                .Returns(Task.FromResult<UserAccount>(null));
+
+
+            //Act
+            var result = await userController.DeleteUserByIdAsync(id) as BadRequestObjectResult;
+
+            //Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+
+            var response = result.Value as DeleteResponseDto;
+            response.Succeeded.Should().BeFalse();
+            response.Message.Should().BeOneOf("Not found user.");
+        }
     }
 }
