@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Api.Models.Dtos.Controllers.UserController;
 using AutoMapper;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Tests.Controllers
 {
@@ -132,11 +133,14 @@ namespace Api.Tests.Controllers
                 PasswordHash = hasher.HashPassword(null, "password")
             };
 
+            A.CallTo(() => _userManager.FindByNameAsync(login))
+                .Returns(Task.FromResult(user));
+
             A.CallTo(() => _userManager.DeleteAsync(user))
                 .Returns(Task.FromResult(IdentityResult.Success));
 
             //Act
-            var result = await userController.DeleteAsyncByName(login) as OkObjectResult;
+            var result = await userController.DeleteUserByUserNameAsync(login) as OkObjectResult;
 
             //Assert
             result.Should().NotBeNull();
@@ -144,7 +148,7 @@ namespace Api.Tests.Controllers
 
             var response = result.Value as DeleteResponseDto;
             response.Succeeded.Should().BeTrue();
-            response.Message.Should().Be("The user has been successfully deleted.");
+            response.Message.Should().Be("Deleted user.");
         }
     }
 }

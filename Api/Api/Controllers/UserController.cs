@@ -136,5 +136,52 @@ namespace Api.Controllers
             }
         }
 
+        [HttpDelete("deleteUserByUserName/{username}")]
+        public async Task<IActionResult> DeleteUserByUserNameAsync([FromRoute] string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            return await DeleteUserAsync(user);
+        }
+
+        public async Task<IActionResult> DeleteUserAsync(UserAccount? user)
+        {
+            if (user == null)
+            {
+                var response = new DeleteResponseDto()
+                {
+                    Succeeded = false,
+                    Message = "Not found user.",
+                    User = null
+                };
+                return BadRequest(response);
+            }
+            else
+            {
+                var result = await _userManager.DeleteAsync(user);
+
+                if (result.Succeeded)
+                {
+                    var response = new DeleteResponseDto()
+                    {
+                        Succeeded = true,
+                        Message = "Deleted user.",
+                        User = _mapper.Map<DeleteDto>(user)
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    var response = new DeleteResponseDto()
+                    {
+                        Succeeded = false,
+                        Message = "Not found user.",
+                        User = _mapper.Map<DeleteDto>(user)
+                    };
+                    return BadRequest(response);
+                }
+            }
+           
+        }
+
     }
 }
