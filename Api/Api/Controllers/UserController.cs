@@ -16,8 +16,6 @@ namespace Api.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
-        private UserManager<UserAccount> userManager;
-        private SignInManager<UserAccount> signInManager;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
             IMapper mapper)
@@ -25,12 +23,6 @@ namespace Api.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
-        }
-
-        public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager)
-        {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
         }
 
         [HttpPost("register")]
@@ -41,7 +33,7 @@ namespace Api.Controllers
             var user = new UserAccount()
             {
                 UserName = registerDto.UserName,
-                PasswordHash = hasher.HashPassword(null, registerDto.Password)
+                PasswordHash = hasher.HashPassword(new IdentityUser { UserName = registerDto.UserName }, registerDto.Password)
             };
 
             var result = await _userManager.CreateAsync(user);
@@ -98,7 +90,7 @@ namespace Api.Controllers
         [HttpGet("getUsers")]
         public async Task<IActionResult> GetUsersAsync()
         {
-            var users = _userManager.Users.ToList();
+            var users = await _userManager.Users.ToListAsync();
             return Ok(users);
         }
 

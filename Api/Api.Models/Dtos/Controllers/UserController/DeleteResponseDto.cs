@@ -10,6 +10,6 @@ namespace Api.Models.Dtos.Controllers.UserController
     {
         public bool Succeeded { get; set; } = false;
         public string Message { get; set; } = string.Empty;
-        public DeleteDto User { get; set; } = new DeleteDto();
+        public DeleteDto? User { get; set; }
     }
 }
