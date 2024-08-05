@@ -30,7 +30,7 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task RegisterAsync_ShouldReturnTrue_WhenCalledWithValidParameters()
+        public async Task RegisterAsync_ShouldReturnOk_WhenCalledWithValidParameters()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper);
@@ -47,13 +47,14 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(200);
 
             var response = result.Value as RegisterResponseDto;
-            response.Succeeded.Should().BeTrue();
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeTrue();
             response.Message.Should().Be("The user has been successfully created.");
             response.User.Should().BeEquivalentTo(registerDto);
         }
 
         [Fact]
-        public async Task RegisterAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters()
+        public async Task RegisterAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper);
@@ -70,13 +71,14 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(400);
 
             var response = result.Value as RegisterResponseDto;
-            response.Succeeded.Should().BeFalse();
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeFalse();
             response.Message.Should().Be("Validation failed.");
             response.User.Should().BeEquivalentTo(registerDto);
         }
 
         [Fact]
-        public async Task LoginAsync_ShouldReturnTrue_WhenCalledWithValidParameters()
+        public async Task LoginAsync_ShouldReturnOk_WhenCalledWithValidParameters()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper);
@@ -93,13 +95,14 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(200);
 
             var response = result.Value as LoginResponseDto;
-            response.Succeeded.Should().BeTrue();
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeTrue();
             response.Message.Should().Be("The user has been successfully logged in.");
             response.User.Should().BeEquivalentTo(loginDto);
         }
 
         [Fact]
-        public async Task LoginAsync_ShouldReturnFalse_WhenCalledWithNotValidParameters()
+        public async Task LoginAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
         {
             //Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper);
@@ -116,12 +119,13 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(400);
 
             var response = result.Value as LoginResponseDto;
-            response.Succeeded.Should().BeFalse();
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeFalse();
             response.Message.Should().Be("Validation failed.");
             response.User.Should().BeEquivalentTo(loginDto);
         }
 
-        [Fact] public async Task DeleteAsyncByUserName_ShouldReturnTrue_WhenCalledWithValidParameters()
+        [Fact] public async Task DeleteAsyncByUserName_ShouldReturnOk_WhenCalledWithValidParameters()
         {
             //Arrange
             var login = "login";
@@ -129,12 +133,11 @@ namespace Api.Tests.Controllers
             var hasher = new PasswordHasher<IdentityUser>();
             var user = new UserAccount()
             {
-                UserName = login,
-                PasswordHash = hasher.HashPassword(null, "password")
+                UserName = login
             };
 
-            A.CallTo(() => _userManager.FindByNameAsync(login))
-                .Returns(Task.FromResult(user));
+            A.CallTo(() => _userManager.FindByNameAsync(login))!
+                .Returns(Task.FromResult<UserAccount>(user));
 
             A.CallTo(() => _userManager.DeleteAsync(user))
                 .Returns(Task.FromResult(IdentityResult.Success));
@@ -147,20 +150,24 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(200);
 
             var response = result.Value as DeleteResponseDto;
-            response.Succeeded.Should().BeTrue();
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeTrue();
             response.Message.Should().Be("Deleted user.");
         }
 
         [Fact]
-        public async Task DeleteAsyncByUserName_ShouldReturnFalse_WhenCalledWithNotValidParameters()
+        public async Task DeleteAsyncByUserName_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
         {
             //Arrange
             var login = "login";
             var userController = new UserController(_userManager, _signInManager, _mapper);
+            var user = new UserAccount()
+            {
+                UserName = login
+            };
 
-            A.CallTo(() => _userManager.FindByNameAsync(login))
-                .Returns(Task.FromResult<UserAccount>(null));
-
+            A.CallTo(() => _userManager.FindByNameAsync(login))!
+                .Returns(Task.FromResult<UserAccount>(user));
 
             //Act
             var result = await userController.DeleteUserByUserNameAsync(login) as BadRequestObjectResult;
@@ -170,12 +177,13 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(400);
 
             var response = result.Value as DeleteResponseDto;
-            response.Succeeded.Should().BeFalse();
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeFalse();
             response.Message.Should().BeOneOf("Not found user.");
         }
 
         [Fact]
-        public async Task DeleteAsyncById_ShouldReturnTrue_WhenCalledWithValidParameters()
+        public async Task DeleteAsyncById_ShouldReturnOk_WhenCalledWithValidParameters()
         {
             //Arrange
             var id = 1;
@@ -183,11 +191,10 @@ namespace Api.Tests.Controllers
             var hasher = new PasswordHasher<IdentityUser>();
             var user = new UserAccount()
             {
-                UserName = "login",
-                PasswordHash = hasher.HashPassword(null, "password")
+                UserName = "login"
             };
 
-            A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))
+            A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))!
                 .Returns(Task.FromResult(user));
 
             A.CallTo(() => _userManager.DeleteAsync(user))
@@ -201,20 +208,24 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(200);
 
             var response = result.Value as DeleteResponseDto;
-            response.Succeeded.Should().BeTrue();
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeTrue();
             response.Message.Should().Be("Deleted user.");
         }
 
         [Fact]
-        public async Task DeleteAsyncById_ShouldReturnFalse_WhenCalledWithNotValidParameters()
+        public async Task DeleteAsyncById_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
         {
             //Arrange
             var id = 1;
             var userController = new UserController(_userManager, _signInManager, _mapper);
+            var user = new UserAccount()
+            {
+                UserName = "login"
+            };
 
-            A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))
-                .Returns(Task.FromResult<UserAccount>(null));
-
+            A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))!
+                .Returns(Task.FromResult<UserAccount>(user));
 
             //Act
             var result = await userController.DeleteUserByIdAsync(id) as BadRequestObjectResult;
@@ -224,7 +235,8 @@ namespace Api.Tests.Controllers
             result!.StatusCode.Should().Be(400);
 
             var response = result.Value as DeleteResponseDto;
-            response.Succeeded.Should().BeFalse();
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeFalse();
             response.Message.Should().BeOneOf("Not found user.");
         }
     }
