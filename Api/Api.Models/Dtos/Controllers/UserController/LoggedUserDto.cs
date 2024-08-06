@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Controllers.UserController
 {
-    public class NewUserDto
+    public class LoggedUserDto
     {
-        public string UserName { get; set; } = string.Empty;
-        public string Token { get; set; } = string.Empty;
+        public string UserName { get; set; } = String.Empty;
+        public string Token { get; set; } = String.Empty;
     }
 }

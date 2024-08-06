@@ -99,7 +99,6 @@ namespace Api.Tests.Controllers
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeTrue();
             response.Message.Should().Be("The user has been successfully logged in.");
-            response.User.Should().BeEquivalentTo(loginDto);
         }
 
         [Fact]
@@ -123,7 +122,6 @@ namespace Api.Tests.Controllers
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
             response.Message.Should().Be("Validation failed.");
-            response.User.Should().BeEquivalentTo(loginDto);
         }
 
         [Fact] public async Task DeleteAsyncByUserName_ShouldReturnOk_WhenCalledWithValidParameters()

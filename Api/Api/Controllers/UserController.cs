@@ -47,7 +47,7 @@ namespace Api.Controllers
                 {
                     Succeeded = true,
                     Message = "The user has been successfully created.",
-                    User = new NewUserDto()
+                    User = new RegisteredUserDto()
                     {
                         UserName = registerDto.UserName,
                         Token = _tokenService.CreateToken(user)
@@ -61,7 +61,7 @@ namespace Api.Controllers
                 {
                     Succeeded = false,
                     Message = "Validation failed.",
-                    User = new NewUserDto()
+                    User = new RegisteredUserDto()
                     {
                         UserName = registerDto.UserName
                     }
@@ -75,13 +75,19 @@ namespace Api.Controllers
         {
             var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
 
-            if (result.Succeeded)
+            var user = await _userManager.FindByNameAsync(loginDto.UserName);
+
+            if (result.Succeeded && user != null)
             {
                 var response = new LoginResponseDto()
                 {
                     Succeeded = true,
                     Message = "The user has been successfully logged in.",
-                    User = loginDto
+                    User = new LoggedUserDto()
+                    {
+                        UserName = loginDto.UserName,
+                        Token = _tokenService.CreateToken(user)
+                    }
                 };
                 return Ok(response);
             }
@@ -91,7 +97,10 @@ namespace Api.Controllers
                 {
                     Succeeded = false,
                     Message = "Validation failed.",
-                    User = loginDto
+                    User = new LoggedUserDto()
+                    {
+                        UserName = loginDto.UserName
+                    }
                 };
                 return BadRequest(response);
             }

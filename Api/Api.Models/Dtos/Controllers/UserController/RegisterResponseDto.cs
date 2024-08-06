@@ -10,6 +10,6 @@ namespace Api.Models.Dtos.Controllers.UserController
     {
         public bool Succeeded { get; set; } = false;
         public string Message { get; set; } = string.Empty;
-        public NewUserDto? User { get; set; }
+        public RegisteredUserDto? User { get; set; }
     }
 }
