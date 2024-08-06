@@ -14,6 +14,7 @@ namespace Api.Models
         {
             CreateMap<UserAccount, FindUserDto>();
             CreateMap<UserAccount, DeleteDto>();
+            CreateMap<UserAccount, GetUserDto>();
         }
     }
 }

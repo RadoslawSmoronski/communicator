@@ -110,7 +110,16 @@ namespace Api.Controllers
         public async Task<IActionResult> GetUsersAsync()
         {
             var users = await _userManager.Users.ToListAsync();
-            return Ok(users);
+
+            var getUserDtoList = new List<GetUserDto>();
+
+            foreach (var user in users)
+            {
+                var getUserDto = _mapper.Map<GetUserDto>(user);
+                getUserDtoList.Add(getUserDto);
+            }
+
+            return Ok(getUserDtoList);
         }
 
         [HttpGet("findUserByUserName/{username}")]

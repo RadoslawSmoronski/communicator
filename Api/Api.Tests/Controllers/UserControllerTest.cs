@@ -32,6 +32,8 @@ namespace Api.Tests.Controllers
             _tokenService = A.Fake<ITokenService>();
         }
 
+        //RegisterAsync
+
         [Fact]
         public async Task RegisterAsync_ShouldReturnOk_WhenCalledWithValidParameters()
         {
@@ -78,6 +80,9 @@ namespace Api.Tests.Controllers
             response.Message.Should().Be("Validation failed.");
         }
 
+        //RegisterAsync
+        //LoginAsync
+
         [Fact]
         public async Task LoginAsync_ShouldReturnOk_WhenCalledWithValidParameters()
         {
@@ -123,6 +128,9 @@ namespace Api.Tests.Controllers
             response!.Succeeded.Should().BeFalse();
             response.Message.Should().Be("Validation failed.");
         }
+
+        //LoginAsync
+        //DeleteAsyncByUserName
 
         [Fact] public async Task DeleteAsyncByUserName_ShouldReturnOk_WhenCalledWithValidParameters()
         {
@@ -181,6 +189,9 @@ namespace Api.Tests.Controllers
             response.Message.Should().BeOneOf("Not found user.");
         }
 
+        //DeleteAsyncByUserName
+        //DeleteAsyncById
+
         [Fact]
         public async Task DeleteAsyncById_ShouldReturnOk_WhenCalledWithValidParameters()
         {
@@ -238,5 +249,7 @@ namespace Api.Tests.Controllers
             response!.Succeeded.Should().BeFalse();
             response.Message.Should().BeOneOf("Not found user.");
         }
+
+        //DeleteAsyncById
     }
 }
