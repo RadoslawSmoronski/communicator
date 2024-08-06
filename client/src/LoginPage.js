@@ -44,7 +44,7 @@ class LoginPage extends React.Component{
 
 
 
-        fetch('http://localhost:5205/api/login', requestOptions)
+        fetch('http://localhost:5205/api/user/login', requestOptions)
         .then(async response => {
             const isJson = response.headers.get('content-type')?.includes('application/json');
             const data = isJson && await response.json();
@@ -79,13 +79,13 @@ class LoginPage extends React.Component{
     render(){
         
         return (
-            <>
+            <div id="mainloginPage">
                 <div className="loginPanel">
                     <label htmlFor="username">Username: </label>
                     <input value={this.state.username} onChange={this.handleChange} name="username" id="username" autoComplete="off" type="text" className="textInput"/><br/><br/>
                     <label htmlFor="password">Password: </label>
                     <input value={this.state.password} onChange={this.handleChange} name="password" id="password" type="password" className="textInput"/><br/>
-                    <table className="popUp" style={{visibility: this.state.stateOfPopUp ? 'visible' : 'hidden' }}>
+                    <table className="popUp" style={{display: this.state.stateOfPopUp ? '' : 'none' }}>
                         <tr>
                             <th>{this.state.popUpMess}</th>
                             <th className="closeBtnBox"><div className="closeBtn" onClick={this.closePopUpMess}/></th>
@@ -96,7 +96,18 @@ class LoginPage extends React.Component{
                     <div>Nie masz konta? Zajerestruj się poniżej</div>
                     <a className="link" href="/register">Stwórz konto</a>
                 </div>
-            </>
+
+                <div className="welcomeBlock">
+                    <div className="logoAndText">
+                    <div id="logo"/>
+                    <div className="bottomText"><div className="highlightText">Lorem ipsum dolor sit amet.</div> consectetur adipiscing elit. Nam egestas arcu quis ex vehicula facilisis. Sed maximus nunc vitae tincidunt porttitor. Phasellus congue imperdiet vestibulum. Phasellus a diam iaculis urna condimentum dictum vel in nulla. Proin velit velit, aliquam sed consectetur vitae, porttitor eget turpis. Cras sollicitudin eros eget libero tempor, quis posuere justo laoreet. </div>
+                    </div>
+                </div>
+
+                <div id="welcomeBlockSmall">
+                    <div id="logo"/>
+                </div>
+            </div>
         );
     }
 

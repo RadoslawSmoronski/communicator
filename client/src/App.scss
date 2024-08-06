@@ -2,14 +2,100 @@ html, body {height: 100%; margin: 0; font-family: "Gill Sans", sans-serif;}
 
 #main{
     height: 100%;
+    width: 100%;
+}
+
+#mainloginPage{
+    height: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: right;
     align-items: center;
     background-color: #070604;
     color: #caa779;
-    background-image: url("../gfx/black-and-orange-03.jpg");
 }
 
+
+
+#mainregisterPage{
+    height: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    flex-direction: column-reverse;
+    background-color: #070604;
+    color: #caa779;
+    background-color: #070604;
+}
+
+.welcomeBlock{
+    margin-left: 5px;
+    width: 70%;
+    height: 100%;
+    background-color: #0e0e0ecc;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#logo{
+    background-image: url("../gfx/logo.png");
+    height: 300px;
+    width: 750px;
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.bottomText{
+    position: absolute;
+    top: 100%;
+    transform: translate(0, -300%);
+    margin: 30px;
+}
+
+.logoAndText{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 60%;
+    height: 60%;
+}
+.highlightText{
+    font-size: 25px;
+    color: #bf7210;
+}
+
+@media (min-width: 200px) {
+    #mainloginPage{
+        flex-direction: column-reverse;
+    }
+    .welcomeBlock {
+        display: none;
+    }
+    #welcomeBlockSmall {
+        display: block;
+    }
+}
+
+@media (min-width: 1300px) {
+    #mainloginPage{
+        flex-direction: row;
+    }
+    .welcomeBlock{
+        margin-left: 5px;
+        width: 70%;
+        height: 100%;
+        background-color: #0e0e0ecc;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #welcomeBlockSmall {
+        display: none;
+    }
+}
 
 
 .loginPanel {
@@ -20,7 +106,7 @@ html, body {height: 100%; margin: 0; font-family: "Gill Sans", sans-serif;}
     flex-direction:column;
     justify-content: center;
     align-items: center;
-    background-color: #070604CC;
+    background-color: #0e0e0e;
 
     border-radius: 15px;
 }
@@ -87,9 +173,9 @@ label {
 
 .popUp{
     position: absolute;
-    top:50%;
-    left: 50%;
-    transform: translate(50%, -100%);
+    //top:50%;
+    //left: 50%;
+    transform: translate(100%, -100%);
     border-radius: 9px;
     font-size: 14px;
     height: 80px;

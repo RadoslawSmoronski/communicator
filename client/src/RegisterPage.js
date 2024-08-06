@@ -50,7 +50,7 @@ class RegisterPage extends React.Component{
         };
 
 
-        fetch('http://localhost:5205/api/register', requestOptions)
+        fetch('http://localhost:5205/api/user/register', requestOptions)
         .then(async response => {
             const isJson = response.headers.get('content-type')?.includes('application/json');
             const data = isJson && await response.json();
@@ -84,10 +84,10 @@ class RegisterPage extends React.Component{
     render(){
         
         return (
-           <>
+           <div id="mainregisterPage">
            <div className="loginPanel">
                     <label htmlFor="username">Username: </label>
-                    <input value={this.state.username} onChange={this.handleChange} name="username" id="username" autoComplete="off" type="text" className="textInput"/><br/><br/>
+                    <input value={this.state.username} onChange={this.handleChange} name="username" id="username" autoComplete="off" type="text" className="textInput"/><br/>
                     <label htmlFor="password">Password: </label>
                     <input value={this.state.password} onChange={this.handleChange} name="password" id="password" type="password" className="textInput"/><br/>
                     <label htmlFor="password">Repeat password: </label>
@@ -102,8 +102,10 @@ class RegisterPage extends React.Component{
                     <button className="btn" onClick={this.submitRegister}>Register</button><br/><br/>
                     <div>Masz już konto? Zaloguj się poniżej</div>
                     <a className="link" href="/login">Zaloguj się</a>
-                </div>
-           </> 
+            </div>
+            <div id="logo"/>
+
+           </div> 
         )}
 }
 export default RegisterPage;
