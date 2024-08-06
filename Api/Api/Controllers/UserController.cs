@@ -1,6 +1,7 @@
 ﻿using Api.Models;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.UserController;
+using Api.Service;
 using AutoMapper;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Identity;
@@ -16,13 +17,15 @@ namespace Api.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
+        private readonly ITokenService _tokenService;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper)
+            IMapper mapper, ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
+            _tokenService = tokenService;
         }
 
         [HttpPost("register")]
@@ -33,7 +36,7 @@ namespace Api.Controllers
             var user = new UserAccount()
             {
                 UserName = registerDto.UserName,
-                PasswordHash = hasher.HashPassword(new IdentityUser { UserName = registerDto.UserName }, registerDto.Password)
+                PasswordHash = hasher.HashPassword(new IdentityUser { UserName = registerDto.UserName }, registerDto.Password),
             };
 
             var result = await _userManager.CreateAsync(user);
@@ -44,7 +47,11 @@ namespace Api.Controllers
                 {
                     Succeeded = true,
                     Message = "The user has been successfully created.",
-                    User = registerDto
+                    User = new NewUserDto()
+                    {
+                        UserName = registerDto.UserName,
+                        Token = _tokenService.CreateToken(user)
+                    }
                 };
                 return Ok(response);
             }
@@ -54,7 +61,10 @@ namespace Api.Controllers
                 {
                     Succeeded = false,
                     Message = "Validation failed.",
-                    User = registerDto
+                    User = new NewUserDto()
+                    {
+                        UserName = registerDto.UserName
+                    }
                 };
                 return BadRequest(response);
             }
