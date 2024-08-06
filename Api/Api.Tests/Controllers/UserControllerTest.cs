@@ -12,6 +12,7 @@ using Api.Models.Dtos.Controllers.UserController;
 using AutoMapper;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Api.Service;
 
 namespace Api.Tests.Controllers
 {
@@ -20,6 +21,7 @@ namespace Api.Tests.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
+        private readonly ITokenService _tokenService;
 
         public UserControllerTest()
         {
@@ -27,13 +29,14 @@ namespace Api.Tests.Controllers
             _userManager = A.Fake<UserManager<UserAccount>>();
             _signInManager = A.Fake<SignInManager<UserAccount>>();
             _mapper = A.Fake<IMapper>();
+            _tokenService = A.Fake<ITokenService>();
         }
 
         [Fact]
         public async Task RegisterAsync_ShouldReturnOk_WhenCalledWithValidParameters()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var registerDto = new RegisterDto() { UserName = "login", Password = "password" };
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
@@ -50,14 +53,13 @@ namespace Api.Tests.Controllers
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeTrue();
             response.Message.Should().Be("The user has been successfully created.");
-            response.User.Should().BeEquivalentTo(registerDto);
         }
 
         [Fact]
         public async Task RegisterAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var registerDto = new RegisterDto() { UserName = "test", Password = "password1" };
             var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
@@ -74,14 +76,13 @@ namespace Api.Tests.Controllers
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
             response.Message.Should().Be("Validation failed.");
-            response.User.Should().BeEquivalentTo(registerDto);
         }
 
         [Fact]
         public async Task LoginAsync_ShouldReturnOk_WhenCalledWithValidParameters()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var loginDto = new LoginDto() { UserName = "login", Password = "password" };
 
             A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
@@ -105,7 +106,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
         {
             //Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var loginDto = new LoginDto() { UserName = "login", Password = "password" };
 
             A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
@@ -129,7 +130,7 @@ namespace Api.Tests.Controllers
         {
             //Arrange
             var login = "login";
-            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var hasher = new PasswordHasher<IdentityUser>();
             var user = new UserAccount()
             {
@@ -160,7 +161,7 @@ namespace Api.Tests.Controllers
         {
             //Arrange
             var login = "login";
-            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var user = new UserAccount()
             {
                 UserName = login
@@ -187,7 +188,7 @@ namespace Api.Tests.Controllers
         {
             //Arrange
             var id = 1;
-            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var hasher = new PasswordHasher<IdentityUser>();
             var user = new UserAccount()
             {
@@ -218,7 +219,7 @@ namespace Api.Tests.Controllers
         {
             //Arrange
             var id = 1;
-            var userController = new UserController(_userManager, _signInManager, _mapper);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var user = new UserAccount()
             {
                 UserName = "login"
