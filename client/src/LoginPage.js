@@ -37,7 +37,7 @@ class LoginPage extends React.Component{
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                username: this.state.username,
+                userName: this.state.username,
                 password: this.state.password
             })
         };
@@ -57,13 +57,16 @@ class LoginPage extends React.Component{
             }
 
             //is ok
-            console.log(data);
+            if(data.succeeded){
+                console.log(data);
+                this.showPopUpMess(data.message);
+            }
         })
         .catch(error => {
-            this.showPopUpMess("Błąd logowania!", error.toString());
+            this.showPopUpMess(error.toString());
         });
 
-        this.showPopUpMess("wiadomosc");
+        
 
         this.setState({username: "", password: ""});
     }
