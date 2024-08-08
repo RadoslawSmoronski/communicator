@@ -1,0 +1,207 @@
+html, body {height: 100%; margin: 0; font-family: "Gill Sans", sans-serif;}
+
+#main{
+    height: 100%;
+    width: 100%;
+}
+
+#mainloginPage{
+    height: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    background-color: #070604;
+    color: #caa779;
+}
+
+
+
+#mainregisterPage{
+    height: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    flex-direction: column-reverse;
+    background-color: #070604;
+    color: #caa779;
+    background-color: #070604;
+}
+
+.welcomeBlock{
+    margin-left: 5px;
+    width: 70%;
+    height: 100%;
+    background-color: #0e0e0ecc;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#logo{
+    background-image: url("../gfx/logo.png");
+    height: 300px;
+    width: 750px;
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.bottomText{
+    position: absolute;
+    top: 100%;
+    transform: translate(0, -300%);
+    margin: 30px;
+}
+
+.logoAndText{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 60%;
+    height: 60%;
+}
+.highlightText{
+    font-size: 25px;
+    color: #bf7210;
+}
+
+@media (min-width: 200px) {
+    #mainloginPage{
+        flex-direction: column-reverse;
+    }
+    .welcomeBlock {
+        display: none;
+    }
+    #welcomeBlockSmall {
+        display: block;
+    }
+}
+
+@media (min-width: 1300px) {
+    #mainloginPage{
+        flex-direction: row;
+    }
+    .welcomeBlock{
+        margin-left: 5px;
+        width: 70%;
+        height: 100%;
+        background-color: #0e0e0ecc;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #welcomeBlockSmall {
+        display: none;
+    }
+}
+
+
+.loginPanel {
+    width: 500px;
+    height: 400px;
+    background-color: antiquewhite;
+    display: flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    background-color: #0e0e0e;
+
+    border-radius: 15px;
+}
+
+.panel404{
+    width: 800px;
+    height: 500px;
+}
+
+.errorFont{
+    font-size: 70px;
+    color: #bf7210;
+}
+
+.textInput {
+    border: solid 2px #702908;
+    border-radius: 10px;
+    transition: 0.5s;
+    height: 25px;
+    width: 225px;
+    text-align: center; 
+    outline: none;
+    font-size: 18px;
+    background-color: #070604;
+    color: #caa779;
+}
+
+.textInput:focus, .textInput:hover {
+    border: solid 2px #bf7210;
+}
+
+
+
+a{
+    color: #702908;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+a:hover{
+    color: #bf7210;
+}
+
+.btn{
+    border: none ;
+    border-radius: 3px;
+    font-size: 18px;
+    padding: 4px 30px 4px 30px;
+    font-weight: 500;
+    color: #ecca84;
+    background-color: #702908;
+    transition: 0.2s;
+}
+
+.btn:hover{
+    background-color: #bf7210;
+    color: #070604;
+}
+
+label {
+    font-size: 12px;
+    font-style:italic;
+}
+
+.popUp{
+    position: absolute;
+    //top:50%;
+    //left: 50%;
+    transform: translate(100%, -100%);
+    border-radius: 9px;
+    font-size: 14px;
+    height: 80px;
+    width: 250px;
+    margin: 10px;
+    color: #ecca84;
+    background-color: #702908EE;
+}
+
+
+.closeBtn::after {
+    height: 20px;
+    width: 20px;
+    font-size: 25px;
+    display: inline-block;
+    content: "\00d7";
+}
+
+.closeBtn:hover{
+    color: #070604;
+}
+
+.closeBtnBox{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+
+

@@ -11,6 +11,7 @@ module.exports = {
         watchFiles: ['src/**/*'],
         hot: true,
         open: true,
+        historyApiFallback: true
     },
     module: {
         rules: [
