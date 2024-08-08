@@ -77,7 +77,6 @@ namespace Api.Tests.Controllers
             var response = result.Value as RegisterResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
-            response.Message.Should().Be("Validation failed.");
         }
 
         //RegisterAsync
@@ -126,7 +125,6 @@ namespace Api.Tests.Controllers
             var response = result.Value as LoginResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
-            response.Message.Should().Be("Validation failed.");
         }
 
         //LoginAsync

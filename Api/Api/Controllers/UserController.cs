@@ -41,7 +41,7 @@ namespace Api.Controllers
 
             var result = await _userManager.CreateAsync(user);
 
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 var response = new RegisterResponseDto()
                 {
@@ -57,10 +57,12 @@ namespace Api.Controllers
             }
             else
             {
+                var message = result.Errors.FirstOrDefault()?.Description ?? "Message error";
+
                 var response = new RegisterResponseDto()
                 {
                     Succeeded = false,
-                    Message = "Validation failed.",
+                    Message = message,
                     User = new RegisteredUserDto()
                     {
                         UserName = registerDto.UserName
@@ -96,7 +98,7 @@ namespace Api.Controllers
                 var response = new LoginResponseDto()
                 {
                     Succeeded = false,
-                    Message = "Validation failed.",
+                    Message = "Login or password are incorect.",
                     User = new LoggedUserDto()
                     {
                         UserName = loginDto.UserName
@@ -167,7 +169,7 @@ namespace Api.Controllers
         public async Task<IActionResult> DeleteUserByIdAsync([FromRoute] int id)
         {
             var _id = id.ToString();
-            
+
             if (!string.IsNullOrEmpty(_id))
             {
                 var user = await _userManager.FindByIdAsync(_id);
@@ -220,7 +222,7 @@ namespace Api.Controllers
                     return BadRequest(response);
                 }
             }
-           
+
         }
 
     }
