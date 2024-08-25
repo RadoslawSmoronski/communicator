@@ -1,4 +1,8 @@
 import React from "react";
+import PopUp from "./components/popUp";
+import axios from "./api/axios";
+
+const LOGIN_URL = "/api/user/login";
 
 class LoginPage extends React.Component{
 
@@ -7,7 +11,7 @@ class LoginPage extends React.Component{
         this.state = {
             username: "",
             password: "",
-            popUpMess: "Złe hasło",
+            popUpMess: "",
             stateOfPopUp: false
         }
 
@@ -17,14 +21,16 @@ class LoginPage extends React.Component{
     }
 
     handleChange = (event) => {
+        this.closePopUpMess();
+
         const { name, value } = event.target;
         this.setState({
             [name]: value
         });
     };
 
-    submitLogin(){
-        console.log(this.state.username, this.state.password)
+    async submitLogin(event){
+        event.preventDefault();
 
         //blank input
         if(this.state.username == "" || this.state.password == ""){
@@ -33,40 +39,27 @@ class LoginPage extends React.Component{
         }
 
         //fetch
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userName: this.state.username,
-                password: this.state.password
-            })
-        };
-
-
-
-        fetch('http://localhost:5205/api/user/login', requestOptions)
-        .then(async response => {
-            const isJson = response.headers.get('content-type')?.includes('application/json');
-            const data = isJson && await response.json();
-
-            // check for error response
-            if (!response.ok) {
-                // get error message from body or default to response status
-                const error = (data && data.message) || response.status;
-                return Promise.reject(error);
-            }
+        try{
+            const data = await axios.post(LOGIN_URL,
+                JSON.stringify({
+                    userName: this.state.username,
+                    password: this.state.password
+                }),
+                {
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true
+                }
+            );
 
             //is ok
             if(data.succeeded){
                 console.log(data);
                 this.showPopUpMess(data.message);
             }
-        })
-        .catch(error => {
-            this.showPopUpMess(error.toString());
-        });
 
-        
+        } catch(err){
+            this.showPopUpMess(err.toString());
+        }
 
         this.setState({username: "", password: ""});
     }
@@ -83,22 +76,19 @@ class LoginPage extends React.Component{
         
         return (
             <div id="mainloginPage">
-                <div className="loginPanel">
+                <form className="loginPanel">
                     <label htmlFor="username">Username: </label>
                     <input value={this.state.username} onChange={this.handleChange} name="username" id="username" autoComplete="off" type="text" className="textInput"/><br/><br/>
                     <label htmlFor="password">Password: </label>
                     <input value={this.state.password} onChange={this.handleChange} name="password" id="password" type="password" className="textInput"/><br/>
-                    <table className="popUp" style={{display: this.state.stateOfPopUp ? '' : 'none' }}>
-                        <tr>
-                            <th>{this.state.popUpMess}</th>
-                            <th className="closeBtnBox"><div className="closeBtn" onClick={this.closePopUpMess}/></th>
-                        </tr>
 
-                    </table>
+                    <PopUp state={this.state.stateOfPopUp} mess={this.state.popUpMess} close={this.closePopUpMess}/>
+
+
                     <button className="btn" onClick={this.submitLogin}>Login</button><br/><br/>
                     <div>Nie masz konta? Zajerestruj się poniżej</div>
                     <a className="link" href="/register">Stwórz konto</a>
-                </div>
+                </form>
 
                 <div className="welcomeBlock">
                     <div className="logoAndText">

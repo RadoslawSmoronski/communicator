@@ -100,7 +100,7 @@ html, body {height: 100%; margin: 0; font-family: "Gill Sans", sans-serif;}
 
 .loginPanel {
     width: 500px;
-    height: 400px;
+    height: 450px;
     background-color: antiquewhite;
     display: flex;
     flex-direction:column;
@@ -177,6 +177,9 @@ label {
     //left: 50%;
     transform: translate(100%, -100%);
     border-radius: 9px;
+    border-color: #ecca84;
+    border-width: 2px;
+    border-style: solid;
     font-size: 14px;
     height: 80px;
     width: 250px;
@@ -204,4 +207,21 @@ label {
 }
 
 
+.validationBox{
+    width: 325px;
+    text-align: center;
+    color: #ecca84;
+    background-color: #702908EE;
+    margin: 10px;
+    border-radius: 9px;
+    font-size: 14px;
+    padding: 4px;
+}
 
+.correctValidation{
+    color: green;
+}
+
+.wrongValidation{
+    color: red;
+}
