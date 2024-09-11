@@ -53,7 +53,7 @@ namespace Api
             builder.Services.AddDbContext<ApplicationDbContext>
                 (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddIdentity<UserAccount, IdentityRole<int>>(options =>
+            builder.Services.AddIdentity<UserAccount, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 6;

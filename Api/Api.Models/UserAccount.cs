@@ -2,7 +2,7 @@
 
 namespace Api.Models
 {
-    public class UserAccount : IdentityUser<int>
+    public class UserAccount : IdentityUser
     {
     }
 }

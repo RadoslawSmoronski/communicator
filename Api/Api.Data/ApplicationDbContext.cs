@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Api.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<UserAccount, IdentityRole<int>, int>
+    public class ApplicationDbContext : IdentityDbContext<UserAccount>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
