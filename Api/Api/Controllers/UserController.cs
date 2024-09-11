@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -43,6 +44,8 @@ namespace Api.Controllers
 
             if (result.Succeeded)
             {
+                var refreshToken = _tokenService.CreateRefreshToken();
+
                 var response = new RegisterResponseDto()
                 {
                     Succeeded = true,
@@ -50,9 +53,12 @@ namespace Api.Controllers
                     User = new RegisteredUserDto()
                     {
                         UserName = registerDto.UserName,
-                        Token = _tokenService.CreateToken(user)
+                        Token = _tokenService.CreateToken(user),
+                        RefreshToken = refreshToken
                     }
                 };
+
+                await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
                 return Ok(response);
             }
             else
@@ -81,6 +87,8 @@ namespace Api.Controllers
 
             if (result.Succeeded && user != null)
             {
+                var refreshToken = _tokenService.CreateRefreshToken();
+
                 var response = new LoginResponseDto()
                 {
                     Succeeded = true,
@@ -88,9 +96,13 @@ namespace Api.Controllers
                     User = new LoggedUserDto()
                     {
                         UserName = loginDto.UserName,
-                        Token = _tokenService.CreateToken(user)
+                        Token = _tokenService.CreateToken(user),
+                        RefreshToken = refreshToken
                     }
                 };
+
+                await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
+
                 return Ok(response);
             }
             else
@@ -108,122 +120,150 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("getUsers")]
-        public async Task<IActionResult> GetUsersAsync()
+        [HttpPost("refreshAccessToken")]
+        public async Task<IActionResult> refreshAccessToken([FromBody] RefreshAccessTokenDto model)
         {
-            var users = await _userManager.Users.ToListAsync();
-
-            var getUserDtoList = new List<GetUserDto>();
-
-            foreach (var user in users)
+            if (!await _tokenService.ValidateRefreshToken(model.RefreshToken))
             {
-                var getUserDto = _mapper.Map<GetUserDto>(user);
-                getUserDtoList.Add(getUserDto);
+                return Unauthorized();
             }
 
-            return Ok(getUserDtoList);
+            var principal = _tokenService.ValidateToken(model.RefreshToken);
+            if (principal == null)
+            {
+                return Unauthorized();
+            }
+
+            var username = principal.Identity.Name;
+            var newToken = _tokenService.CreateToken(new UserAccount { UserName = username });
+            var newRefreshToken = _tokenService.CreateRefreshToken();
+
+            await _tokenService.RemoveRefreshTokenAsync(model.RefreshToken);
+            await _tokenService.SaveRefreshTokenAsync(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value, newRefreshToken);
+
+            return Ok(new
+            {
+                Token = newToken,
+                RefreshToken = newRefreshToken
+            });
         }
 
-        [HttpGet("findUserByUserName/{username}")]
-        public async Task<IActionResult> FindUserByUserNameAsync([FromRoute] string username)
-        {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
+        //[HttpGet("getUsers")]
+        //public async Task<IActionResult> GetUsersAsync()
+        //{
+        //    var users = await _userManager.Users.ToListAsync();
+
+        //    var getUserDtoList = new List<GetUserDto>();
+
+        //    foreach (var user in users)
+        //    {
+        //        var getUserDto = _mapper.Map<GetUserDto>(user);
+        //        getUserDtoList.Add(getUserDto);
+        //    }
+
+        //    return Ok(getUserDtoList);
+        //}
+
+        //[HttpGet("findUserByUserName/{username}")]
+        //public async Task<IActionResult> FindUserByUserNameAsync([FromRoute] string username)
+        //{
+        //    var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
 
 
-            if (user != null)
-            {
-                var findUserDto = _mapper.Map<FindUserDto>(user);
-                return Ok(findUserDto);
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
+        //    if (user != null)
+        //    {
+        //        var findUserDto = _mapper.Map<FindUserDto>(user);
+        //        return Ok(findUserDto);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
 
-        [HttpGet("findUserById/{id}")]
-        public async Task<IActionResult> FindUserByIdAsync([FromRoute] string id)
-        {
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
+        //[HttpGet("findUserById/{id}")]
+        //public async Task<IActionResult> FindUserByIdAsync([FromRoute] string id)
+        //{
+        //    var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
 
 
-            if (user != null)
-            {
-                var findUserDto = _mapper.Map<FindUserDto>(user);
-                return Ok(findUserDto);
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
+        //    if (user != null)
+        //    {
+        //        var findUserDto = _mapper.Map<FindUserDto>(user);
+        //        return Ok(findUserDto);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
 
-        [HttpDelete("deleteUserByUserName/{username}")]
-        public async Task<IActionResult> DeleteUserByUserNameAsync([FromRoute] string username)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            return await DeleteUserAsync(user);
-        }
+        //[HttpDelete("deleteUserByUserName/{username}")]
+        //public async Task<IActionResult> DeleteUserByUserNameAsync([FromRoute] string username)
+        //{
+        //    var user = await _userManager.FindByNameAsync(username);
+        //    return await DeleteUserAsync(user);
+        //}
 
-        [HttpDelete("deleteUserById/{id}")]
-        public async Task<IActionResult> DeleteUserByIdAsync([FromRoute] int id)
-        {
-            var _id = id.ToString();
+        //[HttpDelete("deleteUserById/{id}")]
+        //public async Task<IActionResult> DeleteUserByIdAsync([FromRoute] int id)
+        //{
+        //    var _id = id.ToString();
 
-            if (!string.IsNullOrEmpty(_id))
-            {
-                var user = await _userManager.FindByIdAsync(_id);
-                return await DeleteUserAsync(user);
-            }
+        //    if (!string.IsNullOrEmpty(_id))
+        //    {
+        //        var user = await _userManager.FindByIdAsync(_id);
+        //        return await DeleteUserAsync(user);
+        //    }
 
-            var response = new DeleteResponseDto()
-            {
-                Succeeded = false,
-                Message = "Id not specified as int.",
-                User = null
-            };
-            return BadRequest(response);
-        }
+        //    var response = new DeleteResponseDto()
+        //    {
+        //        Succeeded = false,
+        //        Message = "Id not specified as int.",
+        //        User = null
+        //    };
+        //    return BadRequest(response);
+        //}
 
-        private async Task<IActionResult> DeleteUserAsync(UserAccount? user)
-        {
-            if (user == null)
-            {
-                var response = new DeleteResponseDto()
-                {
-                    Succeeded = false,
-                    Message = "Not found user.",
-                    User = null
-                };
-                return BadRequest(response);
-            }
-            else
-            {
-                var result = await _userManager.DeleteAsync(user);
+        //private async Task<IActionResult> DeleteUserAsync(UserAccount? user)
+        //{
+        //    if (user == null)
+        //    {
+        //        var response = new DeleteResponseDto()
+        //        {
+        //            Succeeded = false,
+        //            Message = "Not found user.",
+        //            User = null
+        //        };
+        //        return BadRequest(response);
+        //    }
+        //    else
+        //    {
+        //        var result = await _userManager.DeleteAsync(user);
 
-                if (result.Succeeded)
-                {
-                    var response = new DeleteResponseDto()
-                    {
-                        Succeeded = true,
-                        Message = "Deleted user.",
-                        User = _mapper.Map<DeleteDto>(user)
-                    };
-                    return Ok(response);
-                }
-                else
-                {
-                    var response = new DeleteResponseDto()
-                    {
-                        Succeeded = false,
-                        Message = "Not found user.",
-                        User = _mapper.Map<DeleteDto>(user)
-                    };
-                    return BadRequest(response);
-                }
-            }
+        //        if (result.Succeeded)
+        //        {
+        //            var response = new DeleteResponseDto()
+        //            {
+        //                Succeeded = true,
+        //                Message = "Deleted user.",
+        //                User = _mapper.Map<DeleteDto>(user)
+        //            };
+        //            return Ok(response);
+        //        }
+        //        else
+        //        {
+        //            var response = new DeleteResponseDto()
+        //            {
+        //                Succeeded = false,
+        //                Message = "Not found user.",
+        //                User = _mapper.Map<DeleteDto>(user)
+        //            };
+        //            return BadRequest(response);
+        //        }
+        //    }
 
-        }
+        //}
 
     }
 }

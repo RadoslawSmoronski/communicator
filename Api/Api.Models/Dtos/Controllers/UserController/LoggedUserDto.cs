@@ -10,5 +10,6 @@ namespace Api.Models.Dtos.Controllers.UserController
     {
         public string UserName { get; set; } = String.Empty;
         public string Token { get; set; } = String.Empty;
+        public string RefreshToken { get; set; } = String.Empty;
     }
 }
