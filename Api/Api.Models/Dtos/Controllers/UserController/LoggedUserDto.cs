@@ -9,7 +9,7 @@ namespace Api.Models.Dtos.Controllers.UserController
     public class LoggedUserDto
     {
         public string UserName { get; set; } = String.Empty;
-        public string Token { get; set; } = String.Empty;
-        public string RefreshToken { get; set; } = String.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
+        public string AccessToken { get; set; } = string.Empty;
     }
 }

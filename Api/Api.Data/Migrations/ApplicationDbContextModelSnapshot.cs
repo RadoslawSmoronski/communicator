@@ -24,17 +24,24 @@ namespace Api.Data.Migrations
 
             modelBuilder.Entity("Api.Models.RefreshToken", b =>
                 {
-                    b.Property<string>("Token")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Expiration")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Token");
+                    b.HasKey("Id");
 
                     b.ToTable("RefreshTokens");
                 });

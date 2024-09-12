@@ -53,8 +53,8 @@ namespace Api.Controllers
                     User = new RegisteredUserDto()
                     {
                         UserName = registerDto.UserName,
-                        Token = _tokenService.CreateToken(user),
-                        RefreshToken = refreshToken
+                        RefreshToken = refreshToken,
+                        AccessToken = _tokenService.CreateToken(user),
                     }
                 };
 
@@ -81,42 +81,56 @@ namespace Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
-            var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
-
-            var user = await _userManager.FindByNameAsync(loginDto.UserName);
-
-            if (result.Succeeded && user != null)
+            try
             {
-                var refreshToken = _tokenService.CreateRefreshToken();
+                var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
 
-                var response = new LoginResponseDto()
+                var user = await _userManager.FindByNameAsync(loginDto.UserName);
+
+                if (result.Succeeded && user != null)
                 {
-                    Succeeded = true,
-                    Message = "The user has been successfully logged in.",
-                    User = new LoggedUserDto()
+                    var refreshToken = _tokenService.CreateRefreshToken();
+
+                    var response = new LoginResponseDto()
                     {
-                        UserName = loginDto.UserName,
-                        Token = _tokenService.CreateToken(user),
-                        RefreshToken = refreshToken
-                    }
-                };
+                        Succeeded = true,
+                        Message = "The user has been successfully logged in.",
+                        User = new LoggedUserDto()
+                        {
+                            UserName = loginDto.UserName,
+                            RefreshToken = refreshToken,
+                            AccessToken = _tokenService.CreateToken(user),
+                        }
+                    };
 
-                await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
+                    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
 
-                return Ok(response);
+                    return Ok(response);
+                }
+                else
+                {
+                    var response = new LoginResponseDto()
+                    {
+                        Succeeded = false,
+                        Message = "Login or password are incorrect.",
+                        User = new LoggedUserDto()
+                        {
+                            UserName = loginDto.UserName
+                        }
+                    };
+                    return BadRequest(response);
+                }
             }
-            else
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error during login: {ex.Message}");
+
                 var response = new LoginResponseDto()
                 {
                     Succeeded = false,
-                    Message = "Login or password are incorect.",
-                    User = new LoggedUserDto()
-                    {
-                        UserName = loginDto.UserName
-                    }
+                    Message = "An unexpected error occurred. Please try again later."
                 };
-                return BadRequest(response);
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
         }
 

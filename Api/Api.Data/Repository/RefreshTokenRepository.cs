@@ -42,5 +42,14 @@ namespace Api.Data.Repository
             }
         }
 
+        public async Task<string?> GetRefreshTokenAsyncByUserId(string userId)
+        {
+            var refreshToken = await _context.RefreshTokens
+                                             .Where(rt => rt.UserId == userId)
+                                             .Select(rt => rt.Token)
+                                             .FirstOrDefaultAsync();
+
+            return refreshToken;
+        }
     }
 }

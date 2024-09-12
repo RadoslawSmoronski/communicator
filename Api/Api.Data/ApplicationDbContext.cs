@@ -19,7 +19,7 @@ namespace Api.Data
             base.OnModelCreating(builder);
 
             builder.Entity<RefreshToken>()
-                .HasKey(rt => rt.Token);
+                .HasKey(rt => rt.Id);
         }
 
     }

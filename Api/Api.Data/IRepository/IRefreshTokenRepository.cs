@@ -12,5 +12,6 @@ namespace Api.Data.IRepository
         Task<bool> IsTokenValidAsync(string token);
         Task SaveTokenAsync(RefreshToken refreshToken);
         Task DeleteTokenAsync(string token);
+        Task<string?> GetRefreshTokenAsyncByUserId(string userId);
     }
 }

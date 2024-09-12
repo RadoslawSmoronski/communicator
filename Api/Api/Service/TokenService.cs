@@ -102,12 +102,28 @@ namespace Api.Service
 
         public async Task SaveRefreshTokenAsync(string userId, string refreshToken)
         {
-            await _refreshTokenRepository.SaveTokenAsync(new RefreshToken
+            try
             {
-                Token = refreshToken,
-                UserId = userId,
-                Expiration = DateTime.UtcNow.AddDays(7)
-            });
+                var oldRefreshToken = await _refreshTokenRepository.GetRefreshTokenAsyncByUserId(userId);
+
+                if(oldRefreshToken != null)
+                {
+                    await RemoveRefreshTokenAsync(oldRefreshToken);
+                }
+
+                await _refreshTokenRepository.SaveTokenAsync(new RefreshToken
+                {
+                    Token = refreshToken,
+                    UserId = userId,
+                    Expiration = DateTime.UtcNow.AddDays(7)
+                });
+
+            }
+            catch(Exception ex) 
+            {
+                Console.WriteLine($"Error saving refresh token: {ex.Message}");
+                throw new Exception("Failed to save refresh token, please try again later.", ex);
+            }
         }
 
         public async Task RemoveRefreshTokenAsync(string refreshToken)
