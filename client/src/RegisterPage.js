@@ -1,6 +1,9 @@
 import React from "react";
+import { Link } from 'react-router-dom';
 import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { AuthContext } from "./context/AuthProvider";
 
 import PopUp from "./components/popUp";
 import ValidationBox from "./components/ValidationBox";
@@ -20,6 +23,7 @@ const PASS_REGEX = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,
 // At least one digit and special character
 
 class RegisterPage extends React.Component{
+    static contextType = AuthContext;
 
     constructor(props) {
         super(props);
@@ -115,18 +119,20 @@ class RegisterPage extends React.Component{
                 }),
                 {
                     headers: { 'Content-Type': 'application/json' },
-                    withCredentials: true
+                    //withCredentials: true
                 }
             );
 
+            let res = data.data;
             //is ok
-            if(data.succeeded){
-                console.log(data);
-                this.showPopUpMess(data.message);
+            if(res.succeeded){
+                console.log(res);
+                this.showPopUpMess(res.message);
             }
 
         } catch(err){
-            this.showPopUpMess(err.toString());
+            let mess = err.response.data.message;
+            this.showPopUpMess(mess);
         }
 
         this.setState({username: "", password: "", password2: ""});
@@ -141,7 +147,9 @@ class RegisterPage extends React.Component{
     }
 
     render(){
-        
+        const { username, roles, accessToken } = this.context;
+
+        console.log("Current context REGISTER:", username, roles, accessToken);
         return (
            <div id="mainregisterPage">
            <form className="loginPanel">
@@ -190,7 +198,7 @@ class RegisterPage extends React.Component{
 
                     <button className="btn" onClick={this.submitRegister}>Register</button><br/><br/>
                     <div>Masz już konto? Zaloguj się poniżej</div>
-                    <a className="link" href="/login">Zaloguj się</a>
+                    <Link to="/login">Zaloguj się</Link>
             </form>
             <div id="logo"/>
 

@@ -1,10 +1,15 @@
 import React from "react";
+import { Link } from 'react-router-dom';
 import PopUp from "./components/popUp";
 import axios from "./api/axios";
+
+import { AuthContext } from "./context/AuthProvider";
+import { Navigate } from "react-router";
 
 const LOGIN_URL = "/api/user/login";
 
 class LoginPage extends React.Component{
+    static contextType = AuthContext;
 
     constructor(props) {
         super(props);
@@ -12,12 +17,17 @@ class LoginPage extends React.Component{
             username: "",
             password: "",
             popUpMess: "",
-            stateOfPopUp: false
+            stateOfPopUp: false,
+            directory: ""
         }
 
         this.handleChange = this.handleChange.bind(this);
         this.submitLogin = this.submitLogin.bind(this);
         this.closePopUpMess = this.closePopUpMess.bind(this);
+    }
+
+    navigate(dir){
+        this.setState({directory: dir});
     }
 
     handleChange = (event) => {
@@ -47,20 +57,35 @@ class LoginPage extends React.Component{
                 }),
                 {
                     headers: { 'Content-Type': 'application/json' },
-                    withCredentials: true
+                    //withCredentials: true
                 }
             );
 
+            let res = data.data;
             //is ok
-            if(data.succeeded){
-                console.log(data);
-                this.showPopUpMess(data.message);
+            if(res.succeeded){
+                console.log(res);
+                this.showPopUpMess(res.message);
+
+                let userData = res.user;
+
+                const { username, roles, accessToken, setAuth } = this.context;
+                setAuth(userData.userName, ["user"], userData.token);
+                console.log(username, roles, accessToken );
+                this.navigate("/message");
             }
 
         } catch(err){
-            this.showPopUpMess(err.toString());
+            let mess = err.response?.data?.message;
+            this.showPopUpMess(mess);
         }
 
+        //to remove
+        const { username, roles, accessToken, setAuth } = this.context;
+        setAuth(this.state.username, ["user"], "token");
+        console.log(username, roles, accessToken );
+        this.navigate("/message");
+        //----
         this.setState({username: "", password: ""});
     }
 
@@ -73,9 +98,14 @@ class LoginPage extends React.Component{
     }
 
     render(){
+        const { username, roles, accessToken } = this.context;
+
+        console.log("Current context LOGIN:", username, roles, accessToken);
         
         return (
-            <div id="mainloginPage">
+            this.state.directory ?
+            <Navigate to={this.state.directory}/>
+            : <div id="mainloginPage">
                 <form className="loginPanel">
                     <label htmlFor="username">Username: </label>
                     <input value={this.state.username} onChange={this.handleChange} name="username" id="username" autoComplete="off" type="text" className="textInput"/><br/><br/>
@@ -87,7 +117,8 @@ class LoginPage extends React.Component{
 
                     <button className="btn" onClick={this.submitLogin}>Login</button><br/><br/>
                     <div>Nie masz konta? Zajerestruj się poniżej</div>
-                    <a className="link" href="/register">Stwórz konto</a>
+                    <Link to="/register" >Stwórz konto</Link>
+                    <Link to="/message" >MessagePage</Link>
                 </form>
 
                 <div className="welcomeBlock">
@@ -101,6 +132,7 @@ class LoginPage extends React.Component{
                     <div id="logo"/>
                 </div>
             </div>
+            
         );
     }
 

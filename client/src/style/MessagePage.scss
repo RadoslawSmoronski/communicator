@@ -1,0 +1,355 @@
+#mainMessagePage{
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 320px repeat(5, 1fr);
+    grid-template-rows: repeat(3, 75px) repeat(5, 1fr) 0.5fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    //background-color: #070604;
+    background-color: #1a1a1a;
+    color: #caa779;
+}
+
+
+#menuBar{
+    grid-area: 1 / 1 / 2 / 7;
+    display: flex;
+    justify-content: space-between;
+    background-color: #070604;
+    border-bottom: solid 1px #caa779;
+    color: azure;
+}
+
+#searchBar{
+    grid-area: 2 / 1 / 4 / 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+}
+
+#friendsList{
+    grid-area: 4 / 1 / 10 / 2;
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+}
+
+#friendBar{
+    grid-area: 2 / 2 / 3 / 7;
+    border-bottom: solid 1px #caa779;
+    display: flex;
+    flex-direction: row;
+}
+
+#messageBox{
+    grid-area: 3 / 2 / 9 / 7;
+    padding: 0 30px 0 30px;
+    display: flex;
+    flex-direction: column-reverse;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+}
+
+#messageBox::-webkit-scrollbar {
+    width: 10px; /* Szerokość paska przewijania */
+}
+
+#messageBox::-webkit-scrollbar-thumb {
+    background: #999; /* Kolor uchwytu */
+    border-radius: 10px; /* Zaokrąglenie uchwytu */
+}
+
+#messageBox::-webkit-scrollbar-track {
+    background: #333; /* Kolor tła paska przewijania */
+    border-radius: 10px; /* Zaokrąglenie tła (efekt może być ograniczony) */
+}
+
+/* Możliwe dodatkowe style */
+#messageBox::-webkit-scrollbar-thumb:hover {
+    background: #666666; /* Kolor uchwytu podczas najechania */
+}
+
+
+#sendMessageBox{
+    grid-area: 9 / 2 / 10 / 7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: solid 1px #caa779;
+}
+
+// ----MENU BAR------
+
+#logoInMenu{
+    background-image: url("../../gfx/logo.png");
+    height: 100px;
+    width: 250px;
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin-top: -15px;
+}
+
+#profileBox{
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    border-left: solid 1px #caa779;
+    text-align: center;
+    align-items: center;
+    font-size: 20px;
+    font-weight: 500;
+    padding: 0 40px 0 40px;
+}
+
+.profileIcon{
+    height: 50px;
+    width: 50px;
+    border-radius: 25px;
+    background-image: url("../../gfx/blank-profile-picture.png");
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+// ----- SEARCH BOX --------
+
+.textInput2{
+    border: none 2px ;
+    border-radius: 35px;
+    transition: 0.5s;
+    height: 35px;
+    width: 275px;
+    text-align: center; 
+    outline: none;
+    font-size: 18px;
+    background-color: #666666;
+    color: #caa779;
+}
+
+.textInput2::placeholder{
+    color: #caa779;
+    opacity: 0.5;
+}
+
+.textInput2:focus::placeholder{
+    opacity: 0.2;
+}
+
+#buttonsSearchBar{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn2{
+    background-color: rgba(0, 0, 0, 0);
+    border: none ;
+    border-radius: 20px;
+    font-size: 18px;
+    padding: 4px 30px 4px 30px;
+    font-weight: 500;
+    height: 40px;
+    color: #ecca84;
+    transition: 0.2s;
+
+    display: flex;
+    align-items: center;
+}
+
+.btn2:hover{
+    background-color: rgba(66, 66, 66, 0.9);
+}
+
+.btn2Active{
+    background-color: rgba(191, 114, 16, 0.7);
+}
+.btn2Active:hover{
+    background-color: rgba(191, 115, 16, 1);
+}
+
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+.inputIcon {
+    position: absolute;
+    left: 20px; 
+    color: #caa779; 
+}
+
+// -------- FRIEND LIST ---------
+
+.friendTile{
+    display: flex;
+    width: 300px;
+    height: 80px;
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 5px;
+    margin: 6px 5px 6px 5px;
+    text-align: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.friendTile:hover{
+    background-color: rgba(66, 66, 66, 0.8);
+}
+
+.friendTileIcon{
+    height: 50px;
+    width: 50px;
+    border-radius: 25px;
+    background-image: url("../../gfx/blank-profile-picture.png");
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0 10px 0 10px;
+}
+
+.friendTileWrapper{
+    display: flex;
+    width: 230px;
+    flex-direction: column;
+    text-align:left;
+}
+
+.friendTileUserName{
+    font-size: 18px;
+    font-weight: 600;
+}
+
+
+
+#friendsList::-webkit-scrollbar {
+    width: 10px; /* Szerokość paska przewijania */
+}
+
+#friendsList::-webkit-scrollbar-thumb {
+    background: #999; /* Kolor uchwytu */
+    border-radius: 10px; /* Zaokrąglenie uchwytu */
+}
+
+#friendsList::-webkit-scrollbar-track {
+    background: #333; /* Kolor tła paska przewijania */
+    border-radius: 10px; /* Zaokrąglenie tła (efekt może być ograniczony) */
+}
+
+/* Możliwe dodatkowe style */
+#friendsList::-webkit-scrollbar-thumb:hover {
+    background: #666666; /* Kolor uchwytu podczas najechania */
+}
+
+
+//----- FRIEND BAR --------
+
+
+
+.friendBarIconBox{
+    width: 75px;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.friendBarUserName{
+    font-size: 22px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    margin-left: 30px;
+}
+
+.friendBarUserName:hover{
+    color:#bf7210 ;
+}
+
+.friendBarRightBox{
+    height: 75px;
+    width: 150px;
+    margin-left: auto; 
+    margin-right: 30px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+}
+
+.friendBarIcon{
+    height: 30px;
+    width: 30px;
+    color: #bf7210;
+}
+.friendBarIcon:hover{
+    color:#702908 ;
+}
+    
+
+// ------ MESSAGE BOX ---------
+
+.messageTileRight{
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.messageTileLeft{
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.messageTileWrapperRight{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.messageTileWrapperLeft{
+    display: flex;
+    flex-direction: row;
+}
+
+.messageCloud{
+    background-color: #bf7210;
+    border-radius: 15px;
+    color: wheat;
+    font-size: 20px;
+    padding: 10px 30px 10px 30px;
+    margin: 10px;
+    width:fit-content;
+}
+
+.messageCloudLeft{
+    background-color: rgba(66, 66, 66, 0.8);
+}
+
+.messageTileTime{
+    display: flex;
+    align-items: center;
+    text-align: center;
+    height: 100%; 
+}
+
+// -------SEND MESSAGE BOX
+
+.sendMessageInput{
+    width: 70%;
+    text-align: left;
+    margin-left: 10px;
+    margin-right: 30px;
+    padding-left: 30px;
+}

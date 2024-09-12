@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from 'react-router-dom';
 
 class DefaultPage extends React.Component{
     render(){
@@ -8,7 +9,7 @@ class DefaultPage extends React.Component{
             <h1 className="errorFont">Bad Page 404</h1>
             <h1>Oj... Wygląda na to, że nie ma takiej strony</h1><br/><br/>
             <div>Powrót do logowania</div>
-            <a className="link" href="/login">Zaloguj się</a>
+            <Link to="/login">Zaloguj się</Link>
             </div>
                 </>
         )
