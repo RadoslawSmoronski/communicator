@@ -1,5 +1,6 @@
 ﻿using Api.Data.IRepository;
 using Api.Models;
+using Api.Models.Dtos.Controllers.UserController;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -31,12 +32,13 @@ namespace Api.Service
             _refreshTokenRepository = refreshTokenRepository;
         }
 
-        public string CreateToken(UserAccount user)
+        public string CreateAccessToken(UserAccount user)
         {
             var claims = new List<Claim>
             {
                 //new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.GivenName, user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -57,6 +59,78 @@ namespace Api.Service
             return tokenHandler.WriteToken(token);
         }
 
+
+        public ClaimsPrincipal ValidateAccessToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]);
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _config["JWT:Issuer"],
+                    ValidAudience = _config["JWT:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                }, out SecurityToken securityToken);
+
+                return principal;
+            }
+            catch (Exception ex)
+            {
+                throw new UnauthorizedAccessException("Invalid token.", ex);
+            }
+        }
+
+        public async Task<RefreshAccessTokenDto> RefreshAccessToken(string refreshToken, string accessToken)
+        {
+            if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(accessToken))
+            {
+                throw new ArgumentException("Refresh token and access token must not be null or empty.");
+            }
+
+            if (!await ValidateRefreshToken(refreshToken))
+            {
+                throw new UnauthorizedAccessException("Failed to validate refresh token.");
+            }
+
+            var principal = ValidateAccessToken(accessToken);
+            if (principal == null || principal.Identity == null)
+            {
+                throw new UnauthorizedAccessException("Failed to validate access token or identity.");
+            }
+
+            var userUsernameClaim = principal.FindFirst(ClaimTypes.Name);
+            if (userUsernameClaim == null || string.IsNullOrEmpty(userUsernameClaim.Value))
+            {
+                throw new UnauthorizedAccessException("Username claim not found or is empty.");
+            }
+
+            var userUsername = userUsernameClaim.Value;
+
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                throw new UnauthorizedAccessException("Failed to retrieve user ID from access token.");
+            }
+
+            var userId = userIdClaim.Value;
+
+            var newAccessToken = CreateAccessToken(new UserAccount { Id = userId, UserName = userUsername });
+            var newRefreshToken = CreateRefreshToken();
+
+            await SaveRefreshTokenAsync(userId, newRefreshToken);
+
+            return new RefreshAccessTokenDto() {
+                RefreshToken = newRefreshToken,
+                AccessToken = newAccessToken
+            };
+        }
+
         public string CreateRefreshToken()
         {
             var randomNumber = new byte[32];
@@ -69,32 +143,6 @@ namespace Api.Service
             return Convert.ToBase64String(randomNumber);
         }
 
-        public ClaimsPrincipal ValidateToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_config["JWT:SigningKey"]);
-
-            try
-            {
-                var prinipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = _config["JWT:Issuer"],
-                    ValidAudience = _config["JWT:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                }, out SecurityToken securityToken);
-
-                return prinipal;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
         public async Task<bool> ValidateRefreshToken(string refreshToken)
         {
             return await _refreshTokenRepository.IsTokenValidAsync(refreshToken);
@@ -102,11 +150,16 @@ namespace Api.Service
 
         public async Task SaveRefreshTokenAsync(string userId, string refreshToken)
         {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(refreshToken))
+            {
+                throw new ArgumentException("User ID and refresh token must not be null or empty.");
+            }
+
             try
             {
                 var oldRefreshToken = await _refreshTokenRepository.GetRefreshTokenAsyncByUserId(userId);
 
-                if(oldRefreshToken != null)
+                if (oldRefreshToken != null)
                 {
                     await RemoveRefreshTokenAsync(oldRefreshToken);
                 }
@@ -117,11 +170,9 @@ namespace Api.Service
                     UserId = userId,
                     Expiration = DateTime.UtcNow.AddDays(7)
                 });
-
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error saving refresh token: {ex.Message}");
                 throw new Exception("Failed to save refresh token, please try again later.", ex);
             }
         }

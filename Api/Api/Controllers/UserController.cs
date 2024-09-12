@@ -54,7 +54,7 @@ namespace Api.Controllers
                     {
                         UserName = registerDto.UserName,
                         RefreshToken = refreshToken,
-                        AccessToken = _tokenService.CreateToken(user),
+                        AccessToken = _tokenService.CreateAccessToken(user),
                     }
                 };
 
@@ -99,7 +99,7 @@ namespace Api.Controllers
                         {
                             UserName = loginDto.UserName,
                             RefreshToken = refreshToken,
-                            AccessToken = _tokenService.CreateToken(user),
+                            AccessToken = _tokenService.CreateAccessToken(user),
                         }
                     };
 
@@ -137,29 +137,52 @@ namespace Api.Controllers
         [HttpPost("refreshAccessToken")]
         public async Task<IActionResult> refreshAccessToken([FromBody] RefreshAccessTokenDto model)
         {
-            if (!await _tokenService.ValidateRefreshToken(model.RefreshToken))
+
+            if (string.IsNullOrEmpty(model.RefreshToken) || string.IsNullOrEmpty(model.AccessToken))
             {
-                return Unauthorized();
+                return BadRequest(new RefreshAccessTokenResponseDto
+                {
+                    Succeeded = false,
+                    Message = "Refresh token and access token must not be null or empty."
+                });
             }
 
-            var principal = _tokenService.ValidateToken(model.RefreshToken);
-            if (principal == null)
+            try
             {
-                return Unauthorized();
+                var newTokens = await _tokenService.RefreshAccessToken(model.RefreshToken, model.AccessToken);
+
+                    var response = new RefreshAccessTokenResponseDto()
+                    {
+                        Succeeded = true,
+                        Message = "The access token and refresh token have been successfully refreshed.",
+                        RefreshToken = newTokens.RefreshToken,
+                        AccessToken = newTokens.AccessToken
+                    };
+
+                    return Ok(response);
+
+                }
+            catch (UnauthorizedAccessException ex)
+            {
+                var response = new RefreshAccessTokenResponseDto()
+                {
+                    Succeeded = false,
+                    Message = ex.Message
+                };
+
+                return Unauthorized(response);
+            }
+            catch (Exception ex)
+            {
+                var response = new RefreshAccessTokenResponseDto()
+                {
+                    Succeeded = false,
+                    Message = ex.Message
+                };
+
+                return BadRequest(response);
             }
 
-            var username = principal.Identity.Name;
-            var newToken = _tokenService.CreateToken(new UserAccount { UserName = username });
-            var newRefreshToken = _tokenService.CreateRefreshToken();
-
-            await _tokenService.RemoveRefreshTokenAsync(model.RefreshToken);
-            await _tokenService.SaveRefreshTokenAsync(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value, newRefreshToken);
-
-            return Ok(new
-            {
-                Token = newToken,
-                RefreshToken = newRefreshToken
-            });
         }
 
         //[HttpGet("getUsers")]
