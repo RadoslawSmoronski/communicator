@@ -111,10 +111,10 @@ class MessagePage extends Component {
         //fetch
         try{
             const data = await axios.get(APIs.FIND_PEOPLE_URL,
-                JSON.stringify({
-                    input: this.state.searchBar
-                }),
                 {
+                    params:{
+                        input: this.state.searchBar
+                    },
                     headers: { 
                         //Authorization: `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
