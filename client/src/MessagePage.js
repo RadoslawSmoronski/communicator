@@ -13,7 +13,7 @@ import PersonTile from './components/PersonTile';
 
 const APIs = {
     FIND_PEOPLE_URL : "/api/user/searchTest",
-    REFRESH_TOKEN: "api/refresh-token"
+    REFRESH_TOKEN: "api/refreshAccessToken"
 }
 
 class MessagePage extends Component {
