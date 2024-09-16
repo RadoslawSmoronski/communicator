@@ -3,6 +3,7 @@ using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.UserController;
 using Api.Service;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -182,6 +183,14 @@ namespace Api.Controllers
                 return BadRequest(response);
             }
 
+        }
+
+        [HttpGet("searchTest")]
+        [Authorize]
+        public async Task<IActionResult> searchTestAsync([FromQuery] string text)
+        {
+            // Logika dla endpointu
+            return Ok($"Received text: {text}");
         }
 
         //[HttpGet("getUsers")]
