@@ -70,21 +70,29 @@ class LoginPage extends React.Component{
                 let userData = res.user;
 
                 const { username, roles, accessToken, setAuth } = this.context;
-                setAuth(userData.userName, ["user"], userData.token);
+                setAuth(userData.userName, ["user"], userData.accessToken);
+
+                //refreshToken
+                sessionStorage.setItem('refreshToken', userData.refreshToken);
+
                 console.log(username, roles, accessToken );
                 this.navigate("/message");
             }
 
         } catch(err){
             let mess = err.response?.data?.message;
+            if(mess == undefined){
+                mess = err.message;
+            }
+
             this.showPopUpMess(mess);
         }
 
         //to remove
-        const { username, roles, accessToken, setAuth } = this.context;
-        setAuth(this.state.username, ["user"], "token");
-        console.log(username, roles, accessToken );
-        this.navigate("/message");
+        // const { username, roles, accessToken, setAuth } = this.context;
+        // setAuth(this.state.username, ["user"], "token");
+        // console.log(username, roles, accessToken );
+        // this.navigate("/message");
         //----
         this.setState({username: "", password: ""});
     }

@@ -11,6 +11,11 @@ import FriendTile from './components/FriendTile';
 import MessageTile from './components/MessageTile';
 import PersonTile from './components/PersonTile';
 
+const APIs = {
+    FIND_PEOPLE_URL : "/api/user/searchTest",
+    REFRESH_TOKEN: "api/refresh-token"
+}
+
 class MessagePage extends Component {
     static contextType = AuthContext;
 
@@ -39,6 +44,10 @@ class MessagePage extends Component {
         this.setState({
             [name]: value
         });
+
+        if(name == "searchBar"){
+            this.searchPeople();
+        }
     };
 
     handleSwitchBtn = (event) => {
@@ -64,11 +73,81 @@ class MessagePage extends Component {
     singOut(){
         const { setAuth} = this.context;
         setAuth('', [], '');
+        sessionStorage.removeItem('refreshToken');
+    }
+
+    async refreshAccessToken(){
+        const {setAuth, username, roles,accessToken} = this.context;
+
+        const refreshToken = sessionStorage.getItem('refreshToken');
+        //fetch
+        try{
+            const data = await axios.post(APIs.REFRESH_TOKEN,
+                JSON.stringify({
+                    refreshToken  
+                }),
+                {
+                    withCredentials: true //can be problematic
+                }
+            );
+
+            let res = data.data;
+            //is ok
+            if(res.succeeded){
+                console.log(res);
+                setAuth(username, roles, res.accessToken);
+                //new refreshToken
+                sessionStorage.setItem('refreshToken', res.refreshToken);
+            }
+
+        } catch(err){
+            console.log("Error: Can't refresh token: ", err);
+        }
+    }
+
+    async searchPeople(){
+        const {username, accessToken} = this.context;
+
+        //fetch
+        try{
+            const data = await axios.get(APIs.FIND_PEOPLE_URL,
+                JSON.stringify({
+                    input: this.state.searchBar
+                }),
+                {
+                    headers: { 
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true //can be problematic
+                }
+            );
+
+            let res = data.data;
+            //is ok
+            if(res.succeeded){
+                console.log(res);
+                
+            }
+
+        } catch(err){
+            if (err.response && err.response.status === 401) { // Unauthorized, token expired
+                await this.refreshAccessToken();
+                // retry request
+                await this.searchPeople();
+              } else {
+                console.error(err);
+              }
+        }
     }
 
     componentDidMount(){
-        const { username} = this.context;
-        //this.setState({username: username});
+        const { setAuth,username, accessToken} = this.context;
+        this.setState({username: username});
+
+        if(!accessToken){
+            this.refreshAccessToken();
+        }
     }
 
     
