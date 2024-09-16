@@ -135,43 +135,32 @@ namespace Api.Controllers
         }
 
         [HttpPost("refreshAccessToken")]
-        public async Task<IActionResult> refreshAccessToken([FromBody] RefreshAccessTokenDto model)
+        public async Task<IActionResult> refreshAccessToken([FromBody] string refreshToken)
         {
 
-            if (string.IsNullOrEmpty(model.RefreshToken) || string.IsNullOrEmpty(model.AccessToken))
+            if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(refreshToken))
             {
                 return BadRequest(new RefreshAccessTokenResponseDto
                 {
                     Succeeded = false,
-                    Message = "Refresh token and access token must not be null or empty."
+                    Message = "Refresh token must not be null or empty."
                 });
             }
 
             try
             {
-                var newTokens = await _tokenService.RefreshAccessToken(model.RefreshToken, model.AccessToken);
+                var newToken = await _tokenService.RefreshAccessToken(refreshToken);
 
                     var response = new RefreshAccessTokenResponseDto()
                     {
                         Succeeded = true,
-                        Message = "The access token and refresh token have been successfully refreshed.",
-                        RefreshToken = newTokens.RefreshToken,
-                        AccessToken = newTokens.AccessToken
+                        Message = "The access token have been successfully refreshed.",
+                        AccessToken = newToken
                     };
 
                     return Ok(response);
 
                 }
-            catch (UnauthorizedAccessException ex)
-            {
-                var response = new RefreshAccessTokenResponseDto()
-                {
-                    Succeeded = false,
-                    Message = ex.Message
-                };
-
-                return Unauthorized(response);
-            }
             catch (Exception ex)
             {
                 var response = new RefreshAccessTokenResponseDto()
@@ -179,6 +168,16 @@ namespace Api.Controllers
                     Succeeded = false,
                     Message = ex.Message
                 };
+
+
+                switch (ex)
+                {
+                    case ArgumentNullException argNullEx:
+                        return BadRequest(response);
+
+                    case UnauthorizedAccessException unauthorizedEx:
+                        return Unauthorized(response);
+                }
 
                 return BadRequest(response);
             }

@@ -9,12 +9,13 @@ namespace Api.Service
         //Access Token
         string CreateAccessToken(UserAccount user);
         ClaimsPrincipal ValidateAccessToken(string token);
-        Task<RefreshAccessTokenDto> RefreshAccessToken(string refreshToken, string accessToken);
+        Task<string> RefreshAccessToken(string refreshToken);
 
         //RefreshToken
         string CreateRefreshToken();
         Task<bool> ValidateRefreshToken(string token);
         Task SaveRefreshTokenAsync(string userId, string refreshToken);
         Task RemoveRefreshTokenAsync(string refreshToken);
+
     }
 }

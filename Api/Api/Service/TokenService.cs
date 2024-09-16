@@ -1,6 +1,7 @@
 ﻿using Api.Data.IRepository;
 using Api.Models;
 using Api.Models.Dtos.Controllers.UserController;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,8 +17,9 @@ namespace Api.Service
         private readonly TimeSpan _accesTokenLifeTime = TimeSpan.FromMinutes(15);
         private readonly TimeSpan _refreshTokenLifeTime = TimeSpan.FromDays(7);
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly UserManager<UserAccount> _userManager;
 
-        public TokenService(IConfiguration config, IRefreshTokenRepository refreshTokenRepository)
+        public TokenService(IConfiguration config, IRefreshTokenRepository refreshTokenRepository, UserManager<UserAccount> userManager)
         {
             _config = config;
             var signingKey = _config["JWT:SigningKey"];
@@ -30,6 +32,7 @@ namespace Api.Service
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
 
             _refreshTokenRepository = refreshTokenRepository;
+            _userManager = userManager;
         }
 
         public string CreateAccessToken(UserAccount user)
@@ -86,49 +89,38 @@ namespace Api.Service
             }
         }
 
-        public async Task<RefreshAccessTokenDto> RefreshAccessToken(string refreshToken, string accessToken)
+        public async Task<string> RefreshAccessToken(string refreshToken)
         {
-            if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(accessToken))
+            if (string.IsNullOrEmpty(refreshToken))
             {
-                throw new ArgumentException("Refresh token and access token must not be null or empty.");
+                throw new ArgumentNullException("Refresh token must not be null or empty.");
             }
 
             if (!await ValidateRefreshToken(refreshToken))
             {
-                throw new UnauthorizedAccessException("Failed to validate refresh token.");
+                throw new UnauthorizedAccessException("Invalid refresh token.");
             }
 
-            var principal = ValidateAccessToken(accessToken);
-            if (principal == null || principal.Identity == null)
+            var userId = await _refreshTokenRepository.GetUserIdByRefreshTokenAsync(refreshToken);
+
+            if (userId == null)
             {
-                throw new UnauthorizedAccessException("Failed to validate access token or identity.");
+                throw new Exception("Refresh token not found"); //todo notfound exception
             }
 
-            var userUsernameClaim = principal.FindFirst(ClaimTypes.Name);
-            if (userUsernameClaim == null || string.IsNullOrEmpty(userUsernameClaim.Value))
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
             {
-                throw new UnauthorizedAccessException("Username claim not found or is empty.");
+                throw new Exception("User which belong to this refresh was deleted."); //todo notfound exception
             }
 
-            var userUsername = userUsernameClaim.Value;
 
-            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                throw new UnauthorizedAccessException("Failed to retrieve user ID from access token.");
-            }
+            var newAccessToken = CreateAccessToken(new UserAccount { Id = userId, UserName = user.UserName });
 
-            var userId = userIdClaim.Value;
+            await SaveRefreshTokenAsync(userId, refreshToken);
 
-            var newAccessToken = CreateAccessToken(new UserAccount { Id = userId, UserName = userUsername });
-            var newRefreshToken = CreateRefreshToken();
-
-            await SaveRefreshTokenAsync(userId, newRefreshToken);
-
-            return new RefreshAccessTokenDto() {
-                RefreshToken = newRefreshToken,
-                AccessToken = newAccessToken
-            };
+            return newAccessToken;
         }
 
         public string CreateRefreshToken()
@@ -157,7 +149,7 @@ namespace Api.Service
 
             try
             {
-                var oldRefreshToken = await _refreshTokenRepository.GetRefreshTokenAsyncByUserId(userId);
+                var oldRefreshToken = await _refreshTokenRepository.GetRefreshTokenAsyncByUserIdAsync(userId);
 
                 if (oldRefreshToken != null)
                 {

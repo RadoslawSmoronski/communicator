@@ -42,7 +42,7 @@ namespace Api.Data.Repository
             }
         }
 
-        public async Task<string?> GetRefreshTokenAsyncByUserId(string userId)
+        public async Task<string?> GetRefreshTokenAsyncByUserIdAsync(string userId)
         {
             var refreshToken = await _context.RefreshTokens
                                              .Where(rt => rt.UserId == userId)
@@ -50,6 +50,14 @@ namespace Api.Data.Repository
                                              .FirstOrDefaultAsync();
 
             return refreshToken;
+        }
+
+        public async Task<string?> GetUserIdByRefreshTokenAsync(string refreshToken)
+        {
+            return await _context.RefreshTokens
+                                 .Where(rt => rt.Token == refreshToken)
+                                 .Select(rt => rt.UserId)
+                                 .FirstOrDefaultAsync();
         }
     }
 }
