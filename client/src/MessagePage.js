@@ -116,10 +116,10 @@ class MessagePage extends Component {
                         input: this.state.searchBar
                     },
                     headers: { 
-                        //Authorization: `Bearer ${accessToken}`,
+                        Authorization: `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    //withCredentials: true //can be problematic
+                    withCredentials: true //can be problematic
                 }
             );
 
@@ -131,13 +131,13 @@ class MessagePage extends Component {
             }
 
         } catch(err){
-            // if (err.response && err.response.status === 401) { // Unauthorized, token expired
-            //     await this.refreshAccessToken();
-            //     // retry request
-            //     await this.searchPeople();
-            //   } else {
-            //     console.error(err);
-            //   }
+            if (err.response && err.response.status === 401) { // Unauthorized, token expired
+                await this.refreshAccessToken();
+                // retry request
+                await this.searchPeople();
+              } else {
+                console.error(err);
+              }
         }
     }
 
