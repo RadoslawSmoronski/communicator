@@ -187,10 +187,15 @@ namespace Api.Controllers
 
         [HttpGet("searchTest")]
         [Authorize]
-        public async Task<IActionResult> searchTestAsync([FromQuery] string text)
+        public async Task<IActionResult> searchTestAsync([FromQuery] string input)
         {
-            // Logika dla endpointu
-            return Ok($"Received text: {text}");
+            var response = new RefreshAccessTokenResponseDto()
+            {
+                Succeeded = true,
+                Message = $"Received text: {input}"
+            };
+
+            return Ok(response);
         }
 
         //[HttpGet("getUsers")]

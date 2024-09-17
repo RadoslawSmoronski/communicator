@@ -104,7 +104,8 @@ namespace Api
                     {
                         builder.WithOrigins("http://localhost:3010")
                                .AllowAnyMethod()
-                               .AllowAnyHeader();
+                               .AllowAnyHeader()
+                               .AllowCredentials();
                     });
             });
 
