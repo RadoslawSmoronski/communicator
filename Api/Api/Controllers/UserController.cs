@@ -1,6 +1,7 @@
 ﻿using Api.Models;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.UserController;
+using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Service;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -47,7 +48,7 @@ namespace Api.Controllers
             {
                 var refreshToken = _tokenService.CreateRefreshToken();
 
-                var response = new RegisterResponseDto()
+                var response = new RegisterOkResponseDto()
                 {
                     Succeeded = true,
                     Message = "The user has been successfully created.",
@@ -64,12 +65,14 @@ namespace Api.Controllers
             }
             else
             {
-                var message = result.Errors.FirstOrDefault()?.Description ?? "Message error";
+                var message = result.Errors;
 
-                var response = new RegisterResponseDto()
+
+
+                var response = new RegisterFailedResponseDto()
                 {
                     Succeeded = false,
-                    Message = message,
+                    Message = "temp",
                     User = new RegisteredUserDto()
                     {
                         UserName = registerDto.UserName

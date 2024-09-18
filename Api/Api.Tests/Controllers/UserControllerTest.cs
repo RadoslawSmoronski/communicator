@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Api.Service;
 using System.ComponentModel.DataAnnotations;
+using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 
 namespace Api.Tests.Controllers
 {

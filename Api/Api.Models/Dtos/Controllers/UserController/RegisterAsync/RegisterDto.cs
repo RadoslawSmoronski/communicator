@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Controllers.UserController
+namespace Api.Models.Dtos.Controllers.UserController.RegisterAsync
 {
     public class RegisterDto
     {
@@ -16,4 +16,5 @@ namespace Api.Models.Dtos.Controllers.UserController
         [StringLength(50, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]
         public string Password { get; set; } = string.Empty;
     }
+
 }
