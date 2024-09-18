@@ -34,6 +34,23 @@ namespace Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
+            if (ModelState.IsValid == false)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userExists = await _userManager.FindByNameAsync(registerDto.UserName);
+            if (userExists != null)
+            {
+                var response = new RegisterFailedResponseDto()
+                {
+                    Succeeded = false,
+                    Message = "User with this username already exists."
+                };
+
+                return Conflict(response);
+            }
+
             var hasher = new PasswordHasher<IdentityUser>();
 
             var user = new UserAccount()
@@ -65,18 +82,11 @@ namespace Api.Controllers
             }
             else
             {
-                var message = result.Errors;
-
-
 
                 var response = new RegisterFailedResponseDto()
                 {
                     Succeeded = false,
                     Message = "temp",
-                    User = new RegisteredUserDto()
-                    {
-                        UserName = registerDto.UserName
-                    }
                 };
                 return BadRequest(response);
             }

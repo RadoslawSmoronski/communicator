@@ -48,7 +48,10 @@ namespace Api.Tests.Controllers
 
             var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
-                .Returns(identityResultFailure);
+                            .Returns(identityResultFailure);
+
+            A.CallTo(() => _userManager.FindByNameAsync(registerDto.UserName))
+                            .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
             var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
@@ -73,6 +76,9 @@ namespace Api.Tests.Controllers
             A.CallTo(() => _tokenService.CreateRefreshToken())
                             .Returns("fakeRefreshToken");
 
+            A.CallTo(() => _userManager.FindByNameAsync(registerDto.UserName))
+                            .Returns(Task.FromResult<UserAccount?>(null));
+
             // Act
             var result = await userController.RegisterAsync(registerDto) as OkObjectResult;
 
@@ -80,10 +86,35 @@ namespace Api.Tests.Controllers
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(200);
 
-            var response = result.Value as RegisterResponseDto;
+            var response = result.Value as RegisterOkResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeTrue();
-            response.Message.Should().Be("The user has been successfully logged in.");
+            response.Message.Should().Be("The user has been successfully created.");
+        }
+
+        [Fact]
+        public async Task RegisterAsync_ShouldReturnConflict_WhenCalledUsernameIsAlreadyExists()
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var registerDto = new RegisterDto() { UserName = "test", Password = "test" };
+            var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
+
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>.Ignored, registerDto.Password))
+                            .Returns(Task.FromResult(IdentityResult.Success));
+
+
+            // Act
+            var result = await userController.RegisterAsync(registerDto) as ConflictObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(409);
+
+            var response = result.Value as RegisterFailedResponseDto;
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeFalse();
+            response.Message.Should().Be("User with this username already exists.");
         }
 
         //    [Fact]
