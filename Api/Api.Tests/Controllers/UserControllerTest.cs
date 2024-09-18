@@ -1,254 +1,250 @@
-﻿//using FakeItEasy;
-//using FluentAssertions;
-//using System.Threading.Tasks;
-//using Microsoft.AspNetCore.Identity;
-//using Api.Models;
-//using Api.Controllers;
-//using Microsoft.AspNetCore.Mvc;
-//using Xunit;
-//using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Options;
-//using Api.Models.Dtos.Controllers.UserController;
-//using AutoMapper;
-//using System.Collections.Generic;
-//using Microsoft.EntityFrameworkCore;
-//using Api.Service;
+﻿using FakeItEasy;
+using FluentAssertions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Api.Models;
+using Api.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Xunit;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Api.Models.Dtos.Controllers.UserController;
+using AutoMapper;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Api.Service;
+using System.ComponentModel.DataAnnotations;
 
-//namespace Api.Tests.Controllers
-//{
-//    public class UserControllerTest
-//    {
-//        private readonly UserManager<UserAccount> _userManager;
-//        private readonly SignInManager<UserAccount> _signInManager;
-//        private readonly IMapper _mapper;
-//        private readonly ITokenService _tokenService;
+namespace Api.Tests.Controllers
+{
+    public class UserControllerTest
+    {
+        private readonly UserManager<UserAccount> _userManager;
+        private readonly SignInManager<UserAccount> _signInManager;
+        private readonly IMapper _mapper;
+        private readonly ITokenService _tokenService;
 
-//        public UserControllerTest()
-//        {
-//            // Initialize UserManager with necessary parameters
-//            _userManager = A.Fake<UserManager<UserAccount>>();
-//            _signInManager = A.Fake<SignInManager<UserAccount>>();
-//            _mapper = A.Fake<IMapper>();
-//            _tokenService = A.Fake<ITokenService>();
-//        }
+        public UserControllerTest()
+        {
+            // Initialize UserManager with necessary parameters
+            _userManager = A.Fake<UserManager<UserAccount>>();
+            _signInManager = A.Fake<SignInManager<UserAccount>>();
+            _mapper = A.Fake<IMapper>();
+            _tokenService = A.Fake<ITokenService>();
+        }
 
-//        //RegisterAsync
+        //RegisterAsync
 
-//        [Fact]
-//        public async Task RegisterAsync_ShouldReturnOk_WhenCalledWithValidParameters()
-//        {
-//            // Arrange
-//            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-//            var registerDto = new RegisterDto() { UserName = "login", Password = "password" };
+        [Theory]
+        [InlineData("", "")]
+        [InlineData("12", "123456")]
+        [InlineData("123", "12345")]
+        public async Task RegisterAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters(string testLogin, string testPassword)
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
 
-//            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
-//                .Returns(Task.FromResult(IdentityResult.Success));
+            // Act
+            var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
 
-//            // Act
-//            var result = await userController.RegisterAsync(registerDto) as OkObjectResult;
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+        }
 
-//            // Assert
-//            result.Should().NotBeNull();
-//            result!.StatusCode.Should().Be(200);
+        //    [Fact]
+        //    public async Task RegisterAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
+        //    {
+        //        // Arrange
+        //        var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+        //        var registerDto = new RegisterDto() { UserName = "test", Password = "password1" };
+        //        var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
+        //        A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
+        //            .Returns(identityResultFailure);
 
-//            var response = result.Value as RegisterResponseDto;
-//            response.Should().NotBeNull();
-//            response!.Succeeded.Should().BeTrue();
-//            response.Message.Should().Be("The user has been successfully created.");
-//        }
+        //        // Act
+        //        var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
 
-//        [Fact]
-//        public async Task RegisterAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
-//        {
-//            // Arrange
-//            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-//            var registerDto = new RegisterDto() { UserName = "test", Password = "password1" };
-//            var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
-//            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
-//                .Returns(identityResultFailure);
+        //        // Assert
+        //        result.Should().NotBeNull();
+        //        result!.StatusCode.Should().Be(400);
 
-//            // Act
-//            var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
+        //        var response = result.Value as RegisterResponseDto;
+        //        response.Should().NotBeNull();
+        //        response!.Succeeded.Should().BeFalse();
+        //    }
 
-//            // Assert
-//            result.Should().NotBeNull();
-//            result!.StatusCode.Should().Be(400);
+        //    //RegisterAsync
+        //    //LoginAsync
 
-//            var response = result.Value as RegisterResponseDto;
-//            response.Should().NotBeNull();
-//            response!.Succeeded.Should().BeFalse();
-//        }
+        //    [Fact]
+        //    public async Task LoginAsync_ShouldReturnOk_WhenCalledWithValidParameters()
+        //    {
+        //        // Arrange
+        //        var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+        //        var loginDto = new LoginDto() { UserName = "login", Password = "password" };
 
-//        //RegisterAsync
-//        //LoginAsync
+        //        A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
+        //            .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Success));
 
-//        [Fact]
-//        public async Task LoginAsync_ShouldReturnOk_WhenCalledWithValidParameters()
-//        {
-//            // Arrange
-//            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-//            var loginDto = new LoginDto() { UserName = "login", Password = "password" };
+        //        // Act
+        //        var result = await userController.LoginAsync(loginDto) as OkObjectResult;
 
-//            A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
-//                .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Success));
+        //        // Assert
+        //        result.Should().NotBeNull();
+        //        result!.StatusCode.Should().Be(200);
 
-//            // Act
-//            var result = await userController.LoginAsync(loginDto) as OkObjectResult;
+        //        var response = result.Value as LoginResponseDto;
+        //        response.Should().NotBeNull();
+        //        response!.Succeeded.Should().BeTrue();
+        //        response.Message.Should().Be("The user has been successfully logged in.");
+        //    }
 
-//            // Assert
-//            result.Should().NotBeNull();
-//            result!.StatusCode.Should().Be(200);
+        //    [Fact]
+        //    public async Task LoginAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
+        //    {
+        //        //Arrange
+        //        var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+        //        var loginDto = new LoginDto() { UserName = "login", Password = "password" };
 
-//            var response = result.Value as LoginResponseDto;
-//            response.Should().NotBeNull();
-//            response!.Succeeded.Should().BeTrue();
-//            response.Message.Should().Be("The user has been successfully logged in.");
-//        }
+        //        A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
+        //            .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Failed));
 
-//        [Fact]
-//        public async Task LoginAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
-//        {
-//            //Arrange
-//            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-//            var loginDto = new LoginDto() { UserName = "login", Password = "password" };
+        //        //Act
+        //        var result = await userController.LoginAsync(loginDto) as BadRequestObjectResult;
 
-//            A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
-//                .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Failed));
+        //        //Assert
+        //        result.Should().NotBeNull();
+        //        result!.StatusCode.Should().Be(400);
 
-//            //Act
-//            var result = await userController.LoginAsync(loginDto) as BadRequestObjectResult;
+        //        var response = result.Value as LoginResponseDto;
+        //        response.Should().NotBeNull();
+        //        response!.Succeeded.Should().BeFalse();
+        //    }
 
-//            //Assert
-//            result.Should().NotBeNull();
-//            result!.StatusCode.Should().Be(400);
+        //    //LoginAsync
+        //    //DeleteAsyncByUserName
 
-//            var response = result.Value as LoginResponseDto;
-//            response.Should().NotBeNull();
-//            response!.Succeeded.Should().BeFalse();
-//        }
+        //    [Fact]
+        //    public async Task DeleteAsyncByUserName_ShouldReturnOk_WhenCalledWithValidParameters()
+        //    {
+        //        //Arrange
+        //        var login = "login";
+        //        var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+        //        var hasher = new PasswordHasher<IdentityUser>();
+        //        var user = new UserAccount()
+        //        {
+        //            UserName = login
+        //        };
 
-//        //LoginAsync
-//        //DeleteAsyncByUserName
+        //        A.CallTo(() => _userManager.FindByNameAsync(login))!
+        //            .Returns(Task.FromResult<UserAccount>(user));
 
-//        [Fact]
-//        public async Task DeleteAsyncByUserName_ShouldReturnOk_WhenCalledWithValidParameters()
-//        {
-//            //Arrange
-//            var login = "login";
-//            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-//            var hasher = new PasswordHasher<IdentityUser>();
-//            var user = new UserAccount()
-//            {
-//                UserName = login
-//            };
+        //        A.CallTo(() => _userManager.DeleteAsync(user))
+        //            .Returns(Task.FromResult(IdentityResult.Success));
 
-//            A.CallTo(() => _userManager.FindByNameAsync(login))!
-//                .Returns(Task.FromResult<UserAccount>(user));
+        //        //Act
+        //        var result = await userController.DeleteUserByUserNameAsync(login) as OkObjectResult;
 
-//            A.CallTo(() => _userManager.DeleteAsync(user))
-//                .Returns(Task.FromResult(IdentityResult.Success));
+        //        //Assert
+        //        result.Should().NotBeNull();
+        //        result!.StatusCode.Should().Be(200);
 
-//            //Act
-//            var result = await userController.DeleteUserByUserNameAsync(login) as OkObjectResult;
+        //        var response = result.Value as DeleteResponseDto;
+        //        response.Should().NotBeNull();
+        //        response!.Succeeded.Should().BeTrue();
+        //        response.Message.Should().Be("Deleted user.");
+        //    }
 
-//            //Assert
-//            result.Should().NotBeNull();
-//            result!.StatusCode.Should().Be(200);
+        //    [Fact]
+        //    public async Task DeleteAsyncByUserName_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
+        //    {
+        //        //Arrange
+        //        var login = "login";
+        //        var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+        //        var user = new UserAccount()
+        //        {
+        //            UserName = login
+        //        };
 
-//            var response = result.Value as DeleteResponseDto;
-//            response.Should().NotBeNull();
-//            response!.Succeeded.Should().BeTrue();
-//            response.Message.Should().Be("Deleted user.");
-//        }
+        //        A.CallTo(() => _userManager.FindByNameAsync(login))!
+        //            .Returns(Task.FromResult<UserAccount>(user));
 
-//        [Fact]
-//        public async Task DeleteAsyncByUserName_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
-//        {
-//            //Arrange
-//            var login = "login";
-//            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-//            var user = new UserAccount()
-//            {
-//                UserName = login
-//            };
+        //        //Act
+        //        var result = await userController.DeleteUserByUserNameAsync(login) as BadRequestObjectResult;
 
-//            A.CallTo(() => _userManager.FindByNameAsync(login))!
-//                .Returns(Task.FromResult<UserAccount>(user));
+        //        //Assert
+        //        result.Should().NotBeNull();
+        //        result!.StatusCode.Should().Be(400);
 
-//            //Act
-//            var result = await userController.DeleteUserByUserNameAsync(login) as BadRequestObjectResult;
+        //        var response = result.Value as DeleteResponseDto;
+        //        response.Should().NotBeNull();
+        //        response!.Succeeded.Should().BeFalse();
+        //        response.Message.Should().BeOneOf("Not found user.");
+        //    }
 
-//            //Assert
-//            result.Should().NotBeNull();
-//            result!.StatusCode.Should().Be(400);
+        //    //DeleteAsyncByUserName
+        //    //DeleteAsyncById
 
-//            var response = result.Value as DeleteResponseDto;
-//            response.Should().NotBeNull();
-//            response!.Succeeded.Should().BeFalse();
-//            response.Message.Should().BeOneOf("Not found user.");
-//        }
+        //    [Fact]
+        //    public async Task DeleteAsyncById_ShouldReturnOk_WhenCalledWithValidParameters()
+        //    {
+        //        //Arrange
+        //        var id = 1;
+        //        var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+        //        var hasher = new PasswordHasher<IdentityUser>();
+        //        var user = new UserAccount()
+        //        {
+        //            UserName = "login"
+        //        };
 
-//        //DeleteAsyncByUserName
-//        //DeleteAsyncById
+        //        A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))!
+        //            .Returns(Task.FromResult(user));
 
-//        [Fact]
-//        public async Task DeleteAsyncById_ShouldReturnOk_WhenCalledWithValidParameters()
-//        {
-//            //Arrange
-//            var id = 1;
-//            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-//            var hasher = new PasswordHasher<IdentityUser>();
-//            var user = new UserAccount()
-//            {
-//                UserName = "login"
-//            };
+        //        A.CallTo(() => _userManager.DeleteAsync(user))
+        //            .Returns(Task.FromResult(IdentityResult.Success));
 
-//            A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))!
-//                .Returns(Task.FromResult(user));
+        //        //Act
+        //        var result = await userController.DeleteUserByIdAsync(id) as OkObjectResult;
 
-//            A.CallTo(() => _userManager.DeleteAsync(user))
-//                .Returns(Task.FromResult(IdentityResult.Success));
+        //        //Assert
+        //        result.Should().NotBeNull();
+        //        result!.StatusCode.Should().Be(200);
 
-//            //Act
-//            var result = await userController.DeleteUserByIdAsync(id) as OkObjectResult;
+        //        var response = result.Value as DeleteResponseDto;
+        //        response.Should().NotBeNull();
+        //        response!.Succeeded.Should().BeTrue();
+        //        response.Message.Should().Be("Deleted user.");
+        //    }
 
-//            //Assert
-//            result.Should().NotBeNull();
-//            result!.StatusCode.Should().Be(200);
+        //    [Fact]
+        //    public async Task DeleteAsyncById_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
+        //    {
+        //        //Arrange
+        //        var id = 1;
+        //        var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+        //        var user = new UserAccount()
+        //        {
+        //            UserName = "login"
+        //        };
 
-//            var response = result.Value as DeleteResponseDto;
-//            response.Should().NotBeNull();
-//            response!.Succeeded.Should().BeTrue();
-//            response.Message.Should().Be("Deleted user.");
-//        }
+        //        A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))!
+        //            .Returns(Task.FromResult<UserAccount>(user));
 
-//        [Fact]
-//        public async Task DeleteAsyncById_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
-//        {
-//            //Arrange
-//            var id = 1;
-//            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-//            var user = new UserAccount()
-//            {
-//                UserName = "login"
-//            };
+        //        //Act
+        //        var result = await userController.DeleteUserByIdAsync(id) as BadRequestObjectResult;
 
-//            A.CallTo(() => _userManager.FindByIdAsync(id.ToString()))!
-//                .Returns(Task.FromResult<UserAccount>(user));
+        //        //Assert
+        //        result.Should().NotBeNull();
+        //        result!.StatusCode.Should().Be(400);
 
-//            //Act
-//            var result = await userController.DeleteUserByIdAsync(id) as BadRequestObjectResult;
+        //        var response = result.Value as DeleteResponseDto;
+        //        response.Should().NotBeNull();
+        //        response!.Succeeded.Should().BeFalse();
+        //        response.Message.Should().BeOneOf("Not found user.");
+        //    }
 
-//            //Assert
-//            result.Should().NotBeNull();
-//            result!.StatusCode.Should().Be(400);
-
-//            var response = result.Value as DeleteResponseDto;
-//            response.Should().NotBeNull();
-//            response!.Succeeded.Should().BeFalse();
-//            response.Message.Should().BeOneOf("Not found user.");
-//        }
-
-//        //DeleteAsyncById
-//    }
-//}
+        //    //DeleteAsyncById
+    }
+}
