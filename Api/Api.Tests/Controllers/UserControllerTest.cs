@@ -45,12 +45,44 @@ namespace Api.Tests.Controllers
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
 
+            var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
+                .Returns(identityResultFailure);
+
             // Act
             var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(400);
+        }
+
+        [Theory]
+        [InlineData("123", "123456")]
+        public async Task RegisterAsync_ShouldReturnOk_WhenCalledWithValidParameters(string testLogin, string testPassword)
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
+            var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
+
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
+                           .Returns(Task.FromResult(IdentityResult.Success));
+
+            A.CallTo(() => _tokenService.CreateRefreshToken())
+                            .Returns("fakeRefreshToken");
+
+            // Act
+            var result = await userController.RegisterAsync(registerDto) as OkObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(200);
+
+            var response = result.Value as RegisterResponseDto;
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeTrue();
+            response.Message.Should().Be("The user has been successfully logged in.");
         }
 
         //    [Fact]
