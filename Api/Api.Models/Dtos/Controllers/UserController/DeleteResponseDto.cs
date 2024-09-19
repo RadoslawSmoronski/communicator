@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 
 namespace Api.Models.Dtos.Controllers.UserController
 {
@@ -10,6 +11,6 @@ namespace Api.Models.Dtos.Controllers.UserController
     {
         public bool Succeeded { get; set; } = false;
         public string Message { get; set; } = string.Empty;
-        public DeleteDto? User { get; set; }
+        public LoginDto? User { get; set; }
     }
 }

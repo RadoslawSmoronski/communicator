@@ -1,6 +1,7 @@
 ﻿using Api.Models;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.UserController;
+using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Service;
 using AutoMapper;
@@ -81,57 +82,49 @@ namespace Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
-
-                var user = await _userManager.FindByNameAsync(loginDto.UserName);
-
-                if (result.Succeeded && user != null)
-                {
-                    var refreshToken = _tokenService.CreateRefreshToken();
-
-                    var response = new LoginResponseDto()
-                    {
-                        Succeeded = true,
-                        Message = "The user has been successfully logged in.",
-                        User = new LoggedUserDto()
-                        {
-                            UserName = loginDto.UserName,
-                            RefreshToken = refreshToken,
-                            AccessToken = _tokenService.CreateAccessToken(user),
-                        }
-                    };
-
-                    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
-
-                    return Ok(response);
-                }
-                else
-                {
-                    var response = new LoginResponseDto()
-                    {
-                        Succeeded = false,
-                        Message = "Login or password are incorrect.",
-                        User = new LoggedUserDto()
-                        {
-                            UserName = loginDto.UserName
-                        }
-                    };
-                    return BadRequest(response);
-                }
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error during login: {ex.Message}");
 
-                var response = new LoginResponseDto()
-                {
-                    Succeeded = false,
-                    Message = "An unexpected error occurred. Please try again later."
-                };
-                return StatusCode(StatusCodes.Status500InternalServerError, response);
-            }
+            return Ok("test");
+            //var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
+
+            //var user = await _userManager.FindByNameAsync(loginDto.UserName);
+
+            //if (result.Succeeded && user != null)
+            //{
+            //    var refreshToken = _tokenService.CreateRefreshToken();
+
+            //    var response = new LoginResponseDto()
+            //    {
+            //        Succeeded = true,
+            //        Message = "The user has been successfully logged in.",
+            //        User = new LoggedUserDto()
+            //        {
+            //            UserName = loginDto.UserName,
+            //            RefreshToken = refreshToken,
+            //            AccessToken = _tokenService.CreateAccessToken(user),
+            //        }
+            //    };
+
+            //    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
+
+            //    return Ok(response);
+            //}
+            //else
+            //{
+            //    var response = new LoginResponseDto()
+            //    {
+            //        Succeeded = false,
+            //        Message = "Login or password are incorrect.",
+            //        User = new LoggedUserDto()
+            //        {
+            //            UserName = loginDto.UserName
+            //        }
+            //    };
+            //    return BadRequest(response);
+            //}
         }
 
         [HttpPost("refreshAccessToken")]

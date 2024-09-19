@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Controllers.UserController
+namespace Api.Models.Dtos.Controllers.UserController.LoginAsync
 {
     public class LoggedUserDto
     {
-        public string UserName { get; set; } = String.Empty;
+        public string UserName { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
         public string AccessToken { get; set; } = string.Empty;
     }

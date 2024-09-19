@@ -1,4 +1,5 @@
 ﻿using Api.Models.Dtos.Controllers.UserController;
+using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,6 @@ namespace Api.Models
         public MappingProfile()
         {
             CreateMap<UserAccount, FindUserDto>();
-            CreateMap<UserAccount, DeleteDto>();
             CreateMap<UserAccount, GetUserDto>();
         }
     }
