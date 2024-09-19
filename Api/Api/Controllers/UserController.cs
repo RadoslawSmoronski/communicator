@@ -34,62 +34,48 @@ namespace Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
-            if (ModelState.IsValid == false)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var userExists = await _userManager.FindByNameAsync(registerDto.UserName);
-            if (userExists != null)
-            {
-                var response = new RegisterFailedResponseDto()
-                {
-                    Succeeded = false,
-                    Message = "User with this username already exists."
-                };
-
-                return Conflict(response);
-            }
-
-            var hasher = new PasswordHasher<IdentityUser>();
-
-            var user = new UserAccount()
-            {
-                UserName = registerDto.UserName,
-                PasswordHash = hasher.HashPassword(new IdentityUser { UserName = registerDto.UserName }, registerDto.Password),
-            };
-
-            var result = await _userManager.CreateAsync(user);
+            var user = new UserAccount { UserName = registerDto.UserName };
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
 
             if (result.Succeeded)
             {
                 var refreshToken = _tokenService.CreateRefreshToken();
+                await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
 
-                var response = new RegisterOkResponseDto()
+                return Ok(new RegisterOkResponseDto
                 {
                     Succeeded = true,
                     Message = "The user has been successfully created.",
-                    User = new RegisteredUserDto()
+                    User = new RegisteredUserDto
                     {
-                        UserName = registerDto.UserName,
+                        UserName = user.UserName,
                         RefreshToken = refreshToken,
-                        AccessToken = _tokenService.CreateAccessToken(user),
+                        AccessToken = _tokenService.CreateAccessToken(user)
                     }
-                };
-
-                await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
-                return Ok(response);
+                });
             }
-            else
-            {
 
-                var response = new RegisterFailedResponseDto()
+            var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
+            if (conflictError != null)
+            {
+                return Conflict(new RegisterFailedResponseDto
                 {
                     Succeeded = false,
-                    Message = "temp",
-                };
-                return BadRequest(response);
+                    Errors = new List<string> { "User with this username already exists." }
+                });
             }
+
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            return StatusCode(500, new RegisterFailedResponseDto
+            {
+                Succeeded = false,
+                Errors = errors
+            });
         }
 
         [HttpPost("login")]
