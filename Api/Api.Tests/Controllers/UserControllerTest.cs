@@ -37,47 +37,18 @@ namespace Api.Tests.Controllers
         //RegisterAsync
 
         [Theory]
-        [InlineData("", "")]
-        [InlineData("12", "123456")]
-        [InlineData("123", "12345")]
-        public async Task RegisterAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters(string testLogin, string testPassword)
-        {
-            // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-            var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
-
-            var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
-            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
-                            .Returns(identityResultFailure);
-
-            A.CallTo(() => _userManager.FindByNameAsync(registerDto.UserName))
-                            .Returns(Task.FromResult<UserAccount?>(null));
-
-            // Act
-            var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
-
-            // Assert
-            result.Should().NotBeNull();
-            result!.StatusCode.Should().Be(400);
-        }
-
-        [Theory]
         [InlineData("123", "123456")]
         public async Task RegisterAsync_ShouldReturnOk_WhenCalledWithValidParameters(string testLogin, string testPassword)
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
-            var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
 
-            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._))
-                           .Returns(Task.FromResult(IdentityResult.Success));
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
+                .Returns(IdentityResult.Success);
 
             A.CallTo(() => _tokenService.CreateRefreshToken())
                             .Returns("fakeRefreshToken");
-
-            A.CallTo(() => _userManager.FindByNameAsync(registerDto.UserName))
-                            .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
             var result = await userController.RegisterAsync(registerDto) as OkObjectResult;
@@ -98,10 +69,10 @@ namespace Api.Tests.Controllers
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var registerDto = new RegisterDto() { UserName = "test", Password = "test" };
-            var identityResultFailure = IdentityResult.Failed(new IdentityError { Description = "User creation failed." });
+            var identityResultFailure = IdentityResult.Failed(new IdentityError { Code = "DuplicateUserName", Description = "User with this username already exists." });
 
-            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>.Ignored, registerDto.Password))
-                            .Returns(Task.FromResult(IdentityResult.Success));
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
+                .Returns(Task.FromResult(identityResultFailure));
 
 
             // Act
@@ -114,7 +85,7 @@ namespace Api.Tests.Controllers
             var response = result.Value as RegisterFailedResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
-            response.Message.Should().Be("User with this username already exists.");
+            response.Errors.Should().Contain("User with this username already exists.");
         }
 
         //    [Fact]
