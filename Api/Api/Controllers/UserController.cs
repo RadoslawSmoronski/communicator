@@ -45,9 +45,6 @@ namespace Api.Controllers
 
             if (result.Succeeded)
             {
-                var refreshToken = _tokenService.CreateRefreshToken();
-                await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
-
                 return Ok(new RegisterOkResponseDto
                 {
                     Succeeded = true,
@@ -55,8 +52,6 @@ namespace Api.Controllers
                     User = new RegisteredUserDto
                     {
                         UserName = user.UserName,
-                        RefreshToken = refreshToken,
-                        AccessToken = _tokenService.CreateAccessToken(user)
                     }
                 });
             }
