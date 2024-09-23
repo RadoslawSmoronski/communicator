@@ -103,21 +103,21 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    return Ok();
                     //var refreshToken = _tokenService.CreateRefreshToken();
 
-                    //var response = new LoginResponseDto()
-                    //{
-                    //    Succeeded = true,
-                    //    Message = "The user has been successfully logged in.",
-                    //    User = new LoggedUserDto()
-                    //    {
-                    //        UserName = loginDto.UserName,
-                    //        RefreshToken = refreshToken,
-                    //        AccessToken = _tokenService.CreateAccessToken(user),
-                    //    }
-                    //};
-                    //    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
+                    return Ok(new LoginResponseDto()
+                    {
+                        Succeeded = true,
+                        Message = "The user has been successfully logged in.",
+                        User = new LoggedUserDto()
+                        {
+                            UserName = loginDto.UserName,
+                            //RefreshToken = refreshToken,
+                            //AccessToken = _tokenService.CreateAccessToken(user),
+                        }
+                    });
+
+                    //await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
                 }
                 else
                 {

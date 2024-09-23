@@ -143,6 +143,35 @@ namespace Api.Tests.Controllers
             response.Message.Should().Be("An internal server error occurred.");
         }
 
+        [Theory]
+        [InlineData("123", "123456")]
+        public async Task LoginAsync_ShouldReturnOk_WhenCalledWithValidParameters(string testLogin, string testPassword)
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var loginDto = new LoginDto() { UserName = "test", Password = "test" };
+            var user = new UserAccount { UserName = "test" };
+
+            A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
+                .Returns(Task.FromResult<UserAccount?>(user));
+
+            A.CallTo(() => _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false))
+                .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Success));
+
+
+            //act
+            var result = await userController.LoginAsync(loginDto) as OkObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(200);
+
+            var response = result.Value as LoginResponseDto;
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeTrue();
+            response.Message.Should().Be("The user has been successfully logged in.");
+        }
+
         //    [Fact]
         //    public async Task RegisterAsync_ShouldReturnBadRequest_WhenCalledWithNotValidParameters()
         //    {
