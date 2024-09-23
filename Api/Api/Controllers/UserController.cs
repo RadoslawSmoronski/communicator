@@ -109,7 +109,7 @@ namespace Api.Controllers
             }
             else
             {
-                return Conflict(new LoginFailedResponseDto
+                return Unauthorized(new LoginFailedResponseDto
                 {
                     Succeeded = false,
                     Message = "User with this username doesn't exists."

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Api.Service;
 using System.ComponentModel.DataAnnotations;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
+using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 
 namespace Api.Tests.Controllers
 {
@@ -35,6 +36,31 @@ namespace Api.Tests.Controllers
         }
 
         //RegisterAsync
+
+        [Fact]
+        public async Task RegisterAsync_ShouldReturnConflict_WhenCalledUsernameIsAlreadyExists()
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var registerDto = new RegisterDto() { UserName = "test", Password = "test" };
+            var identityResultFailure = IdentityResult.Failed(new IdentityError { Code = "DuplicateUserName", Description = "User with this username already exists." });
+
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
+                .Returns(Task.FromResult(identityResultFailure));
+
+
+            // Act
+            var result = await userController.RegisterAsync(registerDto) as ConflictObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(409);
+
+            var response = result.Value as RegisterFailedResponseDto;
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeFalse();
+            response.Errors.Should().Contain("User with this username already exists.");
+        }
 
         [Theory]
         [InlineData("123", "123456")]
@@ -63,29 +89,31 @@ namespace Api.Tests.Controllers
             response.Message.Should().Be("The user has been successfully created.");
         }
 
+        //LoginAsync
+
         [Fact]
-        public async Task RegisterAsync_ShouldReturnConflict_WhenCalledUsernameIsAlreadyExists()
+        public async Task LoginAsync_ShouldReturnUnauthorized_WhenCalledUsernameDoesntExist()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
-            var registerDto = new RegisterDto() { UserName = "test", Password = "test" };
-            var identityResultFailure = IdentityResult.Failed(new IdentityError { Code = "DuplicateUserName", Description = "User with this username already exists." });
+            var loginDto = new LoginDto() { UserName = "test", Password = "test" };
 
-            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
-                .Returns(Task.FromResult(identityResultFailure));
+            A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
+                    .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.NotAllowed));
+
 
 
             // Act
-            var result = await userController.RegisterAsync(registerDto) as ConflictObjectResult;
+            var result = await userController.LoginAsync(loginDto) as UnauthorizedObjectResult;
 
             // Assert
             result.Should().NotBeNull();
-            result!.StatusCode.Should().Be(409);
+            result!.StatusCode.Should().Be(401);
 
             var response = result.Value as LoginFailedResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
-            response.Errors.Should().Contain("User with this username already exists.");
+            response.Message.Should().Be("User with this username doesn't exists.");
         }
 
         //    [Fact]
