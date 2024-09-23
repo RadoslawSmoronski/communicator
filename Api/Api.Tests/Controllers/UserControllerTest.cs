@@ -98,22 +98,49 @@ namespace Api.Tests.Controllers
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var loginDto = new LoginDto() { UserName = "test", Password = "test" };
 
+            A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
+                .Returns(Task.FromResult<UserAccount?>(null));
+
             A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
                     .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.NotAllowed));
 
-
-
             // Act
-            var result = await userController.LoginAsync(loginDto) as UnauthorizedObjectResult;
+            var result = await userController.LoginAsync(loginDto) as NotFoundObjectResult;
 
             // Assert
             result.Should().NotBeNull();
-            result!.StatusCode.Should().Be(401);
+            result!.StatusCode.Should().Be(404);
 
             var response = result.Value as LoginFailedResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
-            response.Message.Should().Be("User with this username doesn't exist.");
+            response.Message.Should().Be("User does not exist.");
+        }
+
+        [Fact]
+        public async Task LoginAsync_ShouldReturn500_WhenSignInThrowsException()
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var loginDto = new LoginDto() { UserName = "test", Password = "test" };
+
+            A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
+                .Throws(new Exception("code 500 test"));
+
+            A.CallTo(() => _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false))
+                .Throws(new Exception("code 500 test"));
+
+            // Act
+            var result = await userController.LoginAsync(loginDto) as ObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(500);
+
+            var response = result.Value as LoginFailedResponseDto;
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeFalse();
+            response.Message.Should().Be("An internal server error occurred.");
         }
 
         //    [Fact]

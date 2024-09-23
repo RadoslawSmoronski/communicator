@@ -119,17 +119,9 @@ namespace Api.Controllers
                     //};
                     //    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
                 }
-                else if (result.IsNotAllowed)
-                {
-                    return Unauthorized(new LoginFailedResponseDto
-                    {
-                        Succeeded = false,
-                        Message = "User with this username doesn't exist."
-                    });
-                }
                 else
                 {
-                    return Unauthorized(new LoginFailedResponseDto
+                    return BadRequest(new LoginFailedResponseDto
                     {
                         Succeeded = false,
                         Message = "Invalid login attempt."
