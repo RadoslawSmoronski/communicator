@@ -113,7 +113,7 @@ namespace Api.Tests.Controllers
             var response = result.Value as LoginFailedResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
-            response.Message.Should().Be("User with this username doesn't exists.");
+            response.Message.Should().Be("User with this username doesn't exist.");
         }
 
         //    [Fact]

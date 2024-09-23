@@ -87,54 +87,65 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
-
-
-            if (result.Succeeded)
+            try
             {
-                return Ok("logged in");
-                //var refreshToken = _tokenService.CreateRefreshToken();
+                var user = await _userManager.FindByNameAsync(loginDto.UserName);
+                if (user == null)
+                {
+                    return NotFound(new LoginFailedResponseDto
+                    {
+                        Succeeded = false,
+                        Message = "User does not exist."
+                    });
+                }
 
-                //var response = new LoginResponseDto()
-                //{
-                //    Succeeded = true,
-                //    Message = "The user has been successfully logged in.",
-                //    User = new LoggedUserDto()
-                //    {
-                //        UserName = loginDto.UserName,
-                //        RefreshToken = refreshToken,
-                //        AccessToken = _tokenService.CreateAccessToken(user),
-                //    }
-                //};
+                var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
+
+                if (result.Succeeded)
+                {
+                    return Ok();
+                    //var refreshToken = _tokenService.CreateRefreshToken();
+
+                    //var response = new LoginResponseDto()
+                    //{
+                    //    Succeeded = true,
+                    //    Message = "The user has been successfully logged in.",
+                    //    User = new LoggedUserDto()
+                    //    {
+                    //        UserName = loginDto.UserName,
+                    //        RefreshToken = refreshToken,
+                    //        AccessToken = _tokenService.CreateAccessToken(user),
+                    //    }
+                    //};
+                    //    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
+                }
+                else if (result.IsNotAllowed)
+                {
+                    return Unauthorized(new LoginFailedResponseDto
+                    {
+                        Succeeded = false,
+                        Message = "User with this username doesn't exist."
+                    });
+                }
+                else
+                {
+                    return Unauthorized(new LoginFailedResponseDto
+                    {
+                        Succeeded = false,
+                        Message = "Invalid login attempt."
+                    });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return Unauthorized(new LoginFailedResponseDto
+                return StatusCode(500, new LoginFailedResponseDto
                 {
                     Succeeded = false,
-                    Message = "User with this username doesn't exists."
+                    Message = "An internal server error occurred."
                 });
             }
-
-
-            //    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
-
-            //    return Ok(response);
-            //}
-            //else
-            //{
-            //    var response = new LoginResponseDto()
-            //    {
-            //        Succeeded = false,
-            //        Message = "Login or password are incorrect.",
-            //        User = new LoggedUserDto()
-            //        {
-            //            UserName = loginDto.UserName
-            //        }
-            //    };
-            //    return BadRequest(response);
-            //}
         }
+
 
         [HttpPost("refreshAccessToken")]
         public async Task<IActionResult> refreshAccessToken([FromBody] string refreshToken)
