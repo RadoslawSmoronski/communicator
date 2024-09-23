@@ -40,38 +40,49 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = new UserAccount { UserName = registerDto.UserName };
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-            if (result.Succeeded)
+            try
             {
-                return Ok(new RegisterOkResponseDto
+                var user = new UserAccount { UserName = registerDto.UserName };
+                var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+                if (result.Succeeded)
                 {
-                    Succeeded = true,
-                    Message = "The user has been successfully created.",
-                    User = new RegisteredUserDto
+                    return Ok(new RegisterOkResponseDto
                     {
-                        UserName = user.UserName,
-                    }
-                });
-            }
+                        Succeeded = true,
+                        Message = "The user has been successfully created.",
+                        User = new RegisteredUserDto
+                        {
+                            UserName = user.UserName,
+                        }
+                    });
+                }
 
-            var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
-            if (conflictError != null)
-            {
-                return Conflict(new RegisterFailedResponseDto
+                var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
+                if (conflictError != null)
+                {
+                    return Conflict(new RegisterFailedResponseDto
+                    {
+                        Succeeded = false,
+                        Errors = new List<string> { "User with this username already exists." }
+                    });
+                }
+
+                return BadRequest(new RegisterFailedResponseDto
                 {
                     Succeeded = false,
-                    Errors = new List<string> { "User with this username already exists." }
+                    Errors = new List<string> { "Invalid register attempt." }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new RegisterFailedResponseDto
+                {
+                    Succeeded = false,
+                    Errors = new List<string> { "An internal server error occurred." }
                 });
             }
 
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            return StatusCode(500, new RegisterFailedResponseDto
-            {
-                Succeeded = false,
-                Errors = errors
-            });
         }
 
         [HttpPost("login")]
@@ -114,14 +125,12 @@ namespace Api.Controllers
 
                     //await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
                 }
-                else
+
+                return BadRequest(new LoginFailedResponseDto
                 {
-                    return BadRequest(new LoginFailedResponseDto
-                    {
-                        Succeeded = false,
-                        Message = "Invalid login attempt."
-                    });
-                }
+                    Succeeded = false,
+                    Message = "Invalid login attempt."
+                });
             }
             catch (Exception ex)
             {
