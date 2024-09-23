@@ -82,7 +82,7 @@ namespace Api.Tests.Controllers
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(409);
 
-            var response = result.Value as RegisterFailedResponseDto;
+            var response = result.Value as LoginFailedResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
             response.Errors.Should().Contain("User with this username already exists.");

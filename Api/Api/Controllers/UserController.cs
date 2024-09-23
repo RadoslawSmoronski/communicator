@@ -87,26 +87,35 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            return Ok("test");
-            //var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
+            var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
 
-            //var user = await _userManager.FindByNameAsync(loginDto.UserName);
 
-            //if (result.Succeeded && user != null)
-            //{
-            //    var refreshToken = _tokenService.CreateRefreshToken();
+            if (result.Succeeded)
+            {
+                return Ok("logged in");
+                //var refreshToken = _tokenService.CreateRefreshToken();
 
-            //    var response = new LoginResponseDto()
-            //    {
-            //        Succeeded = true,
-            //        Message = "The user has been successfully logged in.",
-            //        User = new LoggedUserDto()
-            //        {
-            //            UserName = loginDto.UserName,
-            //            RefreshToken = refreshToken,
-            //            AccessToken = _tokenService.CreateAccessToken(user),
-            //        }
-            //    };
+                //var response = new LoginResponseDto()
+                //{
+                //    Succeeded = true,
+                //    Message = "The user has been successfully logged in.",
+                //    User = new LoggedUserDto()
+                //    {
+                //        UserName = loginDto.UserName,
+                //        RefreshToken = refreshToken,
+                //        AccessToken = _tokenService.CreateAccessToken(user),
+                //    }
+                //};
+            }
+            else
+            {
+                return Conflict(new LoginFailedResponseDto
+                {
+                    Succeeded = false,
+                    Message = "User with this username doesn't exists."
+                });
+            }
+
 
             //    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
 
