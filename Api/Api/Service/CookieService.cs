@@ -3,16 +3,17 @@ namespace Api.Service
 {
     public class CookieService : ICookieService
     {
-        private readonly HttpResponse _response;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CookieService(HttpResponse response)
+        public CookieService(IHttpContextAccessor httpContextAccessor)
         {
-            _response = response;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public void SetCookie(string name, string value, CookieOptions options)
         {
-            _response.Cookies.Append(name, value, options);
+            var response = _httpContextAccessor.HttpContext.Response;
+            response.Cookies.Append(name, value, options);
         }
     }
 }
