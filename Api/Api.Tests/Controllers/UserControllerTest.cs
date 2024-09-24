@@ -110,10 +110,10 @@ namespace Api.Tests.Controllers
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(500);
 
-            var response = result.Value as LoginFailedResponseDto;
+            var response = result.Value as RegisterFailedResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
-            response.Message.Should().Be("An internal server error occurred.");
+            response.Errors.Should().Contain("An internal server error occurred.");
         }
 
         //LoginAsync
