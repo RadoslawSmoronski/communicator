@@ -16,6 +16,7 @@ using Api.Service;
 using System.ComponentModel.DataAnnotations;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
+using Microsoft.AspNetCore.Http;
 
 namespace Api.Tests.Controllers
 {
@@ -73,7 +74,7 @@ namespace Api.Tests.Controllers
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
                 .Returns(IdentityResult.Success);
 
-            A.CallTo(() => _tokenService.CreateRefreshToken())
+            A.CallTo(() => _tokenService.CreateRefreshTokenAsync())
                             .Returns("fakeRefreshToken");
 
             // Act
@@ -175,6 +176,8 @@ namespace Api.Tests.Controllers
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var loginDto = new LoginDto() { UserName = "test", Password = "test" };
             var user = new UserAccount { UserName = "test" };
+            var accessToken = "mockAccessToken";
+            var refreshToken = "mockRefreshToken";
 
             A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
                 .Returns(Task.FromResult<UserAccount?>(user));

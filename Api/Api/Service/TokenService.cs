@@ -18,7 +18,6 @@ namespace Api.Service
         private readonly TimeSpan _refreshTokenLifeTime = TimeSpan.FromDays(7);
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
-
         public CookieOptions AccessTokenCookieOptions { get; }
         public CookieOptions RefreshTokenCookieOptions { get; }
 

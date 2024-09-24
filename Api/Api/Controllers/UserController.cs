@@ -22,14 +22,16 @@ namespace Api.Controllers
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
+        private readonly ICookieService _cookieService;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper, ITokenService tokenService)
+            IMapper mapper, ITokenService tokenService, ICookieService cookieService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
             _tokenService = tokenService;
+            _cookieService = cookieService;
         }
 
         [HttpPost("register")]
@@ -112,6 +114,11 @@ namespace Api.Controllers
                     var refreshToken = await _tokenService.CreateRefreshTokenAsync();
                     await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
 
+                    var accessToken = await _tokenService.CreateAccessTokenAsync(user);
+
+                    _cookieService.SetCookie("access_token", accessToken, _tokenService.AccessTokenCookieOptions);
+                    _cookieService.SetCookie("refresh_token", refreshToken, _tokenService.RefreshTokenCookieOptions);
+
                     return Ok(new LoginResponseDto()
                     {
                         Succeeded = true,
@@ -158,16 +165,16 @@ namespace Api.Controllers
             {
                 var newToken = await _tokenService.RefreshAccessTokenAsync(refreshToken);
 
-                    var response = new RefreshAccessTokenResponseDto()
-                    {
-                        Succeeded = true,
-                        Message = "The access token have been successfully refreshed.",
-                        AccessToken = newToken
-                    };
+                var response = new RefreshAccessTokenResponseDto()
+                {
+                    Succeeded = true,
+                    Message = "The access token have been successfully refreshed.",
+                    AccessToken = newToken
+                };
 
-                    return Ok(response);
+                return Ok(response);
 
-                }
+            }
             catch (Exception ex)
             {
                 var response = new RefreshAccessTokenResponseDto()
@@ -202,6 +209,14 @@ namespace Api.Controllers
             };
 
             return Ok(response);
+        }
+
+        //Another
+
+        private void SetTokensCookies(string accessToken, string refreshToken)
+        {
+            Response.Cookies.Append("AccessToken", accessToken, _tokenService.AccessTokenCookieOptions);
+            Response.Cookies.Append("RefreshToken", refreshToken, _tokenService.RefreshTokenCookieOptions);
         }
 
         //[HttpGet("getUsers")]
