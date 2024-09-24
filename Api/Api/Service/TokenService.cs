@@ -19,6 +19,9 @@ namespace Api.Service
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
 
+        public CookieOptions AccessTokenCookieOptions { get; }
+        public CookieOptions RefreshTokenCookieOptions { get; }
+
         public TokenService(IConfiguration config, IRefreshTokenRepository refreshTokenRepository, UserManager<UserAccount> userManager)
         {
             _config = config;
@@ -33,6 +36,23 @@ namespace Api.Service
 
             _refreshTokenRepository = refreshTokenRepository;
             _userManager = userManager;
+
+
+            AccessTokenCookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.Add(_accesTokenLifeTime)
+            };
+
+            RefreshTokenCookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.Add(_refreshTokenLifeTime)
+            };
         }
 
         public async Task<string> CreateAccessTokenAsync(UserAccount user)

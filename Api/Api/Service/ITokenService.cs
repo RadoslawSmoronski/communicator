@@ -5,7 +5,10 @@ using System.Security.Claims;
 namespace Api.Service
 {
     public interface ITokenService
-    {         
+    {
+        CookieOptions AccessTokenCookieOptions { get; }
+        CookieOptions RefreshTokenCookieOptions { get; }
+
         //Access Token
         Task<string> CreateAccessTokenAsync(UserAccount user);
         Task<ClaimsPrincipal> ValidateAccessTokenAsync(string token);
