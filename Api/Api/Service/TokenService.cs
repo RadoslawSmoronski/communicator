@@ -35,68 +35,78 @@ namespace Api.Service
             _userManager = userManager;
         }
 
-        public string CreateAccessToken(UserAccount user)
+        public async Task<string> CreateAccessTokenAsync(UserAccount user)
         {
-            var claims = new List<Claim>
+            return await Task.Run(() =>
             {
-                //new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
-
-            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.Add(_accesTokenLifeTime),
-                SigningCredentials = creds,
-                Issuer = _config["JWT:Issuer"],
-                Audience = _config["JWT:Audience"]
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
-        }
-
-
-        public ClaimsPrincipal ValidateAccessToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]);
-
-            try
-            {
-                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                if(user == null || user.UserName == null)
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = _config["JWT:Issuer"],
-                    ValidAudience = _config["JWT:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                }, out SecurityToken securityToken);
+                    throw new ArgumentNullException("User object is empty.");
+                }
 
-                return principal;
-            }
-            catch (Exception ex)
-            {
-                throw new UnauthorizedAccessException("Invalid token.", ex);
-            }
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id)
+                };
+
+                var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.Now.Add(_accesTokenLifeTime),
+                    SigningCredentials = creds,
+                    Issuer = _config["JWT:Issuer"],
+                    Audience = _config["JWT:Audience"]
+                };
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                return tokenHandler.WriteToken(token);
+            });
         }
 
-        public async Task<string> RefreshAccessToken(string refreshToken)
+
+        public async Task<ClaimsPrincipal> ValidateAccessTokenAsync(string token)
+        {
+            return await Task.Run(() =>
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]);
+
+                try
+                {
+                    var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = _config["JWT:Issuer"],
+                        ValidAudience = _config["JWT:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(key)
+                    }, out SecurityToken securityToken);
+
+                    return principal;
+                }
+                catch (Exception ex)
+                {
+                    throw new UnauthorizedAccessException("Invalid token.", ex);
+                }
+            });
+        }
+
+        public async Task<string> RefreshAccessTokenAsync(string refreshToken)
         {
             if (string.IsNullOrEmpty(refreshToken))
             {
                 throw new ArgumentNullException("Refresh token must not be null or empty.");
             }
 
-            if (!await ValidateRefreshToken(refreshToken))
+            if (!await ValidateRefreshTokenAsync(refreshToken))
             {
                 throw new UnauthorizedAccessException("Invalid refresh token.");
             }
@@ -116,26 +126,29 @@ namespace Api.Service
             }
 
 
-            var newAccessToken = CreateAccessToken(new UserAccount { Id = userId, UserName = user.UserName });
+            var newAccessToken = await CreateAccessTokenAsync(new UserAccount { Id = userId, UserName = user.UserName });
 
             await SaveRefreshTokenAsync(userId, refreshToken);
 
             return newAccessToken;
         }
 
-        public string CreateRefreshToken()
+        public async Task<string> CreateRefreshTokenAsync()
         {
-            var randomNumber = new byte[32];
+            return await Task.Run(() =>
+                {
+                    var randomNumber = new byte[32];
 
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-            }
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(randomNumber);
+                }
 
-            return Convert.ToBase64String(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            });
         }
 
-        public async Task<bool> ValidateRefreshToken(string refreshToken)
+        public async Task<bool> ValidateRefreshTokenAsync(string refreshToken)
         {
             return await _refreshTokenRepository.IsTokenValidAsync(refreshToken);
         }
@@ -173,6 +186,5 @@ namespace Api.Service
         {
             await _refreshTokenRepository.DeleteTokenAsync(refreshToken);
         }
-
     }
 }

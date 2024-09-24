@@ -89,6 +89,30 @@ namespace Api.Tests.Controllers
             response.Message.Should().Be("The user has been successfully created.");
         }
 
+        [Theory]
+        [InlineData("123", "123456")]
+        public async Task RegisterAsync_ShouldReturn500_WhenRegisterInThrowsException(string testLogin, string testPassword)
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
+
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
+                .Throws(new Exception("code 500 test"));
+
+            // Act
+            var result = await userController.RegisterAsync(registerDto) as ObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(500);
+
+            var response = result.Value as LoginFailedResponseDto;
+            response.Should().NotBeNull();
+            response!.Succeeded.Should().BeFalse();
+            response.Message.Should().Be("An internal server error occurred.");
+        }
+
         //LoginAsync
 
         [Fact]

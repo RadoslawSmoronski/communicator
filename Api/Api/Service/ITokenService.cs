@@ -7,13 +7,13 @@ namespace Api.Service
     public interface ITokenService
     {         
         //Access Token
-        string CreateAccessToken(UserAccount user);
-        ClaimsPrincipal ValidateAccessToken(string token);
-        Task<string> RefreshAccessToken(string refreshToken);
+        Task<string> CreateAccessTokenAsync(UserAccount user);
+        Task<ClaimsPrincipal> ValidateAccessTokenAsync(string token);
+        Task<string> RefreshAccessTokenAsync(string refreshToken);
 
         //RefreshToken
-        string CreateRefreshToken();
-        Task<bool> ValidateRefreshToken(string token);
+        Task<string> CreateRefreshTokenAsync();
+        Task<bool> ValidateRefreshTokenAsync(string token);
         Task SaveRefreshTokenAsync(string userId, string refreshToken);
         Task RemoveRefreshTokenAsync(string refreshToken);
 

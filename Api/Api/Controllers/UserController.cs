@@ -109,7 +109,8 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    //var refreshToken = _tokenService.CreateRefreshToken();
+                    var refreshToken = await _tokenService.CreateRefreshTokenAsync();
+                    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
 
                     return Ok(new LoginResponseDto()
                     {
@@ -118,12 +119,9 @@ namespace Api.Controllers
                         User = new LoggedUserDto()
                         {
                             UserName = loginDto.UserName,
-                            //RefreshToken = refreshToken,
-                            //AccessToken = _tokenService.CreateAccessToken(user),
                         }
                     });
 
-                    //await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
                 }
 
                 return BadRequest(new LoginFailedResponseDto
@@ -158,7 +156,7 @@ namespace Api.Controllers
 
             try
             {
-                var newToken = await _tokenService.RefreshAccessToken(refreshToken);
+                var newToken = await _tokenService.RefreshAccessTokenAsync(refreshToken);
 
                     var response = new RefreshAccessTokenResponseDto()
                     {
