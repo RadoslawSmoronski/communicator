@@ -1,4 +1,5 @@
 ﻿using Api.Models;
+using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Controllers.UsersController;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,16 +19,24 @@ namespace Api.Controllers
         }
 
         [HttpGet("getUserById/{id}")]
-        public async Task<IActionResult> GetUserByIdAsyn([FromRoute] string id)
+        public async Task<IActionResult> GetUserByIdAsync([FromRoute] string id)
         {
             if(string.IsNullOrWhiteSpace(id))
             {
-                return BadRequest(); //todo
+                return BadRequest(new GetUserResponseFailedDto()
+                {
+                    Succeeded = false,
+                    Message = "Input value is empty."
+                });
             }
 
             if(id.Length != 36)
             {
-                return BadRequest(); //todo
+                return BadRequest(new GetUserResponseFailedDto()
+                {
+                    Succeeded = false,
+                    Message = "User id contain 36 characters."
+                });
             }
 
             try
@@ -36,7 +45,11 @@ namespace Api.Controllers
 
                 if (user == null)
                 {
-                    return NotFound(); //todo
+                    return NotFound(new GetUserResponseFailedDto()
+                    {
+                        Succeeded = false,
+                        Message = "User does not exist."
+                    });
                 }
 
                 return Ok(new GetUserResponseOkDto()
@@ -48,7 +61,11 @@ namespace Api.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(); //todo
+                return StatusCode(500, new GetUserResponseFailedDto
+                {
+                    Succeeded = false,
+                    Message = "An internal server error occurred."
+                });
             }
         }
     }
