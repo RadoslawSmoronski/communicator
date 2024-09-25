@@ -1,18 +1,21 @@
-﻿
-namespace Api.Service
+﻿using Api.Service;
+using Microsoft.AspNetCore.Http;
+
+public class CookieService : ICookieService
 {
-    public class CookieService : ICookieService
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public CookieService(IHttpContextAccessor httpContextAccessor)
     {
-        private readonly HttpResponse _response;
+        _httpContextAccessor = httpContextAccessor;
+    }
 
-        public CookieService(HttpResponse response)
+    public void SetCookie(string name, string value, CookieOptions options)
+    {
+        var response = _httpContextAccessor.HttpContext?.Response;
+        if (response != null)
         {
-            _response = response;
-        }
-
-        public void SetCookie(string name, string value, CookieOptions options)
-        {
-            _response.Cookies.Append(name, value, options);
+            response.Cookies.Append(name, value, options);
         }
     }
 }

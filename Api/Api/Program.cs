@@ -25,6 +25,7 @@ namespace Api
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ICookieService, CookieService>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddSwaggerGen(option =>

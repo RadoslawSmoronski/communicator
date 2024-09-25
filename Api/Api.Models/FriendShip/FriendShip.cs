@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.FriendShip
+namespace Api.Models.Friendship
 {
-    public class FriendShip
+    public class Friendship
     {
         public int Id { get; set; }
 

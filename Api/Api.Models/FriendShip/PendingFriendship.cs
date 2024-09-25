@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.FriendShip
+namespace Api.Models.Friendship
 {
     public class PendingFriendship
     {
