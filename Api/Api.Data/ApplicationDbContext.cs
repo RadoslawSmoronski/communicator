@@ -10,7 +10,7 @@ namespace Api.Data
     public class ApplicationDbContext : IdentityDbContext<UserAccount>
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<Friendship> FriendsShips { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
         public DbSet<PendingFriendship> PendingFriendships { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

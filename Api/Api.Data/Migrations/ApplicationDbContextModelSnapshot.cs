@@ -48,7 +48,7 @@ namespace Api.Data.Migrations
                     b.HasIndex("User1Id", "User2Id")
                         .IsUnique();
 
-                    b.ToTable("FriendsShips");
+                    b.ToTable("Friendships");
                 });
 
             modelBuilder.Entity("Api.Models.Friendship.PendingFriendship", b =>

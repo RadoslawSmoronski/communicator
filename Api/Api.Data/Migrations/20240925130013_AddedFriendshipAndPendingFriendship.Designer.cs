@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240925125107_AddedFriendshipAndPendingFriendship")]
+    [Migration("20240925130013_AddedFriendshipAndPendingFriendship")]
     partial class AddedFriendshipAndPendingFriendship
     {
         /// <inheritdoc />
@@ -51,7 +51,7 @@ namespace Api.Data.Migrations
                     b.HasIndex("User1Id", "User2Id")
                         .IsUnique();
 
-                    b.ToTable("FriendsShips");
+                    b.ToTable("Friendships");
                 });
 
             modelBuilder.Entity("Api.Models.Friendship.PendingFriendship", b =>

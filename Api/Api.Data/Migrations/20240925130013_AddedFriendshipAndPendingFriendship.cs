@@ -173,7 +173,7 @@ namespace Api.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FriendsShips",
+                name: "Friendships",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -184,15 +184,15 @@ namespace Api.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FriendsShips", x => x.Id);
+                    table.PrimaryKey("PK_Friendships", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FriendsShips_AspNetUsers_User1Id",
+                        name: "FK_Friendships_AspNetUsers_User1Id",
                         column: x => x.User1Id,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_FriendsShips_AspNetUsers_User2Id",
+                        name: "FK_Friendships_AspNetUsers_User2Id",
                         column: x => x.User2Id,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -264,14 +264,14 @@ namespace Api.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_FriendsShips_User1Id_User2Id",
-                table: "FriendsShips",
+                name: "IX_Friendships_User1Id_User2Id",
+                table: "Friendships",
                 columns: new[] { "User1Id", "User2Id" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_FriendsShips_User2Id",
-                table: "FriendsShips",
+                name: "IX_Friendships_User2Id",
+                table: "Friendships",
                 column: "User2Id");
 
             migrationBuilder.CreateIndex(
@@ -305,7 +305,7 @@ namespace Api.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "FriendsShips");
+                name: "Friendships");
 
             migrationBuilder.DropTable(
                 name: "PendingFriendships");
