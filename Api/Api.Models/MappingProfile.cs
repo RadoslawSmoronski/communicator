@@ -13,8 +13,6 @@ namespace Api.Models
     {
         public MappingProfile()
         {
-            CreateMap<UserAccount, FindUserDto>();
-            CreateMap<UserAccount, GetUserDto>();
         }
     }
 }
