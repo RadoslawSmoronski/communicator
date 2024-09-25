@@ -8,7 +8,7 @@ namespace Api.Models.Friendship
 {
     public class PendingFriendship
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public string User1Id { get; set; } = string.Empty;
         public string User2Id { get; set; } = string.Empty;
