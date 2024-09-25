@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Controllers.UsersController
+namespace Api.Models.Dtos.Controllers.UsersController.GetUsers
 {
-    public class GetUserResponseOkDto
+    public class GetUsersResponseOkDto
     {
         public bool Succeeded { get; set; }
         public string Message { get; set; } = string.Empty;
-        public UserAccount User { get; set; } = new UserAccount();
+        public List<GetUsersUserResponseDto> Users { get; set; } = new List<GetUsersUserResponseDto>();
     }
 }
