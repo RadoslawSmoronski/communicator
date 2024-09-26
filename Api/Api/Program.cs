@@ -1,7 +1,10 @@
 ﻿using Api.Data;
 using Api.Data.IRepository;
 using Api.Data.Repository;
+using Api.Managers;
+using Api.Managers.IManager;
 using Api.Models;
+using Api.Models.Friendship;
 using Api.Service;
 using Api.Service.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,6 +29,7 @@ namespace Api
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<IPendingFriendshipRepository, PendingFriendshipRepository>();
+            builder.Services.AddScoped<IFriendshipManager, FriendshipManager>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<ICookieService, CookieService>();
