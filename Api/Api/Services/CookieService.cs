@@ -1,4 +1,4 @@
-﻿using Api.Service;
+﻿using Api.Service.IService;
 using Microsoft.AspNetCore.Http;
 
 public class CookieService : ICookieService

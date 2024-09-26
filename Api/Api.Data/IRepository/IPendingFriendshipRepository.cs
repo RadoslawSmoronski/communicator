@@ -13,5 +13,6 @@ namespace Api.Data.IRepository
         Task<List<PendingFriendship>> CheckInvitiesAsync(string recipientId);
         Task AcceptInviteAsync(string recipientId, string senderId);
         Task DecelineInviteAsync(string recipientId, string senderId);
+        Task<bool> IsFriendshipPendingExists(string user1, string user2);
     }
 }

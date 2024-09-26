@@ -1,4 +1,4 @@
-﻿namespace Api.Service
+﻿namespace Api.Service.IService
 {
     public interface ICookieService
     {

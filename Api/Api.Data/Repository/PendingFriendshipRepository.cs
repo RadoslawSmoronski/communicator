@@ -47,6 +47,11 @@ namespace Api.Data.Repository
                 throw new Exception("User with recipientId doesn't exist.");
             }
 
+            if(await IsFriendshipPendingExists(senderId, recipientId))
+            {
+                throw new Exception("This invitation already exists.");
+            }
+
             var pendingFriendship = new PendingFriendship
             {
                 User1Id = senderId,
@@ -74,5 +79,41 @@ namespace Api.Data.Repository
             throw new NotImplementedException();
         }
 
+        public async Task<bool> IsFriendshipPendingExists(string userId1, string userId2)
+        {
+            if (string.IsNullOrWhiteSpace(userId1))
+            {
+                throw new Exception("username1 is empty.");
+            }
+
+            if (string.IsNullOrWhiteSpace(userId2))
+            {
+                throw new Exception("username2 is empty.");
+            }
+
+            var user1 = await _userManager.FindByIdAsync(userId1);
+
+            if (user1 == null)
+            {
+                throw new Exception("User with senderId doesn't exist.");
+            }
+
+            var user2 = await _userManager.FindByIdAsync(userId2);
+
+            if (user2 == null)
+            {
+                throw new Exception("User with recipientId doesn't exist.");
+            }
+
+            var record = _context.Friendships.Where(x => (x.User1Id == userId1 && x.User2Id == userId2)
+                                        || (x.User1Id == userId2 && x.User2Id == userId1));
+
+            if(record != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

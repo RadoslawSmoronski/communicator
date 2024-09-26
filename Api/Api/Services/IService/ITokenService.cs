@@ -2,7 +2,7 @@
 using Api.Models.Dtos.Controllers.UserController;
 using System.Security.Claims;
 
-namespace Api.Service
+namespace Api.Service.IService
 {
     public interface ITokenService
     {

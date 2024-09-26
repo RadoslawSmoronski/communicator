@@ -1,6 +1,7 @@
 ﻿using Api.Data.IRepository;
 using Api.Models;
 using Api.Models.Dtos.Controllers.UserController;
+using Api.Service.IService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

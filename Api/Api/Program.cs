@@ -3,6 +3,7 @@ using Api.Data.IRepository;
 using Api.Data.Repository;
 using Api.Models;
 using Api.Service;
+using Api.Service.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;

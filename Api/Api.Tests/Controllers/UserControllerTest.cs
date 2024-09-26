@@ -12,11 +12,11 @@ using Api.Models.Dtos.Controllers.UserController;
 using AutoMapper;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Api.Service;
 using System.ComponentModel.DataAnnotations;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Microsoft.AspNetCore.Http;
+using Api.Service.IService;
 
 namespace Api.Tests.Controllers
 {
