@@ -55,7 +55,7 @@ namespace Api.Data.Repository
                 User2 = user2
             };
 
-            _context.PendingFriendships.Add(pendingFriendship);
+            await _context.PendingFriendships.AddAsync(pendingFriendship);
             await _context.SaveChangesAsync();
         }
 

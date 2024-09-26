@@ -64,14 +64,14 @@ namespace Api.Controllers
                 var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
                 if (conflictError != null)
                 {
-                    return Conflict(new RegisterFailedResponseDto
+                    return Conflict(new SendInviteFailedResponseDto
                     {
                         Succeeded = false,
                         Errors = new List<string> { "User with this username already exists." }
                     });
                 }
 
-                return BadRequest(new RegisterFailedResponseDto
+                return BadRequest(new SendInviteFailedResponseDto
                 {
                     Succeeded = false,
                     Errors = new List<string> { "Invalid register attempt." }
@@ -79,7 +79,7 @@ namespace Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new RegisterFailedResponseDto
+                return StatusCode(500, new SendInviteFailedResponseDto
                 {
                     Succeeded = false,
                     Errors = new List<string> { "An internal server error occurred." }

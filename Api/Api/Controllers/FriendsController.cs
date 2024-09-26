@@ -1,6 +1,7 @@
 ﻿using Api.Data.IRepository;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
+using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +24,7 @@ namespace Api.Controllers
         [HttpPost("sendInviteAsync")]
         public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
         {
-            if(ModelState.IsValid == false)
+            if (ModelState.IsValid == false)
             {
                 return BadRequest(ModelState);
             }
@@ -32,13 +33,20 @@ namespace Api.Controllers
             {
                 await _pendingFriendshipRepository.SendInviteAsync(sendInviteDto.SenderId, sendInviteDto.RecipientId);
 
-                return Ok();
+                return Ok(new SendInviteOkResponseDto
+                {
+                    Succeeded = true,
+                    Message = "Invitation successfully sent."
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new SendInviteFailedResponseDto
+                {
+                    Succeeded = false,
+                    Errors = new List<string> { "An internal server error occurred." }
+                });
             }
-
         }
     }
 }

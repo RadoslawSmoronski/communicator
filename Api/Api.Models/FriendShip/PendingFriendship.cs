@@ -16,6 +16,6 @@ namespace Api.Models.Friendship
         public UserAccount User1 { get; set; } = new UserAccount();
         public UserAccount User2 { get; set; } = new UserAccount();
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

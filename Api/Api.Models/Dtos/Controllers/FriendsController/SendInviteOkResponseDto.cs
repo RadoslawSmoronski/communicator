@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Controllers.UserController.RegisterAsync
+namespace Api.Models.Dtos.Controllers.FriendsController
 {
-    public class SendInviteFailedResponseDto
+    public class SendInviteOkResponseDto
     {
         public bool Succeeded { get; set; } = false;
-        public List<string> Errors { get; set; } = new List<string>();
+        public string Message { get; set; } = string.Empty;
     }
 }
