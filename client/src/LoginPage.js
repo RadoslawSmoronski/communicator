@@ -73,7 +73,7 @@ class LoginPage extends React.Component{
                 setAuth(userData.userName, ["user"], userData.accessToken);
 
                 //refreshToken
-                sessionStorage.setItem('refreshToken', userData.refreshToken);
+                //sessionStorage.setItem('refreshToken', userData.refreshToken);
 
                 console.log(username, roles, accessToken );
                 this.navigate("/message");

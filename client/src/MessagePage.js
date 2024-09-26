@@ -13,7 +13,7 @@ import PersonTile from './components/PersonTile';
 
 const APIs = {
     FIND_PEOPLE_URL : "/api/user/searchTest",
-    REFRESH_TOKEN: "api/refreshAccessToken"
+    REFRESH_TOKEN: "/api/refreshAccessToken"
 }
 
 class MessagePage extends Component {
@@ -38,10 +38,10 @@ class MessagePage extends Component {
         this.singOut = this.singOut.bind(this);
     }
 
-    handleChangeTxt = (event) => {
+    handleChangeTxt = async (event) => {
 
         const { name, value } = event.target;
-        this.setState({
+        await this.setState({
             [name]: value
         });
 
@@ -73,37 +73,36 @@ class MessagePage extends Component {
     singOut(){
         const { setAuth} = this.context;
         setAuth('', [], '');
-        sessionStorage.removeItem('refreshToken');
+        //sessionStorage.removeItem('refreshToken');
     }
 
     async refreshAccessToken(){
         const {setAuth, username, roles,accessToken} = this.context;
-
-        const refreshToken = sessionStorage.getItem('refreshToken');
+    
+        //const refreshToken = sessionStorage.getItem('refreshToken');
         //fetch
         try{
-            const data = await axios.post(APIs.REFRESH_TOKEN,
-                JSON.stringify({
-                    refreshToken  
-                }),
+            const data = await axios.post(REFRESH_TOKEN_URL,
+                //refreshToken, // Pass as a plain object
                 {
-                    withCredentials: true //can be problematic
+                  withCredentials: true, //pass a http only cookie
+                  headers: {
+                    'Access-Control-Allow-Origin': '*', 
+                  }
                 }
-            );
-
+              );
+    
             let res = data.data;
             //is ok
             if(res.succeeded){
                 console.log(res);
-                setAuth(username, roles, res.accessToken);
-                //new refreshToken
-                sessionStorage.setItem('refreshToken', res.refreshToken);
+                await setAuth(username, roles, res.accessToken);
             }
-
+    
         } catch(err){
             console.log("Error: Can't refresh token: ", err);
         }
-    }
+      }
 
     async searchPeople(){
         const {username, accessToken} = this.context;
@@ -115,18 +114,18 @@ class MessagePage extends Component {
                     params:{
                         input: this.state.searchBar
                     },
+                    withCredentials: true,
                     headers: { 
                         Authorization: `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    withCredentials: true //can be problematic
                 }
             );
 
             let res = data.data;
             //is ok
             if(res.succeeded){
-                console.log(res);
+                console.log(res.message);
                 
             }
 
