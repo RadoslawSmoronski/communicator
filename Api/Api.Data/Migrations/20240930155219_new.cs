@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class test : Migration
+    public partial class @new : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,8 +55,7 @@ namespace Api.Data.Migrations
                 name: "RefreshTokens",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Token = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
                     Expiration = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -172,6 +171,58 @@ namespace Api.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Friendships",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    User1Id = table.Column<string>(type: "text", nullable: false),
+                    User2Id = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Friendships", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Friendships_AspNetUsers_User1Id",
+                        column: x => x.User1Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Friendships_AspNetUsers_User2Id",
+                        column: x => x.User2Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PendingFriendships",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    User1Id = table.Column<string>(type: "text", nullable: false),
+                    User2Id = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PendingFriendships", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PendingFriendships_AspNetUsers_User1Id",
+                        column: x => x.User1Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PendingFriendships_AspNetUsers_User2Id",
+                        column: x => x.User2Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -208,6 +259,28 @@ namespace Api.Data.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Friendships_User1Id_User2Id",
+                table: "Friendships",
+                columns: new[] { "User1Id", "User2Id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Friendships_User2Id",
+                table: "Friendships",
+                column: "User2Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PendingFriendships_User1Id_User2Id",
+                table: "PendingFriendships",
+                columns: new[] { "User1Id", "User2Id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PendingFriendships_User2Id",
+                table: "PendingFriendships",
+                column: "User2Id");
         }
 
         /// <inheritdoc />
@@ -227,6 +300,12 @@ namespace Api.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Friendships");
+
+            migrationBuilder.DropTable(
+                name: "PendingFriendships");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
