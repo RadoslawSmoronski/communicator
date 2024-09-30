@@ -4,6 +4,7 @@ using Api.Models.Dtos.Controllers.UsersController;
 using Api.Models.Dtos.Controllers.UsersController.GetUser;
 using Api.Models.Dtos.Controllers.UsersController.GetUsers;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("getUserById/{id}")]
+        [Authorize]
         public async Task<IActionResult> GetUserByIdAsync([FromRoute] string id)
         {
             if(string.IsNullOrWhiteSpace(id))
@@ -76,6 +78,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("getUsersByText/{text}")]
+        [Authorize]
         public async Task<IActionResult> getUsersByTextAsync([FromRoute] string text)
         {
             if (string.IsNullOrWhiteSpace(text))
