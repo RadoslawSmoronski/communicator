@@ -9,7 +9,7 @@ namespace Api.Exceptions
     public class DatabaseOperationException : Exception
     {
         public DatabaseOperationException()
-            : base("Datbase operation error.")
+            : base("Database operation error.")
         {
         }
 

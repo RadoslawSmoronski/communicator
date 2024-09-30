@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Api.Exceptions\Api.Exceptions.csproj" />
     <ProjectReference Include="..\Api.Models\Api.Models.csproj" />
   </ItemGroup>
 

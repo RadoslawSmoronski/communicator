@@ -57,7 +57,7 @@ namespace Api.Tests.Controllers
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(409);
 
-            var response = result.Value as SendInviteFailedResponseDto;
+            var response = result.Value as RegisterFailedResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
             response.Errors.Should().Contain("User with this username already exists.");
@@ -108,7 +108,7 @@ namespace Api.Tests.Controllers
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(500);
 
-            var response = result.Value as SendInviteFailedResponseDto;
+            var response = result.Value as RegisterFailedResponseDto;
             response.Should().NotBeNull();
             response!.Succeeded.Should().BeFalse();
             response.Errors.Should().Contain("An internal server error occurred.");
