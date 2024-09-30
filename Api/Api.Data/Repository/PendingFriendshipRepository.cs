@@ -1,4 +1,5 @@
 ﻿using Api.Data.IRepository;
+using Api.Exceptions;
 using Api.Models;
 using Api.Models.Friendship;
 using Microsoft.AspNetCore.Identity;
@@ -25,26 +26,31 @@ namespace Api.Data.Repository
         {
             if (string.IsNullOrWhiteSpace(senderId))
             {
-                throw new Exception("senderId is empty.");
+                throw new EnteredDataIsNullException("senderId is empty.");
             }
 
             if (string.IsNullOrWhiteSpace(recipientId))
             {
-                throw new Exception("recipientId is empty.");
+                throw new EnteredDataIsNullException("recipientId is empty.");
+            }
+
+            if (senderId == recipientId)
+            {
+                throw new InvalidOperationException("Cannot send an invite to yourself.");
             }
 
             var user1 = await _userManager.FindByIdAsync(senderId);
 
             if (user1 == null)
             {
-                throw new Exception("User with senderId doesn't exist.");
+                throw new UserNotFoundException("User with senderId doesn't exist.");
             }
 
             var user2 = await _userManager.FindByIdAsync(recipientId);
 
             if (user2 == null)
             {
-                throw new Exception("User with recipientId doesn't exist.");
+                throw new UserNotFoundException("User with recipientId doesn't exist.");
             }
 
             if(await IsFriendshipPendingExists(senderId, recipientId))
@@ -60,8 +66,15 @@ namespace Api.Data.Repository
                 User2 = user2
             };
 
-            await _context.PendingFriendships.AddAsync(pendingFriendship);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.PendingFriendships.AddAsync(pendingFriendship);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseOperationException();
+            }
         }
 
         public Task DecelineInviteAsync(string recipientId, string senderId)
