@@ -1,5 +1,6 @@
 ﻿using Api.Data.IRepository;
 using Api.Exceptions;
+using Api.Exceptions.PendingfriendshipRepository;
 using Api.Models;
 using Api.Models.Friendship;
 using Microsoft.AspNetCore.Identity;
@@ -55,7 +56,7 @@ namespace Api.Data.Repository
 
             if(await IsFriendshipPendingExists(senderId, recipientId))
             {
-                throw new Exception("This invitation already exists.");
+                throw new FriendshipPendingIsAlreadyExistException();
             }
 
             var pendingFriendship = new PendingFriendship
