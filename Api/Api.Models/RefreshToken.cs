@@ -8,7 +8,7 @@ namespace Api.Models
 {
     public class RefreshToken
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Token { get; set; } = String.Empty;
         public string UserId { get; set; } = String.Empty;
         public DateTime Expiration {  get; set; } = DateTime.MinValue;
