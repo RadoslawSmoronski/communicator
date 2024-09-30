@@ -23,16 +23,14 @@ namespace Api.Controllers
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
-        private readonly ICookieService _cookieService;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper, ITokenService tokenService, ICookieService cookieService)
+            IMapper mapper, ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
             _tokenService = tokenService;
-            _cookieService = cookieService;
         }
 
         [HttpPost("register")]
@@ -117,9 +115,6 @@ namespace Api.Controllers
 
                     var accessToken = await _tokenService.CreateAccessTokenAsync(user);
 
-                    _cookieService.SetCookie("access_token", accessToken, _tokenService.AccessTokenCookieOptions);
-                    _cookieService.SetCookie("refresh_token", refreshToken, _tokenService.RefreshTokenCookieOptions);
-
                     return Ok(new LoginResponseDto()
                     {
                         Succeeded = true,
@@ -149,7 +144,7 @@ namespace Api.Controllers
         }
 
 
-        [HttpPost("refreshAccessToken")]
+        [HttpPost("refreshAccessToken")] //todo
         public async Task<IActionResult> refreshAccessToken([FromBody] string refreshToken)
         {
 

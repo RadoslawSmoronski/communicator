@@ -26,7 +26,6 @@ namespace Api.Tests.Controllers
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
         private readonly ITokenService _tokenService;
-        private readonly ICookieService _cookieService;
 
         public UserControllerTest()
         {
@@ -35,7 +34,6 @@ namespace Api.Tests.Controllers
             _signInManager = A.Fake<SignInManager<UserAccount>>();
             _mapper = A.Fake<IMapper>();
             _tokenService = A.Fake<ITokenService>();
-            _cookieService = A.Fake<ICookieService>();
         }
 
         //RegisterAsync
@@ -44,7 +42,7 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturnConflict_WhenCalledUsernameIsAlreadyExists()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService, _cookieService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var registerDto = new RegisterDto() { UserName = "test", Password = "test" };
             var identityResultFailure = IdentityResult.Failed(new IdentityError { Code = "DuplicateUserName", Description = "User with this username already exists." });
 
@@ -70,7 +68,7 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturnOk_WhenCalledWithValidParameters(string testLogin, string testPassword)
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService, _cookieService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
@@ -97,7 +95,7 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturn500_WhenRegisterInThrowsException(string testLogin, string testPassword)
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService, _cookieService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
@@ -122,7 +120,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturnUnauthorized_WhenCalledUsernameDoesntExist()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService, _cookieService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var loginDto = new LoginDto() { UserName = "test", Password = "test" };
 
             A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
@@ -148,7 +146,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturn500_WhenSignInThrowsException()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService, _cookieService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var loginDto = new LoginDto() { UserName = "test", Password = "test" };
 
             A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
@@ -175,7 +173,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturnOk_WhenCalledWithValidParameters(string testLogin, string testPassword)
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService, _cookieService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
             var loginDto = new LoginDto() { UserName = "test", Password = "test" };
             var user = new UserAccount { UserName = "test" };
 
