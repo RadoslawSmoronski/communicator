@@ -122,6 +122,8 @@ namespace Api.Controllers
                         User = new LoggedUserDto()
                         {
                             UserName = loginDto.UserName,
+                            AccessToken = accessToken,
+                            RefreshToken = refreshToken
                         }
                     });
 
