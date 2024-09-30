@@ -5,6 +5,7 @@ using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers
 {
@@ -23,6 +24,7 @@ namespace Api.Controllers
 
 
         [HttpPost("sendInviteAsync")]
+        [Authorize]
         public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
         {
             if (!ModelState.IsValid)
