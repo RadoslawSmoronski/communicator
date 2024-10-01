@@ -1,11 +1,12 @@
 ﻿using Api.Data.IRepository;
-using Api.Exceptions.PendingfriendshipRepository;
+using Api.Exceptions.FriendshipInvitationRepository;
 using Api.Exceptions;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Api.Data.Repository;
 
 namespace Api.Controllers
 {
@@ -14,17 +15,17 @@ namespace Api.Controllers
     public class FriendsController : Controller
     {
         private readonly UserManager<UserAccount> _userManager;
-        private readonly IPendingFriendshipRepository _pendingFriendshipRepository;
+        private readonly IFriendshipInvitationsRepository _friendshipInvitationRepository;
 
-        public FriendsController(UserManager<UserAccount> userManager, IPendingFriendshipRepository pendingFriendshipRepository)
+        public FriendsController(UserManager<UserAccount> userManager, IFriendshipInvitationsRepository friendshipInvitationRepository)
         {
             _userManager = userManager;
-            _pendingFriendshipRepository = pendingFriendshipRepository;
+            _friendshipInvitationRepository = friendshipInvitationRepository;
         }
 
 
         [HttpPost("sendInviteAsync")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
         {
             if (!ModelState.IsValid)
@@ -34,7 +35,7 @@ namespace Api.Controllers
 
             try
             {
-                await _pendingFriendshipRepository.SendInviteAsync(sendInviteDto.SenderId, sendInviteDto.RecipientId);
+                await _friendshipInvitationRepository.SendInviteAsync(sendInviteDto.SenderId, sendInviteDto.RecipientId);
 
                 return Ok(new SendInviteOkResponseDto
                 {
@@ -54,7 +55,7 @@ namespace Api.Controllers
             {
                 return NotFound(CreateErrorResponse(ex.Message));
             }
-            catch (FriendshipPendingIsAlreadyExistException ex)
+            catch (FriendshipInvitationIsAlreadyExistException ex)
             {
                 return Conflict(CreateErrorResponse(ex.Message));
             }
@@ -68,13 +69,51 @@ namespace Api.Controllers
             }
         }
 
-        private SendInviteFailedResponseDto CreateErrorResponse(string message)
+        //[HttpGet("getUserInvitaties/{userId}")]
+        //public async Task<IActionResult> GetUserInvitiesAsync(string userId)
+        //{
+        //    if (String.IsNullOrEmpty(userId) || userId.Length != 36)
+        //    {
+        //        return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
+        //    }
+
+        //    try
+        //    {
+        //        //var invities = await _pendingFriendshipRepository.GetUserInvitiesAsync(userId); //todo
+
+        //        return Ok(new GetInvitiesOkResponseDto
+        //        {
+        //            Succeeded = true,
+        //            Message = "Successfully found invitations sent or accepted.",
+        //            //PendingFriendships = invities //todo
+        //        });
+        //    }
+        //    catch(EnteredDataIsNullException ex)
+        //    {
+        //        return BadRequest(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch(UserNotFoundException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch(FriendshipPendingDoesNotExistException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+        //    }
+        //}
+
+        private FriendsFailedResponseDto CreateErrorResponse(string message)
         {
-            return new SendInviteFailedResponseDto
+            return new FriendsFailedResponseDto
             {
                 Succeeded = false,
                 Message = message
             };
         }
+
     }
 }

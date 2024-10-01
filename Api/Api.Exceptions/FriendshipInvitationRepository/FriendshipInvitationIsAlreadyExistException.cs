@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Exceptions.PendingfriendshipRepository
+namespace Api.Exceptions.FriendshipInvitationRepository
 {
-    public class FriendshipPendingIsAlreadyExistException : Exception
+    public class FriendshipInvitationIsAlreadyExistException : Exception
     {
-        public FriendshipPendingIsAlreadyExistException()
+        public FriendshipInvitationIsAlreadyExistException()
             : base("This friendship invitation already exists.")
         {
             
