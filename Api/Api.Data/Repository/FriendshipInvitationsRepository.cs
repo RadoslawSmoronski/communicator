@@ -90,7 +90,7 @@ namespace Api.Data.Repository
             throw new NotImplementedException();
         }
 
-        public async Task<List<FriendsInviteUserDto>> GetUserInvitiesAsync(string userId)
+        public async Task<List<FriendsInvitationDto>> GetUserInvitiesAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -104,52 +104,55 @@ namespace Api.Data.Repository
                 throw new UserNotFoundException("This user doesn't exist.");
             }
 
-            //var records = await _context.PendingFriendships
-            //    .Where(x => (x.User1Id == userId || x.User2Id == userId))
-            //    .ToListAsync();
+            var records = await _context.FriendshipInvitations
+            .Where(x => x.RecipientId == userId)
+            .Select(x => new FriendsInvitationDto
+            {
+                SenderId = x.SenderId,
+                SenderUsername = x.SenderUser.UserName
+            })
+            .ToListAsync();
 
-            //dorobic driendsinviteuserdto na format odpowiedni i zwrocic z tym liste zamiasrt pendingfriends
+            if(records.Count < 1)
+            {
+                throw new FriendshipInvitationDoesNotExistException();
+            }
 
-            //if (records != null && records.Count > 0)
-            //{
-            //    return records;
-            //}
+            return records;
 
-            throw new FriendshipInvitationDoesNotExistException();
         }
 
         public async Task<bool> IsFriendshipInvitationExists(string userId1, string userId2)
         {
-            throw new NotImplementedException();
-            //if (string.IsNullOrWhiteSpace(userId1))
-            //{
-            //    throw new Exception("username1 is empty.");
-            //}
+            if (string.IsNullOrWhiteSpace(userId1))
+            {
+                throw new Exception("username1 is empty.");
+            }
 
-            //if (string.IsNullOrWhiteSpace(userId2))
-            //{
-            //    throw new Exception("username2 is empty.");
-            //}
+            if (string.IsNullOrWhiteSpace(userId2))
+            {
+                throw new Exception("username2 is empty.");
+            }
 
-            //var user1 = await _userManager.FindByIdAsync(userId1);
+            var user1 = await _userManager.FindByIdAsync(userId1);
 
-            //if (user1 == null)
-            //{
-            //    throw new Exception("User with senderId doesn't exist.");
-            //}
+            if (user1 == null)
+            {
+                throw new Exception("User with senderId doesn't exist.");
+            }
 
-            //var user2 = await _userManager.FindByIdAsync(userId2);
+            var user2 = await _userManager.FindByIdAsync(userId2);
 
-            //if (user2 == null)
-            //{
-            //    throw new Exception("User with recipientId doesn't exist.");
-            //}
+            if (user2 == null)
+            {
+                throw new Exception("User with recipientId doesn't exist.");
+            }
 
-            //var exists = await _context.FriendshipInvitations
-            //    .AnyAsync(x => (x.SenderId == userId1 && x.RecipientId == userId2)
-            //                 || (x.SenderId == userId2 && x.RecipientId == userId1));
+            var exists = await _context.FriendshipInvitations
+                .AnyAsync(x => (x.SenderId == userId1 && x.RecipientId == userId2)
+                             || (x.SenderId == userId2 && x.RecipientId == userId1));
 
-            //return exists;
+            return exists;
         }
     }
 }

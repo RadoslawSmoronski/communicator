@@ -11,6 +11,6 @@ namespace Api.Models.Dtos.Controllers.FriendsController
     {
         public bool Succeeded { get; set; } = false;
         public string Message { get; set; } = string.Empty;
-        public List<FriendshipInvitation> FriendshipInvitations { get; set; } = new List<FriendshipInvitation>();
+        public List<FriendsInvitationDto> FriendshipInvitations { get; set; } = new List<FriendsInvitationDto>();
     }
 }

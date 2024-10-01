@@ -11,7 +11,7 @@ namespace Api.Data.IRepository
     public interface IFriendshipInvitationsRepository
     {
         Task SendInviteAsync(string senderId, string recipientId);
-        Task<List<FriendsInviteUserDto>> GetUserInvitiesAsync(string userId);
+        Task<List<FriendsInvitationDto>> GetUserInvitiesAsync(string userId);
         Task AcceptInviteAsync(string recipientId, string senderId);
         Task DecelineInviteAsync(string recipientId, string senderId);
         Task<bool> IsFriendshipInvitationExists(string user1, string user2);

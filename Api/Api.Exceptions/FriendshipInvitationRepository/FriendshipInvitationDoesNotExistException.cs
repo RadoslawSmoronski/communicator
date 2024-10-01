@@ -9,7 +9,7 @@ namespace Api.Exceptions.FriendshipInvitationRepository
     public class FriendshipInvitationDoesNotExistException : Exception
     {
         public FriendshipInvitationDoesNotExistException()
-            : base("User has no invitations sent or received.")
+            : base("User has no invitations.")
         {
             
         }
