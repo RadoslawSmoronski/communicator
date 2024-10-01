@@ -11,7 +11,7 @@ namespace Api.Data
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
-        public DbSet<PendingFriendship> PendingFriendships { get; set; }
+        public DbSet<FriendshipInvitation> FriendshipInvitations { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -44,23 +44,23 @@ namespace Api.Data
                 .HasIndex(f => new { f.User1Id, f.User2Id })
                 .IsUnique();
 
-            builder.Entity<PendingFriendship>()
+            builder.Entity<FriendshipInvitation>()
                 .HasKey(f => f.Id);
 
-            builder.Entity<PendingFriendship>()
-                .HasOne(f => f.User1)
+            builder.Entity<FriendshipInvitation>()
+                .HasOne(f => f.SenderUser)
                 .WithMany()
-                .HasForeignKey(f => f.User1Id)
+                .HasForeignKey(f => f.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<PendingFriendship>()
-                 .HasOne(f => f.User2)
+            builder.Entity<FriendshipInvitation>()
+                 .HasOne(f => f.RecipientUser)
                  .WithMany()
-                 .HasForeignKey(f => f.User2Id)
+                 .HasForeignKey(f => f.RecipientId)
                  .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<PendingFriendship>()
-                .HasIndex(f => new { f.User1Id, f.User2Id })
+            builder.Entity<FriendshipInvitation>()
+                .HasIndex(f => new { f.SenderId, f.RecipientId })
                 .IsUnique();
         }
 
