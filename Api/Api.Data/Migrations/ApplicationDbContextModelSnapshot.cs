@@ -49,7 +49,7 @@ namespace Api.Data.Migrations
                     b.ToTable("Friendships");
                 });
 
-            modelBuilder.Entity("Api.Models.Friendship.PendingFriendship", b =>
+            modelBuilder.Entity("Api.Models.Friendship.FriendshipInvitation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -58,22 +58,22 @@ namespace Api.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("User1Id")
+                    b.Property<string>("RecipientId")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("User2Id")
+                    b.Property<string>("SenderId")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("User2Id");
+                    b.HasIndex("RecipientId");
 
-                    b.HasIndex("User1Id", "User2Id")
+                    b.HasIndex("SenderId", "RecipientId")
                         .IsUnique();
 
-                    b.ToTable("PendingFriendships");
+                    b.ToTable("FriendshipInvitations");
                 });
 
             modelBuilder.Entity("Api.Models.RefreshToken", b =>
@@ -313,23 +313,23 @@ namespace Api.Data.Migrations
                     b.Navigation("User2");
                 });
 
-            modelBuilder.Entity("Api.Models.Friendship.PendingFriendship", b =>
+            modelBuilder.Entity("Api.Models.Friendship.FriendshipInvitation", b =>
                 {
-                    b.HasOne("Api.Models.UserAccount", "User1")
+                    b.HasOne("Api.Models.UserAccount", "RecipientUser")
                         .WithMany()
-                        .HasForeignKey("User1Id")
+                        .HasForeignKey("RecipientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Api.Models.UserAccount", "User2")
+                    b.HasOne("Api.Models.UserAccount", "SenderUser")
                         .WithMany()
-                        .HasForeignKey("User2Id")
+                        .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("User1");
+                    b.Navigation("RecipientUser");
 
-                    b.Navigation("User2");
+                    b.Navigation("SenderUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
