@@ -110,7 +110,7 @@ namespace Api.Controllers
 
             try
             {
-                await _friendshipInvitationRepository.DecelineInviteAsync(decelineInviteDto.RecipientId, decelineInviteDto.SenderId);
+                await _friendshipInvitationRepository.DeleteInviteAsync(decelineInviteDto.SenderId, decelineInviteDto.RecipientId);
 
                 return Ok(new DecelineInviteOkResponse
                 {

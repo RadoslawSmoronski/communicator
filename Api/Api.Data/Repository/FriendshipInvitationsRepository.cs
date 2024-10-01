@@ -80,38 +80,7 @@ namespace Api.Data.Repository
             }
         }
 
-        public async Task DecelineInviteAsync(string recipientId, string senderId)
-        {
-            await ValidateInviteDataAsync(recipientId, senderId);
-
-            var invitation = await _context.FriendshipInvitations
-                .Where(x => x.SenderId == senderId && x.RecipientId == recipientId)
-                .FirstOrDefaultAsync();
-
-            if (invitation != null)
-            {
-                try
-                {
-                    _context.FriendshipInvitations.Remove(invitation);
-                    await _context.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    throw new DatabaseOperationException();
-                }
-            }
-            else
-            {
-                throw new DatabaseOperationException();
-            }
-        }
-
-        public async Task AcceptInviteAsync(string recipientId, string senderId)
-        {
-            throw new NotImplementedException();
-        }
-
-        private async Task ValidateInviteDataAsync(string recipientId, string senderId)
+        public async Task DeleteInviteAsync(string senderId, string recipientId)
         {
             if (string.IsNullOrWhiteSpace(senderId))
             {
@@ -142,13 +111,27 @@ namespace Api.Data.Repository
                 throw new UserNotFoundException("User with recipientId doesn't exist.");
             }
 
-            if (await IsFriendshipInvitationExists(senderId, recipientId) == false)
+            var invitation = await _context.FriendshipInvitations
+                .Where(x => x.SenderId == senderId && x.RecipientId == recipientId)
+                .FirstOrDefaultAsync();
+
+            if (invitation != null)
+            {
+                try
+                {
+                    _context.FriendshipInvitations.Remove(invitation);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new DatabaseOperationException();
+                }
+            }
+            else
             {
                 throw new FriendshipInvitationDoesNotExistException();
             }
-
         }
-
         public async Task<List<FriendsInvitationDto>> GetUserInvitiesAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
