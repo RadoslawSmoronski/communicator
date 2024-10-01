@@ -98,6 +98,42 @@ namespace Api.Controllers
             }
         }
 
+        [HttpPost("decelineInvite")]
+        public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _friendshipInvitationRepository.DecelineInviteAsync(decelineInviteDto.RecipientId, decelineInviteDto.SenderId);
+
+                return Ok(new DecelineInviteOkResponse
+                {
+                    Succeeded = true,
+                    Message = "Decelined friend request.",
+                });
+            }
+            catch (EnteredDataIsNullException ex)
+            {
+                return BadRequest(CreateErrorResponse(ex.Message));
+            }
+            catch (UserNotFoundException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (FriendshipInvitationDoesNotExistException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+            }
+        }
+
         private FriendsFailedResponseDto CreateErrorResponse(string message)
         {
             return new FriendsFailedResponseDto
