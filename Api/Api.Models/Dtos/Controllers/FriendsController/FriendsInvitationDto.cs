@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Controllers.FriendsController
 {
-    public class SendInviteFailedResponseDto
+    public class FriendsInvitationDto
     {
-        public bool Succeeded { get; set; } = false;
-        public string Message { get; set; } = String.Empty;
+        public string SenderId { get; set; } = String.Empty;
+        public string SenderUsername { get; set; } = String.Empty;
     }
 }

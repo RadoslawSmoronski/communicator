@@ -1,9 +1,11 @@
 ﻿using Api.Data.IRepository;
 using Api.Exceptions;
-using Api.Exceptions.PendingfriendshipRepository;
-using Api.Models;
+using Api.Exceptions.FriendshipInvitationRepository;
+using Api.Models;   
+using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Models.Friendship;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +14,12 @@ using System.Threading.Tasks;
 
 namespace Api.Data.Repository
 {
-    public class PendingFriendshipRepository : IPendingFriendshipRepository
+    public class FriendshipInvitationsRepository : IFriendshipInvitationsRepository
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<UserAccount> _userManager;
 
-        public PendingFriendshipRepository(ApplicationDbContext context, UserManager<UserAccount> userManager)
+        public FriendshipInvitationsRepository(ApplicationDbContext context, UserManager<UserAccount> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -40,36 +42,36 @@ namespace Api.Data.Repository
                 throw new InvalidOperationException("Cannot send an invite to yourself.");
             }
 
-            var user1 = await _userManager.FindByIdAsync(senderId);
+            var senderUser = await _userManager.FindByIdAsync(senderId);
 
-            if (user1 == null)
+            if (senderUser == null)
             {
                 throw new UserNotFoundException("User with senderId doesn't exist.");
             }
 
-            var user2 = await _userManager.FindByIdAsync(recipientId);
+            var recipientUser = await _userManager.FindByIdAsync(recipientId);
 
-            if (user2 == null)
+            if (recipientUser == null)
             {
                 throw new UserNotFoundException("User with recipientId doesn't exist.");
             }
 
-            if(await IsFriendshipPendingExists(senderId, recipientId))
+            if(await IsFriendshipInvitationExists(senderId, recipientId))
             {
-                throw new FriendshipPendingIsAlreadyExistException();
+                throw new FriendshipInvitationIsAlreadyExistException();
             }
 
-            var pendingFriendship = new PendingFriendship
+            var friendshipInvitation = new FriendshipInvitation
             {
-                User1Id = senderId,
-                User2Id = recipientId,
-                User1 = user1,
-                User2 = user2
+                SenderId = senderId,
+                RecipientId = recipientId,
+                SenderUser = senderUser,
+                RecipientUser = recipientUser
             };
 
             try
             {
-                await _context.PendingFriendships.AddAsync(pendingFriendship);
+                await _context.FriendshipInvitations.AddAsync(friendshipInvitation);
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -88,12 +90,39 @@ namespace Api.Data.Repository
             throw new NotImplementedException();
         }
 
-        public Task<List<PendingFriendship>> CheckInvitiesAsync(string recipientId)
+        public async Task<List<FriendsInvitationDto>> GetUserInvitiesAsync(string userId)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new EnteredDataIsNullException("userId is empty.");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new UserNotFoundException("This user doesn't exist.");
+            }
+
+            var records = await _context.FriendshipInvitations
+            .Where(x => x.RecipientId == userId)
+            .Select(x => new FriendsInvitationDto
+            {
+                SenderId = x.SenderId,
+                SenderUsername = x.SenderUser.UserName
+            })
+            .ToListAsync();
+
+            if(records.Count < 1)
+            {
+                throw new FriendshipInvitationDoesNotExistException();
+            }
+
+            return records;
+
         }
 
-        public async Task<bool> IsFriendshipPendingExists(string userId1, string userId2)
+        public async Task<bool> IsFriendshipInvitationExists(string userId1, string userId2)
         {
             if (string.IsNullOrWhiteSpace(userId1))
             {
@@ -119,15 +148,11 @@ namespace Api.Data.Repository
                 throw new Exception("User with recipientId doesn't exist.");
             }
 
-            var record = _context.Friendships.Where(x => (x.User1Id == userId1 && x.User2Id == userId2)
-                                        || (x.User1Id == userId2 && x.User2Id == userId1));
+            var exists = await _context.FriendshipInvitations
+                .AnyAsync(x => (x.SenderId == userId1 && x.RecipientId == userId2)
+                             || (x.SenderId == userId2 && x.RecipientId == userId1));
 
-            if(record != null)
-            {
-                return true;
-            }
-
-            return false;
+            return exists;
         }
     }
 }
