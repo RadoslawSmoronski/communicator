@@ -25,7 +25,7 @@ namespace Api.Controllers
 
 
         [HttpPost("sendInviteAsync")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
         {
             if (!ModelState.IsValid)
@@ -61,6 +61,7 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("getUserInvitaties/{userId}")]
         public async Task<IActionResult> GetUserInvitiesAsync(string userId)
         {
@@ -78,6 +79,43 @@ namespace Api.Controllers
                     Succeeded = true,
                     Message = "Successfully found invitations.",
                     FriendshipInvitations = invities
+                });
+            }
+            catch (EnteredDataIsNullException ex)
+            {
+                return BadRequest(CreateErrorResponse(ex.Message));
+            }
+            catch (UserNotFoundException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (FriendshipInvitationDoesNotExistException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+            }
+        }
+
+        [Authorize]
+        [HttpPost("decelineInvite")]
+        public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _friendshipInvitationRepository.DecelineInviteAsync(decelineInviteDto.RecipientId, decelineInviteDto.SenderId);
+
+                return Ok(new DecelineInviteOkResponse
+                {
+                    Succeeded = true,
+                    Message = "Decelined friend request.",
                 });
             }
             catch (EnteredDataIsNullException ex)

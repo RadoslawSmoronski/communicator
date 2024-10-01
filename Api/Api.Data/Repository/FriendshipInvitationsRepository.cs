@@ -80,14 +80,73 @@ namespace Api.Data.Repository
             }
         }
 
-        public Task DecelineInviteAsync(string recipientId, string senderId)
+        public async Task DecelineInviteAsync(string recipientId, string senderId)
+        {
+            await ValidateInviteDataAsync(recipientId, senderId);
+
+            var invitation = await _context.FriendshipInvitations
+                .Where(x => x.SenderId == senderId && x.RecipientId == recipientId)
+                .FirstOrDefaultAsync();
+
+            if (invitation != null)
+            {
+                try
+                {
+                    _context.FriendshipInvitations.Remove(invitation);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new DatabaseOperationException();
+                }
+            }
+            else
+            {
+                throw new DatabaseOperationException();
+            }
+        }
+
+        public async Task AcceptInviteAsync(string recipientId, string senderId)
         {
             throw new NotImplementedException();
         }
 
-        public Task AcceptInviteAsync(string recipientId, string senderId)
+        private async Task ValidateInviteDataAsync(string recipientId, string senderId)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(senderId))
+            {
+                throw new EnteredDataIsNullException("senderId is empty.");
+            }
+
+            if (string.IsNullOrWhiteSpace(recipientId))
+            {
+                throw new EnteredDataIsNullException("recipientId is empty.");
+            }
+
+            if (senderId == recipientId)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var senderUser = await _userManager.FindByIdAsync(senderId);
+
+            if (senderUser == null)
+            {
+                throw new UserNotFoundException("User with senderId doesn't exist.");
+            }
+
+            var recipientUser = await _userManager.FindByIdAsync(recipientId);
+
+            if (recipientUser == null)
+            {
+                throw new UserNotFoundException("User with recipientId doesn't exist.");
+            }
+
+            if (await IsFriendshipInvitationExists(senderId, recipientId) == false)
+            {
+                throw new FriendshipInvitationDoesNotExistException();
+            }
+
         }
 
         public async Task<List<FriendsInvitationDto>> GetUserInvitiesAsync(string userId)
