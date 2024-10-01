@@ -16,16 +16,18 @@ namespace Api.Controllers
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly IFriendshipInvitationsRepository _friendshipInvitationRepository;
+        private readonly IFriendshipRepository _friendshipRepository;
 
-        public FriendsController(UserManager<UserAccount> userManager, IFriendshipInvitationsRepository friendshipInvitationRepository)
+        public FriendsController(UserManager<UserAccount> userManager, IFriendshipInvitationsRepository friendshipInvitationRepository,
+            IFriendshipRepository friendshipRepository)
         {
             _userManager = userManager;
             _friendshipInvitationRepository = friendshipInvitationRepository;
+            _friendshipRepository = friendshipRepository;
         }
 
-
-        [HttpPost("sendInviteAsync")]
         [Authorize]
+        [HttpPost("sendInviteAsync")]
         public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
         {
             if (!ModelState.IsValid)
@@ -116,6 +118,45 @@ namespace Api.Controllers
                 {
                     Succeeded = true,
                     Message = "Decelined friend request.",
+                });
+            }
+            catch (EnteredDataIsNullException ex)
+            {
+                return BadRequest(CreateErrorResponse(ex.Message));
+            }
+            catch (UserNotFoundException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (FriendshipInvitationDoesNotExistException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+            }
+        }
+
+        [Authorize]
+        [HttpPost("acceptInvite")]
+        public async Task<IActionResult> AcceptInviteAsync(AcceptInviteDto acceptInviteDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+
+                await _friendshipInvitationRepository.DeleteInviteAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+                await _friendshipRepository.AddFriendshipAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+
+                return Ok(new AcceptInviteOkResponse
+                {
+                    Succeeded = true,
+                    Message = "Accepted friend request.",
                 });
             }
             catch (EnteredDataIsNullException ex)

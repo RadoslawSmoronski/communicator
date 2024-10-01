@@ -28,6 +28,7 @@ namespace Api
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<IFriendshipInvitationsRepository, FriendshipInvitationsRepository>();
+            builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddSwaggerGen(option =>
