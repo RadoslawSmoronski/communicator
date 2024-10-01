@@ -25,7 +25,7 @@ namespace Api.Controllers
 
 
         [HttpPost("sendInviteAsync")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
         {
             if (!ModelState.IsValid)
@@ -61,6 +61,7 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("getUserInvitaties/{userId}")]
         public async Task<IActionResult> GetUserInvitiesAsync(string userId)
         {
@@ -98,6 +99,7 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("decelineInvite")]
         public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
         {
