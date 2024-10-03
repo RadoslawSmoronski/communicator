@@ -64,8 +64,8 @@ namespace Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("getUserInvitaties/{userId}")]
-        public async Task<IActionResult> GetUserInvitiesAsync(string userId)
+        [HttpGet("getInvitaties/{userId}")]
+        public async Task<IActionResult> GetInvitiesAsync(string userId)
         {
             if (String.IsNullOrEmpty(userId) || userId.Length != 36)
             {
@@ -74,7 +74,7 @@ namespace Api.Controllers
 
             try
             {
-                var invities = await _friendshipInvitationRepository.GetUserInvitiesAsync(userId);
+                var invities = await _friendshipInvitationRepository.GetInvitiesAsync(userId);
 
                 return Ok(new GetInvitiesOkResponseDto
                 {
@@ -157,6 +157,44 @@ namespace Api.Controllers
                 {
                     Succeeded = true,
                     Message = "Accepted friend request.",
+                });
+            }
+            catch (EnteredDataIsNullException ex)
+            {
+                return BadRequest(CreateErrorResponse(ex.Message));
+            }
+            catch (UserNotFoundException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (FriendshipInvitationDoesNotExistException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+            }
+        }
+
+        [Authorize]
+        [HttpGet("getFriends/{userId}")]
+        public async Task<IActionResult> GetFriendsAsync(string userId)
+        {
+            if (String.IsNullOrEmpty(userId) || userId.Length != 36)
+            {
+                return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
+            }
+
+            try
+            {
+                var invities = await _friendshipRepository.GetFriendsAsync(userId);
+
+                return Ok(new GetFriendsOkResponseDto
+                {
+                    Succeeded = true,
+                    Message = "Successfully found friends.",
+                    Friends = invities
                 });
             }
             catch (EnteredDataIsNullException ex)

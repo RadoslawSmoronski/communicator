@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Api.Models.Dtos.Controllers.FriendsController;
+using Microsoft.EntityFrameworkCore;
+using Api.Exceptions.Friendship;
 
 namespace Api.Data.Repository
 {
@@ -76,6 +79,37 @@ namespace Api.Data.Repository
             {
                 throw new DatabaseOperationException();
             }
+        }
+
+        public async Task<List<FriendDto>> GetFriendsAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new Exception("userId is empty.");
+            }
+
+            var user1 = await _userManager.FindByIdAsync(userId);
+
+            if (user1 == null)
+            {
+                throw new Exception("User with userId doesn't exist.");
+            }
+
+            var records = await _context.Friendships
+                .Where(x => x.User1Id == userId || x.User2Id == userId)
+                .Select(x => new FriendDto
+                {
+                    Id = x.User1Id == userId ? x.User2Id : x.User1Id,
+                    Username = x.User1Id == userId ? x.User2.UserName : x.User1.UserName
+                })
+                .ToListAsync();
+
+            if (records.Count < 1)
+            {
+                throw new FriendshipDoesNotExistException();
+            }
+
+            return records;
         }
     }
 }
