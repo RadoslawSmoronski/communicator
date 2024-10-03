@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Api.Models.Dtos.Controllers.FriendsController;
 using Microsoft.EntityFrameworkCore;
-using Api.Exceptions.Friendship;
+using Api.Exceptions.FriendshipRepository;
 
 namespace Api.Data.Repository
 {
@@ -57,10 +57,10 @@ namespace Api.Data.Repository
                 throw new UserNotFoundException("User with user2Id doesn't exist.");
             }
 
-            //if (await IsFriendshipExists(user1, user2))
-            //{
-                
-            //} todo
+            if (await IsFriendshipExistsAsync(user1Id, user2Id))
+            {
+                throw new FriendshipIsAlreadyExistException();
+            } 
 
             var friendship = new Friendship
             {
@@ -110,6 +110,34 @@ namespace Api.Data.Repository
             }
 
             return records;
+        }
+
+        public async Task<bool> IsFriendshipExistsAsync(string user1Id, string user2Id)
+        {
+            if (string.IsNullOrWhiteSpace(user1Id))
+            {
+                throw new Exception("user1Id is empty.");
+            }
+
+            if (string.IsNullOrWhiteSpace(user2Id))
+            {
+                throw new Exception("user2Id is empty.");
+            }
+
+            if (await _userManager.FindByIdAsync(user1Id) == null)
+            {
+                throw new Exception("User with user1Id doesn't exist.");
+            }
+
+            if (await _userManager.FindByIdAsync(user2Id) == null)
+            {
+                throw new Exception("User with user2Id doesn't exist.");
+            }
+
+            var isFriendshipExists = await _context.Friendships.AnyAsync(x => (x.User1Id == user1Id && x.User2Id == user2Id)
+            || (x.User1Id == user2Id && x.User2Id == user1Id));
+
+            return isFriendshipExists;
         }
     }
 }

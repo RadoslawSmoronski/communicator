@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Api.Data.Repository;
+using Api.Exceptions.FriendshipRepository;
 
 namespace Api.Controllers
 {
@@ -50,6 +51,10 @@ namespace Api.Controllers
                 return NotFound(CreateErrorResponse(ex.Message));
             }
             catch (FriendshipInvitationIsAlreadyExistException ex)
+            {
+                return Conflict(CreateErrorResponse(ex.Message));
+            }
+            catch (FriendshipIsAlreadyExistException ex)
             {
                 return Conflict(CreateErrorResponse(ex.Message));
             }
@@ -167,6 +172,10 @@ namespace Api.Controllers
             {
                 return NotFound(CreateErrorResponse(ex.Message));
             }
+            catch (FriendshipIsAlreadyExistException ex)
+            {
+                return Conflict(CreateErrorResponse(ex.Message));
+            }
             catch (FriendshipInvitationDoesNotExistException ex)
             {
                 return NotFound(CreateErrorResponse(ex.Message));
@@ -205,7 +214,7 @@ namespace Api.Controllers
             {
                 return NotFound(CreateErrorResponse(ex.Message));
             }
-            catch (FriendshipInvitationDoesNotExistException ex)
+            catch (FriendshipDoesNotExistException ex)
             {
                 return NotFound(CreateErrorResponse(ex.Message));
             }

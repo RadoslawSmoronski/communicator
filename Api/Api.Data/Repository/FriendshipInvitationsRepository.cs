@@ -1,6 +1,7 @@
 ﻿using Api.Data.IRepository;
 using Api.Exceptions;
 using Api.Exceptions.FriendshipInvitationRepository;
+using Api.Exceptions.FriendshipRepository;
 using Api.Models;   
 using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Models.Friendship;
@@ -18,11 +19,13 @@ namespace Api.Data.Repository
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<UserAccount> _userManager;
+        private readonly IFriendshipRepository _friendshipRepository;
 
-        public FriendshipInvitationsRepository(ApplicationDbContext context, UserManager<UserAccount> userManager)
+        public FriendshipInvitationsRepository(ApplicationDbContext context, UserManager<UserAccount> userManager, IFriendshipRepository friendshipRepository)
         {
             _context = context;
             _userManager = userManager;
+            _friendshipRepository = friendshipRepository;
         }
 
         public async Task SendInviteAsync(string senderId, string recipientId)
@@ -59,6 +62,11 @@ namespace Api.Data.Repository
             if(await IsFriendshipInvitationExists(senderId, recipientId))
             {
                 throw new FriendshipInvitationIsAlreadyExistException();
+            }
+
+            if (await _friendshipRepository.IsFriendshipExistsAsync(senderId, recipientId))
+            {
+                throw new FriendshipIsAlreadyExistException();
             }
 
             var friendshipInvitation = new FriendshipInvitation

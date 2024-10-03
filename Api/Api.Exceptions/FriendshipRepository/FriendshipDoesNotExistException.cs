@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Exceptions.Friendship
+namespace Api.Exceptions.FriendshipRepository
 {
     public class FriendshipDoesNotExistException : Exception
     {
