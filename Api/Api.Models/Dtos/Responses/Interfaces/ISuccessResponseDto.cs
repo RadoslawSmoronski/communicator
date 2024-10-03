@@ -11,6 +11,6 @@ namespace Api.Models.Dtos.Responses.Interfaces
         string Type { get; }
         string Title { get; set; }
         int Status { get; }
-        string TraceId { get; set; }
+        string? TraceId { get; set; }
     }
 }
