@@ -13,6 +13,6 @@ namespace Api.Models.Dtos.Responses
         public string Title { get; set; } = string.Empty;
         public int Status { get; } = 200;
         public T Data { get; set; }
-        public string TraceId { get; set; } = string.Empty;
+        public string? TraceId { get; set; }
     }
 }

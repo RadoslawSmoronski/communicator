@@ -12,6 +12,6 @@ namespace Api.Models.Dtos.Responses.Interfaces
         string Title { get; set; }
         int Status { get; }
         IDictionary<string, IEnumerable<string>> Errors { get; set; }
-        string TraceId { get; set; }
+        string? TraceId { get; set; }
     }
 }

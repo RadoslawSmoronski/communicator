@@ -13,6 +13,6 @@ namespace Api.Models.Dtos.Responses
         public string Title { get; set; } = String.Empty;
         public int Status { get; } = 404;
         public IDictionary<string, IEnumerable<string>> Errors { get; set; } = new Dictionary<string, IEnumerable<string>>();
-        public string TraceId { get; set; } = String.Empty;
+        public string? TraceId { get; set; }
     }
 }
