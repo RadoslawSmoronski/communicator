@@ -1,6 +1,7 @@
 ﻿using Api.Data;
 using Api.Data.IRepository;
 using Api.Data.Repository;
+using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,7 +26,7 @@ namespace Api
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ITokenService, TokenManager>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddSwaggerGen(option =>
             {
@@ -95,7 +96,7 @@ namespace Api
             });
 
 
-            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<ITokenService, TokenManager>();
 
             // Add CORS configuration
             builder.Services.AddCors(options =>

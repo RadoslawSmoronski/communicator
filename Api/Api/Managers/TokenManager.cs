@@ -1,4 +1,5 @@
 ﻿using Api.Data.IRepository;
+using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Controllers.UserController;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +11,7 @@ using System.Text;
 
 namespace Api.Service
 {
-    public class TokenService : ITokenService
+    public class TokenManager : ITokenService
     {
         private readonly IConfiguration _config;
         private readonly SymmetricSecurityKey _key;
@@ -21,7 +22,7 @@ namespace Api.Service
         public CookieOptions AccessTokenCookieOptions { get; }
         public CookieOptions RefreshTokenCookieOptions { get; }
 
-        public TokenService(IConfiguration config, IRefreshTokenRepository refreshTokenRepository, UserManager<UserAccount> userManager)
+        public TokenManager(IConfiguration config, IRefreshTokenRepository refreshTokenRepository, UserManager<UserAccount> userManager)
         {
             _config = config;
             var signingKey = _config["JWT:SigningKey"];

@@ -1,10 +1,10 @@
-﻿using Api.Models;
+﻿using Api.Managers.Interfaces;
+using Api.Models;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.UserController;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Service;
-using Api.Service;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
