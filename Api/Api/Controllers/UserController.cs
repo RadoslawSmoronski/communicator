@@ -2,10 +2,12 @@
 using Api.Models;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
+using Api.Models.Dtos.Responses;
 using Api.Models.Dtos.Service;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Api.Controllers
 {
@@ -42,14 +44,15 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    return Ok(new RegisterOkResponseDto
+
+                    return Ok(new SuccessResponseWithDataDto<RegisteredUserDto>
                     {
-                        Succeeded = true,
-                        Message = "The user has been successfully created.",
-                        User = new RegisteredUserDto
-                        {
-                            UserName = user.UserName,
-                        }
+                        Title = "User has been successfully created.",
+                         Data = new RegisteredUserDto
+                         {
+                             UserName = user.UserName,
+                         },
+                         TraceId = Activity.Current?.Id
                     });
                 }
 
