@@ -2,6 +2,7 @@
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Controllers.UserController;
+using Api.Models.Results.Managers.TokenManager;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,8 +20,6 @@ namespace Api.Service
         private readonly TimeSpan _refreshTokenLifeTime = TimeSpan.FromDays(7);
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
-        public CookieOptions AccessTokenCookieOptions { get; }
-        public CookieOptions RefreshTokenCookieOptions { get; }
 
         public TokenManager(IConfiguration config, IRefreshTokenRepository refreshTokenRepository, UserManager<UserAccount> userManager)
         {
@@ -37,38 +36,49 @@ namespace Api.Service
             _refreshTokenRepository = refreshTokenRepository;
             _userManager = userManager;
 
-
-            AccessTokenCookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.Add(_accesTokenLifeTime)
-            };
-
-            RefreshTokenCookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.Add(_refreshTokenLifeTime)
-            };
         }
 
-        public async Task<string> CreateAccessTokenAsync(UserAccount user)
+        public async Task<CreateAccessTokenResult> CreateAccessTokenAsync(UserAccount user)
         {
-            return await Task.Run(() =>
+            var result = new CreateAccessTokenResult();
+
+            if(user == null)
             {
-                if(user == null || user.UserName == null)
+                result.UserIsNull = true;
+                result.ErrorMessage = "User is null.";
+                return result;
+            }
+
+            if(String.IsNullOrEmpty(user.UserName))
+            {
+                result.UserUsernameIsNullOrEmpty = true;
+                result.ErrorMessage = "User Username is null or empty.";
+                return result;
+            }
+
+            if (String.IsNullOrEmpty(user.Id))
+            {
+                result.UserIdIsNullOrEmpty = true;
+                result.ErrorMessage = "User Id is null or empty.";
+                return result;
+            }
+
+            try
+            {
+                var userExist = await _userManager.FindByIdAsync(user.Id);
+
+                if(userExist == null || userExist.UserName != user.UserName)
                 {
-                    throw new ArgumentNullException("User object is empty.");
+                    result.UserDoesNotExist = true;
+                    result.ErrorMessage = "User doesn't exist.";
+                    return result;
                 }
 
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id)
-                };
+                    {
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.NameIdentifier, user.Id)
+                    };
 
                 var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
 
@@ -85,8 +95,15 @@ namespace Api.Service
 
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
-                return tokenHandler.WriteToken(token);
-            });
+                result.Token = tokenHandler.WriteToken(token);
+                result.Succeeded = true;
+            }
+            catch (Exception)
+            {
+                result.ErrorMessage = "An internal server error occurred."; 
+            }
+
+            return result;
         }
 
 
@@ -150,7 +167,7 @@ namespace Api.Service
 
             await SaveRefreshTokenAsync(userId, refreshToken);
 
-            return newAccessToken;
+            return newAccessToken.Token;
         }
 
         public async Task<string> CreateRefreshTokenAsync()
