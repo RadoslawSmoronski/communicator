@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Api.Service
 {
-    public class TokenManager : ITokenService
+    public class TokenManager : ITokenManager
     {
         private readonly IConfiguration _config;
         private readonly SymmetricSecurityKey _key;

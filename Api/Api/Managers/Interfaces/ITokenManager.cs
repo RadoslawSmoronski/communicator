@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 namespace Api.Managers.Interfaces
 {
-    public interface ITokenService
+    public interface ITokenManager
     {
         //Access Token
         Task<CreateAccessTokenResult> CreateAccessTokenAsync(UserAccount user);

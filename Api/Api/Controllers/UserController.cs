@@ -1,17 +1,11 @@
 ﻿using Api.Managers.Interfaces;
 using Api.Models;
-using Api.Models.Dtos;
-using Api.Models.Dtos.Controllers.UserController;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Service;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -22,21 +16,21 @@ namespace Api.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
-        private readonly ITokenService _tokenService;
+        private readonly ITokenManager _tokenManager;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper, ITokenService tokenService)
+            IMapper mapper, ITokenManager tokenManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
-            _tokenService = tokenService;
+            _tokenManager = tokenManager;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(registerDto))
             {
                 return BadRequest(ModelState);
             }
@@ -110,22 +104,26 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    var refreshToken = await _tokenService.CreateRefreshTokenAsync();
-                    await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken);
+                    var refreshToken = await _tokenManager.CreateRefreshTokenAsync();
+                    await _tokenManager.SaveRefreshTokenAsync(user.Id, refreshToken);
 
-                    var accessToken = await _tokenService.CreateAccessTokenAsync(user);
+                    var accessToken = await _tokenManager.CreateAccessTokenAsync(user);
 
-                    return Ok(new LoginResponseDto()
+                    if(accessToken.Succeeded)
                     {
-                        Succeeded = true,
-                        Message = "The user has been successfully logged in.",
-                        User = new LoggedUserDto()
+                        return Ok(new LoginResponseDto()
                         {
-                            UserName = loginDto.UserName,
-                            AccessToken = accessToken,
-                            RefreshToken = refreshToken
-                        }
-                    });
+                            Succeeded = true,
+                            Message = "The user has been successfully logged in.",
+                            User = new LoggedUserDto()
+                            {
+                                UserName = loginDto.UserName,
+                                AccessToken = accessToken.Token,
+                                RefreshToken = refreshToken
+                            }
+                        });
+                    }
+
 
                 }
 
@@ -161,7 +159,7 @@ namespace Api.Controllers
 
             try
             {
-                var newToken = await _tokenService.RefreshAccessTokenAsync(refreshToken);
+                var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshToken);
 
                 var response = new RefreshAccessTokenResponseDto()
                 {

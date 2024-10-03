@@ -26,7 +26,7 @@ namespace Api
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddScoped<ITokenService, TokenManager>();
+            builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddSwaggerGen(option =>
             {
@@ -95,8 +95,6 @@ namespace Api
                 };
             });
 
-
-            builder.Services.AddScoped<ITokenService, TokenManager>();
 
             // Add CORS configuration
             builder.Services.AddCors(options =>

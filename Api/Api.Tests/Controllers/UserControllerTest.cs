@@ -25,7 +25,7 @@ namespace Api.Tests.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
-        private readonly ITokenService _tokenService;
+        private readonly ITokenManager _tokenManager;
 
         public UserControllerTest()
         {
@@ -33,7 +33,7 @@ namespace Api.Tests.Controllers
             _userManager = A.Fake<UserManager<UserAccount>>();
             _signInManager = A.Fake<SignInManager<UserAccount>>();
             _mapper = A.Fake<IMapper>();
-            _tokenService = A.Fake<ITokenService>();
+            _tokenManager = A.Fake<ITokenManager>();
         }
 
         //RegisterAsync
@@ -42,7 +42,7 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturnConflict_WhenCalledUsernameIsAlreadyExists()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager);
             var registerDto = new RegisterDto() { UserName = "test", Password = "test" };
             var identityResultFailure = IdentityResult.Failed(new IdentityError { Code = "DuplicateUserName", Description = "User with this username already exists." });
 
@@ -68,13 +68,13 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturnOk_WhenCalledWithValidParameters(string testLogin, string testPassword)
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager);
             var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
                 .Returns(IdentityResult.Success);
 
-            A.CallTo(() => _tokenService.CreateRefreshTokenAsync())
+            A.CallTo(() => _tokenManager.CreateRefreshTokenAsync())
                             .Returns("fakeRefreshToken");
 
             // Act
@@ -95,7 +95,7 @@ namespace Api.Tests.Controllers
         public async Task RegisterAsync_ShouldReturn500_WhenRegisterInThrowsException(string testLogin, string testPassword)
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager);
             var registerDto = new RegisterDto() { UserName = testLogin, Password = testPassword };
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
@@ -120,7 +120,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturnUnauthorized_WhenCalledUsernameDoesntExist()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager);
             var loginDto = new LoginDto() { UserName = "test", Password = "test" };
 
             A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
@@ -146,7 +146,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturn500_WhenSignInThrowsException()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager);
             var loginDto = new LoginDto() { UserName = "test", Password = "test" };
 
             A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
@@ -173,7 +173,7 @@ namespace Api.Tests.Controllers
         public async Task LoginAsync_ShouldReturnOk_WhenCalledWithValidParameters(string testLogin, string testPassword)
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenService);
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager);
             var loginDto = new LoginDto() { UserName = "test", Password = "test" };
             var user = new UserAccount { UserName = "test" };
 

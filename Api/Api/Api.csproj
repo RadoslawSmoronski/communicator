@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Managers\Interfaces\ITokenManagercs" />
+    <None Include="Managers\Interfaces\ITokenManager.cs" />
   </ItemGroup>
 
   <ItemGroup>
