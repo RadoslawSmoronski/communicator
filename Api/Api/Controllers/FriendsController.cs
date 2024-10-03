@@ -177,6 +177,44 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("getFriends/{userId}")]
+        public async Task<IActionResult> GetFriendsAsync(string userId)
+        {
+            if (String.IsNullOrEmpty(userId) || userId.Length != 36)
+            {
+                return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
+            }
+
+            try
+            {
+                var invities = await _friendshipRepository.GetFriendsAsync(userId);
+
+                return Ok(new GetFriendsOkResponseDto
+                {
+                    Succeeded = true,
+                    Message = "Successfully found friends.",
+                    Friends = invities
+                });
+            }
+            catch (EnteredDataIsNullException ex)
+            {
+                return BadRequest(CreateErrorResponse(ex.Message));
+            }
+            catch (UserNotFoundException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (FriendshipInvitationDoesNotExistException ex)
+            {
+                return NotFound(CreateErrorResponse(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+            }
+        }
+
         private FriendsFailedResponseDto CreateErrorResponse(string message)
         {
             return new FriendsFailedResponseDto
