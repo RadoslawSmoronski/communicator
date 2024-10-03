@@ -1,11 +1,11 @@
-﻿using Api.Models.Dtos.Response.Interfaces;
+﻿using Api.Models.Dtos.Responses.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Response
+namespace Api.Models.Dtos.Responses
 {
     public class Error400ResponseDto : IErrorResponseDto
     {

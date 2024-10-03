@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Response.Interfaces
+namespace Api.Models.Dtos.Responses.Interfaces
 {
     public interface IErrorResponseDto
     {
