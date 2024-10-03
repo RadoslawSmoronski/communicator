@@ -132,7 +132,7 @@ namespace Api.Data.Repository
                 throw new FriendshipInvitationDoesNotExistException();
             }
         }
-        public async Task<List<FriendsInvitationDto>> GetUserInvitiesAsync(string userId)
+        public async Task<List<FriendsInvitationDto>> GetInvitiesAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {

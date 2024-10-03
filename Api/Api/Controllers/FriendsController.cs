@@ -64,8 +64,8 @@ namespace Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("getUserInvitaties/{userId}")]
-        public async Task<IActionResult> GetUserInvitiesAsync(string userId)
+        [HttpGet("getInvitaties/{userId}")]
+        public async Task<IActionResult> GetInvitiesAsync(string userId)
         {
             if (String.IsNullOrEmpty(userId) || userId.Length != 36)
             {
@@ -74,7 +74,7 @@ namespace Api.Controllers
 
             try
             {
-                var invities = await _friendshipInvitationRepository.GetUserInvitiesAsync(userId);
+                var invities = await _friendshipInvitationRepository.GetInvitiesAsync(userId);
 
                 return Ok(new GetInvitiesOkResponseDto
                 {
