@@ -85,20 +85,15 @@ namespace Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             try
             {
                 var user = await _userManager.FindByNameAsync(loginDto.UserName);
                 if (user == null)
                 {
-                    return NotFound(new LoginFailedResponseDto
+                    return NotFound(new Error404ResponseDto
                     {
-                        Succeeded = false,
-                        Message = "User does not exist."
+                        Title = "A user with this username does not exist.",
+                        TraceId = Activity.Current?.Id
                     });
                 }
 
@@ -113,34 +108,39 @@ namespace Api.Controllers
 
                     if(accessToken.Succeeded)
                     {
-                        return Ok(new LoginResponseDto()
+
+                        return Ok(new SuccessResponseWithResultDataDto<LoggedUserDto>
                         {
-                            Succeeded = true,
-                            Message = "The user has been successfully logged in.",
-                            User = new LoggedUserDto()
+                            Title = "The user has been successfully logged in.",
+                            ResultData = new Dictionary<string, LoggedUserDto>
                             {
-                                UserName = loginDto.UserName,
-                                AccessToken = accessToken.Token,
-                                RefreshToken = refreshToken
-                            }
+                                { "user", new LoggedUserDto()
+                                    {
+                                        UserName = loginDto.UserName,
+                                        AccessToken = accessToken.Token,
+                                        RefreshToken = refreshToken
+                                    }
+                                }
+                            },
+                            TraceId = Activity.Current?.Id
                         });
                     }
 
 
                 }
 
-                return BadRequest(new LoginFailedResponseDto
+                return BadRequest(new Error400ResponseDto
                 {
-                    Succeeded = false,
-                    Message = "Invalid login attempt."
+                    Title = "Invalid register attempt.",
+                    TraceId = Activity.Current?.Id
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new LoginFailedResponseDto
+                return StatusCode(500, new Error500ResponseDto
                 {
-                    Succeeded = false,
-                    Message = "An internal server error occurred."
+                    Title = "An internal server error occurred.",
+                    TraceId = Activity.Current?.Id
                 });
             }
         }
