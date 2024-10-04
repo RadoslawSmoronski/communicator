@@ -40,14 +40,18 @@ namespace Api.Controllers
                 if (result.Succeeded)
                 {
 
-                    return Ok(new SuccessResponseWithDataDto<RegisteredUserDto>
+                    return Ok(new SuccessResponseWithResultDataDto<RegisteredUserDto>
                     {
                         Title = "User has been successfully created.",
-                         Data = new RegisteredUserDto
-                         {
-                             UserName = user.UserName,
-                         },
-                         TraceId = Activity.Current?.Id
+                        ResultData = new Dictionary<string, RegisteredUserDto>
+                        {
+                            { "user", new RegisteredUserDto()
+                                {
+                                    UserName = user.UserName
+                                }
+                            }
+                        },
+                        TraceId = Activity.Current?.Id
                     });
                 }
 
@@ -57,21 +61,13 @@ namespace Api.Controllers
                     return Conflict(new Error409ResponseDto
                     {
                         Title = "User with this username already exists.",
-                        Errors = new Dictionary<string, IEnumerable<string>>
-                        {
-                            { "Conflict", new List<string> { "User with this username already exists." } }
-                        },
                         TraceId = Activity.Current?.Id
                     });
                 }
 
-                return BadRequest(new Error409ResponseDto
+                return BadRequest(new Error400ResponseDto
                 {
                     Title = "Invalid register attempt.",
-                    Errors = new Dictionary<string, IEnumerable<string>>
-                        {
-                            { "BadRequest", new List<string> { "Invalid register attempt." } }
-                        },
                     TraceId = Activity.Current?.Id
                 });
             }
@@ -80,10 +76,6 @@ namespace Api.Controllers
                 return StatusCode(500, new Error500ResponseDto
                 {
                     Title = "An internal server error occurred.",
-                    Errors = new Dictionary<string, IEnumerable<string>>
-                        {
-                            { "", new List<string> { "An internal server error occurred." } }
-                        },
                     TraceId = Activity.Current?.Id
                 });
             }
