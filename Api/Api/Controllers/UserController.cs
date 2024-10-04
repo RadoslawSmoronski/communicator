@@ -32,11 +32,6 @@ namespace Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
-            if (!TryValidateModel(registerDto))
-            {
-                return BadRequest(ModelState);
-            }
-
             try
             {
                 var user = new UserAccount { UserName = registerDto.UserName };
@@ -59,25 +54,37 @@ namespace Api.Controllers
                 var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
                 if (conflictError != null)
                 {
-                    return Conflict(new RegisterFailedResponseDto
+                    return Conflict(new Error409ResponseDto
                     {
-                        Succeeded = false,
-                        Errors = new List<string> { "User with this username already exists." }
+                        Title = "User with this username already exists.",
+                        Errors = new Dictionary<string, IEnumerable<string>>
+                        {
+                            { "Conflict", new List<string> { "User with this username already exists." } }
+                        },
+                        TraceId = Activity.Current?.Id
                     });
                 }
 
-                return BadRequest(new RegisterFailedResponseDto
+                return BadRequest(new Error409ResponseDto
                 {
-                    Succeeded = false,
-                    Errors = new List<string> { "Invalid register attempt." }
+                    Title = "Invalid register attempt.",
+                    Errors = new Dictionary<string, IEnumerable<string>>
+                        {
+                            { "BadRequest", new List<string> { "Invalid register attempt." } }
+                        },
+                    TraceId = Activity.Current?.Id
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new RegisterFailedResponseDto
+                return StatusCode(500, new Error500ResponseDto
                 {
-                    Succeeded = false,
-                    Errors = new List<string> { "An internal server error occurred." }
+                    Title = "An internal server error occurred.",
+                    Errors = new Dictionary<string, IEnumerable<string>>
+                        {
+                            { "", new List<string> { "An internal server error occurred." } }
+                        },
+                    TraceId = Activity.Current?.Id
                 });
             }
 
