@@ -38,9 +38,9 @@ namespace Api.Utilities.Result
             new(code, description, ErrorType.Conflict);
 
         public static Error AccessUnAuthorized(string code, string description) =>
-            new(code, description, ErrorType.AccessUnAuthorized);
+            new(code, description, ErrorType.AccessUnauthorized);
 
-        public static Error AccessForbidden(string code, string description) =>
-            new(code, description, ErrorType.AccessForbidden);
+        public static Error InternalServerError(string code, string description) =>
+            new(code, description, ErrorType.InternalServerError);
     }
 }
