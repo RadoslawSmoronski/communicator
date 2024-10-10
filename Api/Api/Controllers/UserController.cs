@@ -4,6 +4,7 @@ using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Responses;
 using Api.Models.Dtos.Service;
+using Api.Utilities.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -101,12 +102,10 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    var refreshToken = await _tokenManager.CreateRefreshTokenAsync();
-                    await _tokenManager.SaveRefreshTokenAsync(user.Id, refreshToken);
-
+                    var refreshToken = await _tokenManager.CreateAccessTokenAsync(user);
                     var accessToken = await _tokenManager.CreateAccessTokenAsync(user);
 
-                    if(accessToken.Succeeded)
+                    if(refreshToken.IsSuccess && accessToken.IsSuccess)
                     {
 
                         return Ok(new SuccessResponseWithResultDataDto<LoggedUserDto>
@@ -117,8 +116,8 @@ namespace Api.Controllers
                                 { "user", new LoggedUserDto()
                                     {
                                         UserName = loginDto.UserName,
-                                        AccessToken = accessToken.Token,
-                                        RefreshToken = refreshToken
+                                        AccessToken = accessToken.Value,
+                                        RefreshToken = refreshToken.Value
                                     }
                                 }
                             },
@@ -159,40 +158,21 @@ namespace Api.Controllers
                 });
             }
 
-            try
-            {
-                var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshToken);
+            var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshToken);
 
+            if(newToken.IsSuccess)
+            {
                 var response = new RefreshAccessTokenResponseDto()
                 {
                     Succeeded = true,
                     Message = "The access token have been successfully refreshed.",
-                    AccessToken = newToken
+                    AccessToken = newToken.Value
                 };
-
                 return Ok(response);
-
             }
-            catch (Exception ex)
-            {
-                var response = new RefreshAccessTokenResponseDto()
-                {
-                    Succeeded = false,
-                    Message = ex.Message
-                };
-
-
-                switch (ex)
-                {
-                    case ArgumentNullException argNullEx:
-                        return BadRequest(response);
-
-                    case UnauthorizedAccessException unauthorizedEx:
-                        return Unauthorized(response);
-                }
-
-                return BadRequest(response);
-            }
+           
+            return BadRequest();
+  
 
         }
     }
