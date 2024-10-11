@@ -8,10 +8,10 @@ namespace Api.Utilities.Result
 {
     public enum ErrorType
     {
-        NotFound = 404,
-        Validation = 400,
-        Conflict = 409,
-        AccessUnauthorized = 401,
-        InternalServerError = 500
+        Validation = 0,
+        Unauthorized = 1,
+        NotFound = 2,
+        Conflict = 3,
+        InternalServerError = 4
     }
 }

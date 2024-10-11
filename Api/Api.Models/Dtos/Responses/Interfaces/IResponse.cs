@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Responses.Interfaces
 {
-    public interface ISuccessResponseDto
+    public interface IResponse
     {
         string Type { get; }
         string Title { get; set; }

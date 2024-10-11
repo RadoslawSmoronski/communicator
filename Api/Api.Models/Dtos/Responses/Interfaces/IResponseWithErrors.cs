@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Responses.Interfaces
 {
-    public interface IErrorResponseDto
+    public interface IResponseWithErrors
     {
-        string Type { get; }
-        string Title { get; set; }
-        int Status { get; }
-        string? TraceId { get; set; }
+        IDictionary<string, IEnumerable<string>> Errors { get; set; }
     }
 }
