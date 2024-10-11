@@ -25,9 +25,6 @@ namespace Api.Utilities.Result
 
         public ErrorType ErrorType { get; }
 
-        public static Error Failure(string code, string description) =>
-            new(code, description, ErrorType.Failure);
-
         public static Error NotFound(string code, string description) =>
             new(code, description, ErrorType.NotFound);
 
