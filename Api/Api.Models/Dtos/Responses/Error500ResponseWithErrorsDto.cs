@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Responses
 {
-    public class Error500ResponseWithErrorsDto : IErrorResponseDto, IErrorResponseWithErrorsDto
+    public class Error500ResponseWithErrorsDto : IResponse, IResponseWithErrors
     {
         public string Type { get; } = "https://tools.ietf.org/html/rfc9110#section-15.6.1";
         public string Title { get; set; } = String.Empty;

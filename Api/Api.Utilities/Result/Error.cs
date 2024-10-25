@@ -11,7 +11,7 @@ namespace Api.Utilities.Result
         private Error(
             string code,
             string description,
-            ErrorType errorType
+            HttpErrorType errorType
         )
         {
             Code = code;
@@ -23,21 +23,21 @@ namespace Api.Utilities.Result
 
         public string Description { get; }
 
-        public ErrorType ErrorType { get; }
+        public HttpErrorType ErrorType { get; }
 
         public static Error NotFound(string code, string description) =>
-            new(code, description, ErrorType.NotFound);
+            new(code, description, HttpErrorType.NotFound);
 
         public static Error Validation(string code, string description) =>
-            new(code, description, ErrorType.Validation);
+            new(code, description, HttpErrorType.Validation);
 
         public static Error Conflict(string code, string description) =>
-            new(code, description, ErrorType.Conflict);
+            new(code, description, HttpErrorType.Conflict);
 
-        public static Error AccessUnauthorized(string code, string description) =>
-            new(code, description, ErrorType.AccessUnauthorized);
+        public static Error Unauthorized(string code, string description) =>
+            new(code, description, HttpErrorType.AccessUnauthorized);
 
         public static Error InternalServerError(string code, string description) =>
-            new(code, description, ErrorType.InternalServerError);
+            new(code, description, HttpErrorType.InternalServerError);
     }
 }

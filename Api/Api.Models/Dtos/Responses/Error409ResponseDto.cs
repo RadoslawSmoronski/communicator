@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Responses
 {
-    public class Error409ResponseDto : IErrorResponseDto
+    public class Error409ResponseDto : IResponse
     {
         public string Type { get; } = "https://tools.ietf.org/html/rfc9110#section-15.5.10";
         public string Title { get; set; } = String.Empty;

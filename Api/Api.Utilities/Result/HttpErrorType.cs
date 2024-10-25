@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Api.Utilities.Result
 {
-    public enum ErrorType
+    public enum HttpErrorType
     {
         NotFound = 404,
         Validation = 400,
