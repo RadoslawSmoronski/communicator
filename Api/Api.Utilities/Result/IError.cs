@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Api.Utilities.Result
 {
-    public enum ErrorType
+    public interface IError<T>
     {
-        Validation = 0,
-        Unauthorized = 1,
-        NotFound = 2,
-        Conflict = 3,
-        InternalServerError = 4
+        public string Code { get; }
+        public string Description { get; }
+        public T ErrorType { get; }
+
+
     }
 }
