@@ -8,10 +8,10 @@ namespace Api.Utilities.Result
 {
     public enum HttpErrorType
     {
+        BadRequest = 400,
+        Unauthorized = 401,
         NotFound = 404,
-        Validation = 400,
         Conflict = 409,
-        AccessUnauthorized = 401,
         InternalServerError = 500
     }
 }

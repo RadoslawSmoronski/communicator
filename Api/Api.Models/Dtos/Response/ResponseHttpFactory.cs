@@ -9,7 +9,7 @@ namespace Api.Models.Dtos.Responses
 {
     public class ResponseHttpFactory
     {
-        public static IResponse Create(ResponseType responseType, string title)
+        public IResponse Create(ResponseType responseType, string title)
         {
             switch(responseType)
             {
@@ -30,26 +30,26 @@ namespace Api.Models.Dtos.Responses
             }
         }
 
-        public static IResponse Create(ResponseType responseType, string title, Dictionary<string, IEnumerable<string>> errors)
+        public IResponse Create(ResponseType responseType, string title, Dictionary<string, IEnumerable<string>> errors)
         {
             switch (responseType)
             {
                 case ResponseType.BadRequest:
-                    return new Error400ResponseWithErrorsDto() { Title = title };
+                    return new Error400ResponseWithErrorsDto() { Title = title, Errors = errors};
                 case ResponseType.Unauthorized:
-                    return new Error401ResponseWithErrorsDto() { Title = title };
+                    return new Error401ResponseWithErrorsDto() { Title = title, Errors = errors };
                 case ResponseType.NotFound:
-                    return new Error404ResponseWithErrorsDto() { Title = title };
+                    return new Error404ResponseWithErrorsDto() { Title = title, Errors = errors };
                 case ResponseType.Conflict:
-                    return new Error409ResponseWithErrorsDto() { Title = title };
+                    return new Error409ResponseWithErrorsDto() { Title = title, Errors = errors };
                 case ResponseType.InternalServerError:
-                    return new Error500ResponseWithErrorsDto() { Title = title };
+                    return new Error500ResponseWithErrorsDto() { Title = title, Errors = errors };
                 default:
                     throw new NotSupportedException();
             }
         }
 
-        public static IResponse Create<T>(ResponseType responseType, Dictionary<string, T> data)
+        public IResponse Create<T>(ResponseType responseType, T data)
         {
             switch (responseType)
             {

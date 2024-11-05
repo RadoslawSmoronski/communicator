@@ -2,6 +2,7 @@
 using Api.Data.IRepository;
 using Api.Data.Repository;
 using Api.Models;
+using Api.Models.Dtos.Responses;
 using Api.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -27,6 +28,7 @@ namespace Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
