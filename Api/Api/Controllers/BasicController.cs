@@ -1,4 +1,5 @@
-﻿using Api.Models.Dtos.Responses;
+﻿using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
+using Api.Models.Dtos.Responses;
 using Api.Models.Dtos.Responses.Interfaces;
 using Api.Utilities.Result;
 using AutoMapper;
@@ -20,10 +21,22 @@ namespace Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("test/{id}")]
-        public async Task<IActionResult> testApi([FromRoute] string id)
+        [HttpPost]
+        public async Task<IActionResult> testApi()
         {
-            return Ok();
+            var resultData = new Dictionary<string, RegisteredUserDto>
+                        {
+                            { "user", new RegisteredUserDto()
+                                {
+                                    UserName = "test"
+                                }
+                            }
+                        };
+
+            var response = _responseFactory.Create<Dictionary<string, RegisteredUserDto>>
+                (ResponseHttpType.Success, "User has been successfully created.", resultData);
+
+            return Ok(response);
         }
     }
 }

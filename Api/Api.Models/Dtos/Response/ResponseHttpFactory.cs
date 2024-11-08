@@ -53,7 +53,7 @@ namespace Api.Models.Dtos.Responses
         {
             switch (responseType)
             {
-                case ResponseHttpType.NotFound:
+                case ResponseHttpType.Success:
                     return new SuccessResponseWithResultDataDto<T>() { Title = title, ResultData = data };
                 default:
                     throw new NotSupportedException();
