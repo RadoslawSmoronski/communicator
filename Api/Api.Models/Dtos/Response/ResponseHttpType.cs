@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Responses.Interfaces
 {
-    public enum ResponseType
+    public enum ResponseHttpType
     {
         InternalServerError,
         BadRequest,

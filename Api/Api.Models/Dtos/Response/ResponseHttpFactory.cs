@@ -9,51 +9,51 @@ namespace Api.Models.Dtos.Responses
 {
     public class ResponseHttpFactory
     {
-        public IResponse Create(ResponseType responseType, string title)
+        public IResponse Create(ResponseHttpType responseType, string title)
         {
             switch(responseType)
             {
-                case ResponseType.Success:
+                case ResponseHttpType.Success:
                     return new SuccessResponseDto() { Title = title };
-                case ResponseType.BadRequest:
+                case ResponseHttpType.BadRequest:
                     return new Error400ResponseDto() { Title = title };
-                case ResponseType.Unauthorized:
+                case ResponseHttpType.Unauthorized:
                     return new Error401ResponseDto() { Title = title };
-                case ResponseType.NotFound:
+                case ResponseHttpType.NotFound:
                     return new Error404ResponseDto() { Title = title };
-                case ResponseType.Conflict:
+                case ResponseHttpType.Conflict:
                     return new Error409ResponseDto() { Title = title };
-                case ResponseType.InternalServerError:
+                case ResponseHttpType.InternalServerError:
                     return new Error500ResponseDto() { Title = title };
                 default:
                     throw new NotSupportedException();
             }
         }
 
-        public IResponse Create(ResponseType responseType, string title, Dictionary<string, IEnumerable<string>> errors)
+        public IResponse Create(ResponseHttpType responseType, string title, Dictionary<string, IEnumerable<string>> errors)
         {
             switch (responseType)
             {
-                case ResponseType.BadRequest:
+                case ResponseHttpType.BadRequest:
                     return new Error400ResponseWithErrorsDto() { Title = title, Errors = errors};
-                case ResponseType.Unauthorized:
+                case ResponseHttpType.Unauthorized:
                     return new Error401ResponseWithErrorsDto() { Title = title, Errors = errors };
-                case ResponseType.NotFound:
+                case ResponseHttpType.NotFound:
                     return new Error404ResponseWithErrorsDto() { Title = title, Errors = errors };
-                case ResponseType.Conflict:
+                case ResponseHttpType.Conflict:
                     return new Error409ResponseWithErrorsDto() { Title = title, Errors = errors };
-                case ResponseType.InternalServerError:
+                case ResponseHttpType.InternalServerError:
                     return new Error500ResponseWithErrorsDto() { Title = title, Errors = errors };
                 default:
                     throw new NotSupportedException();
             }
         }
 
-        public IResponse Create<T>(ResponseType responseType, string title, T data)
+        public IResponse Create<T>(ResponseHttpType responseType, string title, T data)
         {
             switch (responseType)
             {
-                case ResponseType.NotFound:
+                case ResponseHttpType.NotFound:
                     return new SuccessResponseWithResultDataDto<T>() { Title = title, ResultData = data };
                 default:
                     throw new NotSupportedException();

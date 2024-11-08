@@ -17,7 +17,7 @@ namespace Api.Models
         public MappingProfile()
         {
             CreateMap<UserAccount, GetUsersUserResponseDto>();
-            CreateMap<HttpErrorType, ResponseType>();
+            CreateMap<HttpErrorType, ResponseHttpType>();
         }
     }
 }
