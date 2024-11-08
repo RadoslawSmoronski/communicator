@@ -1,5 +1,6 @@
 ﻿using Api.Managers.Interfaces;
 using Api.Models;
+using Api.Models.Dtos.Controllers.UserController;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Responses;
@@ -101,7 +102,7 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    var refreshToken = await _tokenManager.CreateAccessTokenAsync(user);
+                    var refreshToken = await _tokenManager.CreateRefreshTokenAsync(user.Id);
                     var accessToken = await _tokenManager.CreateAccessTokenAsync(user);
 
                     if (refreshToken.IsSuccess && accessToken.IsSuccess)
@@ -142,35 +143,33 @@ namespace Api.Controllers
         }
 
 
-        //[HttpPost("refreshAccessToken")]
-        //public async Task<IActionResult> refreshAccessToken([FromBody] string refreshToken)
-        //{
+        [HttpPost("refreshAccessToken")]
+        public async Task<IActionResult> refreshAccessToken([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+            var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshTokenDto.RefreshToken);
 
-        //    if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(refreshToken))
-        //    {
-        //        return BadRequest(new RefreshAccessTokenResponseDto
-        //        {
-        //            Succeeded = false,
-        //            Message = "Refresh token must not be null or empty."
-        //        });
-        //    }
+            if (newToken.IsSuccess)
+            {
+                var response = _responseFactory.Create<String>
+                    (ResponseHttpType.Success, "The access token have been successfully refreshed.", newToken.Value);
 
-        //    var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshToken);
+                return Ok(response);
+            }
+            else if(newToken.Error != null)
+            {
+                var error = newToken.Error;
 
-        //    if(newToken.IsSuccess)
-        //    {
-        //        var response = new RefreshAccessTokenResponseDto()
-        //        {
-        //            Succeeded = true,
-        //            Message = "The access token have been successfully refreshed.",
-        //            AccessToken = newToken.Value
-        //        };
-        //        return Ok(response);
-        //    }
+                var errorResponseType = _mapper.Map<ResponseHttpType>(error.ErrorType);
 
-        //    return BadRequest();
+                var errorResponse = _responseFactory.Create(errorResponseType, error.Description);
 
+                return StatusCode(errorResponse.Status, errorResponse);
+            }
 
-        //}
+            var response500 = _responseFactory.Create
+                (ResponseHttpType.InternalServerError, "An internal server error occurred.");
+
+            return StatusCode(500, response500);
+        }
     }
 }
