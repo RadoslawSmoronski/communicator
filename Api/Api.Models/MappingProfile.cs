@@ -18,7 +18,6 @@ namespace Api.Models
         {
             CreateMap<UserAccount, GetUsersUserResponseDto>();
             CreateMap<HttpErrorType, ResponseType>();
-            CreateMap<ResponseType, HttpErrorType>();
         }
     }
 }
