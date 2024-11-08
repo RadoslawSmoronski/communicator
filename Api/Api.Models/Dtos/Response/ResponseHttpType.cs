@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Utilities.Result
+namespace Api.Models.Dtos.Responses.Interfaces
 {
-    public enum HttpErrorType
+    public enum ResponseHttpType
     {
         InternalServerError,
         BadRequest,
         Unauthorized,
         NotFound,
         Conflict,
+        Success
     }
 }

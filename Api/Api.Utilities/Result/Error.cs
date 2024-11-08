@@ -28,14 +28,14 @@ namespace Api.Utilities.Result
         public static Error NotFound(string code, string description) =>
             new(code, description, HttpErrorType.NotFound);
 
-        public static Error Validation(string code, string description) =>
-            new(code, description, HttpErrorType.Validation);
+        public static Error BadRequest(string code, string description) =>
+            new(code, description, HttpErrorType.BadRequest);
 
         public static Error Conflict(string code, string description) =>
             new(code, description, HttpErrorType.Conflict);
 
         public static Error Unauthorized(string code, string description) =>
-            new(code, description, HttpErrorType.AccessUnauthorized);
+            new(code, description, HttpErrorType.Unauthorized);
 
         public static Error InternalServerError(string code, string description) =>
             new(code, description, HttpErrorType.InternalServerError);

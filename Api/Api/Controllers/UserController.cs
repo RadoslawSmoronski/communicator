@@ -3,9 +3,11 @@ using Api.Models;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Responses;
+using Api.Models.Dtos.Responses.Interfaces;
 using Api.Models.Dtos.Service;
 using Api.Utilities.Result;
 using AutoMapper;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -20,14 +22,16 @@ namespace Api.Controllers
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
         private readonly ITokenManager _tokenManager;
+        private readonly ResponseHttpFactory _responseFactory;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper, ITokenManager tokenManager)
+            IMapper mapper, ITokenManager tokenManager, ResponseHttpFactory responseFactory)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
             _tokenManager = tokenManager;
+            _responseFactory = responseFactory;
         }
 
         [HttpPost("register")]
@@ -40,45 +44,41 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-
-                    return Ok(new SuccessResponseWithResultDataDto<RegisteredUserDto>
-                    {
-                        Title = "User has been successfully created.",
-                        ResultData = new Dictionary<string, RegisteredUserDto>
+                    var resultData = new Dictionary<string, RegisteredUserDto>
                         {
                             { "user", new RegisteredUserDto()
                                 {
                                     UserName = user.UserName
                                 }
                             }
-                        },
-                        TraceId = Activity.Current?.Id
-                    });
+                        };
+
+                    var response = _responseFactory.Create<Dictionary<string, RegisteredUserDto>>
+                        (ResponseHttpType.Success, "User has been successfully created.", resultData);
+
+                    return Ok(response);
                 }
 
                 var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
                 if (conflictError != null)
                 {
-                    return Conflict(new Error409ResponseDto
-                    {
-                        Title = "User with this username already exists.",
-                        TraceId = Activity.Current?.Id
-                    });
+                    var response = _responseFactory.Create
+                        (ResponseHttpType.Conflict, "User with this username already exists.");
+
+                    return Conflict(response);
                 }
 
-                return BadRequest(new Error400ResponseDto
-                {
-                    Title = "Invalid register attempt.",
-                    TraceId = Activity.Current?.Id
-                });
+                var responseBadRequest = _responseFactory.Create
+                    (ResponseHttpType.BadRequest, "Invalid register attempt.");
+
+                return BadRequest(responseBadRequest);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new Error500ResponseDto
-                {
-                    Title = "An internal server error occurred.",
-                    TraceId = Activity.Current?.Id
-                });
+                var response = _responseFactory.Create
+                    (ResponseHttpType.InternalServerError, "An internal server error occurred.");
+
+                return StatusCode(500, response);
             }
 
         }
@@ -91,11 +91,10 @@ namespace Api.Controllers
                 var user = await _userManager.FindByNameAsync(loginDto.UserName);
                 if (user == null)
                 {
-                    return NotFound(new Error404ResponseDto
-                    {
-                        Title = "A user with this username does not exist.",
-                        TraceId = Activity.Current?.Id
-                    });
+                    var response = _responseFactory.Create
+                        (ResponseHttpType.NotFound, "A user with this username does not exist.");
+
+                    return NotFound(response);
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
@@ -105,75 +104,73 @@ namespace Api.Controllers
                     var refreshToken = await _tokenManager.CreateAccessTokenAsync(user);
                     var accessToken = await _tokenManager.CreateAccessTokenAsync(user);
 
-                    if(refreshToken.IsSuccess && accessToken.IsSuccess)
+                    if (refreshToken.IsSuccess && accessToken.IsSuccess)
                     {
-
-                        return Ok(new SuccessResponseWithResultDataDto<LoggedUserDto>
-                        {
-                            Title = "The user has been successfully logged in.",
-                            ResultData = new Dictionary<string, LoggedUserDto>
+                        var resultData = new Dictionary<string, LoggedUserDto>
                             {
                                 { "user", new LoggedUserDto()
                                     {
                                         UserName = loginDto.UserName,
+                                        Id = user.Id,
                                         AccessToken = accessToken.Value,
                                         RefreshToken = refreshToken.Value
                                     }
                                 }
-                            },
-                            TraceId = Activity.Current?.Id
-                        });
+                            };
+
+                        var response = _responseFactory.Create<Dictionary<string, LoggedUserDto>>
+                            (ResponseHttpType.Success, "The user has been successfully logged in.", resultData);
+
+                        return Ok(response);
                     }
 
 
                 }
 
-                return BadRequest(new Error400ResponseDto
-                {
-                    Title = "Invalid register attempt.",
-                    TraceId = Activity.Current?.Id
-                });
+                var responseBadRequest = _responseFactory.Create
+                    (ResponseHttpType.BadRequest, "Invalid login attempt.");
+
+                return BadRequest(responseBadRequest);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new Error500ResponseDto
-                {
-                    Title = "An internal server error occurred.",
-                    TraceId = Activity.Current?.Id
-                });
+                var response = _responseFactory.Create
+                    (ResponseHttpType.InternalServerError, "An internal server error occurred.");
+
+                return StatusCode(500, response);
             }
         }
 
 
-        [HttpPost("refreshAccessToken")]
-        public async Task<IActionResult> refreshAccessToken([FromBody] string refreshToken)
-        {
+        //[HttpPost("refreshAccessToken")]
+        //public async Task<IActionResult> refreshAccessToken([FromBody] string refreshToken)
+        //{
 
-            if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(refreshToken))
-            {
-                return BadRequest(new RefreshAccessTokenResponseDto
-                {
-                    Succeeded = false,
-                    Message = "Refresh token must not be null or empty."
-                });
-            }
+        //    if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(refreshToken))
+        //    {
+        //        return BadRequest(new RefreshAccessTokenResponseDto
+        //        {
+        //            Succeeded = false,
+        //            Message = "Refresh token must not be null or empty."
+        //        });
+        //    }
 
-            var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshToken);
+        //    var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshToken);
 
-            if(newToken.IsSuccess)
-            {
-                var response = new RefreshAccessTokenResponseDto()
-                {
-                    Succeeded = true,
-                    Message = "The access token have been successfully refreshed.",
-                    AccessToken = newToken.Value
-                };
-                return Ok(response);
-            }
-           
-            return BadRequest();
-  
+        //    if(newToken.IsSuccess)
+        //    {
+        //        var response = new RefreshAccessTokenResponseDto()
+        //        {
+        //            Succeeded = true,
+        //            Message = "The access token have been successfully refreshed.",
+        //            AccessToken = newToken.Value
+        //        };
+        //        return Ok(response);
+        //    }
 
-        }
+        //    return BadRequest();
+
+
+        //}
     }
 }
