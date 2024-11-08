@@ -49,12 +49,12 @@ namespace Api.Models.Dtos.Responses
             }
         }
 
-        public IResponse Create<T>(ResponseType responseType, T data)
+        public IResponse Create<T>(ResponseType responseType, string title, T data)
         {
             switch (responseType)
             {
                 case ResponseType.NotFound:
-                    return new SuccessResponseWithResultDataDto<T>() { ResultData = data };
+                    return new SuccessResponseWithResultDataDto<T>() { Title = title, ResultData = data };
                 default:
                     throw new NotSupportedException();
             }
