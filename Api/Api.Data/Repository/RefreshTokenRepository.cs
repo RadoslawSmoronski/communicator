@@ -36,6 +36,7 @@ namespace Api.Data.Repository
         {
             var refreshToken = await _context.RefreshTokens
                 .SingleOrDefaultAsync(rt => rt.Token == token);
+
             if(refreshToken != null)
             {
                 _context.RefreshTokens.Remove(refreshToken);
@@ -45,20 +46,18 @@ namespace Api.Data.Repository
 
         public async Task<string?> GetRefreshTokenAsyncByUserIdAsync(string userId)
         {
-            var refreshToken = await _context.RefreshTokens
-                                             .Where(rt => rt.UserId == userId)
-                                             .Select(rt => rt.Token)
-                                             .FirstOrDefaultAsync();
-
-            return refreshToken;
+            return await _context.RefreshTokens
+                   .Where(rt => rt.UserId == userId)
+                   .Select(rt => rt.Token)
+                   .FirstOrDefaultAsync();
         }
 
         public async Task<string?> GetUserIdByRefreshTokenAsync(string refreshToken)
         {
             return await _context.RefreshTokens
-                                 .Where(rt => rt.Token == refreshToken)
-                                 .Select(rt => rt.UserId)
-                                 .FirstOrDefaultAsync();
+                   .Where(rt => rt.Token == refreshToken)
+                   .Select(rt => rt.UserId)
+                   .FirstOrDefaultAsync();
         }
 
         public async Task<int> RemoveExpiredRefreshTokensAsync()

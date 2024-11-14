@@ -185,7 +185,7 @@ namespace Api.Service
                 {
                     Token = newRefreshToken,
                     UserId = userId,
-                    Expiration = DateTime.UtcNow.AddDays(7)
+                    Expiration = DateTime.UtcNow.Add(_refreshTokenLifeTime)
                 });
 
                 return newRefreshToken;
@@ -196,7 +196,7 @@ namespace Api.Service
             }
         }
 
-        public async Task<Result> RemoveExpiredRefreshTokensAsync()
+        public async Task<ResultT<int>> RemoveExpiredRefreshTokensAsync()
         {
             try
             {
@@ -204,16 +204,16 @@ namespace Api.Service
 
                 if (removedExpiredTokens > 0)
                 {
-                    Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {removedExpiredTokens} expired tokens removed.");
-                    return Result.Success();
+                    //Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {removedExpiredTokens} expired tokens removed.");
+                    return removedExpiredTokens;
                 }
 
-                Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
+                //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
                 return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Rexpired refresh tokens not found.");
             }
             catch (Exception)
             {
-                Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
+                //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
                 return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
             }
         }

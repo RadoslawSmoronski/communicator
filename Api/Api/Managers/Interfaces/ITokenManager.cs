@@ -13,6 +13,6 @@ namespace Api.Managers.Interfaces
 
         //RefreshToken
         Task<ResultT<string>> CreateRefreshTokenAsync(string userId);
-        Task<Result> RemoveExpiredRefreshTokensAsync();
+        Task<ResultT<int>> RemoveExpiredRefreshTokensAsync();
     }
 }
