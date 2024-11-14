@@ -77,7 +77,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("getUsersByText/{text}")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> getUsersByTextAsync([FromRoute] string text)
         {
             if (string.IsNullOrWhiteSpace(text))
