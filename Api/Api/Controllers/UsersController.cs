@@ -1,7 +1,6 @@
 ﻿using Api.Models;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Controllers.UsersController;
-using Api.Models.Dtos.Controllers.UsersController.GetUser;
 using Api.Models.Dtos.Controllers.UsersController.GetUsers;
 using Api.Models.Dtos.Responses;
 using Api.Models.Dtos.Responses.Interfaces;
@@ -63,8 +62,8 @@ namespace Api.Controllers
                     return NotFound(response);
                 }
 
-                var responseOk = _responseHttpFactory.Create<UserAccount>
-                               (ResponseHttpType.Success, $"User with id {id} successfully found", user);
+                var responseOk = _responseHttpFactory.Create<UsersDto>
+                               (ResponseHttpType.Success, $"User with id {id} successfully found", _mapper.Map<UsersDto>(user));
 
                 return Ok(responseOk);
             }

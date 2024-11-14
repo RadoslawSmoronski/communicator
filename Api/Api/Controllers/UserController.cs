@@ -194,26 +194,5 @@ namespace Api.Controllers
 
         }
 
-        [HttpGet("searchTest")]
-        [Authorize]
-        public async Task<IActionResult> searchTestAsync([FromQuery] string input)
-        {
-            var response = new RefreshAccessTokenResponseDto()
-            {
-                Succeeded = true,
-                Message = $"Received text: {input}"
-            };
-
-            return Ok(response);
-        }
-
-        //Another
-
-        private void SetTokensCookies(string accessToken, string refreshToken)
-        {
-            Response.Cookies.Append("AccessToken", accessToken, _tokenService.AccessTokenCookieOptions);
-            Response.Cookies.Append("RefreshToken", refreshToken, _tokenService.RefreshTokenCookieOptions);
-        }
-
     }
 }
