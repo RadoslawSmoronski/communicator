@@ -1,7 +1,6 @@
 ﻿using Api.Models;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Controllers.UsersController;
-using Api.Models.Dtos.Controllers.UsersController.GetUsers;
 using Api.Models.Dtos.Responses;
 using Api.Models.Dtos.Responses.Interfaces;
 using AutoMapper;
