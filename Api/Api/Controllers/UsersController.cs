@@ -1,7 +1,10 @@
 ﻿using Api.Models;
-using Api.Models.Dtos.Controllers.UsersController.GetUser;
-using Api.Models.Dtos.Controllers.UsersController.GetUsers;
+using Api.Models.Dtos.Controllers.UsersController;
+using Api.Models.Dtos.Responses;
+using Api.Models.Dtos.Responses.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,32 +17,35 @@ namespace Api.Controllers
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
+        private readonly ResponseHttpFactory _responseHttpFactory;
 
-        public UsersController(UserManager<UserAccount> userManager, IMapper mapper)
+        public UsersController(UserManager<UserAccount> userManager, IMapper mapper,
+            ResponseHttpFactory responseHttpFactory)
         {
             _userManager = userManager;
             _mapper = mapper;
+            _responseHttpFactory = responseHttpFactory;
         }
 
         [HttpGet("getUserById/{id}")]
+        [Authorize]
         public async Task<IActionResult> GetUserByIdAsync([FromRoute] string id)
         {
-            if(string.IsNullOrWhiteSpace(id))
+
+            if (string.IsNullOrWhiteSpace(id))
             {
-                return BadRequest(new GetUserResponseFailedDto()
-                {
-                    Succeeded = false,
-                    Message = "Input value is empty."
-                });
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "Id is required.");
+
+                return BadRequest(response);
             }
 
-            if(id.Length != 36)
+            if (!Guid.TryParse(id, out Guid result))
             {
-                return BadRequest(new GetUserResponseFailedDto()
-                {
-                    Succeeded = false,
-                    Message = "User id contain 36 characters."
-                });
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "Not valid format.");
+
+                return BadRequest(response);
             }
 
             try
@@ -48,49 +54,46 @@ namespace Api.Controllers
 
                 if (user == null)
                 {
-                    return NotFound(new GetUserResponseFailedDto()
-                    {
-                        Succeeded = false,
-                        Message = "User does not exist."
-                    });
+                    var response = _responseHttpFactory.Create
+                                   (ResponseHttpType.NotFound, "User does not exist.");
+
+                    return NotFound(response);
                 }
 
-                return Ok(new GetUserResponseOkDto()
-                {
-                    Succeeded = true,
-                    Message = $"User with id {id} successfully found",
-                    User = user
-                });
+                var responseOk = _responseHttpFactory.Create<UsersDto>
+                               (ResponseHttpType.Success, $"User with id {id} successfully found", _mapper.Map<UsersDto>(user));
+
+                return Ok(responseOk);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GetUserResponseFailedDto
-                {
-                    Succeeded = false,
-                    Message = "An internal server error occurred."
-                });
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.InternalServerError, "An internal server error occurred.");
+
+                return StatusCode(500, response);
             }
         }
 
         [HttpGet("getUsersByText/{text}")]
+        [Authorize]
         public async Task<IActionResult> getUsersByTextAsync([FromRoute] string text)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
-                return BadRequest(new GetUsersResponseFailedDto()
-                {
-                    Succeeded = false,
-                    Message = "Input value is empty."
-                });
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest,
+                               "Input value is empty.");
+
+                return BadRequest(response);
             }
-            
-            if(text.Length > 25 || text.Length < 3)
+
+            if (text.Length > 25 || text.Length < 3)
             {
-                return BadRequest(new GetUsersResponseFailedDto()
-                {
-                    Succeeded = false,
-                    Message = "Username must be more than 3 characters and less than 25."
-                });
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest,
+                               "Username must be more than 3 characters and less than 25.");
+
+                return BadRequest(response);
             }
 
             try
@@ -101,29 +104,28 @@ namespace Api.Controllers
 
                 if (users == null || users.Count == 0)
                 {
-                    return NotFound(new GetUsersResponseFailedDto()
-                    {
-                        Succeeded = false,
-                        Message = "There is no user with this username."
-                    });
+                    var response = _responseHttpFactory.Create
+                                   (ResponseHttpType.NotFound,
+                                   "There is no user with this username.");
+
+                    return NotFound(response);
                 }
 
-                var userDtos = _mapper.Map<List<GetUsersUserResponseDto>>(users);
+                var userDtos = _mapper.Map<List<UsersDto>>(users);
 
-                return Ok(new GetUsersResponseOkDto()
-                {
-                    Succeeded = true,
-                    Message = "Users were found successfully.",
-                    Users = userDtos
-                });
+                var responseOk = _responseHttpFactory.Create<List<UsersDto>>
+                              (ResponseHttpType.Success,
+                              "There is no user with this username.",
+                              userDtos);
+
+                return Ok(responseOk);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GetUsersResponseFailedDto
-                {
-                    Succeeded = false,
-                    Message = "An internal server error occurred."
-                });
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.InternalServerError, "An internal server error occurred.");
+
+                return StatusCode(500, response);
             }
         }
     }
