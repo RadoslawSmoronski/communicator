@@ -63,157 +63,157 @@ namespace Api.Controllers
             }
         }
 
-        [Authorize]
-        [HttpGet("getInvitaties/{userId}")]
-        public async Task<IActionResult> GetInvitiesAsync(string userId)
-        {
-            if (String.IsNullOrEmpty(userId) || userId.Length != 36)
-            {
-                return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
-            }
+        //[Authorize]
+        //[HttpGet("getInvitaties/{userId}")]
+        //public async Task<IActionResult> GetInvitiesAsync(string userId)
+        //{
+        //    if (String.IsNullOrEmpty(userId) || userId.Length != 36)
+        //    {
+        //        return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
+        //    }
 
-            try
-            {
-                var invities = await _friendshipInvitationRepository.GetInvitiesAsync(userId);
+        //    try
+        //    {
+        //        var invities = await _friendshipInvitationRepository.GetInvitiesAsync(userId);
 
-                return Ok(new GetInvitiesOkResponseDto
-                {
-                    Succeeded = true,
-                    Message = "Successfully found invitations.",
-                    FriendshipInvitations = invities
-                });
-            }
-            catch (EnteredDataIsNullException ex)
-            {
-                return BadRequest(CreateErrorResponse(ex.Message));
-            }
-            catch (UserNotFoundException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (FriendshipInvitationDoesNotExistException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-            }
-        }
+        //        return Ok(new GetInvitiesOkResponseDto
+        //        {
+        //            Succeeded = true,
+        //            Message = "Successfully found invitations.",
+        //            FriendshipInvitations = invities
+        //        });
+        //    }
+        //    catch (EnteredDataIsNullException ex)
+        //    {
+        //        return BadRequest(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (UserNotFoundException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (FriendshipInvitationDoesNotExistException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+        //    }
+        //}
 
-        [Authorize]
-        [HttpPost("decelineInvite")]
-        public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[Authorize]
+        //[HttpPost("decelineInvite")]
+        //public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            try
-            {
-                await _friendshipInvitationRepository.DeleteInviteAsync(decelineInviteDto.SenderId, decelineInviteDto.RecipientId);
+        //    try
+        //    {
+        //        await _friendshipInvitationRepository.DeleteInviteAsync(decelineInviteDto.SenderId, decelineInviteDto.RecipientId);
 
-                return Ok(new DecelineInviteOkResponse
-                {
-                    Succeeded = true,
-                    Message = "Decelined friend request.",
-                });
-            }
-            catch (EnteredDataIsNullException ex)
-            {
-                return BadRequest(CreateErrorResponse(ex.Message));
-            }
-            catch (UserNotFoundException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (FriendshipInvitationDoesNotExistException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-            }
-        }
+        //        return Ok(new DecelineInviteOkResponse
+        //        {
+        //            Succeeded = true,
+        //            Message = "Decelined friend request.",
+        //        });
+        //    }
+        //    catch (EnteredDataIsNullException ex)
+        //    {
+        //        return BadRequest(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (UserNotFoundException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (FriendshipInvitationDoesNotExistException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+        //    }
+        //}
 
-        [Authorize]
-        [HttpPost("acceptInvite")]
-        public async Task<IActionResult> AcceptInviteAsync(AcceptInviteDto acceptInviteDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[Authorize]
+        //[HttpPost("acceptInvite")]
+        //public async Task<IActionResult> AcceptInviteAsync(AcceptInviteDto acceptInviteDto)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            try
-            {
+        //    try
+        //    {
 
-                await _friendshipInvitationRepository.DeleteInviteAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
-                await _friendshipRepository.AddFriendshipAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+        //        await _friendshipInvitationRepository.DeleteInviteAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+        //        await _friendshipRepository.AddFriendshipAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
 
-                return Ok(new AcceptInviteOkResponse
-                {
-                    Succeeded = true,
-                    Message = "Accepted friend request.",
-                });
-            }
-            catch (EnteredDataIsNullException ex)
-            {
-                return BadRequest(CreateErrorResponse(ex.Message));
-            }
-            catch (UserNotFoundException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (FriendshipInvitationDoesNotExistException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-            }
-        }
+        //        return Ok(new AcceptInviteOkResponse
+        //        {
+        //            Succeeded = true,
+        //            Message = "Accepted friend request.",
+        //        });
+        //    }
+        //    catch (EnteredDataIsNullException ex)
+        //    {
+        //        return BadRequest(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (UserNotFoundException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (FriendshipInvitationDoesNotExistException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+        //    }
+        //}
 
-        [Authorize]
-        [HttpGet("getFriends/{userId}")]
-        public async Task<IActionResult> GetFriendsAsync(string userId)
-        {
-            if (String.IsNullOrEmpty(userId) || userId.Length != 36)
-            {
-                return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
-            }
+        //[Authorize]
+        //[HttpGet("getFriends/{userId}")]
+        //public async Task<IActionResult> GetFriendsAsync(string userId)
+        //{
+        //    if (String.IsNullOrEmpty(userId) || userId.Length != 36)
+        //    {
+        //        return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
+        //    }
 
-            try
-            {
-                var invities = await _friendshipRepository.GetFriendsAsync(userId);
+        //    try
+        //    {
+        //        var invities = await _friendshipRepository.GetFriendsAsync(userId);
 
-                return Ok(new GetFriendsOkResponseDto
-                {
-                    Succeeded = true,
-                    Message = "Successfully found friends.",
-                    Friends = invities
-                });
-            }
-            catch (EnteredDataIsNullException ex)
-            {
-                return BadRequest(CreateErrorResponse(ex.Message));
-            }
-            catch (UserNotFoundException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (FriendshipInvitationDoesNotExistException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-            }
-        }
+        //        return Ok(new GetFriendsOkResponseDto
+        //        {
+        //            Succeeded = true,
+        //            Message = "Successfully found friends.",
+        //            Friends = invities
+        //        });
+        //    }
+        //    catch (EnteredDataIsNullException ex)
+        //    {
+        //        return BadRequest(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (UserNotFoundException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (FriendshipInvitationDoesNotExistException ex)
+        //    {
+        //        return NotFound(CreateErrorResponse(ex.Message));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
+        //    }
+        //}
 
         private FriendsFailedResponseDto CreateErrorResponse(string message)
         {

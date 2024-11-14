@@ -2,7 +2,11 @@
 using Api.Data.IRepository;
 using Api.Data.Repository;
 using Api.Models;
+<<<<<<< HEAD
 using Api.Models.Friendship;
+=======
+using Api.Models.Dtos.Responses;
+>>>>>>> api/feature/global-update
 using Api.Service;
 using Api.Service.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,6 +35,7 @@ namespace Api
             builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });

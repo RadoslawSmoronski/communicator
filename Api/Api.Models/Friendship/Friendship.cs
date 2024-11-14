@@ -18,5 +18,6 @@ namespace Api.Models.Friendship
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+
     }
 }
