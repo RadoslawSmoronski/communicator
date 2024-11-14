@@ -1,17 +1,11 @@
 ﻿using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Controllers.UserController;
-using Api.Models.Dtos.Controllers.UserController.LoginAsync;
-using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Responses;
 using Api.Models.Dtos.Responses.Interfaces;
-using Api.Models.Dtos.Service;
-using Api.Utilities.Result;
 using AutoMapper;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace Api.Controllers
 {
