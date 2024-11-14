@@ -195,5 +195,27 @@ namespace Api.Service
                 return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
             }
         }
+
+        public async Task<Result> RemoveExpiredRefreshTokensAsync()
+        {
+            try
+            {
+                var removedExpiredTokens = await _refreshTokenRepository.RemoveExpiredRefreshTokensAsync();
+
+                if (removedExpiredTokens > 0)
+                {
+                    Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {removedExpiredTokens} expired tokens removed.");
+                    return Result.Success();
+                }
+
+                Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
+                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Rexpired refresh tokens not found.");
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
+                return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
+            }
+        }
     }
 }

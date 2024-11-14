@@ -1,5 +1,6 @@
 ﻿using Api.Data.IRepository;
 using Api.Models;
+using Api.Utilities.Result;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -58,6 +59,21 @@ namespace Api.Data.Repository
                                  .Where(rt => rt.Token == refreshToken)
                                  .Select(rt => rt.UserId)
                                  .FirstOrDefaultAsync();
+        }
+
+        public async Task<int> RemoveExpiredRefreshTokensAsync()
+        {
+            var expiredRefreshTokens = await _context.RefreshTokens
+                .Where(rt => rt.Expiration < DateTime.UtcNow)
+                .ToListAsync();
+
+            if (expiredRefreshTokens.Any())
+            {
+                _context.RefreshTokens.RemoveRange(expiredRefreshTokens);
+                await _context.SaveChangesAsync();
+            }
+
+            return expiredRefreshTokens.Count;
         }
     }
 }

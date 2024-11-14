@@ -152,7 +152,7 @@ namespace Api.Controllers
             {
                 var response = _responseFactory.Create<String>
                     (ResponseHttpType.Success, "The access token have been successfully refreshed.", newToken.Value);
-
+                
                 return Ok(response);
             }
             else if(newToken.Error != null)
