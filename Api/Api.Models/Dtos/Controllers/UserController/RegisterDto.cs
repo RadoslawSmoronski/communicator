@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Controllers.UserController.LoginAsync
+namespace Api.Models.Dtos.Controllers.UserController
 {
-    public class LoginDto
+    public class RegisterDto
     {
         [Required(ErrorMessage = "Username is required.")]
         [StringLength(25, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 50 characters.")]
@@ -16,4 +16,5 @@ namespace Api.Models.Dtos.Controllers.UserController.LoginAsync
         [StringLength(50, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 50 characters.")]
         public string Password { get; set; } = string.Empty;
     }
+
 }

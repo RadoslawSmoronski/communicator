@@ -43,17 +43,17 @@ namespace Api.Service
 
             if(user == null)
             {
-                return Error.Validation("USER_IS_NULL", "User must not be null.");
+                return Error.BadRequest("USER_IS_NULL", "User must not be null.");
             }
 
             if(String.IsNullOrEmpty(user.UserName))
             {
-                return Error.Validation("USER_USERNAME_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username must not be null or empty.");
             }
 
             if (String.IsNullOrEmpty(user.Id))
             {
-                return Error.Validation("USER_ID_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "Username must not be null or empty.");
             }
 
             try
@@ -98,12 +98,12 @@ namespace Api.Service
         {
             if (string.IsNullOrEmpty(refreshToken))
             {
-                return Error.Validation("REFRESHTOKEN_IS_NULL", "Refresh token must not be null or empty.");
+                return Error.BadRequest("REFRESHTOKEN_IS_NULL", "Refresh token must not be null or empty.");
             }
 
             if (!await _refreshTokenRepository.IsTokenValidAsync(refreshToken))
             {
-                return Error.AccessUnauthorized("REFRESHTOKEN_NOT_FOUND", "Invalid refresh token.");
+                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Invalid refresh token.");
             }
 
             var userId = await _refreshTokenRepository.GetUserIdByRefreshTokenAsync(refreshToken);
@@ -122,12 +122,12 @@ namespace Api.Service
 
             if (String.IsNullOrEmpty(user.UserName))
             {
-                return Error.Validation("USER_USERNAME_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username must not be null or empty.");
             }
 
             if (String.IsNullOrEmpty(user.Id))
             {
-                return Error.Validation("USER_ID_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "Username must not be null or empty.");
             }
 
             var claims = new List<Claim>
@@ -167,7 +167,7 @@ namespace Api.Service
         {
             if (string.IsNullOrEmpty(userId))
             {
-                return Error.Validation("USER_ID_IS_NULL","User ID must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL","User ID must not be null or empty.");
             }
 
             try
@@ -185,13 +185,35 @@ namespace Api.Service
                 {
                     Token = newRefreshToken,
                     UserId = userId,
-                    Expiration = DateTime.UtcNow.AddDays(7)
+                    Expiration = DateTime.UtcNow.Add(_refreshTokenLifeTime)
                 });
 
                 return newRefreshToken;
             }
             catch (Exception)
             {
+                return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
+            }
+        }
+
+        public async Task<ResultT<int>> RemoveExpiredRefreshTokensAsync()
+        {
+            try
+            {
+                var removedExpiredTokens = await _refreshTokenRepository.RemoveExpiredRefreshTokensAsync();
+
+                if (removedExpiredTokens > 0)
+                {
+                    //Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {removedExpiredTokens} expired tokens removed.");
+                    return removedExpiredTokens;
+                }
+
+                //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
+                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Rexpired refresh tokens not found.");
+            }
+            catch (Exception)
+            {
+                //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
                 return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
             }
         }

@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Api.Utilities\Api.Utilities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Friendship\" />
+  </ItemGroup>
+
 </Project>
