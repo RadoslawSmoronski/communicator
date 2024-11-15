@@ -1,4 +1,5 @@
 ﻿using Api.Models;
+using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Utilities.Result;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,6 @@ namespace Api.Data.IRepository
     {
         Task<bool> IsFriendsInvitationExists(string userId1, string userId2);
         Task SendInviteAsync(UserAccount senderUser, UserAccount recipientUser);
+        Task<List<GetInvitiesUserDto>> GetInvitiesAsync(string userId);
     }
 }

@@ -1,9 +1,10 @@
-﻿using Api.Utilities.Result;
+﻿using Api.Models.Dtos.Controllers.FriendsController;
+using Api.Utilities.Result;
 
 namespace Api.Managers.Interfaces
 {
     public interface IFriendsManager
     {
-        Task<Result> SendInviteAsync(string SenderId, string RecipientId);
+        Task<Result> SendInviteAsync(string senderId, string recipientId);
     }
 }

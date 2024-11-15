@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Api.Models;
 using Api.Utilities.Result;
+using Api.Models.Dtos.Controllers.FriendsController;
 
 namespace Api.Data.Repository
 {
@@ -24,11 +25,9 @@ namespace Api.Data.Repository
 
         public async Task<bool> IsFriendsInvitationExists(string userId1, string userId2)
         {
-            var exists = await _context.FriendshipInvitations
+            return await _context.FriendshipInvitations
                         .AnyAsync(x => (x.SenderId == userId1 && x.RecipientId == userId2)
                         || (x.SenderId == userId2 && x.RecipientId == userId1));
-
-            return exists;
         }
 
         public async Task SendInviteAsync(UserAccount senderUser, UserAccount recipientUser)
@@ -43,6 +42,18 @@ namespace Api.Data.Repository
 
             await _context.FriendshipInvitations.AddAsync(friendshipInvitation);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<GetInvitiesUserDto>> GetInvitiesAsync(string userId)
+        {
+            return await _context.FriendshipInvitations
+                          .Where(x => x.RecipientId == userId)
+                          .Select(x => new GetInvitiesUserDto
+                          {
+                              Id = x.SenderId,
+                              UserName = x.SenderUser.UserName!
+                          })
+                          .ToListAsync();
         }
     }
 }
