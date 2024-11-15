@@ -2,6 +2,8 @@
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
+using Api.Models.Dtos.Responses.Interfaces;
+using Api.Models.Dtos.Responses;
 using Api.Utilities.Result;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -157,6 +159,7 @@ namespace Api.Managers
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
+
         public async Task<Result> AddFriendsAsync(string senderId, string recipientId)
         {
             if (string.IsNullOrWhiteSpace(senderId))
@@ -206,6 +209,38 @@ namespace Api.Managers
                 return Result.Success();
             }
             catch (Exception)
+            {
+                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
+
+        public async Task<ResultT<List<FriendDto>>> GetFriendsAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Error.BadRequest("USERID_IS_EMPTY", "UserId is required.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null || user.UserName == null)
+                {
+                    return Error.NotFound("USERID_NOT_FOUND", "User doesn't exist.");
+                }
+
+                var list = await _friendsRepository.GetFriends(userId);
+
+                if (list.Count > 0)
+                {
+                    return list;
+                }
+
+                return Error.NotFound("INVITITIES_NOT_FOUND", "No friends found.");
+
+            }
+            catch
             {
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }

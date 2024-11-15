@@ -100,7 +100,7 @@ namespace Api.Data.Repository
                 .Select(x => new FriendDto
                 {
                     Id = x.User1Id == userId ? x.User2Id : x.User1Id,
-                    Username = x.User1Id == userId ? x.User2.UserName : x.User1.UserName
+                    UserName = x.User1Id == userId ? x.User2.UserName : x.User1.UserName
                 })
                 .ToListAsync();
 

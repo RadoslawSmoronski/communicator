@@ -9,5 +9,6 @@ namespace Api.Managers.Interfaces
         Task<ResultT<List<GetInvitationsUserDto>>> GetInvitationsAsync(string userId);
         Task<Result> DecelineInviteAsync(string senderId, string recipientId);
         Task<Result> AddFriendsAsync(string senderId, string recipientId);
+        Task<ResultT<List<FriendDto>>> GetFriendsAsync(string userId);
     }
 }
