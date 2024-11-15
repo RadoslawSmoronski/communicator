@@ -1,8 +1,10 @@
 ﻿using Api.Data.IRepository;
 using Api.Managers.Interfaces;
 using Api.Models;
+using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Utilities.Result;
 using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 
 namespace Api.Managers
@@ -18,40 +20,40 @@ namespace Api.Managers
             _userManager = userManager;
         }
 
-        public async Task<Result> SendInviteAsync(string SenderId, string RecipientId)
+        public async Task<Result> SendInviteAsync(string senderId, string recipientId)
         {
-            if (string.IsNullOrWhiteSpace(SenderId))
+            if (string.IsNullOrWhiteSpace(senderId))
             {
                 return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId is required.");
             }
 
-            if (string.IsNullOrWhiteSpace(RecipientId))
+            if (string.IsNullOrWhiteSpace(recipientId))
             {
                 return Error.BadRequest("RECIPIENTID_IS_EMPTY", "RecipientId is required.");
             }
 
-            if(SenderId == RecipientId)
+            if (senderId == recipientId)
             {
                 return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId need to be different.");
             }
 
             try
             {
-                var senderUser = await _userManager.FindByIdAsync(SenderId);
+                var senderUser = await _userManager.FindByIdAsync(senderId);
 
                 if (senderUser == null || senderUser.UserName == null)
                 {
                     return Error.NotFound("SENDERUSER_NOT_FOUND", "SenderUser doesn't exist.");
                 }
 
-                var recipientUser = await _userManager.FindByIdAsync(RecipientId);
+                var recipientUser = await _userManager.FindByIdAsync(recipientId);
 
                 if (recipientUser == null || recipientUser.UserName == null)
                 {
                     return Error.NotFound("RECIPIENTUSER_NOT_FOUND", "RecipientUser doesn't exist.");
                 }
 
-                if(await _friendsRepository.IsFriendsInvitationExists(SenderId, RecipientId))
+                if (await _friendsRepository.IsFriendsInvitationExists(senderId, recipientId))
                 {
                     return Error.Conflict("FRIENDS_INVITATION_EXISTS", "An invitation has already exist.");
                 }
@@ -60,7 +62,39 @@ namespace Api.Managers
 
                 return Result.Success();
             }
-            catch(Exception)
+            catch (Exception)
+            {
+                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
+
+        public async Task<ResultT<List<GetInvitiesUserDto>>> GetInvitiesAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Error.BadRequest("USERID_IS_EMPTY", "UserId is required.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null || user.UserName == null)
+                {
+                    return Error.NotFound("USERID_NOT_FOUND", "User doesn't exist.");
+                }
+
+                var list = await _friendsRepository.GetInvitiesAsync(userId);
+
+                if(list.Count > 0)
+                {
+                    return list;
+                }
+
+                return Error.NotFound("INVITITIES_NOT_FOUND", "No invitation found.");
+
+            }
+            catch
             {
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
