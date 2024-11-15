@@ -102,7 +102,7 @@ namespace Api.Controllers
         [HttpPost("decelineInvite")]
         public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
         {
-            var result = await _friendsManager.DeleteInviteAsync(decelineInviteDto.SenderId, decelineInviteDto.RecipientId);
+            var result = await _friendsManager.DecelineInviteAsync(decelineInviteDto.SenderId, decelineInviteDto.RecipientId);
 
             if (result.IsSuccess)
             {
@@ -122,43 +122,27 @@ namespace Api.Controllers
         }
 
         //[Authorize]
-        //[HttpPost("acceptInvite")]
-        //public async Task<IActionResult> AcceptInviteAsync(AcceptInviteDto acceptInviteDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+        [HttpPost("acceptInvite")]
+        public async Task<IActionResult> AcceptInviteAsync(AcceptInviteDto acceptInviteDto)
+        {
+            var result = await _friendsManager.AddFriendsAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
 
-        //    try
-        //    {
+            if (result.IsSuccess)
+            {
+                var responseOk = _responseHttpFactory.Create(ResponseHttpType.Success, "Friend successfully added.");
+                return Ok(responseOk);
+            }
 
-        //        await _friendshipInvitationRepository.DeleteInviteAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
-        //        await _friendshipRepository.AddFriendshipAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+            if (result.Error != null)
+            {
+                var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, result.Error.Description);
+                return StatusCode(response.Status, response);
+            }
 
-        //        return Ok(new AcceptInviteOkResponse
-        //        {
-        //            Succeeded = true,
-        //            Message = "Accepted friend request.",
-        //        });
-        //    }
-        //    catch (EnteredDataIsNullException ex)
-        //    {
-        //        return BadRequest(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (UserNotFoundException ex)
-        //    {
-        //        return NotFound(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (FriendshipInvitationDoesNotExistException ex)
-        //    {
-        //        return NotFound(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-        //    }
-        //}
+            var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
+            return StatusCode(500, fallbackResponse);
+        }
 
         //[Authorize]
         //[HttpGet("getFriends/{userId}")]

@@ -7,6 +7,7 @@ namespace Api.Managers.Interfaces
     {
         Task<Result> SendInviteAsync(string senderId, string recipientId);
         Task<ResultT<List<GetInvitationsUserDto>>> GetInvitationsAsync(string userId);
-        Task<Result> DeleteInviteAsync(string senderId, string recipientId);
+        Task<Result> DecelineInviteAsync(string senderId, string recipientId);
+        Task<Result> AddFriendsAsync(string senderId, string recipientId);
     }
 }

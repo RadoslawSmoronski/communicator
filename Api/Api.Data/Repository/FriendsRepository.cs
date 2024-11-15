@@ -88,5 +88,12 @@ namespace Api.Data.Repository
             await _context.Friendships.AddAsync(friendship);
             await _context.SaveChangesAsync();      
         }
+
+        public async Task<bool> IsFriendsExist(string userId1, string userId2)
+        {
+            return await _context.Friendships
+                         .AnyAsync(x => (x.User1Id == userId1 && x.User2Id == userId2)
+                         || (x.User1Id == userId2 && x.User2Id == userId1));
+        }
     }
 }
