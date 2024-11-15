@@ -14,5 +14,6 @@ namespace Api.Data.IRepository
         Task<bool> IsFriendsInvitationExists(string userId1, string userId2);
         Task SendInviteAsync(UserAccount senderUser, UserAccount recipientUser);
         Task<List<GetInvitationsUserDto>> GetInvitationsAsync(string userId);
+        Task<Result> DeleteInviteAsync(UserAccount senderUser, UserAccount recipientUser);
     }
 }

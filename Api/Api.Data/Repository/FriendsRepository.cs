@@ -55,5 +55,24 @@ namespace Api.Data.Repository
                           })
                           .ToListAsync();
         }
+
+        public async Task<Result> DeleteInviteAsync(UserAccount senderUser, UserAccount recipientUser)
+        {
+
+            var invitation = await _context.FriendshipInvitations
+                .Where(x => x.SenderId == senderUser.Id && x.RecipientId == recipientUser.Id)
+                .FirstOrDefaultAsync();
+
+            if(invitation != null)
+            {
+                _context.FriendshipInvitations.Remove(invitation);
+                await _context.SaveChangesAsync();
+                return Result.Success();
+            }
+            else
+            {
+                return Error.NotFound("INVITATION_NOT_FOUND", "Invitation not found.");
+            }
+        }
     }
 }
