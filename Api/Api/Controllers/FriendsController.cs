@@ -186,15 +186,5 @@ namespace Api.Controllers
             var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
             return StatusCode(500, fallbackResponse);
         }
-
-        private FriendsFailedResponseDto CreateErrorResponse(string message)
-        {
-            return new FriendsFailedResponseDto
-            {
-                Succeeded = false,
-                Message = message
-            };
-        }
-
     }
 }

@@ -29,8 +29,6 @@ namespace Api
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddScoped<IFriendshipInvitationsRepository, FriendshipInvitationsRepository>();
-            builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
