@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Controllers.FriendsController
 {
-    public class GetInvitiesUserDto
+    public class GetInvitationsUserDto
     {
         public string Id { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;

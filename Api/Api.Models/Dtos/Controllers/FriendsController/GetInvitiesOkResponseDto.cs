@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Controllers.FriendsController
 {
-    public class GetInvitiesOkResponseDto
+    public class GetInvitationsOkResponseDto
     {
         public bool Succeeded { get; set; } = false;
         public string Message { get; set; } = string.Empty;

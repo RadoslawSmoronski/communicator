@@ -58,7 +58,7 @@ namespace Api.Managers
                     return Error.Conflict("FRIENDS_INVITATION_EXISTS", "An invitation has already exist.");
                 }
 
-                await _friendsRepository.SendInviteAsync(recipientUser, senderUser);
+                await _friendsRepository.SendInviteAsync(senderUser, recipientUser);
 
                 return Result.Success();
             }
@@ -68,7 +68,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<GetInvitiesUserDto>>> GetInvitiesAsync(string userId)
+        public async Task<ResultT<List<GetInvitationsUserDto>>> GetInvitationsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -84,7 +84,7 @@ namespace Api.Managers
                     return Error.NotFound("USERID_NOT_FOUND", "User doesn't exist.");
                 }
 
-                var list = await _friendsRepository.GetInvitiesAsync(userId);
+                var list = await _friendsRepository.GetInvitationsAsync(userId);
 
                 if(list.Count > 0)
                 {

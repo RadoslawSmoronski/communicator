@@ -56,43 +56,46 @@ namespace Api.Controllers
         }
 
         //[Authorize]
-        [HttpGet("getInvitaties/{userId}")]
-        public async Task<IActionResult> GetInvitiesAsync(string userId)
+        [HttpGet("getInvitations/{userId}")]
+        public async Task<IActionResult> GetInvitationsAsync(string userId)
         {
-            return Ok();
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "UserId is required.");
 
-            //if (String.IsNullOrEmpty(userId) || userId.Length != 36)
-            //{
-            //    return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
-            //}
+                return BadRequest(response);
+            }
 
-            //try
-            //{
-            //    var invities = await _friendshipInvitationRepository.GetInvitiesAsync(userId);
+            if (!Guid.TryParse(userId, out Guid resultGuid))
+            {
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "UserId not valid format.");
 
-            //    return Ok(new GetInvitiesOkResponseDto
-            //    {
-            //        Succeeded = true,
-            //        Message = "Successfully found invitations.",
-            //        FriendshipInvitations = invities
-            //    });
-            //}
-            //catch (EnteredDataIsNullException ex)
-            //{
-            //    return BadRequest(CreateErrorResponse(ex.Message));
-            //}
-            //catch (UserNotFoundException ex)
-            //{
-            //    return NotFound(CreateErrorResponse(ex.Message));
-            //}
-            //catch (FriendshipInvitationDoesNotExistException ex)
-            //{
-            //    return NotFound(CreateErrorResponse(ex.Message));
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-            //}
+                return BadRequest(response);
+            }
+
+            var result = await _friendsManager.GetInvitationsAsync(userId);
+
+            if (result.IsSuccess)
+            {
+                var responseOk = _responseHttpFactory.Create<List<GetInvitationsUserDto>>
+                    (ResponseHttpType.Success,
+                    "Invitations found.",
+                    result.Value);
+
+                return Ok(responseOk);
+            }
+
+            if (result.Error != null)
+            {
+                var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, result.Error.Description);
+                return StatusCode(response.Status, response);
+            }
+
+            var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
+            return StatusCode(500, fallbackResponse);
         }
 
         //[Authorize]

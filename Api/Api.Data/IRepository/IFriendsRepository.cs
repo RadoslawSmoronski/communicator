@@ -13,6 +13,6 @@ namespace Api.Data.IRepository
     {
         Task<bool> IsFriendsInvitationExists(string userId1, string userId2);
         Task SendInviteAsync(UserAccount senderUser, UserAccount recipientUser);
-        Task<List<GetInvitiesUserDto>> GetInvitiesAsync(string userId);
+        Task<List<GetInvitationsUserDto>> GetInvitationsAsync(string userId);
     }
 }
