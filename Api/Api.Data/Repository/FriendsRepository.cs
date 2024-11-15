@@ -89,7 +89,7 @@ namespace Api.Data.Repository
             await _context.SaveChangesAsync();      
         }
 
-        public async Task<bool> IsFriendsExist(string userId1, string userId2)
+        public async Task<bool> IsFriendsExists(string userId1, string userId2)
         {
             return await _context.Friendships
                          .AnyAsync(x => (x.User1Id == userId1 && x.User2Id == userId2)
