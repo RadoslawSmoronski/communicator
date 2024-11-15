@@ -145,42 +145,47 @@ namespace Api.Controllers
         }
 
         //[Authorize]
-        //[HttpGet("getFriends/{userId}")]
-        //public async Task<IActionResult> GetFriendsAsync(string userId)
-        //{
-        //    if (String.IsNullOrEmpty(userId) || userId.Length != 36)
-        //    {
-        //        return BadRequest(CreateErrorResponse("userId must be exactly 36 characters long."));
-        //    }
+        [HttpGet("getFriends/{userId}")]
+        public async Task<IActionResult> GetFriendsAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "UserId is required.");
 
-        //    try
-        //    {
-        //        var invities = await _friendshipRepository.GetFriendsAsync(userId);
+                return BadRequest(response);
+            }
 
-        //        return Ok(new GetFriendsOkResponseDto
-        //        {
-        //            Succeeded = true,
-        //            Message = "Successfully found friends.",
-        //            Friends = invities
-        //        });
-        //    }
-        //    catch (EnteredDataIsNullException ex)
-        //    {
-        //        return BadRequest(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (UserNotFoundException ex)
-        //    {
-        //        return NotFound(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (FriendshipInvitationDoesNotExistException ex)
-        //    {
-        //        return NotFound(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-        //    }
-        //}
+            if (!Guid.TryParse(userId, out Guid resultGuid))
+            {
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "UserId not valid format.");
+
+                return BadRequest(response);
+            }
+
+            var result = await _friendsManager.GetFriendsAsync(userId);
+
+            if (result.IsSuccess)
+            {
+                var responseOk = _responseHttpFactory.Create<List<FriendDto>>
+                    (ResponseHttpType.Success,
+                    "Friends found.",
+                    result.Value);
+
+                return Ok(responseOk);
+            }
+
+            if (result.Error != null)
+            {
+                var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, result.Error.Description);
+                return StatusCode(response.Status, response);
+            }
+
+            var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
+            return StatusCode(500, fallbackResponse);
+        }
 
         private FriendsFailedResponseDto CreateErrorResponse(string message)
         {
