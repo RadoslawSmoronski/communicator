@@ -10,6 +10,7 @@ namespace Api.Data.IRepository
 {
     public interface IFriendsRepository
     {
+        Task<bool> IsFriendsInvitationExists(string userId1, string userId2);
         Task SendInviteAsync(UserAccount senderUser, UserAccount recipientUser);
     }
 }

@@ -22,6 +22,15 @@ namespace Api.Data.Repository
             _context = context;
         }
 
+        public async Task<bool> IsFriendsInvitationExists(string userId1, string userId2)
+        {
+            var exists = await _context.FriendshipInvitations
+                        .AnyAsync(x => (x.SenderId == userId1 && x.RecipientId == userId2)
+                        || (x.SenderId == userId2 && x.RecipientId == userId1));
+
+            return exists;
+        }
+
         public async Task SendInviteAsync(UserAccount senderUser, UserAccount recipientUser)
         {
             var friendshipInvitation = new FriendshipInvitation

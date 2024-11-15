@@ -33,6 +33,7 @@ namespace Api
             builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
+            builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>

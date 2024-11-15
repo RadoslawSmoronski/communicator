@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Api.Data.Repository;
+using Api.Managers.Interfaces;
+using Api.Managers;
+using AutoMapper;
+using Api.Models.Dtos.Responses.Interfaces;
+using Api.Models.Dtos.Responses;
 
 namespace Api.Controllers
 {
@@ -14,53 +19,40 @@ namespace Api.Controllers
     [ApiController]
     public class FriendsController : Controller
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IFriendshipInvitationsRepository _friendshipInvitationRepository;
-        private readonly IFriendshipRepository _friendshipRepository;
+        private readonly IFriendsManager _friendsManager;
+        private readonly IMapper _mapper;
+        private readonly ResponseHttpFactory _responseHttpFactory;
 
-        public FriendsController(UserManager<UserAccount> userManager, IFriendshipInvitationsRepository friendshipInvitationRepository,
-            IFriendshipRepository friendshipRepository)
+        public FriendsController(IFriendsManager friendsManager,
+            IMapper mapper,
+            ResponseHttpFactory responseHttpFactory)
         {
-            _userManager = userManager;
-            _friendshipInvitationRepository = friendshipInvitationRepository;
-            _friendshipRepository = friendshipRepository;
+            _friendsManager = friendsManager;
+            _mapper = mapper;
+            _responseHttpFactory = responseHttpFactory;
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("sendInviteAsync")]
         public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
         {
-            if (!ModelState.IsValid)
+            var inviteResult = await _friendsManager.SendInviteAsync(sendInviteDto.SenderId, sendInviteDto.RecipientId);
+
+            if (inviteResult.IsSuccess)
             {
-                return BadRequest(ModelState);
+                var responseOk = _responseHttpFactory.Create(ResponseHttpType.Success, "Invitation sent.");
+                return Ok(responseOk);
             }
 
-            try
+            if (inviteResult.Error != null)
             {
-                await _friendshipInvitationRepository.SendInviteAsync(sendInviteDto.SenderId, sendInviteDto.RecipientId);
+                var errorType = _mapper.Map<ResponseHttpType>(inviteResult.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, inviteResult.Error.Description);
+                return StatusCode(response.Status, response);
+            }
 
-                return Ok(new SendInviteOkResponseDto
-                {
-                    Succeeded = true,
-                    Message = "Invitation successfully sent."
-                });
-            }
-            catch (UserNotFoundException ex)
-            {
-                return NotFound(CreateErrorResponse(ex.Message));
-            }
-            catch (FriendshipInvitationIsAlreadyExistException ex)
-            {
-                return Conflict(CreateErrorResponse(ex.Message));
-            }
-            catch (DatabaseOperationException ex)
-            {
-                return StatusCode(500, CreateErrorResponse(ex.Message));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-            }
+            var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
+            return StatusCode(500, fallbackResponse);
         }
 
         //[Authorize]
