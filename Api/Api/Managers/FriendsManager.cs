@@ -22,12 +22,12 @@ namespace Api.Managers
         {
             if (string.IsNullOrWhiteSpace(SenderId))
             {
-                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId is required");
+                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId is required.");
             }
 
             if (string.IsNullOrWhiteSpace(RecipientId))
             {
-                return Error.BadRequest("RECIPIENTID_IS_EMPTY", "RecipientId is required");
+                return Error.BadRequest("RECIPIENTID_IS_EMPTY", "RecipientId is required.");
             }
 
             if(SenderId == RecipientId)
@@ -51,6 +51,10 @@ namespace Api.Managers
                     return Error.NotFound("RECIPIENTUSER_NOT_FOUND", "RecipientUser doesn't exist.");
                 }
 
+                if(await _friendsRepository.IsFriendsInvitationExists(SenderId, RecipientId))
+                {
+                    return Error.Conflict("FRIENDS_INVITATION_EXISTS", "An invitation has already exist.");
+                }
 
                 await _friendsRepository.SendInviteAsync(recipientUser, senderUser);
 
