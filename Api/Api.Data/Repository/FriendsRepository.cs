@@ -95,5 +95,17 @@ namespace Api.Data.Repository
                          .AnyAsync(x => (x.User1Id == userId1 && x.User2Id == userId2)
                          || (x.User1Id == userId2 && x.User2Id == userId1));
         }
+
+        public async Task<List<FriendDto>> GetFriends(string userId)
+        {
+            return await _context.Friendships
+                         .Where(x => x.User1Id == userId || x.User2Id == userId)
+                         .Select(x => new FriendDto
+                         {
+                             Id = x.User1Id == userId ? x.User2Id : x.User1Id,
+                             UserName = x.User1Id == userId ? x.User2.UserName! : x.User1.UserName!
+                         })
+                         .ToListAsync();
+        }
     }
 }
