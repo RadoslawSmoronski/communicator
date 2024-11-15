@@ -99,41 +99,27 @@ namespace Api.Controllers
         }
 
         //[Authorize]
-        //[HttpPost("decelineInvite")]
-        //public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+        [HttpPost("decelineInvite")]
+        public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
+        {
+            var result = await _friendsManager.DeleteInviteAsync(decelineInviteDto.SenderId, decelineInviteDto.RecipientId);
 
-        //    try
-        //    {
-        //        await _friendshipInvitationRepository.DeleteInviteAsync(decelineInviteDto.SenderId, decelineInviteDto.RecipientId);
+            if (result.IsSuccess)
+            {
+                var responseOk = _responseHttpFactory.Create(ResponseHttpType.Success, "Invitation decelined.");
+                return Ok(responseOk);
+            }
 
-        //        return Ok(new DecelineInviteOkResponse
-        //        {
-        //            Succeeded = true,
-        //            Message = "Decelined friend request.",
-        //        });
-        //    }
-        //    catch (EnteredDataIsNullException ex)
-        //    {
-        //        return BadRequest(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (UserNotFoundException ex)
-        //    {
-        //        return NotFound(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (FriendshipInvitationDoesNotExistException ex)
-        //    {
-        //        return NotFound(CreateErrorResponse(ex.Message));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, CreateErrorResponse("An internal server error occurred."));
-        //    }
-        //}
+            if (result.Error != null)
+            {
+                var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, result.Error.Description);
+                return StatusCode(response.Status, response);
+            }
+
+            var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
+            return StatusCode(500, fallbackResponse);
+        }
 
         //[Authorize]
         //[HttpPost("acceptInvite")]
