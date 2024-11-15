@@ -74,5 +74,19 @@ namespace Api.Data.Repository
                 return Error.NotFound("INVITATION_NOT_FOUND", "Invitation not found.");
             }
         }
+
+        public async Task AddFriendsAsync(UserAccount user1, UserAccount user2)
+        {
+            var friendship = new Friendship
+            {
+                User1Id = user1.Id,
+                User2Id = user2.Id,
+                User1 = user1,
+                User2 = user2
+            };
+
+            await _context.Friendships.AddAsync(friendship);
+            await _context.SaveChangesAsync();      
+        }
     }
 }
