@@ -1,12 +1,10 @@
 ﻿using Api.Data;
 using Api.Data.IRepository;
 using Api.Data.Repository;
+using Api.Managers;
+using Api.Managers.Interfaces;
 using Api.Models;
-<<<<<<< HEAD
-using Api.Models.Friendship;
-=======
 using Api.Models.Dtos.Responses;
->>>>>>> api/feature/global-update
 using Api.Service;
 using Api.Service.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -34,6 +32,7 @@ namespace Api
             builder.Services.AddScoped<IFriendshipInvitationsRepository, FriendshipInvitationsRepository>();
             builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>

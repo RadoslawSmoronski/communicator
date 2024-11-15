@@ -2,6 +2,7 @@
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Utilities.Result;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Identity;
 
 namespace Api.Managers
@@ -52,11 +53,13 @@ namespace Api.Managers
 
 
                 await _friendsRepository.SendInviteAsync(recipientUser, senderUser);
-            }
-            
-            // fill it out
 
-            throw new NotImplementedException();
+                return Result.Success();
+            }
+            catch(Exception)
+            {
+                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
         }
     }
 }
