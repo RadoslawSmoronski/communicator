@@ -5,6 +5,7 @@ using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Responses;
 using Api.Service;
+using Api.Service.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
