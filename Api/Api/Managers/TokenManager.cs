@@ -103,7 +103,7 @@ namespace Api.Service
 
             if (!await _refreshTokenRepository.IsTokenValidAsync(refreshToken))
             {
-                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Invalid refresh token.");
+                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token not found.");
             }
 
             var userId = await _refreshTokenRepository.GetUserIdByRefreshTokenAsync(refreshToken);

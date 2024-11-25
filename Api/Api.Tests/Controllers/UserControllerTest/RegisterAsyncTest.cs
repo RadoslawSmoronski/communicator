@@ -92,7 +92,7 @@ namespace Api.Tests.Controllers.UserControllerTest
             var registerDto = new RegisterDto() { UserName = "testUser", Password = "Password" };
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
-                           .Throws(new InvalidOperationException("Simulated exception"));
+                           .Throws(new InvalidOperationException("Simulated exception")).Once();
 
             // Act
             var result = await userController.RegisterAsync(registerDto) as ObjectResult;
