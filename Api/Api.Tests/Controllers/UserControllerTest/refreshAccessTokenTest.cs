@@ -16,6 +16,9 @@ using Microsoft.AspNetCore.Mvc;
 using Api.Utilities.Result;
 using Api.Models.Dtos.Responses.Interfaces;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Api.Data.Repository;
+using Api.Service;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Api.Tests.Controllers.UserControllerTest
 {
@@ -34,7 +37,9 @@ namespace Api.Tests.Controllers.UserControllerTest
             _mapper = A.Fake<IMapper>();
             _tokenManager = A.Fake<ITokenManager>();
             _responseFactory = A.Fake<ResponseHttpFactory>();
+
         }
+
 
         [Fact]
         public async Task refreshAccessTokenAsync_ShouldReturnOk()
