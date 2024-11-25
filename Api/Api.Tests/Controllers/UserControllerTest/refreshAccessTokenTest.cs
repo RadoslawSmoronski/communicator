@@ -124,5 +124,6 @@ namespace Api.Tests.Controllers.UserControllerTest
             response.Title.Should().Contain("User form refresh token record doesn't exist.");
         }
 
+
     }
 }

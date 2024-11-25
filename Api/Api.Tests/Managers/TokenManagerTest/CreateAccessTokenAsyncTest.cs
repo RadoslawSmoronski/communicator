@@ -19,6 +19,8 @@ using Api.Data.Repository;
 using Api.Service;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
+using System.Collections;
+using Microsoft.AspNetCore.Hosting.Server;
 
 namespace Api.Tests.Managers.TokenManagers
 {
@@ -57,6 +59,90 @@ namespace Api.Tests.Managers.TokenManagers
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
+        }
+
+
+        [Theory]
+        [InlineData("login", null)]
+        [InlineData(null, "id")]
+        public async Task CreateAccessTokenAsync_ShouldReturnBadRequestError_WhenDataIsNotValid(string login, string id)
+        {
+            // Arrange
+            var tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
+            var user = new UserAccount { UserName = login, Id = id };
+
+            // Act
+            var result = await tokenManager.CreateAccessTokenAsync(user);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.IsSuccess.Should().BeFalse();
+
+            var error = result.Error as Error;
+            error.Should().NotBeNull();
+            error!.ErrorType.Should().Be(HttpErrorType.BadRequest);
+        }
+
+        [Fact]
+        public async Task CreateAccessTokenAsync_ShouldReturnBadRequestError_WhenDataIsNotExists()
+        {
+            // Arrange
+            var tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
+
+            // Act
+            var result = await tokenManager.CreateAccessTokenAsync(null);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.IsSuccess.Should().BeFalse();
+
+            var error = result.Error as Error;
+            error.Should().NotBeNull();
+            error!.ErrorType.Should().Be(HttpErrorType.BadRequest);
+        }
+
+        [Fact]
+        public async Task CreateAccessTokenAsync_ShouldReturnNotFound()
+        {
+            // Arrange
+            var tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
+            var user = new UserAccount { UserName = "TestLogin123", Id = "123" };
+
+            A.CallTo(() => _userManager.FindByIdAsync(user.Id))
+                           .Returns(Task.FromResult<UserAccount?>(user));
+
+            // Act
+            var result = await tokenManager.CreateAccessTokenAsync(user);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.IsSuccess.Should().BeFalse();
+
+            var error = result.Error as Error;
+            error.Should().NotBeNull();
+            error!.ErrorType.Should().Be(HttpErrorType.NotFound);
+        }
+
+        [Fact]
+        public async Task CreateAccessTokenAsync_ShouldReturnInternalServerError()
+        {
+            // Arrange
+            var tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
+            var user = new UserAccount { UserName = "TestLogin123", Id = "123" };
+
+            A.CallTo(() => _userManager.FindByIdAsync(user.Id))
+                           .Throws(new Exception());
+
+            // Act
+            var result = await tokenManager.CreateAccessTokenAsync(user);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.IsSuccess.Should().BeFalse();
+
+            var error = result.Error as Error;
+            error.Should().NotBeNull();
+            error!.ErrorType.Should().Be(HttpErrorType.InternalServerError);
         }
     }
 }
