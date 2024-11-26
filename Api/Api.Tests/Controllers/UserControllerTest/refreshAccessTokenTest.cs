@@ -22,7 +22,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Api.Tests.Controllers.UserControllerTest
 {
-    public class refreshAccessTokenTest
+    public class RefreshAccessTokenTest
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
@@ -30,7 +30,7 @@ namespace Api.Tests.Controllers.UserControllerTest
         private readonly ITokenManager _tokenManager;
         private readonly ResponseHttpFactory _responseFactory;
 
-        public refreshAccessTokenTest()
+        public RefreshAccessTokenTest()
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _signInManager = A.Fake<SignInManager<UserAccount>>();
@@ -42,7 +42,7 @@ namespace Api.Tests.Controllers.UserControllerTest
 
 
         [Fact]
-        public async Task refreshAccessTokenAsync_ShouldReturnOk()
+        public async Task RefreshAccessTokenAsync_ShouldReturnOk()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
@@ -67,7 +67,7 @@ namespace Api.Tests.Controllers.UserControllerTest
         }
 
         [Fact]
-        public async Task refreshAccessTokenAsync_ShouldReturnNotFound()
+        public async Task RefreshAccessTokenAsync_ShouldReturnNotFound()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
@@ -97,7 +97,7 @@ namespace Api.Tests.Controllers.UserControllerTest
         }
 
         [Fact]
-        public async Task refreshAccessTokenAsync_ShouldReturnInternalServerError()
+        public async Task RefreshAccessTokenAsync_ShouldReturnInternalServerError()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
