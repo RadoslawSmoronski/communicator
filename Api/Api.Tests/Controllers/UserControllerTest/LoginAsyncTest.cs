@@ -70,26 +70,14 @@ namespace Api.Tests.Controllers.UserControllerTest
         }
 
         [Fact]
-        public async Task LoginAsync_ShouldReturnNotFound()
+        public async Task LoginAsync_ShouldReturnNotFound_WhenUserDoesntExists()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
-            var loginDto = new LoginDto() { UserName = "notExistingUser", Password = "test" };
-            var user = new UserAccount { UserName = loginDto.UserName };
-            var identityResult = Microsoft.AspNetCore.Identity.SignInResult.Success;
-            var tokensResult = ResultT<string>.Success("test");
+            var loginDto = new LoginDto() { UserName = "existingUser", Password = "test" };
 
             A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
                            .Returns(Task.FromResult<UserAccount?>(null));
-
-            A.CallTo(() => _signInManager.PasswordSignInAsync(A<UserAccount>._, A<string>._, false, false))
-                           .Returns(Task.FromResult(identityResult));
-
-            A.CallTo(() => _tokenManager.CreateRefreshTokenAsync(user.Id))
-                           .Returns(tokensResult);
-
-            A.CallTo(() => _tokenManager.CreateAccessTokenAsync(user))
-                           .Returns(tokensResult);
 
             //act
             var result = await userController.LoginAsync(loginDto) as NotFoundObjectResult;
@@ -102,6 +90,33 @@ namespace Api.Tests.Controllers.UserControllerTest
             response.Should().NotBeNull();
             response!.Status.Should().Be(404);
             response.Title.Should().Contain("A user with this username does not exist.");
+        }
+
+        [Fact]
+        public async Task LoginAsync_ShouldReturnBadRequest_WhenUserManagerReturnError()
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
+            var loginDto = new LoginDto() { UserName = "notExistingUser", Password = "test" };
+            var user = new UserAccount { UserName = loginDto.UserName };
+
+            A.CallTo(() => _userManager.FindByNameAsync(loginDto.UserName))
+               .Returns(Task.FromResult<UserAccount?>(user));
+
+            A.CallTo(() => _signInManager.PasswordSignInAsync(A<UserAccount>._, A<string>._, false, false))
+                .Returns(Task.FromResult(Microsoft.AspNetCore.Identity.SignInResult.Failed));
+
+            // Act
+            var result = await userController.LoginAsync(loginDto) as BadRequestObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+
+            var response = result.Value as Error400ResponseDto;
+            response.Should().NotBeNull();
+            response!.Status.Should().Be(400);
+            response.Title.Should().Contain("Invalid login attempt.");
         }
 
         [Fact]
