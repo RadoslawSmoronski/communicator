@@ -22,7 +22,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Collections;
 using Microsoft.AspNetCore.Hosting.Server;
 
-namespace Api.Tests.Managers.TokenManagers
+namespace Api.Tests.Managers.TokenManagerTest
 {
     public class CreateAccessTokenAsyncTest
     {
@@ -102,14 +102,14 @@ namespace Api.Tests.Managers.TokenManagers
         }
 
         [Fact]
-        public async Task CreateAccessTokenAsync_ShouldReturnNotFound()
+        public async Task CreateAccessTokenAsync_ShouldReturnNotFoundError()
         {
             // Arrange
             var tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
             var user = new UserAccount { UserName = "TestLogin123", Id = "123" };
 
             A.CallTo(() => _userManager.FindByIdAsync(user.Id))
-                           .Returns(Task.FromResult<UserAccount?>(user));
+                           .Returns(Task.FromResult<UserAccount>(null));
 
             // Act
             var result = await tokenManager.CreateAccessTokenAsync(user);
