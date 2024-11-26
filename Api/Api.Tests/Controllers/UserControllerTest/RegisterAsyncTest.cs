@@ -60,7 +60,7 @@ namespace Api.Tests.Controllers.UserControllerTest
         }
 
         [Fact]
-        public async Task RegisterAsync_ShouldReturnConflict()
+        public async Task RegisterAsync_ShouldReturnConflict_WhenUserUserNameAlreadyExists()
         {
             // Arrange
             var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
@@ -82,6 +82,31 @@ namespace Api.Tests.Controllers.UserControllerTest
             response.Should().NotBeNull();
             response!.Status.Should().Be(409);
             response.Title.Should().Contain("User with this username already exists.");
+        }
+
+        [Fact]
+        public async Task RegisterAsync_ShouldReturnBadRequest_WhenUserManagerReturnError()
+        {
+            // Arrange
+            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
+            var registerDto = new RegisterDto() { UserName = "existingUser", Password = "Password" };
+            var identityError = new IdentityError { Code = "", Description = "" };
+            var identityResult = IdentityResult.Failed(identityError);
+
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
+                           .Returns(Task.FromResult(identityResult));
+
+            // Act
+            var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+
+            var response = result.Value as Error400ResponseDto;
+            response.Should().NotBeNull();
+            response!.Status.Should().Be(400);
+            response.Title.Should().Contain("Invalid register attempt.");
         }
 
         [Fact]
