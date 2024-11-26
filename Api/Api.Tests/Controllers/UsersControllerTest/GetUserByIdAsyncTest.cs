@@ -53,5 +53,24 @@ namespace Api.Tests.Controllers.UsersControllerTest
             response!.Status.Should().Be(200);
             response.Title.Should().Contain("User found.");
         }
+
+        [Fact]
+        public async Task LoginAsync_ShouldReturnBadRequestError_WhenIdIsNullOrEmpty()
+        {
+            // Arrange
+            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory);
+
+            // Act
+            var result = await usersController.GetUserByIdAsync("") as BadRequestObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+
+            var response = result.Value as Error400ResponseDto;
+            response.Should().NotBeNull();
+            response!.Status.Should().Be(400);
+            response.Title.Should().Contain("Id is required.");
+        }
     }
 }
