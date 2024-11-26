@@ -103,21 +103,21 @@ namespace Api.Service
 
             if (!await _refreshTokenRepository.IsTokenValidAsync(refreshToken))
             {
-                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Invalid refresh token.");
+                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token not found.");
             }
 
             var userId = await _refreshTokenRepository.GetUserIdByRefreshTokenAsync(refreshToken);
 
             if (userId == null)
             {
-                return Error.InternalServerError("DATABASE_DATA_ERROR", "Refresh token record doesn't have user data or refresh token have been deleted.");
+                return Error.NotFound("DATABASE_DATA_ERROR", "Refresh token record doesn't have user data or refresh token have been deleted.");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {
-                return Error.InternalServerError("USER_ERROR", "User form refresh token record doesn't exist.");
+                return Error.NotFound("USER_ERROR", "User form refresh token record doesn't exist.");
             }
 
             if (String.IsNullOrEmpty(user.UserName))
@@ -127,7 +127,7 @@ namespace Api.Service
 
             if (String.IsNullOrEmpty(user.Id))
             {
-                return Error.BadRequest("USER_ID_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "UserId must not be null or empty.");
             }
 
             var claims = new List<Claim>

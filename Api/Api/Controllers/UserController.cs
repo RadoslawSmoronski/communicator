@@ -138,7 +138,7 @@ namespace Api.Controllers
 
 
         [HttpPost("refreshAccessToken")]
-        public async Task<IActionResult> refreshAccessToken([FromBody] RefreshTokenDto refreshTokenDto)
+        public async Task<IActionResult> refreshAccessTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
         {
             var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshTokenDto.RefreshToken);
 
