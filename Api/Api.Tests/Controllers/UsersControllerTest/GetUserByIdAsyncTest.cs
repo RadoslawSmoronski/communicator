@@ -1,5 +1,4 @@
 ﻿using Api.Controllers;
-using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Responses;
 using Api.Models;
 using Api.Utilities.Result;
