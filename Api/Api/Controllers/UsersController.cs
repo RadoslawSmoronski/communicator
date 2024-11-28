@@ -61,7 +61,7 @@ namespace Api.Controllers
                 }
 
                 var responseOk = _responseHttpFactory.Create<UsersDto>
-                               (ResponseHttpType.Success, $"User with id {id} successfully found", _mapper.Map<UsersDto>(user));
+                               (ResponseHttpType.Success, "User found.", _mapper.Map<UsersDto>(user));
 
                 return Ok(responseOk);
             }
