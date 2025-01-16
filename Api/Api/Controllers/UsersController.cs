@@ -99,9 +99,8 @@ namespace Api.Controllers
 
             try
             {
-                var users = await _userManager.Users
-                    .Where(x => x.UserName!.Contains(text))
-                    .ToListAsync();
+                var users = await _userManager.Users.Where(x => x.UserName!.Contains(text))
+                .ToListAsync();
 
                 if (users == null || users.Count == 0)
                 {
