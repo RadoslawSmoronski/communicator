@@ -75,8 +75,8 @@ namespace Api.Controllers
         }
 
         [HttpGet("getUsersByText/{text}")]
-        [Authorize]
-        public async Task<IActionResult> getUsersByTextAsync([FromRoute] string text)
+        //[Authorize]
+        public async Task<IActionResult> GetUsersByTextAsync([FromRoute] string text)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -98,9 +98,8 @@ namespace Api.Controllers
 
             try
             {
-                var users = await _userManager.Users
-                    .Where(x => x.UserName!.Contains(text))
-                    .ToListAsync();
+                var users = await _userManager.Users.Where(x => x.UserName!.Contains(text))
+                .ToListAsync();
 
                 if (users == null || users.Count == 0)
                 {
@@ -115,7 +114,7 @@ namespace Api.Controllers
 
                 var responseOk = _responseHttpFactory.Create<List<UsersDto>>
                               (ResponseHttpType.Success,
-                              "There is no user with this username.",
+                              "User/s found.",
                               userDtos);
 
                 return Ok(responseOk);
