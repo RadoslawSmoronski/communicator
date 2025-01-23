@@ -135,11 +135,6 @@ namespace Api.Managers
                     return Error.NotFound("RECIPIENTUSER_NOT_FOUND", "RecipientUser doesn't exist.");
                 }
 
-                if (await _friendsRepository.IsFriendsInvitationExists(senderId, recipientId) == false)
-                {
-                    return Error.NotFound("INVITATION_NOT_FOUND", "Invitation not found.");
-                }
-
                 var result = await _friendsRepository.DeleteInviteAsync(senderUser, recipientUser);
 
                 if(result.IsSuccess)
