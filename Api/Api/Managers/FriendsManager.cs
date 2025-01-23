@@ -190,7 +190,7 @@ namespace Api.Managers
 
                 if (await _friendsRepository.IsFriendsInvitationExists(senderId, recipientId) == false)
                 {
-                    return Error.NotFound("FRIENDS_INVITATION_EXISTS", "The invitation does not exist.");
+                    return Error.NotFound("INVITATION_NOT_FOUND", "The invitation does not exist.");
                 }
 
                 if(await _friendsRepository.IsFriendsExists(senderId, recipientId))
@@ -198,7 +198,7 @@ namespace Api.Managers
                     return Error.Conflict("FRIENDS_ALREADY_EXISTS", "This relationship already exists.");
                 }
 
-                var result = await _friendsRepository.DeleteInviteAsync(senderUser, recipientUser);
+                await _friendsRepository.DeleteInviteAsync(senderUser, recipientUser);
                 await _friendsRepository.AddFriendsAsync(senderUser, recipientUser);
 
                 return Result.Success();
