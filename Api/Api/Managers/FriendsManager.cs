@@ -225,7 +225,7 @@ namespace Api.Managers
                     return Error.NotFound("USERID_NOT_FOUND", "User doesn't exist.");
                 }
 
-                var list = await _friendsRepository.GetFriends(userId);
+                var list = await _friendsRepository.GetFriendsAsync(userId);
 
                 if (list.Count > 0)
                 {

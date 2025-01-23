@@ -15,12 +15,12 @@ using System.Threading.Tasks;
 
 namespace Api.Tests.Managers.FriendsManagerTest
 {
-    public class GetInvitationsAsyncTest
+    public class GetFriendsAsyncTest
     {
         private readonly IFriendsRepository _friendsRepository;
         private readonly UserManager<UserAccount> _userManager;
 
-        public GetInvitationsAsyncTest()
+        public GetFriendsAsyncTest()
         {
 
             _friendsRepository = A.Fake<IFriendsRepository>();
@@ -28,7 +28,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
         }
 
         [Fact]
-        public async Task GetInvitationsAsync_ShouldReturnOk()
+        public async Task GetFriendsAsync_ShouldReturnOk()
         {
             // Arrange
             var friendsManager = new FriendsManager(_friendsRepository, _userManager);
@@ -38,33 +38,33 @@ namespace Api.Tests.Managers.FriendsManagerTest
             A.CallTo(() => _userManager.FindByIdAsync(user.Id))
                            .Returns(Task.FromResult(user));
 
-            var invitationsUserDtos = new List<GetInvitationsUserDto>
+            var friendsUserDtos = new List<FriendDto>
             {
-                new GetInvitationsUserDto { UserName = "userName1", Id = "1" },
-                new GetInvitationsUserDto { UserName = "userName2", Id = "2" }
+                new FriendDto { UserName = "userName1", Id = "1" },
+                new FriendDto { UserName = "userName2", Id = "2" }
             };
 
-            A.CallTo(() => _friendsRepository.GetInvitationsAsync(user.Id))
-                .Returns(Task.FromResult(invitationsUserDtos));
+            A.CallTo(() => _friendsRepository.GetFriendsAsync(user.Id))
+                .Returns(Task.FromResult(friendsUserDtos));
 
             // Act
-            var result = await friendsManager.GetInvitationsAsync(user.Id) as ResultT<List<GetInvitationsUserDto>>;
+            var result = await friendsManager.GetFriendsAsync(user.Id) as ResultT<List<FriendDto>>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().NotBeNull();
-            result.Value.Should().BeEquivalentTo(invitationsUserDtos);
+            result.Value.Should().BeEquivalentTo(friendsUserDtos);
         }
 
         [Fact]
-        public async Task GetInvitationAsync_ShouldReturnBadRequestError_WhenUserIdIsNullOrWhiteSpace()
+        public async Task GetFriendsAsync_ShouldReturnBadRequestError_WhenUserIdIsNullOrWhiteSpace()
         {
             // Arrange
             var friendsManager = new FriendsManager(_friendsRepository, _userManager);
 
             // Act
-            var result = await friendsManager.GetInvitationsAsync("") as Result;
+            var result = await friendsManager.GetFriendsAsync("") as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -77,7 +77,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
         }
 
         [Fact]
-        public async Task GetInvitationAsync_ShouldReturnNotFoundError_WhenUserDoesNotExists()
+        public async Task GetFriendsAsync_ShouldReturnNotFoundError_WhenUserDoesNotExists()
         {
             // Arrange
             var friendsManager = new FriendsManager(_friendsRepository, _userManager);
@@ -87,7 +87,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
 
 
             // Act
-            var result = await friendsManager.GetInvitationsAsync("testUser") as Result;
+            var result = await friendsManager.GetFriendsAsync("testUser") as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -100,7 +100,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
         }
 
         [Fact]
-        public async Task GetInvitationsAsync_ShouldReturnNotFound_WhenNotFoundAnyInvitations()
+        public async Task GetFriendsAsync_ShouldReturnNotFound_WhenNotFoundAnyFriend()
         {
             // Arrange
             var friendsManager = new FriendsManager(_friendsRepository, _userManager);
@@ -111,11 +111,11 @@ namespace Api.Tests.Managers.FriendsManagerTest
                            .Returns(Task.FromResult(user));
 
 
-            A.CallTo(() => _friendsRepository.GetInvitationsAsync(user.Id))
-                .Returns(Task.FromResult(new List<GetInvitationsUserDto>()));
+            A.CallTo(() => _friendsRepository.GetFriendsAsync(user.Id))
+                .Returns(Task.FromResult(new List<FriendDto>()));
 
             // Act
-            var result = await friendsManager.GetInvitationsAsync(user.Id) as ResultT<List<GetInvitationsUserDto>>;
+            var result = await friendsManager.GetFriendsAsync(user.Id) as ResultT<List<FriendDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -128,7 +128,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
         }
 
         [Fact]
-        public async Task GetInvitationsAsync_ShouldReturnInternalServerError()
+        public async Task GetFriendsAsync_ShouldReturnInternalServerError()
         {
             // Arrange
             var friendsManager = new FriendsManager(_friendsRepository, _userManager);
@@ -136,7 +136,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
             A.CallTo(() => _userManager.FindByIdAsync("test"))
                            .Throws(new Exception());
             // Act
-            var result = await friendsManager.GetInvitationsAsync("test") as Result;
+            var result = await friendsManager.GetFriendsAsync("test") as Result;
 
             // Assert
             result.Should().NotBeNull();
