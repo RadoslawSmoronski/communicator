@@ -59,22 +59,6 @@ namespace Api.Controllers
         [HttpGet("getInvitations/{userId}")]
         public async Task<IActionResult> GetInvitationsAsync(string userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "UserId is required.");
-
-                return BadRequest(response);
-            }
-
-            if (!Guid.TryParse(userId, out Guid resultGuid))
-            {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "UserId not valid format.");
-
-                return BadRequest(response);
-            }
-
             var result = await _friendsManager.GetInvitationsAsync(userId);
 
             if (result.IsSuccess)
