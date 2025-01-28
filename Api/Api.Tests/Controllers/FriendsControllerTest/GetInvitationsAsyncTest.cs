@@ -38,50 +38,60 @@ namespace Api.Tests.Controllers.FriendsControllerTest
             _responseHttpFactory = A.Fake<ResponseHttpFactory>();
         }
 
-        //[Fact]
-        //public async Task GetInvitationsAsync_ShouldReturnOk()
-        //{
-        //    // Arrange
-        //    var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+        [Fact]
+        public async Task GetInvitationsAsync_ShouldReturnOk()
+        {
+            // Arrange
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
 
-        //    var sendInviteDto = new SendInviteDto() { SenderId = "1", RecipientId = "2" };
+            var sendInviteDto = new SendInviteDto() { SenderId = "1", RecipientId = "2" };
 
-        //    A.CallTo(() => _friendsManager.SendInviteAsync("1", "2"))
-        //        .Returns(Task.FromResult(Result.Success()));
+            var expectedList = new List<GetInvitationsUserDto>()
+            {
+                new GetInvitationsUserDto() { Id = "1", UserName = "test"}
+            };
 
-        //    // Act
-        //    var result = await _friendsController.GetInvitationsAsync("test") as OkObjectResult;
+            var fakeResult = ResultT<List<GetInvitationsUserDto>>.Success(expectedList);
 
-        //    // Assert
-        //    result.Should().NotBeNull();
-        //    result!.StatusCode.Should().Be(200);
-        //    var response = result.Value as IResponse;
-        //    response.Should().NotBeNull();
-        //    response!.Status.Should().Be(200);
-        //    response.Title.Should().Contain("Invitation sent.");
-        //}
+            A.CallTo(() => _friendsManager.GetInvitationsAsync("test"))
+                .Returns(Task.FromResult(fakeResult));
 
-        //[Fact]
-        //public async Task SendInviteAsync_ShouldReturnError_WhenFriendsManagerReturnError()
-        //{
-        //    // Arrange
-        //    var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+            // Act
+            var result = await _friendsController.GetInvitationsAsync("test") as OkObjectResult;
 
-        //    var sendInviteDto = new SendInviteDto() { SenderId = "1", RecipientId = "2" };
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(200);
+            var response = result.Value as SuccessResponseWithResultDataDto<List<GetInvitationsUserDto>>;
+            response.Should().NotBeNull();
+            response!.Status.Should().Be(200);
+            response.Title.Should().Contain("Invitations found.");
+            response.ResultData.Should().BeEquivalentTo(expectedList);
+        }
 
-        //    A.CallTo(() => _friendsManager.SendInviteAsync("1", "2"))
-        //        .Returns(Task.FromResult(Result.Failure(Error.Conflict("test", "test2"))));
+        [Fact]
+        public async Task GetInvitationsAsync_ShouldReturnError_WhenFriendsManagerReturnError()
+        {
+            // Arrange
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
 
-        //    // Act
-        //    var result = await _friendsController.SendInviteAsync(sendInviteDto) as ObjectResult;
+            var sendInviteDto = new SendInviteDto() { SenderId = "1", RecipientId = "2" };
 
-        //    // Assert
-        //    result.Should().NotBeNull();
-        //    result!.StatusCode.Should().Be(409);
-        //    var response = result.Value as IResponse;
-        //    response.Should().NotBeNull();
-        //    response!.Status.Should().Be(409);
-        //    response.Title.Should().Contain("test");
-        //}
+            var fakeResult = ResultT<List<GetInvitationsUserDto>>.Failure(Error.BadRequest("test", "test"));
+
+            A.CallTo(() => _friendsManager.GetInvitationsAsync("test"))
+                .Returns(Task.FromResult(fakeResult));
+
+            // Act
+            var result = await _friendsController.GetInvitationsAsync("test") as ObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+            var response = result.Value as IResponse;
+            response.Should().NotBeNull();
+            response!.Status.Should().Be(400);
+            response.Title.Should().Contain("test");
+        }
     }
 }
