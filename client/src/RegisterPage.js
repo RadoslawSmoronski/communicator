@@ -125,9 +125,9 @@ class RegisterPage extends React.Component{
 
             let res = data.data;
             //is ok
-            if(res.succeeded){
+            if(data.status == 200){
                 console.log(res);
-                this.showPopUpMess(res.message);
+                this.showPopUpMess(res.title);
             }
 
         } catch(err){

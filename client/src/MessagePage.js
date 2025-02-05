@@ -12,8 +12,9 @@ import MessageTile from './components/MessageTile';
 import PersonTile from './components/PersonTile';
 
 const APIs = {
-    FIND_PEOPLE_URL : "/api/user/searchTest",
-    REFRESH_TOKEN: "/api/refreshAccessToken"
+    FIND_PEOPLE_URL : "/api/users/getUsersByText",
+    FIND_FRIENDS_URL : "/api/friends/getFriends",
+    REFRESH_TOKEN_URL: "/api/refreshAccessToken"
 }
 
 class MessagePage extends Component {
@@ -30,7 +31,12 @@ class MessagePage extends Component {
             yourChatIsActive: true,
 
             messages: [],
-            messKey: 0
+            messKey: 0,
+
+            listOfUsers: [],
+            findUsersStatus: "not typed",
+            listOfFriends: [],
+            findFriendsStatus: "not found"
         }
         this.handleChangeTxt = this.handleChangeTxt.bind(this);
         this.handleSwitchBtn = this.handleSwitchBtn.bind(this);
@@ -46,14 +52,25 @@ class MessagePage extends Component {
         });
 
         if(name == "searchBar"){
-            this.searchPeople();
+            if(!this.state.yourChatIsActive){
+                this.searchPeople();
+            }
+
         }
     };
 
-    handleSwitchBtn = (event) => {
+    handleSwitchBtn = async (event) => {
         const {name}  = event.target;
         let flag = name == "yourChatsBtn" ? true : false;
-        this.setState({yourChatIsActive: flag});
+        if(this.state.yourChatIsActive != flag){
+            await this.setState({
+                yourChatIsActive: flag,
+                searchBar: '',
+                findUsersStatus: 'not typed',
+                listOfUsers: []
+            });
+        }
+        
     }
 
     addMessage() {
@@ -73,30 +90,34 @@ class MessagePage extends Component {
     singOut(){
         const { setAuth} = this.context;
         setAuth('', [], '');
-        //sessionStorage.removeItem('refreshToken');
+        sessionStorage.removeItem('refreshToken');
+        sessionStorage.removeItem('userInfo');
     }
 
     async refreshAccessToken(){
         const {setAuth, username, roles,accessToken} = this.context;
-    
-        //const refreshToken = sessionStorage.getItem('refreshToken');
-        //fetch
-        try{
-            const data = await axios.post(REFRESH_TOKEN_URL,
-                //refreshToken, // Pass as a plain object
-                {
-                  withCredentials: true, //pass a http only cookie
-                  headers: {
-                    'Access-Control-Allow-Origin': '*', 
-                  }
-                }
-              );
+
+
+    const refreshToken = sessionStorage.getItem('refreshToken');
+    //fetch
+    try{
+        const data = await axios.post(APIs.REFRESH_TOKEN_URL,{
+            refreshToken: refreshToken
+        }, // Pass as a plain object
+          {
+            withCredentials: true, //pass a http only cookie
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
     
             let res = data.data;
             //is ok
-            if(res.succeeded){
-                console.log(res);
-                await setAuth(username, roles, res.accessToken);
+            if(data.status == 200){
+                console.log("SUKCES: ", res.title);
+                await setAuth(username, roles, res.resultData);
             }
     
         } catch(err){
@@ -104,29 +125,32 @@ class MessagePage extends Component {
         }
       }
 
+    
+
     async searchPeople(){
         const {username, accessToken} = this.context;
 
+        if(this.state.searchBar == "") return;
+
         //fetch
         try{
-            const data = await axios.get(APIs.FIND_PEOPLE_URL,
+            const data = await axios.get(`${APIs.FIND_PEOPLE_URL}/${this.state.searchBar}`,
                 {
-                    params:{
-                        input: this.state.searchBar
-                    },
                     withCredentials: true,
                     headers: { 
                         Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
                     },
                 }
             );
 
             let res = data.data;
             //is ok
-            if(res.succeeded){
-                console.log(res.message);
-                
+            if(data.status == 200){
+                console.log(res.title);
+                console.log(res.resultData);
+
+                await this.setState({findUsersStatus: 'found',listOfUsers: res.resultData});
+
             }
 
         } catch(err){
@@ -134,11 +158,65 @@ class MessagePage extends Component {
                 await this.refreshAccessToken();
                 // retry request
                 await this.searchPeople();
-              } else {
+            }else if(err.response.status === 400){
+                await this.setState({findUsersStatus: 'not typed'});
+            }
+            else if(err.response.status === 404){
+                await this.setState({findUsersStatus: 'not found'});
+            }
+            else {
                 console.error(err);
-              }
+            }
         }
     }
+
+    async getFriends(){
+        const {username, accessToken} = this.context;
+        let userID;
+
+        //fetch
+        try{
+            const data = await axios.get(`${APIs.FIND_FRIENDS_URL}/${userID}`,
+                {
+                    withCredentials: true,
+                    headers: { 
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+
+            let res = data.data;
+            //is ok
+            if(data.status == 200){
+                console.log(data.data.title);
+                console.log(res.resultData);
+
+                await this.setState({listOfFriends: res.resultData});
+
+            }
+
+        }catch(err){
+            if (err.response && err.response.status === 401) { // Unauthorized, token expired
+                await this.refreshAccessToken();
+                // retry request
+                await this.searchPeople();
+            }else if(err.response.status === 400){
+                await this.setState({findFriendsStatus: 'bad ID'});
+            }
+            else if(err.response.status === 404){
+                await this.setState({findFriendsStatus: 'not found'});
+            }
+            else {
+                console.error(err);
+            }
+        }
+
+    }
+
+    async filterFriends(){
+        
+    }
+
 
     componentDidMount(){
         const { setAuth,username, accessToken} = this.context;
@@ -147,19 +225,14 @@ class MessagePage extends Component {
         if(!accessToken){
             this.refreshAccessToken();
         }
+
+
     }
 
     
 
     render() {
-        let ziomki = [];
-        for(let i=0; i < 20; i++){
-            ziomki.push(<FriendTile key={i} username={"Ziomek "+i.toString()} author="You" mess="Joł"/>)
-        }
-        let randomy = [];
-        for(let i=0; i < 20; i++){
-            randomy.push(<PersonTile key={i} username={"Random "+i.toString()}/>);
-        }
+
 
         const { username, roles, accessToken } = this.context;
 
@@ -190,13 +263,30 @@ class MessagePage extends Component {
                     </div>
                 </div>
                 <div id='friendsList'>
-                    {this.state.yourChatIsActive ?
-                    <>
-                    <FriendTile username="Bartosz" author="Bartosz" mess="Hand dziak"/>
-                    <FriendTile username="Rado" author="Rado" mess="Na na na NA"/>
-                    {ziomki}
-                    </>:
-                     randomy
+                    {
+                    this.state.yourChatIsActive ?
+
+                    (
+                        this.state.listOfFriends.map(user => (
+                            <FriendTile key={user.id} username={user.username} author={""} mess={""} />
+                        ))
+                    )
+
+                    :
+                    (
+                        this.state.findUsersStatus == "not typed" ? 
+                        (<div className=''>Please type 3 or more characters</div>)
+                        :
+                        (this.state.findUsersStatus == "not found" ?
+                            (<div>There are no users named {this.state.searchBar} ...</div>)
+                            :
+                            (
+                                this.state.listOfUsers.map(user => (
+                                    <PersonTile key={user.id} username={user.userName} />
+                                ))
+                            )
+                        )
+                    )
                     }
                 </div>
                 <div id='friendBar'>

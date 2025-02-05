@@ -49,6 +49,8 @@ class LoginPage extends React.Component{
         }
 
         //fetch
+        const {accessToken} = this.context;
+
         try{
             const data = await axios.post(LOGIN_URL,
                 JSON.stringify({
@@ -56,24 +58,36 @@ class LoginPage extends React.Component{
                     password: this.state.password
                 }),
                 {
-                    headers: { 'Content-Type': 'application/json' },
-                    //withCredentials: true
+                    withCredentials: true, //pass a http only cookie
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
                 }
             );
 
-            let res = data.data;
+            let res = data.data.resultData;
+            console.log(data);
             //is ok
-            if(res.succeeded){
+            if(data.status == 200){
                 console.log(res);
-                this.showPopUpMess(res.message);
+                this.showPopUpMess(data.data.title);
 
                 let userData = res.user;
 
                 const { username, roles, accessToken, setAuth } = this.context;
                 setAuth(userData.userName, ["user"], userData.accessToken);
 
-                //refreshToken
-                //sessionStorage.setItem('refreshToken', userData.refreshToken);
+                // refreshToken
+                sessionStorage.setItem('refreshToken', userData.refreshToken);
+
+                // user info
+                let userInfo = {
+                    name: userData.userName,
+                    rules: roles,
+                    currentChat: ''
+                };
+                sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
 
                 console.log(username, roles, accessToken );
                 this.navigate("/message");
