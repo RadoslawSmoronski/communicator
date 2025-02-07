@@ -24,6 +24,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         private readonly IFriendsManager _friendsManager;
         private readonly IMapper _mapper;
         private readonly ResponseHttpFactory _responseHttpFactory;
+        private readonly string _validUserId = "062249c3-a5e9-4970-a03d-41a6dd3dc6ed";
 
         public GetInvitationsAsyncTest()
         {
@@ -39,21 +40,19 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         }
 
         [Fact]
-        public async Task GetInvitationsAsync_ShouldReturnOk()
+        public async Task GetInvitationsAsync_ShouldReturnOk() //todo, not finished
         {
             // Arrange
             var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
 
-            var sendInviteDto = new SendInviteDto() { SenderId = "1", RecipientId = "2" };
-
             var expectedList = new List<GetInvitationsUserDto>()
             {
-                new GetInvitationsUserDto() { Id = "1", UserName = "test"}
+                new GetInvitationsUserDto() { Id = _validUserId, UserName = "test"}
             };
 
             var fakeResult = ResultT<List<GetInvitationsUserDto>>.Success(expectedList);
 
-            A.CallTo(() => _friendsManager.GetInvitationsAsync("test"))
+            A.CallTo(() => _friendsManager.GetInvitationsAsync(_validUserId))
                 .Returns(Task.FromResult(fakeResult));
 
             // Act
@@ -70,20 +69,36 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         }
 
         [Fact]
+        public async Task GetInvitationsAsync_ShouldReturnBadRequest_WhenUserIdIsNotValid()
+        {
+            // Arrange
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+
+            // Act
+            var result = await _friendsController.GetInvitationsAsync("test") as BadRequestObjectResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.StatusCode.Should().Be(400);
+            var response = result.Value as IResponse;
+            response.Should().NotBeNull();
+            response!.Status.Should().Be(400);
+            response.Title.Should().Contain("UserId not valid format.");
+        }
+
+        [Fact]
         public async Task GetInvitationsAsync_ShouldReturnError_WhenFriendsManagerReturnError()
         {
             // Arrange
             var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
 
-            var sendInviteDto = new SendInviteDto() { SenderId = "1", RecipientId = "2" };
-
             var fakeResult = ResultT<List<GetInvitationsUserDto>>.Failure(Error.BadRequest("test", "test"));
 
-            A.CallTo(() => _friendsManager.GetInvitationsAsync("test"))
+            A.CallTo(() => _friendsManager.GetInvitationsAsync(_validUserId))
                 .Returns(Task.FromResult(fakeResult));
 
             // Act
-            var result = await _friendsController.GetInvitationsAsync("test") as ObjectResult;
+            var result = await _friendsController.GetInvitationsAsync(_validUserId) as ObjectResult;
 
             // Assert
             result.Should().NotBeNull();
