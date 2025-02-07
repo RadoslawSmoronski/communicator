@@ -96,7 +96,7 @@ namespace Api.Data.Repository
                          || (x.User1Id == userId2 && x.User2Id == userId1));
         }
 
-        public async Task<List<FriendDto>> GetFriends(string userId)
+        public async Task<List<FriendDto>> GetFriendsAsync(string userId)
         {
             return await _context.Friendships
                          .Where(x => x.User1Id == userId || x.User2Id == userId)

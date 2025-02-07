@@ -135,11 +135,6 @@ namespace Api.Managers
                     return Error.NotFound("RECIPIENTUSER_NOT_FOUND", "RecipientUser doesn't exist.");
                 }
 
-                if (await _friendsRepository.IsFriendsInvitationExists(senderId, recipientId) == false)
-                {
-                    return Error.NotFound("INVITATION_NOT_FOUND", "Invitation not found.");
-                }
-
                 var result = await _friendsRepository.DeleteInviteAsync(senderUser, recipientUser);
 
                 if(result.IsSuccess)
@@ -195,7 +190,7 @@ namespace Api.Managers
 
                 if (await _friendsRepository.IsFriendsInvitationExists(senderId, recipientId) == false)
                 {
-                    return Error.NotFound("FRIENDS_INVITATION_EXISTS", "The invitation does not exist.");
+                    return Error.NotFound("INVITATION_NOT_FOUND", "The invitation does not exist.");
                 }
 
                 if(await _friendsRepository.IsFriendsExists(senderId, recipientId))
@@ -203,7 +198,7 @@ namespace Api.Managers
                     return Error.Conflict("FRIENDS_ALREADY_EXISTS", "This relationship already exists.");
                 }
 
-                var result = await _friendsRepository.DeleteInviteAsync(senderUser, recipientUser);
+                await _friendsRepository.DeleteInviteAsync(senderUser, recipientUser);
                 await _friendsRepository.AddFriendsAsync(senderUser, recipientUser);
 
                 return Result.Success();
@@ -230,7 +225,7 @@ namespace Api.Managers
                     return Error.NotFound("USERID_NOT_FOUND", "User doesn't exist.");
                 }
 
-                var list = await _friendsRepository.GetFriends(userId);
+                var list = await _friendsRepository.GetFriendsAsync(userId);
 
                 if (list.Count > 0)
                 {
