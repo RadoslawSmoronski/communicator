@@ -14,6 +14,7 @@ using Api.Models.Dtos.Controllers.UserController;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Api.Utilities.Result;
+using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 
 namespace Api.Tests.Controllers.UserControllerTest
 {
