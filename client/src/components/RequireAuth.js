@@ -3,7 +3,7 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthProvider';
 import axios from '../api/axios';
 
-const REFRESH_TOKEN_URL = "/api/user/refreshAccessToken"
+import APIs from '../context/ApiURL';
 
 class RequireAuth extends React.Component {
   static contextType = AuthContext; 
@@ -16,7 +16,7 @@ class RequireAuth extends React.Component {
   }
 
   async refreshAccessToken(){
-    const {setAuth, username, roles,accessToken} = this.context;
+    const {setAuth ,username, userID ,roles,accessToken} = this.context;
 
 
     const refreshToken = sessionStorage.getItem('refreshToken');
@@ -24,7 +24,7 @@ class RequireAuth extends React.Component {
 
     //fetch
     try{
-        const data = await axios.post(REFRESH_TOKEN_URL, {
+        const data = await axios.post(APIs.REFRESH_TOKEN_URL, {
               refreshToken: refreshToken
           }, // Pass as a plain object
           {
@@ -40,7 +40,7 @@ class RequireAuth extends React.Component {
         //is ok
         if(data.status == 200){
             console.log("SUKCES: ", res.title);
-            await setAuth(userInfo.name, userInfo.rules, res.resultData);
+            await setAuth(userInfo.name,userInfo.userID ,userInfo.rules, res.resultData);
         }
 
     } catch(err){

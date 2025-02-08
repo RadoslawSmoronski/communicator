@@ -6,7 +6,7 @@ import axios from "./api/axios";
 import { AuthContext } from "./context/AuthProvider";
 import { Navigate } from "react-router";
 
-const LOGIN_URL = "/api/user/login";
+import APIs from "./context/ApiURL";
 
 class LoginPage extends React.Component{
     static contextType = AuthContext;
@@ -52,7 +52,7 @@ class LoginPage extends React.Component{
         const {accessToken} = this.context;
 
         try{
-            const data = await axios.post(LOGIN_URL,
+            const data = await axios.post(APIs.LOGIN_URL,
                 JSON.stringify({
                     userName: this.state.username,
                     password: this.state.password
@@ -75,8 +75,8 @@ class LoginPage extends React.Component{
 
                 let userData = res.user;
 
-                const { username, roles, accessToken, setAuth } = this.context;
-                setAuth(userData.userName, ["user"], userData.accessToken);
+                const { username, userID ,roles, accessToken, setAuth } = this.context;
+                setAuth(userData.userName,userData.id ,["user"], userData.accessToken);
 
                 // refreshToken
                 sessionStorage.setItem('refreshToken', userData.refreshToken);
@@ -84,6 +84,7 @@ class LoginPage extends React.Component{
                 // user info
                 let userInfo = {
                     name: userData.userName,
+                    userID: userData.id,
                     rules: roles,
                     currentChat: ''
                 };
@@ -94,7 +95,7 @@ class LoginPage extends React.Component{
             }
 
         } catch(err){
-            let mess = err.response?.data?.message;
+            let mess = err.response?.data?.title;
             if(mess == undefined){
                 mess = err.message;
             }

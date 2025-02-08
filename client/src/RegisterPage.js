@@ -9,7 +9,7 @@ import PopUp from "./components/popUp";
 import ValidationBox from "./components/ValidationBox";
 import axios from "./api/axios";
 
-const REGISTER_URL = "/api/user/register";
+import APIs from "./context/ApiURL";
 
 //REGEX
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_#]{4,24}$/;
@@ -112,7 +112,7 @@ class RegisterPage extends React.Component{
 
         //fetch
         try{
-            const data = await axios.post(REGISTER_URL,
+            const data = await axios.post(APIs.REGISTER_URL,
                 JSON.stringify({
                     userName: this.state.username,
                     password: this.state.password

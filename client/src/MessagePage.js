@@ -5,17 +5,14 @@ import { AuthContext } from "./context/AuthProvider";
 import axios from "./api/axios";
 
 import { FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import { faCircleInfo, faMagnifyingGlass, faMessage, faPaperPlane, faPhone } from "@fortawesome/free-solid-svg-icons";
+import { faCircleInfo, faMagnifyingGlass, faMessage, faPaperPlane, faPhone, faBell } from "@fortawesome/free-solid-svg-icons";
 
 import FriendTile from './components/FriendTile';
 import MessageTile from './components/MessageTile';
 import PersonTile from './components/PersonTile';
+import InvitationTile from './components/InvitationTile';
 
-const APIs = {
-    FIND_PEOPLE_URL : "/api/users/getUsersByText",
-    FIND_FRIENDS_URL : "/api/friends/getFriends",
-    REFRESH_TOKEN_URL: "/api/refreshAccessToken"
-}
+import APIs from './context/ApiURL';
 
 class MessagePage extends Component {
     static contextType = AuthContext;
@@ -29,6 +26,7 @@ class MessagePage extends Component {
             messageInput: '',
 
             yourChatIsActive: true,
+            invitationListIsDisplayed: false,
 
             messages: [],
             messKey: 0,
@@ -36,12 +34,16 @@ class MessagePage extends Component {
             listOfUsers: [],
             findUsersStatus: "not typed",
             listOfFriends: [],
-            findFriendsStatus: "not found"
+            findFriendsStatus: "not found",
+            listOfInvitations: []
         }
         this.handleChangeTxt = this.handleChangeTxt.bind(this);
         this.handleSwitchBtn = this.handleSwitchBtn.bind(this);
         this.addMessage = this.addMessage.bind(this);
         this.singOut = this.singOut.bind(this);
+        this.displayInvationList = this.displayInvationList.bind(this);
+
+        this.invitationActions = this.invitationActions.bind(this);
     }
 
     handleChangeTxt = async (event) => {
@@ -89,13 +91,13 @@ class MessagePage extends Component {
 
     singOut(){
         const { setAuth} = this.context;
-        setAuth('', [], '');
+        setAuth('',null ,[], '');
         sessionStorage.removeItem('refreshToken');
         sessionStorage.removeItem('userInfo');
     }
 
     async refreshAccessToken(){
-        const {setAuth, username, roles,accessToken} = this.context;
+        const {setAuth, username, userID ,roles,accessToken} = this.context;
 
 
     const refreshToken = sessionStorage.getItem('refreshToken');
@@ -117,7 +119,7 @@ class MessagePage extends Component {
             //is ok
             if(data.status == 200){
                 console.log("SUKCES: ", res.title);
-                await setAuth(username, roles, res.resultData);
+                await setAuth(username, userID ,roles, res.resultData);
             }
     
         } catch(err){
@@ -170,9 +172,105 @@ class MessagePage extends Component {
         }
     }
 
+    displayInvationList(){
+        this.setState({invitationListIsDisplayed: !this.state.invitationListIsDisplayed});
+    }
+
+    async getInvitations(){
+        const {userID ,accessToken} = this.context;
+
+        //fetch
+        try{
+            const data = await axios.get(`${APIs.GET_INVITATIONS_URL}/${userID}`,
+                {
+                    withCredentials: true,
+                    headers: { 
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+
+            let res = data.data;
+            //is ok
+            if(data.status == 200){
+                console.log(data.data.title);
+                console.log(res.resultData);
+
+                await this.setState({listOfInvitations: res.resultData});
+
+            }
+
+        }catch(err){
+            if (err.response && err.response.status === 401) { // Unauthorized, token expired
+                await this.refreshAccessToken();
+                // retry request
+                await this.getInvitations();
+            }else if(err.response.status === 400){
+                console.error("bad host id");
+            }
+            else if(err.response.status === 404){
+                // no new invitations
+            }
+            else {
+                console.error(err);
+            }
+        }
+    }
+
+    async invitationActions(action, recipientID){
+        const {userID ,accessToken} = this.context;
+
+        const API_URL = action == "accept" ? APIs.ACCEPT_INVITE_URL : APIs.DECELINE_INVITE_URL;
+        
+        //fetch
+        try{
+            const data = await axios.post(API_URL,
+                JSON.stringify({
+                    senderId: recipientID,
+                    recipientId: userID
+                }),
+                {
+                    withCredentials: true, //pass a http only cookie
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            let res = data.data;
+            //is ok
+            console.log(data);
+
+
+            if(data.status == 200){
+                console.log(res.title);
+                console.log(res.traceId);
+
+                // delete invitation
+                await this.setState(prevState => ({
+                    listOfInvitations: prevState.listOfInvitations.filter(invitation => invitation.id !== recipientID)
+                }));
+            }
+
+        } catch(err){
+            console.log(err);
+            if (err.response && err.response.status === 401) { // Unauthorized, token expired
+                await this.refreshAccessToken();
+                // retry request
+                await this.invitationActions(action, recipientID);
+            }else if(err.response.status === 404){
+                console.log(recipientID);
+                console.error("Invitation or RecipientUser doesn't exist");
+            }
+            else {
+                console.error(err);
+            }
+        }
+    }
+
     async getFriends(){
-        const {username, accessToken} = this.context;
-        let userID;
+        const {username, userID, accessToken} = this.context;
 
         //fetch
         try{
@@ -226,7 +324,8 @@ class MessagePage extends Component {
             this.refreshAccessToken();
         }
 
-
+        this.getInvitations();
+        this.getFriends();
     }
 
     
@@ -240,9 +339,26 @@ class MessagePage extends Component {
 
         return (
             <div id='mainMessagePage'>
+                {
+                    this.state.invitationListIsDisplayed ?
+                    <div id='invitationsList'>
+                        {
+                            this.state.listOfInvitations.length > 0 ?
+                            this.state.listOfInvitations.map(user => (
+                                <InvitationTile key={user.id} id={user.id} username={user.userName} invitationAction={this.invitationActions} />
+                            ))
+                            :
+                            <div className='infoText'>No new invitations</div>
+                        }
+                    </div>
+                    :
+                    <></>
+                }
+
                 <div id='menuBar'>
                     <div id='logoInMenu'/>
                     <div id='profileBox'>
+                        <FontAwesomeIcon icon={faBell} className='friendBarIcon' onClick={this.displayInvationList}/>
                         <button className='btn2' onClick={this.singOut}>Sing out</button>
                         {this.state.username}
                         <div className='profileIcon'/>
@@ -267,22 +383,25 @@ class MessagePage extends Component {
                     this.state.yourChatIsActive ?
 
                     (
-                        this.state.listOfFriends.map(user => (
-                            <FriendTile key={user.id} username={user.username} author={""} mess={""} />
-                        ))
+                        this.state.listOfFriends.length > 0 ?
+                            this.state.listOfFriends.map(user => (
+                                <FriendTile key={user.id} username={user.userName} author={"You"} mess={"hello my friend!"} />
+                            ))
+                        :
+                        <div className='infoText'>You have zero friends</div>
                     )
 
                     :
                     (
                         this.state.findUsersStatus == "not typed" ? 
-                        (<div className=''>Please type 3 or more characters</div>)
+                        (<div className='infoText'>Please type 3 or more characters</div>)
                         :
                         (this.state.findUsersStatus == "not found" ?
-                            (<div>There are no users named {this.state.searchBar} ...</div>)
+                            (<div className='infoText'>There are no users named {this.state.searchBar} ...</div>)
                             :
                             (
                                 this.state.listOfUsers.map(user => (
-                                    <PersonTile key={user.id} username={user.userName} />
+                                    <PersonTile key={user.id} username={user.userName} userId={user.id} refreshToken={this.refreshAccessToken}/>
                                 ))
                             )
                         )

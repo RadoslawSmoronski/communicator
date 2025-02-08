@@ -7,21 +7,23 @@ class AuthProvider extends Component {
         super(props);
         this.state = {
           username: '',
+          userID: null,
           roles: [],
           accessToken: ''
         };
         this.setAuth = this.setAuth.bind(this);
       }
 
-    setAuth(username, roles, accessToken){
-        console.log(username, roles, accessToken)
-        this.setState({username, roles, accessToken});
+    setAuth(username,userID ,roles, accessToken){
+        console.log(username,userID ,roles, accessToken)
+        this.setState({username,userID ,roles, accessToken});
     }
 
     render() {
         return (
             <AuthContext.Provider value={{
-                username: this.state.username, 
+                username: this.state.username,
+                userID: this.state.userID, 
                 roles: this.state.roles,
                 accessToken: this.state.accessToken,
                 setAuth: this.setAuth
