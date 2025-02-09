@@ -433,3 +433,25 @@
     text-align: center;
     padding-top: 20px;
 }
+
+.bellWraper{
+    position: relative;
+    display: inline-block;
+}
+
+.notificationBadge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 18px;
+
+    user-select: none;
+    -webkit-user-select: none;
+}

@@ -34,6 +34,7 @@ class MessagePage extends Component {
             listOfUsers: [],
             findUsersStatus: "not typed",
             listOfFriends: [],
+            listOfFriends_filtered: [],
             findFriendsStatus: "not found",
             listOfInvitations: []
         }
@@ -55,7 +56,15 @@ class MessagePage extends Component {
 
         if(name == "searchBar"){
             if(!this.state.yourChatIsActive){
+                // Find friends
                 this.searchPeople();
+            }else{
+                // Your chats
+                let v_listOfFriends_filtered = this.state.listOfFriends.filter(user =>
+                    user.userName.toLowerCase().includes(this.state.searchBar.toLowerCase())
+                );
+                await this.setState({listOfFriends_filtered: v_listOfFriends_filtered});
+                
             }
 
         }
@@ -69,7 +78,8 @@ class MessagePage extends Component {
                 yourChatIsActive: flag,
                 searchBar: '',
                 findUsersStatus: 'not typed',
-                listOfUsers: []
+                listOfUsers: [],
+                listOfFriends_filtered: this.state.listOfFriends
             });
         }
         
@@ -289,7 +299,10 @@ class MessagePage extends Component {
                 console.log(data.data.title);
                 console.log(res.resultData);
 
-                await this.setState({listOfFriends: res.resultData});
+                await this.setState({
+                    listOfFriends: res.resultData,
+                    listOfFriends_filtered: res.resultData
+                });
 
             }
 
@@ -358,7 +371,16 @@ class MessagePage extends Component {
                 <div id='menuBar'>
                     <div id='logoInMenu'/>
                     <div id='profileBox'>
-                        <FontAwesomeIcon icon={faBell} className='friendBarIcon' onClick={this.displayInvationList}/>
+                        <div className='bellWraper' onClick={this.displayInvationList}>
+                            <FontAwesomeIcon icon={faBell} className='friendBarIcon' />
+                            {
+                                this.state.listOfInvitations.length > 0 ?
+                                <div className='notificationBadge'>{this.state.listOfInvitations.length}</div>
+                                :
+                                <></>
+                            }
+                        </div>
+
                         <button className='btn2' onClick={this.singOut}>Sing out</button>
                         {this.state.username}
                         <div className='profileIcon'/>
@@ -384,9 +406,12 @@ class MessagePage extends Component {
 
                     (
                         this.state.listOfFriends.length > 0 ?
-                            this.state.listOfFriends.map(user => (
-                                <FriendTile key={user.id} username={user.userName} author={"You"} mess={"hello my friend!"} />
-                            ))
+                            this.state.listOfFriends_filtered.length > 0 ?
+                                this.state.listOfFriends_filtered.map(user => (
+                                    <FriendTile key={user.id} username={user.userName} author={"You"} mess={"hello my friend!"} />
+                                ))
+                            :
+                            <div className='infoText'>There are no friends named {this.state.searchBar} ...</div>
                         :
                         <div className='infoText'>You have zero friends</div>
                     )

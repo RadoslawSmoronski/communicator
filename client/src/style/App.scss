@@ -166,6 +166,10 @@ a:hover{
     color: #070604;
 }
 
+.btn:active{
+    filter: brightness(0.8);
+}
+
 label {
     font-size: 12px;
     font-style:italic;
