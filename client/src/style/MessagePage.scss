@@ -19,6 +19,8 @@
     background-color: #070604;
     border-bottom: solid 1px #caa779;
     color: azure;
+
+    z-index: 10;
 }
 
 #searchBar{
@@ -409,6 +411,7 @@
     overflow-y: auto;
 
     background-color: #1a1a1a;
+    border-radius: 2%;
 }
 
 .friendTile.invitationTile{
@@ -434,7 +437,7 @@
     padding-top: 20px;
 }
 
-.bellWraper{
+.bellWrapper{
     position: relative;
     display: inline-block;
 }
@@ -454,4 +457,54 @@
 
     user-select: none;
     -webkit-user-select: none;
+}
+
+// USER INFO
+
+.profileInfoWrapper{
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    align-items: center;
+    gap: 20px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.profileInfoWrapper:active{
+    filter: brightness(0.8);
+}
+
+.userInfoPanel{
+    position: absolute;
+    top:  75px;
+    right: 5px;
+    width: 300px;
+    height: 200px;
+    border: solid 2px #caa779;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+
+    background-color: #1a1a1a;
+
+    padding: 15px;
+    border-radius: 2%;
+}
+
+.friendTile.userInfoTile{
+    width: 95%;
+    height: 40px;
+    font-size: 16px;
+    padding-left: 5px;
+}
+
+.imageAndNameWrapperIP{
+    display: flex;
+    flex-direction: row;
+    height: 60px;
 }

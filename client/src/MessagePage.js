@@ -11,6 +11,7 @@ import FriendTile from './components/FriendTile';
 import MessageTile from './components/MessageTile';
 import PersonTile from './components/PersonTile';
 import InvitationTile from './components/InvitationTile';
+import UserInfoPanel from './components/UserInfoPanel';
 
 import APIs from './context/ApiURL';
 
@@ -27,6 +28,7 @@ class MessagePage extends Component {
 
             yourChatIsActive: true,
             invitationListIsDisplayed: false,
+            userInfoPanelIsDiplayed: false,
 
             messages: [],
             messKey: 0,
@@ -43,6 +45,7 @@ class MessagePage extends Component {
         this.addMessage = this.addMessage.bind(this);
         this.singOut = this.singOut.bind(this);
         this.displayInvationList = this.displayInvationList.bind(this);
+        this.displayUserInfoPanel = this.displayUserInfoPanel.bind(this);
 
         this.invitationActions = this.invitationActions.bind(this);
     }
@@ -183,7 +186,17 @@ class MessagePage extends Component {
     }
 
     displayInvationList(){
-        this.setState({invitationListIsDisplayed: !this.state.invitationListIsDisplayed});
+        this.setState({
+            invitationListIsDisplayed: !this.state.invitationListIsDisplayed,
+            userInfoPanelIsDiplayed: false
+        });
+    }
+
+    displayUserInfoPanel(){
+        this.setState({
+            invitationListIsDisplayed: false,
+            userInfoPanelIsDiplayed: !this.state.userInfoPanelIsDiplayed
+        });
     }
 
     async getInvitations(){
@@ -352,6 +365,7 @@ class MessagePage extends Component {
 
         return (
             <div id='mainMessagePage'>
+                {/* INVITATION LIST */}
                 {
                     this.state.invitationListIsDisplayed ?
                     <div id='invitationsList'>
@@ -367,11 +381,21 @@ class MessagePage extends Component {
                     :
                     <></>
                 }
+                {/* USER INFO PANEL */}
+                {
+                    this.state.userInfoPanelIsDiplayed ? 
+                    <UserInfoPanel
+                        username={this.state.username} fullname={null} email={null}/>
+                    :
+                    <></>
+                }
+                
 
+                {/* MENU BAR */}
                 <div id='menuBar'>
                     <div id='logoInMenu'/>
                     <div id='profileBox'>
-                        <div className='bellWraper' onClick={this.displayInvationList}>
+                        <div className='bellWrapper' onClick={this.displayInvationList}>
                             <FontAwesomeIcon icon={faBell} className='friendBarIcon' />
                             {
                                 this.state.listOfInvitations.length > 0 ?
@@ -380,13 +404,18 @@ class MessagePage extends Component {
                                 <></>
                             }
                         </div>
-
+                        
                         <button className='btn2' onClick={this.singOut}>Sing out</button>
-                        {this.state.username}
-                        <div className='profileIcon'/>
+
+                        <div className='profileInfoWrapper' onClick={this.displayUserInfoPanel}>
+                            {this.state.username}
+                            <div className='profileIcon'/>
+                        </div>
                     </div>
                     
                 </div>
+
+                {/* SEARCH BAR */}
                 <div id='searchBar'>
                     <div className="inputWrapper">
                         <FontAwesomeIcon icon={faMagnifyingGlass} className='inputIcon'/>
@@ -400,6 +429,8 @@ class MessagePage extends Component {
                         onClick={this.handleSwitchBtn}>Find friends</button>
                     </div>
                 </div>
+
+                {/* FRIEND OR PEOPLE LIST */}
                 <div id='friendsList'>
                     {
                     this.state.yourChatIsActive ?
@@ -433,6 +464,8 @@ class MessagePage extends Component {
                     )
                     }
                 </div>
+
+                {/* FRIEND BAR */}
                 <div id='friendBar'>
                     <div className='friendBarIconBox'>
                         <div className='profileIcon'/>
@@ -445,6 +478,8 @@ class MessagePage extends Component {
                         <FontAwesomeIcon icon={faCircleInfo} className='friendBarIcon'/>
                     </div>
                 </div>
+
+                {/* MESSAGE BOX */}
                 <div id='messageBox'>
                     {/* Renderowanie wiadomości z tablicy messages */}
                     {this.state.messages.map((message, index) => (
@@ -457,10 +492,12 @@ class MessagePage extends Component {
                     <MessageTile mess="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque et leo quis arcu maximus mattis. Nullam ac libero enim. Sed ut orci mi. Curabitur sollicitudin urna velit, sed porta nulla porta nec. Morbi volutpat pharetra orci vehicula ultricies. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Maecenas non mi vel sem aliquet laoreet. Vivamus sodales nisl a lectus accumsan, eu tincidunt felis ullamcorper. Praesent molestie non purus in finibus. Suspendisse hendrerit varius co" yours={false} time="14:33"/>
                 
                 </div>
+
+                {/* SEND MESSAGE BOX */}
                 <div id='sendMessageBox'>
-                <input className='textInput2 sendMessageInput' placeholder='Type a message...' value={this.state.messageInput}
-                onChange={this.handleChangeTxt} name='messageInput' type="text" autoComplete='off'/>
-                <FontAwesomeIcon icon={faPaperPlane} className='friendBarIcon' onClick={this.addMessage}/>
+                    <input className='textInput2 sendMessageInput' placeholder='Type a message...' value={this.state.messageInput}
+                    onChange={this.handleChangeTxt} name='messageInput' type="text" autoComplete='off'/>
+                    <FontAwesomeIcon icon={faPaperPlane} className='friendBarIcon' onClick={this.addMessage}/>
                 </div>
             </div>
         );
