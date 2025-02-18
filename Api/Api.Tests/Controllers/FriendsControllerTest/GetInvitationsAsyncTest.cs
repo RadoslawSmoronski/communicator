@@ -40,7 +40,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         }
 
         [Fact]
-        public async Task GetInvitationsAsync_ShouldReturnOk() //todo, not finished
+        public async Task GetInvitationsAsync_ShouldReturnOk()
         {
             // Arrange
             var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
