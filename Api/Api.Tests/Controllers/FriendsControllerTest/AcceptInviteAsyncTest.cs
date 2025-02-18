@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Api.Tests.Controllers.FriendsControllerTest
 {
-    public class DecelineInviteAsyncTest
+    public class AcceptInviteAsyncTest
     {
         private readonly IFriendsManager _friendsManager;
         private readonly IMapper _mapper;
@@ -27,7 +27,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         private readonly string _validUserId = "062249c3-a5e9-4970-a03d-41a6dd3dc6ed";
         private readonly string _validUserId2 = "262245c3-a5e8-4970-a03d-41a6dd3dc6ed";
 
-        public DecelineInviteAsyncTest()
+        public AcceptInviteAsyncTest()
         {
             _friendsManager = A.Fake<IFriendsManager>();
 
@@ -41,17 +41,17 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         }
 
         [Fact]
-        public async Task DecelineInviteAsync_ShouldReturnOk()
+        public async Task AcceptInviteAsync_ShouldReturnOk()
         {
             // Arrange
-            var decelineInviteDto = new DecelineInviteDto() { SenderId = _validUserId, RecipientId = _validUserId2};
+            var acceptInviteDto = new AcceptInviteDto() { SenderId = _validUserId, RecipientId = _validUserId2 };
             var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
 
             A.CallTo(() => _friendsManager.DecelineInviteAsync(_validUserId, _validUserId2))
                 .Returns(Task.FromResult(Result.Success()));
 
             // Act
-            var result = await _friendsController.DecelineInviteAsync(decelineInviteDto) as OkObjectResult;
+            var result = await _friendsController.AcceptInviteAsync(acceptInviteDto) as OkObjectResult;
 
             // Assert
             result.Should().NotBeNull();
@@ -59,22 +59,22 @@ namespace Api.Tests.Controllers.FriendsControllerTest
             var response = result.Value as IResponse;
             response.Should().NotBeNull();
             response!.Status.Should().Be(200);
-            response.Title.Should().Contain("Invitation decelined.");
+            response.Title.Should().Contain("Friend successfully added.");
         }
 
 
         [Fact]
-        public async Task DecelineInviteAsync_ShouldReturnError_WhenFriendsManagerReturnError()
+        public async Task AcceptInviteAsync_ShouldReturnError_WhenFriendsManagerReturnError()
         {
             // Arrange
-            var decelineInviteDto = new DecelineInviteDto() { SenderId = _validUserId, RecipientId = _validUserId2 };
+            var acceptInviteDto = new AcceptInviteDto() { SenderId = _validUserId, RecipientId = _validUserId2 };
             var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
 
-            A.CallTo(() => _friendsManager.DecelineInviteAsync(_validUserId, _validUserId2))
+            A.CallTo(() => _friendsManager.AddFriendsAsync(_validUserId, _validUserId2))
                 .Returns(Task.FromResult(Result.Failure(Error.Conflict("test", "test2"))));
 
             // Act
-            var result = await _friendsController.DecelineInviteAsync(decelineInviteDto) as ObjectResult;
+            var result = await _friendsController.AcceptInviteAsync(acceptInviteDto) as ObjectResult;
 
             // Assert
             result.Should().NotBeNull();
