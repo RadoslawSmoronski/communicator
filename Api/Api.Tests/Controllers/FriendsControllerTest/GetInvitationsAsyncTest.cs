@@ -56,7 +56,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
                 .Returns(Task.FromResult(fakeResult));
 
             // Act
-            var result = await _friendsController.GetInvitationsAsync("test") as OkObjectResult;
+            var result = await _friendsController.GetInvitationsAsync(_validUserId) as OkObjectResult;
 
             // Assert
             result.Should().NotBeNull();
