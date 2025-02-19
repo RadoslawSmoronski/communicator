@@ -12,6 +12,8 @@ using Api.Managers;
 using AutoMapper;
 using Api.Models.Dtos.Responses.Interfaces;
 using Api.Models.Dtos.Responses;
+using Api.Models.Dtos.Controllers.UsersController.GetUsers;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -22,17 +24,20 @@ namespace Api.Controllers
         private readonly IFriendsManager _friendsManager;
         private readonly IMapper _mapper;
         private readonly ResponseHttpFactory _responseHttpFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public FriendsController(IFriendsManager friendsManager,
             IMapper mapper,
-            ResponseHttpFactory responseHttpFactory)
+            ResponseHttpFactory responseHttpFactory,
+            IHttpContextAccessor httpContextAccessor)
         {
             _friendsManager = friendsManager;
             _mapper = mapper;
             _responseHttpFactory = responseHttpFactory;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("sendInviteAsync")]
         public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
         {
@@ -55,7 +60,7 @@ namespace Api.Controllers
             return StatusCode(500, fallbackResponse);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("getInvitations/{userId}")]
         public async Task<IActionResult> GetInvitationsAsync(string userId)
         {
@@ -90,7 +95,7 @@ namespace Api.Controllers
             return StatusCode(500, fallbackResponse);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("decelineInvite")]
         public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
         {
@@ -113,7 +118,7 @@ namespace Api.Controllers
             return StatusCode(500, fallbackResponse);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("acceptInvite")]
         public async Task<IActionResult> AcceptInviteAsync(AcceptInviteDto acceptInviteDto)
         {
@@ -136,7 +141,7 @@ namespace Api.Controllers
             return StatusCode(500, fallbackResponse);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("getFriends/{userId}")]
         public async Task<IActionResult> GetFriendsAsync(string userId)
         {
@@ -163,6 +168,48 @@ namespace Api.Controllers
                 var responseOk = _responseHttpFactory.Create<List<FriendDto>>
                     (ResponseHttpType.Success,
                     "Friends found.",
+                    result.Value);
+
+                return Ok(responseOk);
+            }
+
+            if (result.Error != null)
+            {
+                var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, result.Error.Description);
+                return StatusCode(response.Status, response);
+            }
+
+            var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
+            return StatusCode(500, fallbackResponse);
+        }
+
+        [HttpGet("getUsersForFriendInviteByText/{text}")]
+        public async Task<IActionResult> GetUsersForFriendInviteByTextAsync(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "Input value is empty.");
+
+                return BadRequest(response);
+            }
+
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if(userId == null)
+            {
+                var response = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "UserId internal error.");
+                return StatusCode(500, response);
+            }
+
+            var result = await _friendsManager.GetUsersForFriendInviteByTextAsync(userId, text);
+
+            if (result.IsSuccess)
+            {
+                var responseOk = _responseHttpFactory.Create<List<UserForFriendInviteDto>>
+                    (ResponseHttpType.Success,
+                    "Users for friend invite were found successfully.",
                     result.Value);
 
                 return Ok(responseOk);

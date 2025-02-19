@@ -9,6 +9,7 @@ using Api.Utilities.Result;
 using AutoMapper;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,6 +25,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         private readonly IFriendsManager _friendsManager;
         private readonly IMapper _mapper;
         private readonly ResponseHttpFactory _responseHttpFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public SendInviteAsyncTest()
         {
@@ -36,13 +38,14 @@ namespace Api.Tests.Controllers.FriendsControllerTest
             _mapper = configuration.CreateMapper();
 
             _responseHttpFactory = A.Fake<ResponseHttpFactory>();
+            _httpContextAccessor = A.Fake<HttpContextAccessor>();
         }
 
         [Fact]
         public async Task SendInviteAsync_ShouldReturnOk()
         {
             // Arrange
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             var sendInviteDto = new SendInviteDto() { SenderId = "1", RecipientId = "2" };
 
@@ -65,7 +68,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         public async Task SendInviteAsync_ShouldReturnError_WhenFriendsManagerReturnError()
         {
             // Arrange
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             var sendInviteDto = new SendInviteDto() { SenderId = "1", RecipientId = "2" };
 

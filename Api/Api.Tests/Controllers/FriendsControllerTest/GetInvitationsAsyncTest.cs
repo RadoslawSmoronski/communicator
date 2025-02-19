@@ -9,6 +9,7 @@ using Api.Utilities.Result;
 using AutoMapper;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -25,6 +26,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         private readonly IMapper _mapper;
         private readonly ResponseHttpFactory _responseHttpFactory;
         private readonly string _validUserId = "062249c3-a5e9-4970-a03d-41a6dd3dc6ed";
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public GetInvitationsAsyncTest()
         {
@@ -37,13 +39,14 @@ namespace Api.Tests.Controllers.FriendsControllerTest
             _mapper = configuration.CreateMapper();
 
             _responseHttpFactory = A.Fake<ResponseHttpFactory>();
+            _httpContextAccessor = A.Fake<IHttpContextAccessor>();
         }
 
         [Fact]
         public async Task GetInvitationsAsync_ShouldReturnOk()
         {
             // Arrange
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             var expectedList = new List<GetInvitationsUserDto>()
             {
@@ -72,7 +75,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         public async Task GetInvitationsAsync_ShouldReturnBadRequest_WhenUserIdIsNotValid()
         {
             // Arrange
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             // Act
             var result = await _friendsController.GetInvitationsAsync("test") as BadRequestObjectResult;
@@ -90,7 +93,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         public async Task GetInvitationsAsync_ShouldReturnError_WhenFriendsManagerReturnError()
         {
             // Arrange
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             var fakeResult = ResultT<List<GetInvitationsUserDto>>.Failure(Error.BadRequest("test", "test"));
 

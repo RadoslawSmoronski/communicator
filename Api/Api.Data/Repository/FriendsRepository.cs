@@ -56,6 +56,18 @@ namespace Api.Data.Repository
                           .ToListAsync();
         }
 
+        public async Task<List<GetInvitationsUserDto>> GetRecipientInvitationsAsync(string userId)
+        {
+            return await _context.FriendshipInvitations
+                          .Where(x => x.SenderId == userId)
+                          .Select(x => new GetInvitationsUserDto
+                          {
+                              Id = x.RecipientId,
+                              UserName = x.RecipientUser.UserName!
+                          })
+                          .ToListAsync();
+        }
+
         public async Task<Result> DeleteInviteAsync(UserAccount senderUser, UserAccount recipientUser)
         {
 

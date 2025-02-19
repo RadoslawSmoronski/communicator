@@ -9,6 +9,7 @@ using Api.Utilities.Result;
 using AutoMapper;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -26,6 +27,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         private readonly ResponseHttpFactory _responseHttpFactory;
         private readonly string _validUserId = "062249c3-a5e9-4970-a03d-41a6dd3dc6ed";
         private readonly string _validUserId2 = "262245c3-a5e8-4970-a03d-41a6dd3dc6ed";
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DecelineInviteAsyncTest()
         {
@@ -38,6 +40,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
             _mapper = configuration.CreateMapper();
 
             _responseHttpFactory = A.Fake<ResponseHttpFactory>();
+            _httpContextAccessor = A.Fake<HttpContextAccessor>();
         }
 
         [Fact]
@@ -45,7 +48,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         {
             // Arrange
             var decelineInviteDto = new DecelineInviteDto() { SenderId = _validUserId, RecipientId = _validUserId2};
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             A.CallTo(() => _friendsManager.DecelineInviteAsync(_validUserId, _validUserId2))
                 .Returns(Task.FromResult(Result.Success()));
@@ -68,7 +71,7 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         {
             // Arrange
             var decelineInviteDto = new DecelineInviteDto() { SenderId = _validUserId, RecipientId = _validUserId2 };
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory);
+            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             A.CallTo(() => _friendsManager.DecelineInviteAsync(_validUserId, _validUserId2))
                 .Returns(Task.FromResult(Result.Failure(Error.Conflict("test", "test2"))));
