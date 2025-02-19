@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Api.Models.Dtos.Controllers.UsersController;
+using Microsoft.AspNetCore.Http;
 
 namespace Api.Tests.Controllers.UsersControllerTest
 {
@@ -21,19 +22,21 @@ namespace Api.Tests.Controllers.UsersControllerTest
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
         private readonly ResponseHttpFactory _responseHttpFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public GetUserByIdAsyncTest()
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _mapper = A.Fake<IMapper>();
             _responseHttpFactory = A.Fake<ResponseHttpFactory>();
+            _httpContextAccessor = A.Fake<IHttpContextAccessor>();
         }
 
         [Fact]
         public async Task GetUserByIdAsyncTest_ShouldReturnOk()
         {
             // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory);
+            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
             var usersDto = new UsersDto { UserName = "testName", Id = "cE1B4f9D-2d91-1c57-eFB4-36D4118BabAC" };
             var user = new UserAccount { UserName = usersDto.UserName, Id = usersDto.Id };
 
@@ -57,7 +60,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
         public async Task GetUserByIdAsyncTest_ShouldReturnBadRequestError_WhenIdIsNullOrEmpty()
         {
             // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory);
+            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             // Act
             var result = await usersController.GetUserByIdAsync("") as BadRequestObjectResult;
@@ -76,7 +79,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
         public async Task GetUserByIdAsyncTest_ShouldReturnBadRequestError_WhenIdHasWrongFormat()
         {
             // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory);
+            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
 
             // Act
             var result = await usersController.GetUserByIdAsync("test") as BadRequestObjectResult;
@@ -95,7 +98,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
         public async Task GetUserByIdAsyncTest_ShouldReturnNotFoundError_WhenUserDoesNotExists()
         {
             // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory);
+            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
             var usersDto = new UsersDto { UserName = "testName", Id = "cE1B4f9D-2d91-1c57-eFB4-36D4118BabAC" };
             var user = new UserAccount { UserName = usersDto.UserName, Id = usersDto.Id };
 
@@ -119,7 +122,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
         public async Task GetUserByIdAsyncTest_ShouldReturnInternalServerError()
         {
             // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory);
+            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
             var usersDto = new UsersDto { UserName = "testName", Id = "cE1B4f9D-2d91-1c57-eFB4-36D4118BabAC" };
             var user = new UserAccount { UserName = usersDto.UserName, Id = usersDto.Id };
 

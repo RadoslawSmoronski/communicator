@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -18,13 +19,15 @@ namespace Api.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
         private readonly ResponseHttpFactory _responseHttpFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UsersController(UserManager<UserAccount> userManager, IMapper mapper,
-            ResponseHttpFactory responseHttpFactory)
+            ResponseHttpFactory responseHttpFactory, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _mapper = mapper;
             _responseHttpFactory = responseHttpFactory;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet("getUserById/{id}")]
@@ -75,8 +78,8 @@ namespace Api.Controllers
         }
 
         [HttpGet("getUsersByText/{text}")]
-        //[Authorize]
-        public async Task<IActionResult> GetUsersByTextAsync([FromRoute] string text)
+        [Authorize]
+        public async Task<IActionResult> GetUsersByTextAsync([FromRoute] string text, bool excludeCurrentUser = false)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -98,8 +101,17 @@ namespace Api.Controllers
 
             try
             {
-                var users = await _userManager.Users.Where(x => x.UserName!.Contains(text))
-                .ToListAsync();
+                var usersQuery = _userManager.Users.Where(x => x.UserName!.Contains(text));
+
+                if (excludeCurrentUser)
+                {
+                    var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                    if (userId != null)
+                        usersQuery = usersQuery.Where(x => x.Id != userId);
+                }
+
+                var users = await usersQuery.ToListAsync();
 
                 if (users == null || users.Count == 0)
                 {
