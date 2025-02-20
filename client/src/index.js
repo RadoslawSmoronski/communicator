@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import App from "./App";
 import './style/App.scss';
 import './style/MessagePage.scss';
+import './style/EditProfilePage.scss'
 
 
 const appElement = document.getElementById('main');

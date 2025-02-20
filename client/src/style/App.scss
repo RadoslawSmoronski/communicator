@@ -24,7 +24,6 @@ html, body {height: 100%; margin: 0; font-family: "Gill Sans", sans-serif;}
     flex-direction: column-reverse;
     background-color: #070604;
     color: #caa779;
-    background-color: #070604;
 }
 
 .welcomeBlock{
@@ -114,11 +113,19 @@ html, body {height: 100%; margin: 0; font-family: "Gill Sans", sans-serif;}
 .panel404{
     width: 800px;
     height: 500px;
+    justify-content:center;
+    background-color: transparent;
 }
 
 .errorFont{
-    font-size: 70px;
-    color: #bf7210;
+    font-size: 150px;
+    margin: 10px;
+}
+
+.btn2.btn404{
+    margin-top: 30px;
+    text-decoration: none;
+    
 }
 
 .textInput {
@@ -159,6 +166,7 @@ a:hover{
     color: #ecca84;
     background-color: #702908;
     transition: 0.2s;
+    cursor: pointer;
 }
 
 .btn:hover{

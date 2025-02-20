@@ -120,6 +120,19 @@ class LoginPage extends React.Component{
         this.setState({popUpMess: '', stateOfPopUp: false});
     }
 
+    componentDidMount(){
+        // redirect to /message if user is logged in
+        const { accessToken} = this.context;
+        if(accessToken == null || accessToken == ''){
+            const refreshToken = sessionStorage.getItem('refreshToken');
+            if(refreshToken){
+                this.navigate("/message");
+            }
+        }else{
+            this.navigate("/message");
+        }
+    }
+
     render(){
         const { username, roles, accessToken } = this.context;
 
@@ -139,8 +152,8 @@ class LoginPage extends React.Component{
 
 
                     <button className="btn" onClick={this.submitLogin}>Login</button><br/><br/>
-                    <div>Nie masz konta? Zajerestruj się poniżej</div>
-                    <Link to="/register" >Stwórz konto</Link>
+                    <div>Don't have an account? Sign up below</div>
+                    <Link to="/register" >Create an account</Link>
                     <Link to="/message" >MessagePage</Link>
                 </form>
 

@@ -138,7 +138,7 @@ class MessagePage extends Component {
         } catch(err){
             console.log("Error: Can't refresh token: ", err);
         }
-      }
+    }
 
     
 
@@ -274,6 +274,7 @@ class MessagePage extends Component {
                 await this.setState(prevState => ({
                     listOfInvitations: prevState.listOfInvitations.filter(invitation => invitation.id !== recipientID)
                 }));
+                await this.getFriends();
             }
 
         } catch(err){
@@ -337,9 +338,6 @@ class MessagePage extends Component {
 
     }
 
-    async filterFriends(){
-        
-    }
 
 
     componentDidMount(){

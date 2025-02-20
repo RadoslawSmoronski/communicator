@@ -197,8 +197,8 @@ class RegisterPage extends React.Component{
 
 
                     <button className="btn" onClick={this.submitRegister}>Register</button><br/><br/>
-                    <div>Masz już konto? Zaloguj się poniżej</div>
-                    <Link to="/login">Zaloguj się</Link>
+                    <div>Already have an account? Log in below</div>
+                    <Link to="/login">Log in</Link>
             </form>
             <div id="logo"/>
 

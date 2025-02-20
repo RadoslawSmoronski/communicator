@@ -11,7 +11,8 @@ import RegisterPage from "./RegisterPage";
 import DefaultPage from "./DefaultPage";
 import MessagePage from "./MessagePage";
 import RequireAuth from "./components/RequireAuth";
-
+import EditProfile from "./EditProfile";
+import TestSignal from "./TestSignal";
 
 class App extends React.Component{
     render(){
@@ -25,11 +26,14 @@ class App extends React.Component{
                     <Route path="/" element={<Navigate replace to="/login" />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/test" element={<TestSignal />} />
+
                     {/* <Route path="/message" element={<MessagePage/>}/> */}
                     
                     {/* protected routes */}
                     <Route element={<RequireAuth allowedRoles={['user']}/>}>
                         <Route path="/message" element={<MessagePage/>}/>
+                        <Route path="/editprofile" element={<EditProfile/>}/>
                     </Route>
 
 
