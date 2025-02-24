@@ -38,7 +38,7 @@ namespace Api.Service
 
         }
 
-        public async Task<ResultT<string>> CreateAccessTokenAsync(UserAccount user)
+        public async Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? user)
         {
 
             if(user == null)
