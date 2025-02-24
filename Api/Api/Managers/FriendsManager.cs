@@ -71,7 +71,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<GetInvitationsUserDto>>> GetInvitationsAsync(string userId)
+        public async Task<ResultT<List<FriendDto>>> GetInvitationsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -89,9 +89,13 @@ namespace Api.Managers
 
                 var list = await _friendsRepository.GetInvitationsAsync(userId);
 
-                if(list.Count > 0)
+                if(list.Any())
                 {
-                    return list;
+                    return list.Select(x => new FriendDto
+                    {
+                        Id = x.SenderId,
+                        UserName = x.SenderUser.UserName!
+                    }).ToList();
                 }
 
                 return Error.NotFound("INVITITIES_NOT_FOUND", "No invitation found.");
@@ -242,65 +246,65 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<UserForFriendInviteDto>>> GetUsersForFriendInviteByTextAsync(string userId, string text)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return Error.BadRequest("USERID_REQUIRED", "UserId is required.");
-            }
+        //public async Task<ResultT<List<UserForFriendInviteDto>>> GetUsersForFriendInviteByTextAsync(string userId, string text)
+        //{
+        //    if (string.IsNullOrWhiteSpace(userId))
+        //    {
+        //        return Error.BadRequest("USERID_REQUIRED", "UserId is required.");
+        //    }
 
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                return Error.BadRequest("TEXT_REQUIRED", "Search text is required.");
-            }
+        //    if (string.IsNullOrWhiteSpace(text))
+        //    {
+        //        return Error.BadRequest("TEXT_REQUIRED", "Search text is required.");
+        //    }
 
-            try
-            {
-                var loggedUser = await _userManager.FindByIdAsync(userId);
-                if (loggedUser == null || loggedUser.UserName == null)
-                {
-                    return Error.NotFound("USER_NOT_FOUND", "User doesn't exist.");
-                }
+        //    try
+        //    {
+        //        var loggedUser = await _userManager.FindByIdAsync(userId);
+        //        if (loggedUser == null || loggedUser.UserName == null)
+        //        {
+        //            return Error.NotFound("USER_NOT_FOUND", "User doesn't exist.");
+        //        }
 
-                var users = await _userManager.Users
-                    .Where(x => x.UserName!.Contains(text) && x.Id != loggedUser.Id)
-                    .ToListAsync();
+        //        var users = await _userManager.Users
+        //            .Where(x => x.UserName!.Contains(text) && x.Id != loggedUser.Id)
+        //            .ToListAsync();
 
-                if (!users.Any())
-                {
-                    return Error.NotFound("USERS_NOT_FOUND", "No users found.");
-                }
+        //        if (!users.Any())
+        //        {
+        //            return Error.NotFound("USERS_NOT_FOUND", "No users found.");
+        //        }
 
-                var friendsList = await _friendsRepository.GetFriendsAsync(userId);
-                var invitationsList = await _friendsRepository.GetInvitationsAsync(userId);
-                var invitationsRecipientList = await _friendsRepository.GetRecipientInvitationsAsync(userId);
+        //        var friendsList = await _friendsRepository.GetFriendsAsync(userId);
+        //        var invitationsList = await _friendsRepository.GetInvitationsAsync(userId);
+        //        var invitationsRecipientList = await _friendsRepository.GetRecipientInvitationsAsync(userId);
 
-                var friendsSet = new HashSet<string>(friendsList.Select(f => f.Id));
-                var invitationsSet = new HashSet<string>(invitationsList.Select(i => i.Id));
-                var invitationsRecipientSet = new HashSet<string>(invitationsRecipientList.Select(i => i.Id));
+        //        var friendsSet = new HashSet<string>(friendsList.Select(f => f.Id));
+        //        var invitationsSet = new HashSet<string>(invitationsList.Select(i => i.Id));
+        //        var invitationsRecipientSet = new HashSet<string>(invitationsRecipientList.Select(i => i.Id));
 
-                var userForFriendInvite = users
-                    .Where(user => !friendsSet.Contains(user.Id)) 
-                    .Select(user => new UserForFriendInviteDto
-                    {
-                        Id = user.Id,
-                        UserName = user.UserName,
-                        FriendInvitationExist = invitationsSet.Contains(user.Id) || invitationsRecipientSet.Contains(user.Id)
-                    })
-                    .ToList();
+        //        var userForFriendInvite = users
+        //            .Where(user => !friendsSet.Contains(user.Id)) 
+        //            .Select(user => new UserForFriendInviteDto
+        //            {
+        //                Id = user.Id,
+        //                UserName = user.UserName,
+        //                FriendInvitationExist = invitationsSet.Contains(user.Id) || invitationsRecipientSet.Contains(user.Id)
+        //            })
+        //            .ToList();
 
-                if (userForFriendInvite.Any())
-                {
-                    return userForFriendInvite;
-                }
+        //        if (userForFriendInvite.Any())
+        //        {
+        //            return userForFriendInvite;
+        //        }
 
-                return Error.NotFound("USERS_NOT_FOUND", "No users found.");
+        //        return Error.NotFound("USERS_NOT_FOUND", "No users found.");
 
-            }
-            catch
-            {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
-            }
-        }
+        //    }
+        //    catch
+        //    {
+        //        return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+        //    }
+        //}
     }
 }

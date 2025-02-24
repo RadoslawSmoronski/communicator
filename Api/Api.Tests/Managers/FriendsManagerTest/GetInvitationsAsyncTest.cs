@@ -2,6 +2,7 @@
 using Api.Managers;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
+using Api.Models.Friendship;
 using Api.Utilities.Result;
 using Castle.Components.DictionaryAdapter.Xml;
 using FakeItEasy;
@@ -33,28 +34,48 @@ namespace Api.Tests.Managers.FriendsManagerTest
             // Arrange
             var friendsManager = new FriendsManager(_friendsRepository, _userManager);
 
-            var user = new UserAccount { UserName = "userName1", Id = "1" };
+            var user = new UserAccount
+            {
+                Id = "c9fbf188-e309-48c9-811d-7d5be45ab255",
+                UserName = "userName2"
+            };
 
             A.CallTo(() => _userManager.FindByIdAsync(user.Id))
                            .Returns(Task.FromResult(user));
 
-            var invitationsUserDtos = new List<GetInvitationsUserDto>
+            var senderUser = new UserAccount
             {
-                new GetInvitationsUserDto { UserName = "userName1", Id = "1" },
-                new GetInvitationsUserDto { UserName = "userName2", Id = "2" }
+                Id = "c9fbf188-e309-48c9-811d-7d5be45ab254",
+                UserName = "userName1"
+            };
+
+            var friendshipInvitationDtos = new List<FriendshipInvitation>
+            {
+                new FriendshipInvitation{ Id = new Guid(),
+                    SenderId = senderUser.Id,
+                    RecipientId = user.Id,
+                    SenderUser = senderUser,
+                    RecipientUser = user,
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            var expectList = new List<FriendDto>
+            {
+                new FriendDto { UserName = senderUser.UserName, Id = senderUser.Id }
             };
 
             A.CallTo(() => _friendsRepository.GetInvitationsAsync(user.Id))
-                .Returns(Task.FromResult(invitationsUserDtos));
+                .Returns(Task.FromResult(friendshipInvitationDtos));
 
             // Act
-            var result = await friendsManager.GetInvitationsAsync(user.Id) as ResultT<List<GetInvitationsUserDto>>;
+            var result = await friendsManager.GetInvitationsAsync(user.Id) as ResultT<List<FriendDto>>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().NotBeNull();
-            result.Value.Should().BeEquivalentTo(invitationsUserDtos);
+            result.Value.Should().BeEquivalentTo(expectList);
         }
 
         [Fact]
@@ -85,7 +106,6 @@ namespace Api.Tests.Managers.FriendsManagerTest
             A.CallTo(() => _userManager.FindByIdAsync("testUser"))
                            .Returns(Task.FromResult<UserAccount?>(null));
 
-
             // Act
             var result = await friendsManager.GetInvitationsAsync("testUser") as Result;
 
@@ -112,10 +132,10 @@ namespace Api.Tests.Managers.FriendsManagerTest
 
 
             A.CallTo(() => _friendsRepository.GetInvitationsAsync(user.Id))
-                .Returns(Task.FromResult(new List<GetInvitationsUserDto>()));
+                .Returns(Task.FromResult(new List<FriendshipInvitation>()));
 
             // Act
-            var result = await friendsManager.GetInvitationsAsync(user.Id) as ResultT<List<GetInvitationsUserDto>>;
+            var result = await friendsManager.GetInvitationsAsync(user.Id) as ResultT<List<FriendDto>>;
 
             // Assert
             result.Should().NotBeNull();
