@@ -39,7 +39,7 @@ namespace Api.Controllers
             if (string.IsNullOrWhiteSpace(id))
             {
                 var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "Id is required.");
+                               (ResponseHttpType.BadRequest, "Id cannot be empty.");
 
                 return BadRequest(response);
             }
@@ -65,11 +65,11 @@ namespace Api.Controllers
                 }
 
                 var responseOk = _responseHttpFactory.Create<UsersDto>
-                               (ResponseHttpType.Success, "User found.", _mapper.Map<UsersDto>(user));
+                               (ResponseHttpType.Success, "User/s has been found.", _mapper.Map<UsersDto>(user));
 
                 return Ok(responseOk);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var response = _responseHttpFactory.Create
                                (ResponseHttpType.InternalServerError, "An internal server error occurred.");
@@ -132,7 +132,7 @@ namespace Api.Controllers
 
                 return Ok(responseOk);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var response = _responseHttpFactory.Create
                                (ResponseHttpType.InternalServerError, "An internal server error occurred.");
