@@ -1,16 +1,10 @@
 ﻿using Api.Controllers;
 using Api.Models.Dtos.Responses;
 using Api.Models;
-using Api.Utilities.Result;
 using AutoMapper;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Api.Models.Dtos.Controllers.UsersController;
 using Microsoft.AspNetCore.Http;
@@ -24,72 +18,68 @@ namespace Api.Tests.Controllers.UsersControllerTest
         private readonly ResponseHttpFactory _responseHttpFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+        private readonly UsersController _usersController;
+        private readonly UserAccount _sampleUserAccount;
+
         public GetUserByIdAsyncTest()
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _mapper = A.Fake<IMapper>();
             _responseHttpFactory = A.Fake<ResponseHttpFactory>();
             _httpContextAccessor = A.Fake<IHttpContextAccessor>();
+
+            _usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
+            _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = new Guid().ToString() };
         }
 
         [Fact]
         public async Task GetUserByIdAsyncTest_ShouldReturnOk()
         {
             // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
-            var usersDto = new UsersDto { UserName = "testName", Id = "cE1B4f9D-2d91-1c57-eFB4-36D4118BabAC" };
-            var user = new UserAccount { UserName = usersDto.UserName, Id = usersDto.Id };
-
-            A.CallTo(() => _userManager.FindByIdAsync(user.Id))
-                           .Returns(Task.FromResult<UserAccount?>(user));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
             // Act
-            var result = await usersController.GetUserByIdAsync(user.Id) as OkObjectResult;
+            var result = await _usersController.GetUserByIdAsync(_sampleUserAccount.Id) as OkObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(200);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as SuccessResponseWithResultDataDto<UsersDto>;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(200);
-            response.Title.Should().Contain("User found.");
+            response.Title.Should().Contain("User/s has been found.");
         }
 
         [Fact]
         public async Task GetUserByIdAsyncTest_ShouldReturnBadRequestError_WhenIdIsNullOrEmpty()
         {
-            // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
-
             // Act
-            var result = await usersController.GetUserByIdAsync("") as BadRequestObjectResult;
+            var result = await _usersController.GetUserByIdAsync("") as BadRequestObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(400);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as Error400ResponseDto;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(400);
-            response.Title.Should().Contain("Id is required.");
+            response.Title.Should().Contain("Id cannot be empty.");
         }
 
         [Fact]
         public async Task GetUserByIdAsyncTest_ShouldReturnBadRequestError_WhenIdHasWrongFormat()
         {
-            // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
-
             // Act
-            var result = await usersController.GetUserByIdAsync("test") as BadRequestObjectResult;
+            var result = await _usersController.GetUserByIdAsync("test") as BadRequestObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(400);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as Error400ResponseDto;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(400);
             response.Title.Should().Contain("Not valid format.");
         }
@@ -98,22 +88,18 @@ namespace Api.Tests.Controllers.UsersControllerTest
         public async Task GetUserByIdAsyncTest_ShouldReturnNotFoundError_WhenUserDoesNotExists()
         {
             // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
-            var usersDto = new UsersDto { UserName = "testName", Id = "cE1B4f9D-2d91-1c57-eFB4-36D4118BabAC" };
-            var user = new UserAccount { UserName = usersDto.UserName, Id = usersDto.Id };
-
-            A.CallTo(() => _userManager.FindByIdAsync(user.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
                            .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
-            var result = await usersController.GetUserByIdAsync(user.Id) as NotFoundObjectResult;
+            var result = await _usersController.GetUserByIdAsync(_sampleUserAccount.Id) as NotFoundObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(404);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as Error404ResponseDto;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(404);
             response.Title.Should().Contain("User does not exist.");
         }
@@ -122,22 +108,18 @@ namespace Api.Tests.Controllers.UsersControllerTest
         public async Task GetUserByIdAsyncTest_ShouldReturnInternalServerError()
         {
             // Arrange
-            var usersController = new UsersController(_userManager, _mapper, _responseHttpFactory, _httpContextAccessor);
-            var usersDto = new UsersDto { UserName = "testName", Id = "cE1B4f9D-2d91-1c57-eFB4-36D4118BabAC" };
-            var user = new UserAccount { UserName = usersDto.UserName, Id = usersDto.Id };
-
-            A.CallTo(() => _userManager.FindByIdAsync(user.Id))
-                           .Throws(new Exception());
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
+                           .ThrowsAsync(new Exception());
 
             // Act
-            var result = await usersController.GetUserByIdAsync(user.Id) as ObjectResult;
+            var result = await _usersController.GetUserByIdAsync(_sampleUserAccount.Id) as ObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(500);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as Error500ResponseDto;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(500);
             response.Title.Should().Contain("An internal server error occurred.");
         }

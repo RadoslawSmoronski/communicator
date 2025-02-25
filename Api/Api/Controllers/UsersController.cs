@@ -38,7 +38,7 @@ namespace Api.Controllers
             if (string.IsNullOrWhiteSpace(id))
             {
                 var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "Id is required.");
+                               (ResponseHttpType.BadRequest, "Id cannot be empty.");
 
                 return BadRequest(response);
             }
@@ -64,11 +64,11 @@ namespace Api.Controllers
                 }
 
                 var responseOk = _responseHttpFactory.Create<UsersDto>
-                               (ResponseHttpType.Success, "User found.", _mapper.Map<UsersDto>(user));
+                               (ResponseHttpType.Success, "User/s has been found.", _mapper.Map<UsersDto>(user));
 
                 return Ok(responseOk);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var response = _responseHttpFactory.Create
                                (ResponseHttpType.InternalServerError, "An internal server error occurred.");
@@ -94,7 +94,7 @@ namespace Api.Controllers
             {
                 var response = _responseHttpFactory.Create
                                (ResponseHttpType.BadRequest,
-                               "Username must be more than 3 characters and less than 25.");
+                               "Username must be between 3 and 25 characters long.");
 
                 return BadRequest(response);
             }
@@ -117,7 +117,7 @@ namespace Api.Controllers
                 {
                     var response = _responseHttpFactory.Create
                                    (ResponseHttpType.NotFound,
-                                   "There is no user with this username.");
+                                   "User does not exist.");
 
                     return NotFound(response);
                 }
@@ -126,12 +126,12 @@ namespace Api.Controllers
 
                 var responseOk = _responseHttpFactory.Create<List<UsersDto>>
                               (ResponseHttpType.Success,
-                              "User/s found.",
+                              "User/s has been found.",
                               userDtos);
 
                 return Ok(responseOk);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var response = _responseHttpFactory.Create
                                (ResponseHttpType.InternalServerError, "An internal server error occurred.");
