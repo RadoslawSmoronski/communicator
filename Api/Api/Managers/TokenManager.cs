@@ -43,17 +43,17 @@ namespace Api.Service
 
             if(user == null)
             {
-                return Error.BadRequest("USER_IS_NULL", "User must not be null.");
+                return Error.BadRequest("USER_IS_NULL", "User cannot be null.");
             }
 
             if(String.IsNullOrEmpty(user.UserName))
             {
-                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username cannot be null or empty.");
             }
 
             if (String.IsNullOrEmpty(user.Id))
             {
-                return Error.BadRequest("USER_ID_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "User Id cannot be null or empty.");
             }
 
             try
@@ -62,7 +62,7 @@ namespace Api.Service
 
                 if(userExist == null || userExist.UserName != user.UserName)
                 {
-                    return Error.NotFound("USER_NOT_FOUND", "User doesn't exist.");
+                    return Error.NotFound("USER_NOT_FOUND", "The user doesn't exist.");
                 }
 
                 var claims = new List<Claim>
