@@ -95,7 +95,7 @@ namespace Api.Controllers
             {
                 var response = _responseHttpFactory.Create
                                (ResponseHttpType.BadRequest,
-                               "Username must be more than 3 characters and less than 25.");
+                               "Username must be between 3 and 25 characters long.");
 
                 return BadRequest(response);
             }
@@ -118,7 +118,7 @@ namespace Api.Controllers
                 {
                     var response = _responseHttpFactory.Create
                                    (ResponseHttpType.NotFound,
-                                   "There is no user with this username.");
+                                   "User does not exist.");
 
                     return NotFound(response);
                 }
@@ -127,7 +127,7 @@ namespace Api.Controllers
 
                 var responseOk = _responseHttpFactory.Create<List<UsersDto>>
                               (ResponseHttpType.Success,
-                              "User/s found.",
+                              "User/s has been found.",
                               userDtos);
 
                 return Ok(responseOk);
