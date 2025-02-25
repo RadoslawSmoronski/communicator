@@ -51,7 +51,7 @@ namespace Api.Controllers
                         };
 
                     var response = _responseFactory.Create<Dictionary<string, RegisteredUserDto>>
-                        (ResponseHttpType.Success, "User has been successfully created.", resultData);
+                        (ResponseHttpType.Success, "The user has been successfully created.", resultData);
 
                     return Ok(response);
                 }
@@ -60,13 +60,13 @@ namespace Api.Controllers
                 if (conflictError != null)
                 {
                     var response = _responseFactory.Create
-                        (ResponseHttpType.Conflict, "User with this username already exists.");
+                        (ResponseHttpType.Conflict, "A user with this username already exists.");
 
                     return Conflict(response);
                 }
 
                 var responseBadRequest = _responseFactory.Create
-                    (ResponseHttpType.BadRequest, "Invalid register attempt.");
+                    (ResponseHttpType.BadRequest, "Invalid registration attempt.");
 
                 return BadRequest(responseBadRequest);
             }
