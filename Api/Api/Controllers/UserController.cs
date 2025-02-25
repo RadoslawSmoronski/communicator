@@ -89,7 +89,7 @@ namespace Api.Controllers
                 if (user == null)
                 {
                     var response = _responseFactory.Create
-                        (ResponseHttpType.NotFound, "A user with this username does not exist.");
+                        (ResponseHttpType.NotFound, "No user with this username exists.");
 
                     return NotFound(response);
                 }

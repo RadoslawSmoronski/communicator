@@ -1,7 +1,5 @@
 ﻿using Api.Managers.Interfaces;
-using Api.Models.Dtos.Responses;
 using Api.Models;
-using AutoMapper;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Api.Utilities.Result;
