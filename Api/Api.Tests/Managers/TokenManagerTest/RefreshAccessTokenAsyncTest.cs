@@ -70,7 +70,7 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("Refresh token must not be null or empty.");
+            error.Description.Should().Contain("Refresh token cannot be null or empty.");
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("Refresh token record doesn't have user data or refresh token have been deleted.");
+            error.Description.Should().Contain("Refresh token record doesn't have user data, or the refresh token has been deleted.");
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("User form refresh token record doesn't exist.");
+            error.Description.Should().Contain("User associated with the refresh token record doesn't exist.");
         }
 
         [Fact]
@@ -170,7 +170,7 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("Username must not be null or empty.");
+            error.Description.Should().Contain("Username cannot be null or empty.");
         }
 
         [Fact]
@@ -198,7 +198,7 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("UserId must not be null or empty.");
+            error.Description.Should().Contain("User Id cannot be null or empty.");
         }
     }
 }
