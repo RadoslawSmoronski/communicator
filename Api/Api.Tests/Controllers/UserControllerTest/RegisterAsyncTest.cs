@@ -1,20 +1,13 @@
 ﻿using Api.Controllers;
 using Api.Managers.Interfaces;
 using Api.Models;
-using Api.Models.Dtos.Controllers.UserController;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Responses;
 using AutoMapper;
 using FakeItEasy;
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Api.Tests.Controllers.UserControllerTest
 {
@@ -26,6 +19,9 @@ namespace Api.Tests.Controllers.UserControllerTest
         private readonly ITokenManager _tokenManager;
         private readonly ResponseHttpFactory _responseFactory;
 
+        private readonly UserController _userController;
+        private readonly RegisterDto _sampleRegisterDto;
+
         public RegisterAsyncTest()
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
@@ -33,14 +29,15 @@ namespace Api.Tests.Controllers.UserControllerTest
             _mapper = A.Fake<IMapper>();
             _tokenManager = A.Fake<ITokenManager>();
             _responseFactory = A.Fake<ResponseHttpFactory>();
+
+            _userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
+            _sampleRegisterDto = new RegisterDto() { UserName = "test", Password = "test" };
         }
 
         [Fact]
         public async Task RegisterAsync_ShouldReturnOk()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
-            var registerDto = new RegisterDto() { UserName = "test", Password = "test" };
             var identityResult = IdentityResult.Success;
 
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
@@ -48,24 +45,22 @@ namespace Api.Tests.Controllers.UserControllerTest
 
 
             // Act
-            var result = await userController.RegisterAsync(registerDto) as OkObjectResult;
+            var result = await _userController.RegisterAsync(_sampleRegisterDto) as OkObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(200);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as SuccessResponseWithResultDataDto<Dictionary<string, RegisteredUserDto>>;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(200);
-            response.Title.Should().Contain("User has been successfully created.");
+            response.Title.Should().Contain("The user has been successfully created.");
         }
 
         [Fact]
         public async Task RegisterAsync_ShouldReturnConflict_WhenUserUserNameAlreadyExists()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
-            var registerDto = new RegisterDto() { UserName = "existingUser", Password = "Password" };
             var identityError = new IdentityError { Code = "DuplicateUserName", Description = "Username already exists." };
             var identityResult = IdentityResult.Failed(identityError);
 
@@ -73,24 +68,22 @@ namespace Api.Tests.Controllers.UserControllerTest
                            .Returns(Task.FromResult(identityResult));
 
             // Act
-            var result = await userController.RegisterAsync(registerDto) as ConflictObjectResult;
+            var result = await _userController.RegisterAsync(_sampleRegisterDto) as ConflictObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(409);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as Error409ResponseDto;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(409);
-            response.Title.Should().Contain("User with this username already exists.");
+            response.Title.Should().Contain("A user with this username already exists.");
         }
 
         [Fact]
         public async Task RegisterAsync_ShouldReturnBadRequest_WhenUserManagerReturnError()
         {
             // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
-            var registerDto = new RegisterDto() { UserName = "existingUser", Password = "Password" };
             var identityError = new IdentityError { Code = "", Description = "" };
             var identityResult = IdentityResult.Failed(identityError);
 
@@ -98,37 +91,34 @@ namespace Api.Tests.Controllers.UserControllerTest
                            .Returns(Task.FromResult(identityResult));
 
             // Act
-            var result = await userController.RegisterAsync(registerDto) as BadRequestObjectResult;
+            var result = await _userController.RegisterAsync(_sampleRegisterDto) as BadRequestObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(400);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as Error400ResponseDto;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(400);
-            response.Title.Should().Contain("Invalid register attempt.");
+            response.Title.Should().Contain("Invalid registration attempt.");
         }
 
         [Fact]
         public async Task RegisterAsync_ShouldReturnInternalServerError()
         {
-            // Arrange
-            var userController = new UserController(_userManager, _signInManager, _mapper, _tokenManager, _responseFactory);
-            var registerDto = new RegisterDto() { UserName = "testUser", Password = "Password" };
-
+            // Arrange      
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
                            .Throws(new InvalidOperationException("Simulated exception")).Once();
 
             // Act
-            var result = await userController.RegisterAsync(registerDto) as ObjectResult;
+            var result = await _userController.RegisterAsync(_sampleRegisterDto) as ObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(500);
+            result.Value.Should().NotBeNull();
 
             var response = result.Value as Error500ResponseDto;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(500);
             response.Title.Should().Contain("An internal server error occurred.");
         }

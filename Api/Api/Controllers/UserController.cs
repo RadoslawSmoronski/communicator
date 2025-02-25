@@ -51,7 +51,7 @@ namespace Api.Controllers
                         };
 
                     var response = _responseFactory.Create<Dictionary<string, RegisteredUserDto>>
-                        (ResponseHttpType.Success, "User has been successfully created.", resultData);
+                        (ResponseHttpType.Success, "The user has been successfully created.", resultData);
 
                     return Ok(response);
                 }
@@ -60,13 +60,13 @@ namespace Api.Controllers
                 if (conflictError != null)
                 {
                     var response = _responseFactory.Create
-                        (ResponseHttpType.Conflict, "User with this username already exists.");
+                        (ResponseHttpType.Conflict, "A user with this username already exists.");
 
                     return Conflict(response);
                 }
 
                 var responseBadRequest = _responseFactory.Create
-                    (ResponseHttpType.BadRequest, "Invalid register attempt.");
+                    (ResponseHttpType.BadRequest, "Invalid registration attempt.");
 
                 return BadRequest(responseBadRequest);
             }
@@ -89,7 +89,7 @@ namespace Api.Controllers
                 if (user == null)
                 {
                     var response = _responseFactory.Create
-                        (ResponseHttpType.NotFound, "A user with this username does not exist.");
+                        (ResponseHttpType.NotFound, "No user with this username exists.");
 
                     return NotFound(response);
                 }
@@ -140,14 +140,14 @@ namespace Api.Controllers
 
 
         [HttpPost("refreshAccessToken")]
-        public async Task<IActionResult> refreshAccessTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
+        public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
         {
             var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshTokenDto.RefreshToken);
 
             if (newToken.IsSuccess)
             {
                 var response = _responseFactory.Create<String>
-                    (ResponseHttpType.Success, "The access token have been successfully refreshed.", newToken.Value);
+                    (ResponseHttpType.Success, "The access token has been successfully refreshed.", newToken.Value);
                 
                 return Ok(response);
             }

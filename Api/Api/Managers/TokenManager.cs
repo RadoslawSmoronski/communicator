@@ -38,22 +38,22 @@ namespace Api.Service
 
         }
 
-        public async Task<ResultT<string>> CreateAccessTokenAsync(UserAccount user)
+        public async Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? user)
         {
 
             if(user == null)
             {
-                return Error.BadRequest("USER_IS_NULL", "User must not be null.");
+                return Error.BadRequest("USER_IS_NULL", "User cannot be null.");
             }
 
             if(String.IsNullOrEmpty(user.UserName))
             {
-                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username cannot be null or empty.");
             }
 
             if (String.IsNullOrEmpty(user.Id))
             {
-                return Error.BadRequest("USER_ID_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "User Id cannot be null or empty.");
             }
 
             try
@@ -62,7 +62,7 @@ namespace Api.Service
 
                 if(userExist == null || userExist.UserName != user.UserName)
                 {
-                    return Error.NotFound("USER_NOT_FOUND", "User doesn't exist.");
+                    return Error.NotFound("USER_NOT_FOUND", "The user doesn't exist.");
                 }
 
                 var claims = new List<Claim>
@@ -98,7 +98,7 @@ namespace Api.Service
         {
             if (string.IsNullOrEmpty(refreshToken))
             {
-                return Error.BadRequest("REFRESHTOKEN_IS_NULL", "Refresh token must not be null or empty.");
+                return Error.BadRequest("REFRESHTOKEN_IS_NULL", "Refresh token cannot be null or empty.");
             }
 
             if (!await _refreshTokenRepository.IsTokenValidAsync(refreshToken))
@@ -110,24 +110,24 @@ namespace Api.Service
 
             if (userId == null)
             {
-                return Error.NotFound("DATABASE_DATA_ERROR", "Refresh token record doesn't have user data or refresh token have been deleted.");
+                return Error.NotFound("DATABASE_DATA_ERROR", "Refresh token record doesn't have user data, or the refresh token has been deleted.");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {
-                return Error.NotFound("USER_ERROR", "User form refresh token record doesn't exist.");
+                return Error.NotFound("USER_ERROR", "User associated with the refresh token record doesn't exist.");
             }
 
             if (String.IsNullOrEmpty(user.UserName))
             {
-                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username must not be null or empty.");
+                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username cannot be null or empty.");
             }
 
             if (String.IsNullOrEmpty(user.Id))
             {
-                return Error.BadRequest("USER_ID_IS_NULL", "UserId must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "User Id cannot be null or empty.");
             }
 
             var claims = new List<Claim>
@@ -167,7 +167,7 @@ namespace Api.Service
         {
             if (string.IsNullOrEmpty(userId))
             {
-                return Error.BadRequest("USER_ID_IS_NULL","User ID must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "User ID cannot be null or empty.");
             }
 
             try
@@ -209,7 +209,7 @@ namespace Api.Service
                 }
 
                 //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
-                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Rexpired refresh tokens not found.");
+                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Expired refresh tokens not found.");
             }
             catch (Exception)
             {
