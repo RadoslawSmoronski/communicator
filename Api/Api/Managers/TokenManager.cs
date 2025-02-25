@@ -167,7 +167,7 @@ namespace Api.Service
         {
             if (string.IsNullOrEmpty(userId))
             {
-                return Error.BadRequest("USER_ID_IS_NULL","User ID must not be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "User ID cannot be null or empty.");
             }
 
             try
@@ -209,7 +209,7 @@ namespace Api.Service
                 }
 
                 //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
-                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Rexpired refresh tokens not found.");
+                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Expired refresh tokens not found.");
             }
             catch (Exception)
             {
