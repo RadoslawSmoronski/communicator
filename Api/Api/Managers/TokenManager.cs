@@ -117,7 +117,7 @@ namespace Api.Service
 
             if (user == null)
             {
-                return Error.NotFound("USER_ERROR", "User form refresh token record doesn't exist.");
+                return Error.NotFound("USER_ERROR", "User associated with the refresh token record doesn't exist.");
             }
 
             if (String.IsNullOrEmpty(user.UserName))

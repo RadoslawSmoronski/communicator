@@ -140,14 +140,14 @@ namespace Api.Controllers
 
 
         [HttpPost("refreshAccessToken")]
-        public async Task<IActionResult> refreshAccessTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
+        public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
         {
             var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshTokenDto.RefreshToken);
 
             if (newToken.IsSuccess)
             {
                 var response = _responseFactory.Create<String>
-                    (ResponseHttpType.Success, "The access token have been successfully refreshed.", newToken.Value);
+                    (ResponseHttpType.Success, "The access token has been successfully refreshed.", newToken.Value);
                 
                 return Ok(response);
             }
