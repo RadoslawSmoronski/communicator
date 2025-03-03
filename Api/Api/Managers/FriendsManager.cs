@@ -37,7 +37,7 @@ namespace Api.Managers
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId need to be different.");
+                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
             }
 
             try
@@ -121,7 +121,7 @@ namespace Api.Managers
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId need to be different.");
+                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
             }
 
             try
@@ -174,7 +174,7 @@ namespace Api.Managers
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId need to be different.");
+                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
             }
 
             try
@@ -195,7 +195,7 @@ namespace Api.Managers
 
                 if (await _friendsRepository.IsFriendsInvitationExists(senderId, recipientId) == false)
                 {
-                    return Error.NotFound("INVITATION_NOT_FOUND", "The invitation does not exist.");
+                    return Error.NotFound("INVITATION_NOT_FOUND", "The invitation doesn't exist.");
                 }
 
                 if(await _friendsRepository.IsFriendsExists(senderId, recipientId))
