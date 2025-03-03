@@ -1,5 +1,4 @@
 ﻿using Api.Controllers;
-using Api.Managers;
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
@@ -10,13 +9,7 @@ using AutoMapper;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Api.Tests.Controllers.FriendsControllerTest
 {
@@ -25,9 +18,10 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         private readonly IFriendsManager _friendsManager;
         private readonly IMapper _mapper;
         private readonly ResponseHttpFactory _responseHttpFactory;
-        private readonly string _validUserId = "062249c3-a5e9-4970-a03d-41a6dd3dc6ed";
-        private readonly string _validUserId2 = "262245c3-a5e8-4970-a03d-41a6dd3dc6ed";
         private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly FriendsController _friendsController;
+        private readonly AcceptInviteDto _sampleAcceptInviteDto;
 
         public AcceptInviteAsyncTest()
         {
@@ -41,28 +35,33 @@ namespace Api.Tests.Controllers.FriendsControllerTest
 
             _responseHttpFactory = A.Fake<ResponseHttpFactory>();
             _httpContextAccessor = A.Fake<HttpContextAccessor>();
+
+            _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
+            _sampleAcceptInviteDto = new AcceptInviteDto()
+            { 
+                SenderId = "062249c3-a5e9-4970-a03d-41a6dd3dc6ed",
+                RecipientId = "262245c3-a5e8-4970-a03d-41a6dd3dc6ed"
+            };
         }
 
         [Fact]
         public async Task AcceptInviteAsync_ShouldReturnOk()
         {
             // Arrange
-            var acceptInviteDto = new AcceptInviteDto() { SenderId = _validUserId, RecipientId = _validUserId2 };
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
-
-            A.CallTo(() => _friendsManager.DecelineInviteAsync(_validUserId, _validUserId2))
+            A.CallTo(() => _friendsManager.DecelineInviteAsync(_sampleAcceptInviteDto.SenderId, _sampleAcceptInviteDto.RecipientId))
                 .Returns(Task.FromResult(Result.Success()));
 
             // Act
-            var result = await _friendsController.AcceptInviteAsync(acceptInviteDto) as OkObjectResult;
+            var result = await _friendsController.AcceptInviteAsync(_sampleAcceptInviteDto) as OkObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(200);
+            result.Value.Should().NotBeNull();
+
             var response = result.Value as IResponse;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(200);
-            response.Title.Should().Contain("Friend successfully added.");
+            response.Title.Should().Contain("Friend has been successfully added.");
         }
 
 
@@ -70,20 +69,18 @@ namespace Api.Tests.Controllers.FriendsControllerTest
         public async Task AcceptInviteAsync_ShouldReturnError_WhenFriendsManagerReturnError()
         {
             // Arrange
-            var acceptInviteDto = new AcceptInviteDto() { SenderId = _validUserId, RecipientId = _validUserId2 };
-            var _friendsController = new FriendsController(_friendsManager, _mapper, _responseHttpFactory, _httpContextAccessor);
-
-            A.CallTo(() => _friendsManager.AddFriendsAsync(_validUserId, _validUserId2))
+            A.CallTo(() => _friendsManager.AddFriendsAsync(_sampleAcceptInviteDto.SenderId, _sampleAcceptInviteDto.RecipientId))
                 .Returns(Task.FromResult(Result.Failure(Error.Conflict("test", "test2"))));
 
             // Act
-            var result = await _friendsController.AcceptInviteAsync(acceptInviteDto) as ObjectResult;
+            var result = await _friendsController.AcceptInviteAsync(_sampleAcceptInviteDto) as ObjectResult;
 
             // Assert
             result.Should().NotBeNull();
             result!.StatusCode.Should().Be(409);
+            result.Value.Should().NotBeNull();
+
             var response = result.Value as IResponse;
-            response.Should().NotBeNull();
             response!.Status.Should().Be(409);
             response.Title.Should().Contain("test2");
         }

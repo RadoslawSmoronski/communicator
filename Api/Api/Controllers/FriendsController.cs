@@ -126,7 +126,7 @@ namespace Api.Controllers
 
             if (result.IsSuccess)
             {
-                var responseOk = _responseHttpFactory.Create(ResponseHttpType.Success, "Friend successfully added.");
+                var responseOk = _responseHttpFactory.Create(ResponseHttpType.Success, "Friend has been successfully added.");
                 return Ok(responseOk);
             }
 
