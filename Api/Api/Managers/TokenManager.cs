@@ -167,7 +167,9 @@ namespace Api.Managers
             {
                 var newRefreshToken = Guid.NewGuid().ToString();
 
+
                 var oldRefreshToken = await _refreshTokenRepository.GetRefreshTokenByUserIdAsync(userId);
+
 
                 if (oldRefreshToken != null)
                 {
