@@ -68,7 +68,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         public async Task CreateRefreshTokenAsync_ShouldReturnInternalServerError()
         {
             // Arrange
-            A.CallTo(() => _refreshTokenRepository.GetRefreshTokenAsyncByUserIdAsync(_sampleUserId))
+            A.CallTo(() => _refreshTokenRepository.GetRefreshTokenByUserIdAsync(_sampleUserId))
                            .ThrowsAsync(new Exception());
 
             // Act

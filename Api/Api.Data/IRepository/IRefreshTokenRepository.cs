@@ -1,10 +1,4 @@
 ﻿using Api.Models;
-using Api.Utilities.Result;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Api.Data.IRepository
 {
@@ -13,7 +7,7 @@ namespace Api.Data.IRepository
         Task<bool> IsTokenValidAsync(string token);
         Task SaveTokenAsync(RefreshToken refreshToken);
         Task DeleteTokenAsync(string token);
-        Task<string?> GetRefreshTokenAsyncByUserIdAsync(string userId);
+        Task<string?> GetRefreshTokenByUserIdAsync(string userId);
         Task<string?> GetUserIdByRefreshTokenAsync(string refreshToken);
         Task<int> RemoveExpiredRefreshTokensAsync();
     }

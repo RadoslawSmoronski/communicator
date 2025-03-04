@@ -1,13 +1,11 @@
 ﻿using Api.Data.IRepository;
 using Api.Managers.Interfaces;
 using Api.Models;
-using Api.Models.Dtos.Controllers.UserController;
 using Api.Utilities.Result;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Api.Service
@@ -174,7 +172,7 @@ namespace Api.Service
             {
                 var newRefreshToken = Guid.NewGuid().ToString();
 
-                var oldRefreshToken = await _refreshTokenRepository.GetRefreshTokenAsyncByUserIdAsync(userId);
+                var oldRefreshToken = await _refreshTokenRepository.GetRefreshTokenByUserIdAsync(userId);
 
                 if (oldRefreshToken != null)
                 {
