@@ -12,7 +12,6 @@ using Api.Managers;
 using AutoMapper;
 using Api.Models.Dtos.Responses.Interfaces;
 using Api.Models.Dtos.Responses;
-using Api.Models.Dtos.Controllers.UsersController.GetUsers;
 using System.Security.Claims;
 
 namespace Api.Controllers
