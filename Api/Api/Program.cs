@@ -6,7 +6,6 @@ using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Responses;
 using Api.Service;
-using Api.Service.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -29,7 +28,6 @@ namespace Api
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
@@ -102,8 +100,6 @@ namespace Api
                 };
             });
 
-
-            builder.Services.AddScoped<ITokenService, TokenService>();
 
             // Add CORS configuration
             builder.Services.AddCors(options =>
