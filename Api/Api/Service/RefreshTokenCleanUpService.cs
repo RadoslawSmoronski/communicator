@@ -1,40 +1,44 @@
 ﻿using Api.Managers.Interfaces;
 using Api.Utilities.Result;
 
-public class TokenCleanupService : BackgroundService
+namespace Api.Service
+
 {
-    private readonly TimeSpan _checkInterval = TimeSpan.FromDays(1);
-    private readonly IServiceProvider _serviceProvider;
-
-    public TokenCleanupService(IServiceProvider serviceProvider)
+   public class TokenCleanupService : BackgroundService
     {
-        _serviceProvider = serviceProvider;
-    }
+        private readonly TimeSpan _checkInterval = TimeSpan.FromDays(1);
+        private readonly IServiceProvider _serviceProvider;
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        while (!stoppingToken.IsCancellationRequested)
+        public TokenCleanupService(IServiceProvider serviceProvider)
         {
-            using (var scope = _serviceProvider.CreateScope())
+            _serviceProvider = serviceProvider;
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
             {
-                var tokenManager = scope.ServiceProvider.GetRequiredService<ITokenManager>();
-                var result = await tokenManager.RemoveExpiredRefreshTokensAsync();
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var tokenManager = scope.ServiceProvider.GetRequiredService<ITokenManager>();
+                    var result = await tokenManager.RemoveExpiredRefreshTokensAsync();
 
-                if (result.IsSuccess)
-                {
-                    Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {result.Value} expired tokens removed.");
+                    if (result.IsSuccess)
+                    {
+                        Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {result.Value} expired tokens removed.");
+                    }
+                    else if (result.Error!.ErrorType == HttpErrorType.NotFound)
+                    {
+                        Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
+                    }
                 }
-                else if (result.Error!.ErrorType == HttpErrorType.NotFound)
-                {
-                    Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
-                }
-                else
-                {
-                    Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
-                }
+
+                await Task.Delay(_checkInterval, stoppingToken);
             }
-
-            await Task.Delay(_checkInterval, stoppingToken);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Api.Data;
 using Api.Data.IRepository;
 using Api.Data.Repository;
+using Api.Managers;
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Responses;

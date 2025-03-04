@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Api.Service
+namespace Api.Managers
 {
     public class TokenManager : ITokenManager
     {
@@ -22,12 +22,7 @@ namespace Api.Service
         public TokenManager(IConfiguration config, IRefreshTokenRepository refreshTokenRepository, UserManager<UserAccount> userManager)
         {
             _config = config;
-            var signingKey = _config["JWT:SigningKey"];
-
-            if (signingKey == null)
-            {
-                throw new ArgumentNullException("JWT:SigningKey", "Signing key must be provided in configuration.");
-            }
+            var signingKey = _config["JWT:SigningKey"] ?? throw new ArgumentNullException("JWT:SigningKey", "Signing key must be provided in configuration.");
 
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
 

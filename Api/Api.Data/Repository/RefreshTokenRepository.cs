@@ -60,7 +60,7 @@ namespace Api.Data.Repository
                 .Where(rt => rt.Expiration < DateTime.UtcNow)
                 .ToListAsync();
 
-            if (expiredRefreshTokens.Any())
+            if (expiredRefreshTokens.Count > 0)
             {
                 _context.RefreshTokens.RemoveRange(expiredRefreshTokens);
                 await _context.SaveChangesAsync();
