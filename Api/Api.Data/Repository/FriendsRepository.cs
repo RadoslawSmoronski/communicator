@@ -44,15 +44,17 @@ namespace Api.Data.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<GetInvitationsUserDto>> GetInvitationsAsync(string userId)
+        public async Task<List<FriendshipInvitation>> GetInvitationsAsync(string userId)
         {   
             return await _context.FriendshipInvitations
                           .Where(x => x.RecipientId == userId)
-                          .Select(x => new GetInvitationsUserDto
-                          {
-                              Id = x.SenderId,
-                              UserName = x.SenderUser.UserName!
-                          })
+                          .ToListAsync();
+        }
+
+        public async Task<List<FriendshipInvitation>> GetRecipientInvitationsAsync(string userId)
+        {
+            return await _context.FriendshipInvitations
+                          .Where(x => x.SenderId == userId)
                           .ToListAsync();
         }
 

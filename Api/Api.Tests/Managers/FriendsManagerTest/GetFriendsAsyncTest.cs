@@ -1,17 +1,12 @@
 ﻿using Api.Data.IRepository;
 using Api.Managers;
+using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Utilities.Result;
-using Castle.Components.DictionaryAdapter.Xml;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Api.Tests.Managers.FriendsManagerTest
 {
@@ -20,23 +15,24 @@ namespace Api.Tests.Managers.FriendsManagerTest
         private readonly IFriendsRepository _friendsRepository;
         private readonly UserManager<UserAccount> _userManager;
 
+        private readonly IFriendsManager _friendsManager;
+        private readonly UserAccount _sampleUser;
+
         public GetFriendsAsyncTest()
         {
-
             _friendsRepository = A.Fake<IFriendsRepository>();
             _userManager = A.Fake<UserManager<UserAccount>>();
+
+            _friendsManager = new FriendsManager(_friendsRepository, _userManager);
+            _sampleUser = new UserAccount { UserName = "userLogin", Id = "c9fbf188-e309-48c9-811d-7d5be45ab254" };
         }
 
         [Fact]
         public async Task GetFriendsAsync_ShouldReturnOk()
         {
             // Arrange
-            var friendsManager = new FriendsManager(_friendsRepository, _userManager);
-
-            var user = new UserAccount { UserName = "userName1", Id = "1" };
-
-            A.CallTo(() => _userManager.FindByIdAsync(user.Id))
-                           .Returns(Task.FromResult(user));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
 
             var friendsUserDtos = new List<FriendDto>
             {
@@ -44,11 +40,11 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 new FriendDto { UserName = "userName2", Id = "2" }
             };
 
-            A.CallTo(() => _friendsRepository.GetFriendsAsync(user.Id))
+            A.CallTo(() => _friendsRepository.GetFriendsAsync(_sampleUser.Id))
                 .Returns(Task.FromResult(friendsUserDtos));
 
             // Act
-            var result = await friendsManager.GetFriendsAsync(user.Id) as ResultT<List<FriendDto>>;
+            var result = await _friendsManager.GetFriendsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -60,89 +56,79 @@ namespace Api.Tests.Managers.FriendsManagerTest
         [Fact]
         public async Task GetFriendsAsync_ShouldReturnBadRequestError_WhenUserIdIsNullOrWhiteSpace()
         {
-            // Arrange
-            var friendsManager = new FriendsManager(_friendsRepository, _userManager);
-
             // Act
-            var result = await friendsManager.GetFriendsAsync("") as Result;
+            var result = await _friendsManager.GetFriendsAsync("") as Result;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
+            result.Error.Should().NotBeNull();
 
-            var error = result.Error;
-            error.Should().NotBeNull();
-            result.Error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            result.Error.Code.Should().Be("USERID_IS_EMPTY");
+            var error = result.Error!;
+            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
+            error.Code.Should().Be("USERID_IS_EMPTY");
         }
 
         [Fact]
         public async Task GetFriendsAsync_ShouldReturnNotFoundError_WhenUserDoesNotExists()
         {
             // Arrange
-            var friendsManager = new FriendsManager(_friendsRepository, _userManager);
-
             A.CallTo(() => _userManager.FindByIdAsync("testUser"))
                            .Returns(Task.FromResult<UserAccount?>(null));
 
-
             // Act
-            var result = await friendsManager.GetFriendsAsync("testUser") as Result;
+            var result = await _friendsManager.GetFriendsAsync("testUser") as Result;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
+            result.Error.Should().NotBeNull();
 
-            var error = result.Error;
-            error.Should().NotBeNull();
-            result.Error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            result.Error.Code.Should().Be("USERID_NOT_FOUND");
+            var error = result.Error!;
+            error.ErrorType.Should().Be(HttpErrorType.NotFound);
+            error.Code.Should().Be("USERID_NOT_FOUND");
         }
 
         [Fact]
         public async Task GetFriendsAsync_ShouldReturnNotFound_WhenNotFoundAnyFriend()
         {
             // Arrange
-            var friendsManager = new FriendsManager(_friendsRepository, _userManager);
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
 
-            var user = new UserAccount { UserName = "userName1", Id = "1" };
-
-            A.CallTo(() => _userManager.FindByIdAsync(user.Id))
-                           .Returns(Task.FromResult(user));
-
-
-            A.CallTo(() => _friendsRepository.GetFriendsAsync(user.Id))
+            A.CallTo(() => _friendsRepository.GetFriendsAsync(_sampleUser.Id))
                 .Returns(Task.FromResult(new List<FriendDto>()));
 
             // Act
-            var result = await friendsManager.GetFriendsAsync(user.Id) as ResultT<List<FriendDto>>;
+            var result = await _friendsManager.GetFriendsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
+            result.Error.Should().NotBeNull();
 
-            var error = result.Error;
-            error.Should().NotBeNull();
-            result.Error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            result.Error.Code.Should().Be("INVITITIES_NOT_FOUND");
+            var error = result.Error!;
+            error.ErrorType.Should().Be(HttpErrorType.NotFound);
+            error.Code.Should().Be("INVITITIES_NOT_FOUND");
         }
 
         [Fact]
         public async Task GetFriendsAsync_ShouldReturnInternalServerError()
         {
             // Arrange
-            var friendsManager = new FriendsManager(_friendsRepository, _userManager);
-
             A.CallTo(() => _userManager.FindByIdAsync("test"))
                            .Throws(new Exception());
             // Act
-            var result = await friendsManager.GetFriendsAsync("test") as Result;
+            var result = await _friendsManager.GetFriendsAsync("test") as Result;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
-            result.Error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            result.Error.Code.Should().Be("INTERNAL_SERVER_ERROR");
+            result.Error.Should().NotBeNull();
+
+            var error = result.Error!;
+            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
+            error.Code.Should().Be("INTERNAL_SERVER_ERROR");
         }
 
     }

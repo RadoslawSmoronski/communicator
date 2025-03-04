@@ -8,6 +8,7 @@ using Api.Utilities.Result;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Managers
 {
@@ -36,7 +37,7 @@ namespace Api.Managers
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId need to be different.");
+                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
             }
 
             try
@@ -70,7 +71,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<GetInvitationsUserDto>>> GetInvitationsAsync(string userId)
+        public async Task<ResultT<List<FriendDto>>> GetInvitationsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -88,9 +89,13 @@ namespace Api.Managers
 
                 var list = await _friendsRepository.GetInvitationsAsync(userId);
 
-                if(list.Count > 0)
+                if(list.Any())
                 {
-                    return list;
+                    return list.Select(x => new FriendDto
+                    {
+                        Id = x.SenderId,
+                        UserName = x.SenderUser.UserName!
+                    }).ToList();
                 }
 
                 return Error.NotFound("INVITITIES_NOT_FOUND", "No invitation found.");
@@ -116,7 +121,7 @@ namespace Api.Managers
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId need to be different.");
+                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
             }
 
             try
@@ -169,7 +174,7 @@ namespace Api.Managers
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId need to be different.");
+                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
             }
 
             try
@@ -190,7 +195,7 @@ namespace Api.Managers
 
                 if (await _friendsRepository.IsFriendsInvitationExists(senderId, recipientId) == false)
                 {
-                    return Error.NotFound("INVITATION_NOT_FOUND", "The invitation does not exist.");
+                    return Error.NotFound("INVITATION_NOT_FOUND", "The invitation doesn't exist.");
                 }
 
                 if(await _friendsRepository.IsFriendsExists(senderId, recipientId))
@@ -240,5 +245,66 @@ namespace Api.Managers
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
+
+        //public async Task<ResultT<List<UserForFriendInviteDto>>> GetUsersForFriendInviteByTextAsync(string userId, string text)
+        //{
+        //    if (string.IsNullOrWhiteSpace(userId))
+        //    {
+        //        return Error.BadRequest("USERID_REQUIRED", "UserId is required.");
+        //    }
+
+        //    if (string.IsNullOrWhiteSpace(text))
+        //    {
+        //        return Error.BadRequest("TEXT_REQUIRED", "Search text is required.");
+        //    }
+
+        //    try
+        //    {
+        //        var loggedUser = await _userManager.FindByIdAsync(userId);
+        //        if (loggedUser == null || loggedUser.UserName == null)
+        //        {
+        //            return Error.NotFound("USER_NOT_FOUND", "User doesn't exist.");
+        //        }
+
+        //        var users = await _userManager.Users
+        //            .Where(x => x.UserName!.Contains(text) && x.Id != loggedUser.Id)
+        //            .ToListAsync();
+
+        //        if (!users.Any())
+        //        {
+        //            return Error.NotFound("USERS_NOT_FOUND", "No users found.");
+        //        }
+
+        //        var friendsList = await _friendsRepository.GetFriendsAsync(userId);
+        //        var invitationsList = await _friendsRepository.GetInvitationsAsync(userId);
+        //        var invitationsRecipientList = await _friendsRepository.GetRecipientInvitationsAsync(userId);
+
+        //        var friendsSet = new HashSet<string>(friendsList.Select(f => f.Id));
+        //        var invitationsSet = new HashSet<string>(invitationsList.Select(i => i.Id));
+        //        var invitationsRecipientSet = new HashSet<string>(invitationsRecipientList.Select(i => i.Id));
+
+        //        var userForFriendInvite = users
+        //            .Where(user => !friendsSet.Contains(user.Id)) 
+        //            .Select(user => new UserForFriendInviteDto
+        //            {
+        //                Id = user.Id,
+        //                UserName = user.UserName,
+        //                FriendInvitationExist = invitationsSet.Contains(user.Id) || invitationsRecipientSet.Contains(user.Id)
+        //            })
+        //            .ToList();
+
+        //        if (userForFriendInvite.Any())
+        //        {
+        //            return userForFriendInvite;
+        //        }
+
+        //        return Error.NotFound("USERS_NOT_FOUND", "No users found.");
+
+        //    }
+        //    catch
+        //    {
+        //        return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+        //    }
+        //}
     }
 }
