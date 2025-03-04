@@ -38,7 +38,7 @@ class TestSignal extends Component {
 
         if (this.state.connection && this.state.message.trim() !== "") {
             // send my message
-            connection.invoke(SEND_MESSAGE, this.state.username, this.state.message)
+            await this.state.connection.invoke(SEND_MESSAGE, this.state.username, this.state.message)
                 .catch(err => console.error("Error sending message: ", err));
             this.setState({ message: "" });
         }
