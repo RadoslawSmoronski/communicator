@@ -70,7 +70,7 @@ namespace Api.Controllers
 
                 return BadRequest(responseBadRequest);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var response = _responseFactory.Create
                     (ResponseHttpType.InternalServerError, "An internal server error occurred.");
@@ -129,7 +129,7 @@ namespace Api.Controllers
 
                 return BadRequest(responseBadRequest);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var response = _responseFactory.Create
                     (ResponseHttpType.InternalServerError, "An internal server error occurred.");

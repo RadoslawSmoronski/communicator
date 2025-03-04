@@ -1,4 +1,5 @@
 ﻿using Api.Data.IRepository;
+using Api.Managers;
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Service;

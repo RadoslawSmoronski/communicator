@@ -7,6 +7,7 @@ using FluentAssertions;
 using Api.Data.IRepository;
 using Api.Service;
 using Microsoft.Extensions.Configuration;
+using Api.Managers;
 
 namespace Api.Tests.Managers.TokenManagerTest
 {
