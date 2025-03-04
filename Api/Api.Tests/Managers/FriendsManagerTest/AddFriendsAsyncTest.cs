@@ -24,7 +24,6 @@ namespace Api.Tests.Managers.FriendsManagerTest
             _userManager = A.Fake<UserManager<UserAccount>>();
 
             _friendsManager = new FriendsManager(_friendsRepository, _userManager);
-
             _sampleSenderUser = new UserAccount { UserName = "senderUserLogin", Id = "c9fbf188-e309-48c9-811d-7d5be45ab254" };
             _sampleRecipientUser = new UserAccount { UserName = "recipientUserLogin", Id = "c9fbf188-e309-48c9-811d-7d5be45ab255" };
         }
@@ -67,7 +66,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.IsSuccess.Should().BeFalse();
             result.Error.Should().NotBeNull();
 
-            var error = result.Error!;
+            var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.BadRequest);
             error.Description.Should().Contain("SenderId is required.");
         }
