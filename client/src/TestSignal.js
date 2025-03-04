@@ -34,13 +34,18 @@ class TestSignal extends Component {
 
     sendMessage = async (event) =>{
         event.preventDefault();
-        console.log(this.state);
 
-        if (this.state.connection && this.state.message.trim() !== "") {
-            // send my message
-            await this.state.connection.invoke(SEND_MESSAGE, this.state.username, this.state.message)
-                .catch(err => console.error("Error sending message: ", err));
-            this.setState({ message: "" });
+        const { connection, username, message } = this.state;
+
+        if (connection && connection.state === signalR.HubConnectionState.Connected && message.trim() !== "") {
+            try {
+                await connection.invoke(SEND_MESSAGE, username, message);
+                this.setState({ message: "" });
+            } catch (err) {
+                console.error("Error sending message: ", err);
+            }
+        } else {
+            console.error("Connection not established or message is empty.");
         }
 
     }
@@ -60,7 +65,7 @@ class TestSignal extends Component {
         // listening for new messages
         connection.on(GET_MESSAGE, (user, message) => {
             this.setState(prevState => ({
-                messages: [...prevState.messages, { user, message }]
+                allMessages: [...prevState.allMessages, { user, message }]
             }));
         });
 
