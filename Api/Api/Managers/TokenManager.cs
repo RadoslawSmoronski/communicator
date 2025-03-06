@@ -1,4 +1,5 @@
 ﻿using Api.Data.IRepository;
+using Api.Data.UnitOfWork;
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Utilities.Result;
@@ -19,7 +20,12 @@ namespace Api.Managers
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
 
-        public TokenManager(IConfiguration config, IRefreshTokenRepository refreshTokenRepository, UserManager<UserAccount> userManager)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public TokenManager(IConfiguration config,
+            IRefreshTokenRepository refreshTokenRepository,
+            UserManager<UserAccount> userManager,
+            IUnitOfWork unitOfWork)
         {
             _config = config;
             var signingKey = _config["JWT:SigningKey"] ?? throw new ArgumentNullException("JWT:SigningKey", "Signing key must be provided in configuration.");
@@ -28,7 +34,7 @@ namespace Api.Managers
 
             _refreshTokenRepository = refreshTokenRepository;
             _userManager = userManager;
-
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? user)
@@ -94,12 +100,16 @@ namespace Api.Managers
                 return Error.BadRequest("REFRESHTOKEN_IS_NULL", "Refresh token cannot be null or empty.");
             }
 
-            if (!await _refreshTokenRepository.IsTokenValidAsync(refreshToken))
-            {
-                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token not found.");
-            }
+            //if (!await _refreshTokenRepository.IsTokenValidAsync(refreshToken))
+            //{
+            //    return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token not found.");
+            //}
+
+            var isTokenValid = await _unitOfWork.RefreshTokens
+                .AnyAsync(rt => rt.Token == token && rt.Expiration > DateTime.UtcNow);
 
             var userId = await _refreshTokenRepository.GetUserIdByRefreshTokenAsync(refreshToken);
+
 
             if (userId == null)
             {
