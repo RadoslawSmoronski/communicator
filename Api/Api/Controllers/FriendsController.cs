@@ -1,18 +1,10 @@
-﻿using Api.Data.IRepository;
-using Api.Exceptions.FriendshipInvitationRepository;
-using Api.Exceptions;
-using Api.Models;
-using Api.Models.Dtos.Controllers.FriendsController;
-using Microsoft.AspNetCore.Identity;
+﻿using Api.Models.Dtos.Controllers.FriendsController;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Api.Data.Repository;
 using Api.Managers.Interfaces;
-using Api.Managers;
 using AutoMapper;
 using Api.Models.Dtos.Responses.Interfaces;
 using Api.Models.Dtos.Responses;
-using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -182,47 +174,5 @@ namespace Api.Controllers
             var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
             return StatusCode(500, fallbackResponse);
         }
-
-        //[HttpGet("getUsersForFriendInviteByText/{text}")]
-        //public async Task<IActionResult> GetUsersForFriendInviteByTextAsync(string text)
-        //{
-        //    if (string.IsNullOrWhiteSpace(text))
-        //    {
-        //        var response = _responseHttpFactory.Create
-        //                       (ResponseHttpType.BadRequest, "Input value is empty.");
-
-        //        return BadRequest(response);
-        //    }
-
-        //    var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        //    if(userId == null)
-        //    {
-        //        var response = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "UserId internal error.");
-        //        return StatusCode(500, response);
-        //    }
-
-        //    var result = await _friendsManager.GetUsersForFriendInviteByTextAsync(userId, text);
-
-        //    if (result.IsSuccess)
-        //    {
-        //        var responseOk = _responseHttpFactory.Create<List<UserForFriendInviteDto>>
-        //            (ResponseHttpType.Success,
-        //            "Users for friend invite were found successfully.",
-        //            result.Value);
-
-        //        return Ok(responseOk);
-        //    }
-
-        //    if (result.Error != null)
-        //    {
-        //        var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
-        //        var response = _responseHttpFactory.Create(errorType, result.Error.Description);
-        //        return StatusCode(response.Status, response);
-        //    }
-
-        //    var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
-        //    return StatusCode(500, fallbackResponse);
-        //}
     }
 }
