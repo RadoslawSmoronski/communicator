@@ -100,13 +100,10 @@ namespace Api.Managers
                 return Error.BadRequest("REFRESHTOKEN_IS_NULL", "Refresh token cannot be null or empty.");
             }
 
-            //if (!await _refreshTokenRepository.IsTokenValidAsync(refreshToken))
-            //{
-            //    return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token not found.");
-            //}
-
-            var isTokenValid = await _unitOfWork.RefreshTokens
-                .AnyAsync(rt => rt.Token == token && rt.Expiration > DateTime.UtcNow);
+            if (!await IsRefreshTokenValidAsync(refreshToken))
+            {
+                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token not found.");
+            }
 
             var userId = await _refreshTokenRepository.GetUserIdByRefreshTokenAsync(refreshToken);
 
@@ -222,5 +219,22 @@ namespace Api.Managers
                 return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
             }
         }
+
+        private async Task<bool> IsRefreshTokenValidAsync(string refreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return false;
+            }
+
+            return await _unitOfWork.RefreshTokens
+                .AnyAsync(rt => rt.Token == refreshToken && rt.Expiration > DateTime.UtcNow);
+        }
+
+        //private async Task<string> GetUserIdByRefreshTokenAsync(string refreshToken)
+        //{
+        //    return await _unitOfWork.RefreshTokens.Where
+        //}
+
     }
 }
