@@ -1,5 +1,6 @@
 ﻿using Api.Data.Repository;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 public class Repository<T> : IRepository<T> where T : class
 {
@@ -20,6 +21,11 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task<T> GetByIdAsync(int id)
     {
         return await _dbSet.FindAsync(id);
+    }
+
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet.AnyAsync(predicate);
     }
 
     public async Task AddAsync(T entity)
