@@ -1,14 +1,6 @@
 ﻿using Api.Data.IRepository;
-using Api.Exceptions.FriendshipInvitationRepository;
-using Api.Exceptions;
 using Api.Models.Friendship;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Api.Models;
 using Api.Utilities.Result;
 using Api.Models.Dtos.Controllers.FriendsController;

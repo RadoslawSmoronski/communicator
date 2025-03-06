@@ -2,13 +2,8 @@
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
-using Api.Models.Dtos.Responses.Interfaces;
-using Api.Models.Dtos.Responses;
 using Api.Utilities.Result;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Api.Managers
 {
@@ -245,66 +240,5 @@ namespace Api.Managers
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
-
-        //public async Task<ResultT<List<UserForFriendInviteDto>>> GetUsersForFriendInviteByTextAsync(string userId, string text)
-        //{
-        //    if (string.IsNullOrWhiteSpace(userId))
-        //    {
-        //        return Error.BadRequest("USERID_REQUIRED", "UserId is required.");
-        //    }
-
-        //    if (string.IsNullOrWhiteSpace(text))
-        //    {
-        //        return Error.BadRequest("TEXT_REQUIRED", "Search text is required.");
-        //    }
-
-        //    try
-        //    {
-        //        var loggedUser = await _userManager.FindByIdAsync(userId);
-        //        if (loggedUser == null || loggedUser.UserName == null)
-        //        {
-        //            return Error.NotFound("USER_NOT_FOUND", "User doesn't exist.");
-        //        }
-
-        //        var users = await _userManager.Users
-        //            .Where(x => x.UserName!.Contains(text) && x.Id != loggedUser.Id)
-        //            .ToListAsync();
-
-        //        if (!users.Any())
-        //        {
-        //            return Error.NotFound("USERS_NOT_FOUND", "No users found.");
-        //        }
-
-        //        var friendsList = await _friendsRepository.GetFriendsAsync(userId);
-        //        var invitationsList = await _friendsRepository.GetInvitationsAsync(userId);
-        //        var invitationsRecipientList = await _friendsRepository.GetRecipientInvitationsAsync(userId);
-
-        //        var friendsSet = new HashSet<string>(friendsList.Select(f => f.Id));
-        //        var invitationsSet = new HashSet<string>(invitationsList.Select(i => i.Id));
-        //        var invitationsRecipientSet = new HashSet<string>(invitationsRecipientList.Select(i => i.Id));
-
-        //        var userForFriendInvite = users
-        //            .Where(user => !friendsSet.Contains(user.Id)) 
-        //            .Select(user => new UserForFriendInviteDto
-        //            {
-        //                Id = user.Id,
-        //                UserName = user.UserName,
-        //                FriendInvitationExist = invitationsSet.Contains(user.Id) || invitationsRecipientSet.Contains(user.Id)
-        //            })
-        //            .ToList();
-
-        //        if (userForFriendInvite.Any())
-        //        {
-        //            return userForFriendInvite;
-        //        }
-
-        //        return Error.NotFound("USERS_NOT_FOUND", "No users found.");
-
-        //    }
-        //    catch
-        //    {
-        //        return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
-        //    }
-        //}
     }
 }
