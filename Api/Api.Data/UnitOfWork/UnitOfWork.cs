@@ -1,4 +1,4 @@
-﻿namespace Api.Data
+﻿namespace Api.Data.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {

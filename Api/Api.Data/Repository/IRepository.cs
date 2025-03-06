@@ -1,4 +1,4 @@
-﻿namespace Api.Data
+﻿namespace Api.Data.Repository
 {
     public interface IRepository<T> where T : class
     {
