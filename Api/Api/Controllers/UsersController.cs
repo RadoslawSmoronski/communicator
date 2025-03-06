@@ -1,11 +1,9 @@
 ﻿using Api.Models;
-using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Controllers.UsersController;
 using Api.Models.Dtos.Responses;
 using Api.Models.Dtos.Responses.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
