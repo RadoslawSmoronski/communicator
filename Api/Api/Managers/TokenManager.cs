@@ -18,7 +18,6 @@ namespace Api.Managers
         private readonly TimeSpan _accesTokenLifeTime = TimeSpan.FromMinutes(15);
         private readonly TimeSpan _refreshTokenLifeTime = TimeSpan.FromDays(7);
         private readonly UserManager<UserAccount> _userManager;
-
         private readonly IUnitOfWork _unitOfWork;
 
         public TokenManager(IConfiguration config,
@@ -68,7 +67,7 @@ namespace Api.Managers
 
             if (!await IsRefreshTokenValidAsync(refreshToken))
             {
-                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token not found.");
+                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token was not found.");
             }
 
             var refreshTokenResult = await GetRefreshTokenObjectAsync(refreshToken);
@@ -91,8 +90,15 @@ namespace Api.Managers
             refreshTokenResult.Token = newRefreshToken;
             refreshTokenResult.Expiration = DateTime.UtcNow.Add(_refreshTokenLifeTime);
 
-            _unitOfWork.RefreshTokens.Update(refreshTokenResult);
-            await _unitOfWork.SaveAsync();
+            try
+            {
+                _unitOfWork.RefreshTokens.Update(refreshTokenResult);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (Exception)
+            {
+                return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
+            }
 
             var result = new RefreshAccessTokenDto()
             {
@@ -103,11 +109,11 @@ namespace Api.Managers
             return result;
         }
 
-        public async Task<ResultT<string>> CreateRefreshTokenAsync(string userId)
+        public async Task<ResultT<string>> CreateRefreshTokenAsync(string? userId)
         {
             if (string.IsNullOrEmpty(userId))
             {
-                return Error.BadRequest("USER_ID_IS_NULL", "User ID cannot be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "UserID cannot be null or empty.");
             }
 
             try
@@ -159,7 +165,7 @@ namespace Api.Managers
                 }
 
                 //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
-                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Expired refresh tokens not found.");
+                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "No refresh tokens to remove.");
             }
             catch (Exception)
             {
@@ -237,17 +243,18 @@ namespace Api.Managers
             return tokenHandler.WriteToken(token);
         }
 
-        private async Task<ResultT<UserAccount>> ValidateUserAsync(string userId)
+        private async Task<ResultT<UserAccount>> ValidateUserAsync(string? userId)
         {
             if (string.IsNullOrEmpty(userId))
             {
                 return Error.BadRequest("USER_ID_IS_NULL", "User ID cannot be null or empty.");
             }
 
+
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null || string.IsNullOrEmpty(user.UserName))
             {
-                return Error.NotFound("USER_NOT_FOUND", "User not found or username is invalid.");
+                return Error.NotFound("USER_NOT_FOUND", "User was not found or username is invalid.");
             }
 
             return user;

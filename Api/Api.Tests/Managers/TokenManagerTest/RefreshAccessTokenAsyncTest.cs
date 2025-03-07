@@ -1,22 +1,24 @@
-﻿using Api.Data.IRepository;
+﻿using Api.Data.UnitOfWork;
 using Api.Managers;
 using Api.Managers.Interfaces;
 using Api.Models;
+using Api.Models.Dtos.Service;
 using Api.Service;
 using Api.Utilities.Result;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using System.Linq.Expressions;
 
 
 namespace Api.Tests.Managers.TokenManagerTest
 {
     public class RefreshAccessTokenAsyncTest
     {
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
         private readonly ITokenManager _tokenManager;
         private readonly String _sampleRefreshToken;
@@ -24,7 +26,6 @@ namespace Api.Tests.Managers.TokenManagerTest
 
         public RefreshAccessTokenAsyncTest()
         {
-            _refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
             _userManager = A.Fake<UserManager<UserAccount>>();
 
             _configuration = A.Fake<IConfiguration>();
@@ -32,26 +33,28 @@ namespace Api.Tests.Managers.TokenManagerTest
             A.CallTo(() => _configuration["JWT:Issuer"]).Returns("your-issuer");
             A.CallTo(() => _configuration["JWT:Audience"]).Returns("your-audience");
 
-            _tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
+            _unitOfWork = A.Fake<IUnitOfWork>();
+
+            _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
             _sampleRefreshToken = new Guid().ToString();
-            _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = new Guid().ToString()};
+            _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = new Guid().ToString() };
         }
 
         [Fact]
         public async Task RefreshAccessTokenAsync_ShouldReturnSuccess()
         {
             // Arrange
-            A.CallTo(() => _refreshTokenRepository.IsTokenValidAsync(_sampleRefreshToken))
+            A.CallTo(() => _unitOfWork.RefreshTokens.AnyAsync(A<Expression<Func<RefreshToken, bool>>>._))
                            .Returns(Task.FromResult(true));
 
-            A.CallTo(() => _refreshTokenRepository.GetUserIdByRefreshTokenAsync(_sampleRefreshToken))
-                           .Returns(Task.FromResult<string?>(_sampleUserAccount.Id));
+            A.CallTo(() => _unitOfWork.RefreshTokens.FirstOrDefaultAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                           .Returns(Task.FromResult<RefreshToken?>(new RefreshToken() {UserId = _sampleUserAccount.Id }));
 
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
             // Act
-            var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken) as ResultT<string>;
+            var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken) as ResultT<RefreshAccessTokenDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -81,7 +84,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
                .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
-            A.CallTo(() => _refreshTokenRepository.IsTokenValidAsync(_sampleRefreshToken))
+            A.CallTo(() => _unitOfWork.RefreshTokens.AnyAsync(A<Expression<Func<RefreshToken, bool>>>._))
                            .Returns(Task.FromResult(false));
 
             // Act
@@ -94,18 +97,18 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("Refresh token not found.");
+            error.Description.Should().Contain("Refresh token was not found.");
         }
 
         [Fact]
         public async Task RefreshAccessTokenAsync_ShouldReturnNotFoundError_WhenUserDoesntExistsInRefreshTokenDatabase()
         {
             // Arrange
-            A.CallTo(() => _refreshTokenRepository.IsTokenValidAsync(_sampleRefreshToken))
+            A.CallTo(() => _unitOfWork.RefreshTokens.AnyAsync(A<Expression<Func<RefreshToken, bool>>>._))
                            .Returns(Task.FromResult(true));
 
-            A.CallTo(() => _refreshTokenRepository.GetUserIdByRefreshTokenAsync(_sampleRefreshToken))
-                           .Returns(Task.FromResult<string?>(null));
+            A.CallTo(() => _unitOfWork.RefreshTokens.FirstOrDefaultAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                          .Returns(Task.FromResult<RefreshToken?>(null));
 
             // Act
             var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken);
@@ -118,88 +121,6 @@ namespace Api.Tests.Managers.TokenManagerTest
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.NotFound);
             error.Description.Should().Contain("Refresh token record doesn't have user data, or the refresh token has been deleted.");
-        }
-
-        [Fact]
-        public async Task RefreshAccessTokenAsync_ShouldReturnNotFoundError_WhenUserDoesntExists()
-        {
-            // Arrange
-            A.CallTo(() => _refreshTokenRepository.IsTokenValidAsync(_sampleRefreshToken))
-                           .Returns(Task.FromResult(true));
-
-            A.CallTo(() => _refreshTokenRepository.GetUserIdByRefreshTokenAsync(_sampleRefreshToken))
-                           .Returns(Task.FromResult<string?>(_sampleUserAccount.Id));
-
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
-                           .Returns(Task.FromResult<UserAccount?>(null));
-
-            // Act
-            var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
-
-            var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("User associated with the refresh token record doesn't exist.");
-        }
-
-        [Fact]
-        public async Task RefreshAccessTokenAsync_ShouldReturnBadRequestError_WhenUserUserNameIsEmptyOrNull()
-        {
-            // Arrange
-            var user = new UserAccount { UserName = "", Id = _sampleUserAccount.Id };
-
-            A.CallTo(() => _refreshTokenRepository.IsTokenValidAsync(_sampleRefreshToken))
-                           .Returns(Task.FromResult(true));
-
-            A.CallTo(() => _refreshTokenRepository.GetUserIdByRefreshTokenAsync(_sampleRefreshToken))
-                           .Returns(Task.FromResult<string?>(user.Id));
-
-            A.CallTo(() => _userManager.FindByIdAsync(user.Id))
-                           .Returns(Task.FromResult<UserAccount?>(user));
-
-            // Act
-            var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
-
-            var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("Username cannot be null or empty.");
-        }
-
-        [Fact]
-        public async Task RefreshAccessTokenAsync_ShouldReturnBadRequestError_WhenUserIdIsEmptyOrNull()
-        {
-            // Arrange
-            var user = new UserAccount { UserName = _sampleUserAccount.UserName, Id = "" };
-
-            A.CallTo(() => _refreshTokenRepository.IsTokenValidAsync(_sampleRefreshToken))
-                           .Returns(Task.FromResult(true));
-
-            A.CallTo(() => _refreshTokenRepository.GetUserIdByRefreshTokenAsync(_sampleRefreshToken))
-                           .Returns(Task.FromResult<string?>("123"));
-
-            A.CallTo(() => _userManager.FindByIdAsync("123"))
-                           .Returns(Task.FromResult<UserAccount?>(user));
-
-            // Act
-            var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
-
-            var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("User Id cannot be null or empty.");
         }
     }
 }

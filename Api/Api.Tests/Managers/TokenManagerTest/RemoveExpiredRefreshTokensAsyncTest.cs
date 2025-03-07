@@ -4,24 +4,23 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Api.Utilities.Result;
 using FluentAssertions;
-using Api.Data.IRepository;
-using Api.Service;
 using Microsoft.Extensions.Configuration;
 using Api.Managers;
+using Api.Data.UnitOfWork;
+using System.Linq.Expressions;
 
 namespace Api.Tests.Managers.TokenManagerTest
 {
     public class RemoveExpiredRefreshTokensAsyncTest
     {
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
         private readonly ITokenManager _tokenManager;
 
         public RemoveExpiredRefreshTokensAsyncTest()
         {
-            _refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
             _userManager = A.Fake<UserManager<UserAccount>>();
 
             _configuration = A.Fake<IConfiguration>();
@@ -29,7 +28,9 @@ namespace Api.Tests.Managers.TokenManagerTest
             A.CallTo(() => _configuration["JWT:Issuer"]).Returns("your-issuer");
             A.CallTo(() => _configuration["JWT:Audience"]).Returns("your-audience");
 
-            _tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
+            _unitOfWork = A.Fake<IUnitOfWork>();
+
+            _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
         }
 
 
@@ -37,7 +38,14 @@ namespace Api.Tests.Managers.TokenManagerTest
         public async Task RemoveExpiredRefreshTokensAsync_ShouldReturnSuccess()
         {
             //Arrange
-            A.CallTo(() => _refreshTokenRepository.RemoveExpiredRefreshTokensAsync()).Returns(2);
+            IEnumerable<RefreshToken> refreshTokenList = new List<RefreshToken>()
+            {
+                new RefreshToken(),
+                new RefreshToken()
+            };
+
+            A.CallTo(() => _unitOfWork.RefreshTokens.WhereAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                           .Returns(Task.FromResult(refreshTokenList));
 
             // Act
             var result = await _tokenManager.RemoveExpiredRefreshTokensAsync() as ResultT<int>;
@@ -52,7 +60,10 @@ namespace Api.Tests.Managers.TokenManagerTest
         public async Task RemoveExpiredRefreshTokensAsync_ShouldReturnNotFound()
         {
             //Arrange
-            A.CallTo(() => _refreshTokenRepository.RemoveExpiredRefreshTokensAsync()).Returns(0);
+            IEnumerable<RefreshToken> refreshTokenList = new List<RefreshToken>();
+
+            A.CallTo(() => _unitOfWork.RefreshTokens.WhereAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                           .Returns(Task.FromResult(refreshTokenList));
 
             // Act
             var result = await _tokenManager.RemoveExpiredRefreshTokensAsync() as ResultT<int>;
@@ -64,14 +75,14 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Contains("Expired refresh tokens not found.");
+            error.Description.Contains("No refresh tokens to remove.");
         }
 
         [Fact]
         public async Task RemoveExpiredRefreshTokensAsync_ShouldReturnInternalServerError()
         {
             // Arrange
-            A.CallTo(() => _refreshTokenRepository.RemoveExpiredRefreshTokensAsync())
+            A.CallTo(() => _unitOfWork.RefreshTokens.WhereAsync(A<Expression<Func<RefreshToken, bool>>>._))
                 .ThrowsAsync(new Exception());
 
             // Act

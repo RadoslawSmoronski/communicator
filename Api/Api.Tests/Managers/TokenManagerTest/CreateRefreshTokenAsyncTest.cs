@@ -4,25 +4,24 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Api.Utilities.Result;
 using FluentAssertions;
-using Api.Data.IRepository;
-using Api.Service;
 using Microsoft.Extensions.Configuration;
 using Api.Managers;
+using Api.Data.UnitOfWork;
+using System.Linq.Expressions;
 
 namespace Api.Tests.Managers.TokenManagerTest
 {
     public class CreateRefreshTokenAsyncTest
     {
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
         private readonly ITokenManager _tokenManager;
         private readonly String _sampleUserId;
 
         public CreateRefreshTokenAsyncTest()
         {
-            _refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
             _userManager = A.Fake<UserManager<UserAccount>>();
 
             _configuration = A.Fake<IConfiguration>();
@@ -30,7 +29,9 @@ namespace Api.Tests.Managers.TokenManagerTest
             A.CallTo(() => _configuration["JWT:Issuer"]).Returns("your-issuer");
             A.CallTo(() => _configuration["JWT:Audience"]).Returns("your-audience");
 
-            _tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
+            _unitOfWork = A.Fake<IUnitOfWork>();
+
+            _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
             _sampleUserId = new Guid().ToString();
         }
 
@@ -62,15 +63,15 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Contains("User ID cannot be null or empty.");
+            error.Description.Contains("UserID cannot be null or empty.");
         }
 
         [Fact]
         public async Task CreateRefreshTokenAsync_ShouldReturnInternalServerError()
         {
             // Arrange
-            A.CallTo(() => _refreshTokenRepository.GetRefreshTokenByUserIdAsync(_sampleUserId))
-                           .ThrowsAsync(new Exception());
+            A.CallTo(() => _unitOfWork.RefreshTokens.FirstOrDefaultAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                .ThrowsAsync(new Exception());
 
             // Act
             var result = await _tokenManager.CreateRefreshTokenAsync(_sampleUserId);
