@@ -1,5 +1,4 @@
 ﻿using Api.Data;
-using Api.Data.IRepository;
 using Api.Data.Repository;
 using Api.Managers;
 using Api.Managers.Interfaces;
@@ -30,7 +29,6 @@ namespace Api
             builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddHostedService<TokenCleanupService>();
             builder.Services.AddSwaggerGen(option =>
