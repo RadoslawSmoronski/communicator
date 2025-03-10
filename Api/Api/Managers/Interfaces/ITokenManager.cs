@@ -1,5 +1,6 @@
 ﻿using Api.Models;
 using Api.Models.Dtos.Controllers.UserController;
+using Api.Models.Dtos.Service;
 using Api.Utilities.Result;
 using System.Security.Claims;
 
@@ -9,7 +10,7 @@ namespace Api.Managers.Interfaces
     {
         //Access Token
         Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? user);
-        Task<ResultT<string>> RefreshAccessTokenAsync(string refreshToken);
+        Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(string refreshToken);
 
         //RefreshToken
         Task<ResultT<string>> CreateRefreshTokenAsync(string? userId);

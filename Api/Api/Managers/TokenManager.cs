@@ -1,6 +1,7 @@
-﻿using Api.Data.IRepository;
+﻿using Api.Data.UnitOfWork;
 using Api.Managers.Interfaces;
 using Api.Models;
+using Api.Models.Dtos.Service;
 using Api.Utilities.Result;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -16,70 +17,40 @@ namespace Api.Managers
         private readonly SymmetricSecurityKey _key;
         private readonly TimeSpan _accesTokenLifeTime = TimeSpan.FromMinutes(15);
         private readonly TimeSpan _refreshTokenLifeTime = TimeSpan.FromDays(7);
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TokenManager(IConfiguration config, IRefreshTokenRepository refreshTokenRepository, UserManager<UserAccount> userManager)
+        public TokenManager(IConfiguration config,
+            UserManager<UserAccount> userManager,
+            IUnitOfWork unitOfWork)
         {
             _config = config;
             var signingKey = _config["JWT:SigningKey"] ?? throw new ArgumentNullException("JWT:SigningKey", "Signing key must be provided in configuration.");
 
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
 
-            _refreshTokenRepository = refreshTokenRepository;
             _userManager = userManager;
-
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? user)
+        public async Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? inputUser)
         {
-
-            if(user == null)
+            if (inputUser == null || string.IsNullOrEmpty(inputUser.UserName) || string.IsNullOrEmpty(inputUser.Id))
             {
-                return Error.BadRequest("USER_IS_NULL", "User cannot be null.");
-            }
-
-            if(String.IsNullOrEmpty(user.UserName))
-            {
-                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username cannot be null or empty.");
-            }
-
-            if (String.IsNullOrEmpty(user.Id))
-            {
-                return Error.BadRequest("USER_ID_IS_NULL", "User Id cannot be null or empty.");
+                return Error.BadRequest("USER_IS_INVALID", "User, Username, or User Id cannot be null or empty.");
             }
 
             try
             {
-                var userExist = await _userManager.FindByIdAsync(user.Id);
-
-                if(userExist == null || userExist.UserName != user.UserName)
+                var user = await ValidateUserAsync(inputUser.Id);
+                if (user.Error != null)
                 {
-                    return Error.NotFound("USER_NOT_FOUND", "The user doesn't exist.");
+                    return user.Error;
                 }
 
-                var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.UserName),
-                        new Claim(ClaimTypes.NameIdentifier, user.Id)
-                    };
+                var accessToken = CreateJwtToken(inputUser);
 
-                var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.Now.Add(_accesTokenLifeTime),
-                    SigningCredentials = creds,
-                    Issuer = _config["JWT:Issuer"],
-                    Audience = _config["JWT:Audience"]
-                };
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-
-                return tokenHandler.WriteToken(token);
+                return accessToken;
             }
             catch (Exception)
             {
@@ -87,101 +58,91 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<string>> RefreshAccessTokenAsync(string refreshToken)
+        public async Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(string refreshToken)
         {
             if (string.IsNullOrEmpty(refreshToken))
             {
                 return Error.BadRequest("REFRESHTOKEN_IS_NULL", "Refresh token cannot be null or empty.");
             }
 
-            if (!await _refreshTokenRepository.IsTokenValidAsync(refreshToken))
+            if (!await IsRefreshTokenValidAsync(refreshToken))
             {
-                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token not found.");
+                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token was not found.");
             }
 
-            var userId = await _refreshTokenRepository.GetUserIdByRefreshTokenAsync(refreshToken);
+            var refreshTokenResult = await GetRefreshTokenObjectAsync(refreshToken);
 
-            if (userId == null)
+
+            if (refreshTokenResult == null || refreshTokenResult.UserId == null)
             {
                 return Error.NotFound("DATABASE_DATA_ERROR", "Refresh token record doesn't have user data, or the refresh token has been deleted.");
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null)
+            var user = await ValidateUserAsync(refreshTokenResult.UserId);
+            if (user.Error != null)
             {
-                return Error.NotFound("USER_ERROR", "User associated with the refresh token record doesn't exist.");
+                return user.Error;
             }
 
-            if (String.IsNullOrEmpty(user.UserName))
-            {
-                return Error.BadRequest("USER_USERNAME_IS_NULL", "Username cannot be null or empty.");
-            }
-
-            if (String.IsNullOrEmpty(user.Id))
-            {
-                return Error.BadRequest("USER_ID_IS_NULL", "User Id cannot be null or empty.");
-            }
-
-            var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.UserName),
-                        new Claim(ClaimTypes.NameIdentifier, user.Id)
-                    };
-
-            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.Add(_accesTokenLifeTime),
-                SigningCredentials = creds,
-                Issuer = _config["JWT:Issuer"],
-                Audience = _config["JWT:Audience"]
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
+            var accessToken = CreateJwtToken(user.Value);
             var newRefreshToken = Guid.NewGuid().ToString();
 
-            await _refreshTokenRepository.SaveTokenAsync(new RefreshToken
-            {
-                Token = newRefreshToken,
-                UserId = userId,
-                Expiration = DateTime.UtcNow.AddDays(7)
-            });
+            refreshTokenResult.Token = newRefreshToken;
+            refreshTokenResult.Expiration = DateTime.UtcNow.Add(_refreshTokenLifeTime);
 
-            return tokenString;
+            try
+            {
+                _unitOfWork.RefreshTokens.Update(refreshTokenResult);
+                await _unitOfWork.SaveAsync();
+            }
+            catch (Exception)
+            {
+                return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
+            }
+
+            var result = new RefreshAccessTokenDto()
+            {
+                AccessToken = accessToken,
+                RefreshToken = newRefreshToken
+            };
+
+            return result;
         }
 
-        public async Task<ResultT<string>> CreateRefreshTokenAsync(string userId)
+        public async Task<ResultT<string>> CreateRefreshTokenAsync(string? userId)
         {
             if (string.IsNullOrEmpty(userId))
             {
-                return Error.BadRequest("USER_ID_IS_NULL", "User ID cannot be null or empty.");
+                return Error.BadRequest("USER_ID_IS_NULL", "UserID cannot be null or empty.");
             }
 
             try
             {
+                var oldRefreshToken = await GetRefreshTokenObjectByUserIdAsync(userId);
+
                 var newRefreshToken = Guid.NewGuid().ToString();
-
-
-                var oldRefreshToken = await _refreshTokenRepository.GetRefreshTokenByUserIdAsync(userId);
+                var expiration = DateTime.UtcNow.Add(_refreshTokenLifeTime);
 
 
                 if (oldRefreshToken != null)
                 {
-                    await _refreshTokenRepository.DeleteTokenAsync(oldRefreshToken);
+                    oldRefreshToken.Token = newRefreshToken;
+                    oldRefreshToken.Expiration = expiration;
+                    _unitOfWork.RefreshTokens.Update(oldRefreshToken);
+                }
+                else
+                {
+                    var newObject = new RefreshToken
+                    {
+                        Token = newRefreshToken,
+                        UserId = userId,
+                        Expiration = expiration
+                    };
+
+                    await _unitOfWork.RefreshTokens.AddAsync(newObject);
                 }
 
-                await _refreshTokenRepository.SaveTokenAsync(new RefreshToken
-                {
-                    Token = newRefreshToken,
-                    UserId = userId,
-                    Expiration = DateTime.UtcNow.Add(_refreshTokenLifeTime)
-                });
+                await _unitOfWork.SaveAsync();
 
                 return newRefreshToken;
             }
@@ -195,7 +156,7 @@ namespace Api.Managers
         {
             try
             {
-                var removedExpiredTokens = await _refreshTokenRepository.RemoveExpiredRefreshTokensAsync();
+                var removedExpiredTokens = await RemoveFromDbExpiredRefreshTokensAsync();
 
                 if (removedExpiredTokens > 0)
                 {
@@ -204,13 +165,99 @@ namespace Api.Managers
                 }
 
                 //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
-                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "Expired refresh tokens not found.");
+                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "No refresh tokens to remove.");
             }
             catch (Exception)
             {
                 //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
                 return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
             }
+        }
+
+        private async Task<bool> IsRefreshTokenValidAsync(string refreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return false;
+            }
+
+            return await _unitOfWork.RefreshTokens
+                .AnyAsync(rt => rt.Token == refreshToken && rt.Expiration > DateTime.UtcNow);
+        }
+
+        private async Task<RefreshToken?> GetRefreshTokenObjectAsync(string refreshToken)
+        {
+            var result = await _unitOfWork.RefreshTokens.FirstOrDefaultAsync(x => x.Token == refreshToken);
+
+            return result;
+        }
+
+        private async Task<RefreshToken?> GetRefreshTokenObjectByUserIdAsync(string userId)
+        {
+            var result = await _unitOfWork.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == userId);
+
+            return result;
+        }
+
+        private async Task<int> RemoveFromDbExpiredRefreshTokensAsync()
+        {
+            var result = await _unitOfWork.RefreshTokens.WhereAsync(x => x.Expiration < DateTime.UtcNow);
+
+            if (result.Any())
+            {
+                foreach (var refreshToken in result)
+                {
+                    _unitOfWork.RefreshTokens.Delete(refreshToken);
+                }
+            }
+
+            return result.Count();
+        }
+
+        private string CreateJwtToken(UserAccount user)
+        {
+            if (user == null || user.Id == null || user.UserName == null)
+            {
+                throw new ArgumentNullException(nameof(user), "User, UserId or UserName cannot be null.");
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
+            };
+
+            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.Add(_accesTokenLifeTime),
+                SigningCredentials = creds,
+                Issuer = _config["JWT:Issuer"],
+                Audience = _config["JWT:Audience"]
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        private async Task<ResultT<UserAccount>> ValidateUserAsync(string? userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Error.BadRequest("USER_ID_IS_NULL", "User ID cannot be null or empty.");
+            }
+
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || string.IsNullOrEmpty(user.UserName))
+            {
+                return Error.NotFound("USER_NOT_FOUND", "User was not found or username is invalid.");
+            }
+
+            return user;
         }
     }
 }

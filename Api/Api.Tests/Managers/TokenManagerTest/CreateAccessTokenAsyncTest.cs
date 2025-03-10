@@ -4,25 +4,23 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Api.Utilities.Result;
 using FluentAssertions;
-using Api.Data.IRepository;
-using Api.Service;
 using Microsoft.Extensions.Configuration;
 using Api.Managers;
+using Api.Data.UnitOfWork;
 
 namespace Api.Tests.Managers.TokenManagerTest
 {
     public class CreateAccessTokenAsyncTest
     {
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
 
         private readonly ITokenManager _tokenManager;
         private readonly UserAccount _sampleUserAccount;
 
         public CreateAccessTokenAsyncTest()
         {
-            _refreshTokenRepository = A.Fake<IRefreshTokenRepository>();
             _userManager = A.Fake<UserManager<UserAccount>>();
 
             _configuration = A.Fake<IConfiguration>();
@@ -30,7 +28,9 @@ namespace Api.Tests.Managers.TokenManagerTest
             A.CallTo(() => _configuration["JWT:Issuer"]).Returns("your-issuer");
             A.CallTo(() => _configuration["JWT:Audience"]).Returns("your-audience");
 
-            _tokenManager = new TokenManager(_configuration, _refreshTokenRepository, _userManager);
+            _unitOfWork = A.Fake<IUnitOfWork>();
+
+            _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
             _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = new Guid().ToString() };
         }
 
@@ -50,27 +50,10 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.IsSuccess.Should().BeTrue();
         }
 
-        [Fact]
-        public async Task CreateAccessTokenAsync_ShouldReturnBadRequestError_WhenUserDoesntExist()
-        {
-            // Act
-            var result = await _tokenManager.CreateAccessTokenAsync(null);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
-
-            var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Contains("User cannot be null.");
-        }
-
-
         [Theory]
-        [InlineData("login", "", "User Id cannot be null or empty.")]
-        [InlineData("", "id", "Username cannot be null or empty.")]
-        public async Task CreateAccessTokenAsync_ShouldReturnBadRequestError_WhenDataIsNotValid(string login, string id, string expectedDescription)
+        [InlineData("login", "")]
+        [InlineData("", "id")]
+        public async Task CreateAccessTokenAsync_ShouldReturnBadRequestError_WhenDataIsNotValid(string login, string id)
         {
             // Arrange
             var user = new UserAccount { UserName = login, Id = id };
@@ -85,7 +68,7 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Contains(expectedDescription);
+            error.Description.Should().Be("User, Username, or User Id cannot be null or empty.");
         }
 
         [Fact]
@@ -105,7 +88,7 @@ namespace Api.Tests.Managers.TokenManagerTest
 
             var error = result.Error! as Error;
             error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Contains("The user doesn't exist.");
+            error.Description.Contains("User not found or username is invalid.");
         }
 
         [Fact]

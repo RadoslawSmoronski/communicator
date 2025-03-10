@@ -8,6 +8,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Api.Models.Dtos.Controllers.UserController;
+using Api.Models.Dtos.Service;
 
 namespace Api.Controllers
 {
@@ -146,7 +147,7 @@ namespace Api.Controllers
 
             if (newToken.IsSuccess)
             {
-                var response = _responseFactory.Create<String>
+                var response = _responseFactory.Create<RefreshAccessTokenDto>
                     (ResponseHttpType.Success, "The access token has been successfully refreshed.", newToken.Value);
                 
                 return Ok(response);
