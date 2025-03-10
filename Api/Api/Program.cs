@@ -32,7 +32,7 @@ namespace Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<ITokenService, TokenService>();
+           //builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
             builder.Services.AddScoped<ResponseHttpFactory>();
@@ -103,8 +103,6 @@ namespace Api
                 };
             });
 
-
-            builder.Services.AddScoped<ITokenService, TokenService>();
 
             // Add CORS configuration
             builder.Services.AddCors(options =>
