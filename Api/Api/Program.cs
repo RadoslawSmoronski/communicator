@@ -3,6 +3,7 @@ using Api.Data.IRepository;
 using Api.Data.Repository;
 using Api.Managers;
 using Api.Managers.Interfaces;
+using Api.Data.UnitOfWork;
 using Api.Models;
 using Api.Models.Dtos.Responses;
 using Api.Service;
@@ -31,6 +32,8 @@ namespace Api
             builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>
