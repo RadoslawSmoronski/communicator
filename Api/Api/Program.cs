@@ -34,7 +34,6 @@ namespace Api
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
            //builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
-            builder.Services.AddScoped<IFriendsRepository, FriendsRepository>();
             builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>
             {

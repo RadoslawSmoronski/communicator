@@ -12,13 +12,11 @@ namespace Api.Managers
 {
     public class FriendsManager : IFriendsManager
     {
-        private readonly IFriendsRepository _friendsRepository;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
 
-        public FriendsManager(IFriendsRepository friendsRepository, UserManager<UserAccount> userManager, IUnitOfWork unitOfWork)
+        public FriendsManager(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork)
         {
-            _friendsRepository = friendsRepository;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
         }
@@ -185,7 +183,7 @@ namespace Api.Managers
 
                 if(await IsFriendsExists(senderId, recipientId))
                 {
-                    return Error.Conflict("FRIENDS_ALREADY_EXISTS", "This relationship already exists.");
+                    return Error.Conflict("FRIENDS_ALREADY_EXISTS", "This relationship has already exist.");
                 }
 
                 await DeleteInviteAsync(senderUser, recipientUser);
