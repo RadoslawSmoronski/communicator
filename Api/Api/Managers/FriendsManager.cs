@@ -104,12 +104,12 @@ namespace Api.Managers
         {
             if (string.IsNullOrWhiteSpace(senderId) || string.IsNullOrWhiteSpace(recipientId))
             {
-                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId or RecipientId cannot be null or empty.");
+                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId and RecipientId cannot be null or empty.");
             }
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderID and RecipientID must be different.");
+                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId must be different.");
             }
 
             try
