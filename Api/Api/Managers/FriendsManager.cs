@@ -23,9 +23,9 @@ namespace Api.Managers
 
         public async Task<Result> SendInviteAsync(string senderId, string recipientId)
         {
-            if (string.IsNullOrWhiteSpace(senderId) && string.IsNullOrWhiteSpace(recipientId))
+            if (string.IsNullOrWhiteSpace(senderId) || string.IsNullOrWhiteSpace(recipientId))
             {
-                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId and RecipientId cannot be null or empty");
+                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId or RecipientId cannot be null or empty.");
             }
 
             if (senderId == recipientId)
