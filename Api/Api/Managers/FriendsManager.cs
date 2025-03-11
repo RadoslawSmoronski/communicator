@@ -1,12 +1,10 @@
-﻿using Api.Data.IRepository;
-using Api.Data.UnitOfWork;
+﻿using Api.Data.UnitOfWork;
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Models.Friendship;
 using Api.Utilities.Result;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Api.Managers
 {

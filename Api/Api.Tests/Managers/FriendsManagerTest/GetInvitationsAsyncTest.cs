@@ -1,5 +1,4 @@
-﻿using Api.Data.IRepository;
-using Api.Data.UnitOfWork;
+﻿using Api.Data.UnitOfWork;
 using Api.Managers;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
