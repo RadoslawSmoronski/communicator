@@ -30,6 +30,7 @@ namespace Api
             builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>
             {

@@ -1,5 +1,6 @@
 ﻿using Api.Data.Repository;
 using Api.Models;
+using Api.Models.Friendship;
 
 namespace Api.Data.UnitOfWork
 {
@@ -7,6 +8,8 @@ namespace Api.Data.UnitOfWork
     {
         private readonly ApplicationDbContext _context;
         private IRepository<RefreshToken> _refreshTokens;
+        private IRepository<Friendship> _friendships;
+        private IRepository<FriendshipInvitation> _friendshipInvitations;
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -14,6 +17,8 @@ namespace Api.Data.UnitOfWork
         }
 
         public IRepository<RefreshToken> RefreshTokens => _refreshTokens ??= new Repository<RefreshToken>(_context);
+        public IRepository<Friendship> Friendships => _friendships ??= new Repository<Friendship>(_context);
+        public IRepository<FriendshipInvitation> FriendshipInvitations => _friendshipInvitations ??= new Repository<FriendshipInvitation>(_context);
 
         public async Task<int> SaveAsync()
         {

@@ -1,4 +1,4 @@
-﻿using Api.Data.IRepository;
+﻿using Api.Data.UnitOfWork;
 using Api.Managers;
 using Api.Models;
 using Api.Models.Dtos.Controllers.FriendsController;
@@ -7,13 +7,14 @@ using Api.Utilities.Result;
 using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
+using System.Linq.Expressions;
 
 namespace Api.Tests.Managers.FriendsManagerTest
 {
     public class GetInvitationsAsyncTest
     {
-        private readonly IFriendsRepository _friendsRepository;
         private readonly UserManager<UserAccount> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
 
         private readonly FriendsManager _friendsManager;
         private readonly UserAccount _sampleUser;
@@ -21,16 +22,17 @@ namespace Api.Tests.Managers.FriendsManagerTest
 
         public GetInvitationsAsyncTest()
         {
-
-            _friendsRepository = A.Fake<IFriendsRepository>();
             _userManager = A.Fake<UserManager<UserAccount>>();
+            _unitOfWork = A.Fake<IUnitOfWork>();
 
-            _friendsManager = new FriendsManager(_friendsRepository, _userManager);
+            _friendsManager = new FriendsManager(_userManager, _unitOfWork);
+
             _sampleUser = new UserAccount
             {
                 Id = "c9fbf188-e309-48c9-811d-7d5be45ab255",
                 UserName = "userName"
             };
+
             _sampleUser2 = new UserAccount
             {
                 Id = "d9fbf188-e309-48c9-811d-7d5be45ab255",
@@ -45,7 +47,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUser));
 
-            var friendshipInvitationDtos = new List<FriendshipInvitation>
+            IEnumerable<FriendshipInvitation> friendshipInvitations = new List<FriendshipInvitation>
             {
                 new FriendshipInvitation{ Id = new Guid(),
                     SenderId = _sampleUser2.Id,
@@ -61,8 +63,9 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 new FriendDto { UserName = _sampleUser2.UserName!, Id = _sampleUser2.Id }
             };
 
-            A.CallTo(() => _friendsRepository.GetInvitationsAsync(_sampleUser.Id))
-                .Returns(Task.FromResult(friendshipInvitationDtos));
+
+            A.CallTo(() => _unitOfWork.FriendshipInvitations.WhereAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
+                .Returns(Task.FromResult(friendshipInvitations));
 
             // Act
             var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
@@ -89,7 +92,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
 
             var error = result.Error!;
             error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Code.Should().Be("USERID_IS_EMPTY");
+            error.Description.Should().Contain("UserId cannot be null or empty.");
         }
 
         [Fact]
@@ -109,7 +112,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
 
             var error = result.Error!;
             error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Code.Should().Be("USERID_NOT_FOUND");
+            error.Description.Should().Contain("User was not found.");
         }
 
         [Fact]
@@ -119,9 +122,10 @@ namespace Api.Tests.Managers.FriendsManagerTest
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUser));
 
+            IEnumerable<FriendshipInvitation> friendshipInvitations = new List<FriendshipInvitation>();
 
-            A.CallTo(() => _friendsRepository.GetInvitationsAsync(_sampleUser.Id))
-                .Returns(Task.FromResult(new List<FriendshipInvitation>()));
+            A.CallTo(() => _unitOfWork.FriendshipInvitations.WhereAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
+                .Returns(Task.FromResult(friendshipInvitations));
 
             // Act
             var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
@@ -133,7 +137,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
 
             var error = result.Error!;
             error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Code.Should().Be("INVITITIES_NOT_FOUND");
+            error.Description.Should().Contain("Invitations were not found.");
         }
 
         [Fact]

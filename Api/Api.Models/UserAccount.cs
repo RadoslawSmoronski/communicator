@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Api.Models.Friendship;
+using Microsoft.AspNetCore.Identity;
 
 namespace Api.Models
 {
