@@ -49,7 +49,9 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 new SimpleUserDto { userName = "userName2", Id = "2" }
             };
 
-            A.CallTo(() => _unitOfWork.Friendships.WhereAsync(A<Expression<Func<Friendship, bool>>>._))
+            A.CallTo(() => _unitOfWork.Friendships.WhereAsync(
+                    A<Expression<Func<Friendship, bool>>>._,
+                    A<Expression<Func<Friendship, object>>[]>._))
                 .Returns(Task.FromResult(friendships));
 
             // Act

@@ -65,8 +65,10 @@ namespace Api.Tests.Managers.FriendsManagerTest
             };
 
 
-            A.CallTo(() => _unitOfWork.FriendshipInvitations.WhereAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
-                .Returns(Task.FromResult(friendshipInvitations));
+            A.CallTo(() => _unitOfWork.FriendshipInvitations.WhereAsync(
+                    A<Expression<Func<FriendshipInvitation, bool>>>._,
+                    A<Expression<Func<FriendshipInvitation, object>>[]>._))
+                    .Returns(Task.FromResult(friendshipInvitations));
 
             // Act
             var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<SimpleUserDto>>;

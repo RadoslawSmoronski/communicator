@@ -52,7 +52,7 @@ namespace Api.Controllers
             return StatusCode(500, fallbackResponse);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("getInvitations/{userId}")]
         public async Task<IActionResult> GetInvitationsAsync(string userId)
         {

@@ -247,13 +247,16 @@ namespace Api.Managers
 
         private async Task<List<SimpleUserDto>> GetUserInvitationsAsync(UserAccount user)
         {
-            var result = await _unitOfWork.FriendshipInvitations
-                .WhereAsync(x => x.RecipientId == user.Id);
+            var result = await _unitOfWork.FriendshipInvitations.WhereAsync(
+                    x => x.RecipientId == user.Id,
+                    x => x.SenderUser,
+                    x => x.RecipientUser
+                );
 
             return result.Select(x => new SimpleUserDto()
             {
                 Id = x.SenderId,
-                userName = x.SenderUser.UserName!
+                userName = x.SenderUser.UserName ?? throw new Exception()
             }).ToList();
         }
 
@@ -297,12 +300,15 @@ namespace Api.Managers
 
         private async Task<List<SimpleUserDto>> GetFriendsFromDbAsync(string userId)
         {
-            var result = await _unitOfWork.Friendships.WhereAsync(x => x.User1Id == userId || x.User2Id == userId);
+            var result = await _unitOfWork.Friendships.WhereAsync(
+                x => (x.User1Id == userId || x.User2Id == userId),
+                x => x.User1,
+                x => x.User2);
 
             return result.Select(x => new SimpleUserDto()
             {
                 Id = x.User1Id == userId ? x.User2Id : x.User1Id,
-                userName = x.User1Id == userId ? x.User2.UserName! : x.User1.UserName!
+                userName = x.User1Id == userId ? (x.User2.UserName ?? throw new Exception()) : (x.User1.UserName ?? throw new Exception())
             }).ToList();
         }
 
