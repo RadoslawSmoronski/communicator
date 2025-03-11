@@ -48,7 +48,7 @@ namespace Api.Controllers
                             { "user", new SimpleUserDto()
                                 {
                                     Id = user.Id,
-                                    Username = user.UserName
+                                    userName = user.UserName
                                 }
                             }
                         };
