@@ -1,6 +1,7 @@
 ﻿using Api.Data.UnitOfWork;
 using Api.Managers.Interfaces;
 using Api.Models;
+using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Models.Friendship;
 using Api.Utilities.Result;
@@ -62,7 +63,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<FriendDto>>> GetInvitationsAsync(string userId)
+        public async Task<ResultT<List<SimpleUserDto>>> GetInvitationsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -191,7 +192,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<FriendDto>>> GetFriendsAsync(string userId)
+        public async Task<ResultT<List<SimpleUserDto>>> GetFriendsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {
@@ -244,15 +245,15 @@ namespace Api.Managers
             await _unitOfWork.SaveAsync();
         }
 
-        private async Task<List<FriendDto>> GetUserInvitationsAsync(UserAccount user)
+        private async Task<List<SimpleUserDto>> GetUserInvitationsAsync(UserAccount user)
         {
             var result = await _unitOfWork.FriendshipInvitations
                 .WhereAsync(x => x.RecipientId == user.Id);
 
-            return result.Select(x => new FriendDto()
+            return result.Select(x => new SimpleUserDto()
             {
                 Id = x.SenderId,
-                UserName = x.SenderUser.UserName!
+                userName = x.SenderUser.UserName!
             }).ToList();
         }
 
@@ -294,14 +295,14 @@ namespace Api.Managers
             await _unitOfWork.SaveAsync();
         }
 
-        private async Task<List<FriendDto>> GetFriendsFromDbAsync(string userId)
+        private async Task<List<SimpleUserDto>> GetFriendsFromDbAsync(string userId)
         {
             var result = await _unitOfWork.Friendships.WhereAsync(x => x.User1Id == userId || x.User2Id == userId);
 
-            return result.Select(x => new FriendDto()
+            return result.Select(x => new SimpleUserDto()
             {
                 Id = x.User1Id == userId ? x.User2Id : x.User1Id,
-                UserName = x.User1Id == userId ? x.User2.UserName! : x.User1.UserName!
+                userName = x.User1Id == userId ? x.User2.UserName! : x.User1.UserName!
             }).ToList();
         }
 

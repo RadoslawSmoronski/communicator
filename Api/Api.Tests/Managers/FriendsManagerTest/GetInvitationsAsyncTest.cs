@@ -1,6 +1,7 @@
 ﻿using Api.Data.UnitOfWork;
 using Api.Managers;
 using Api.Models;
+using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Models.Friendship;
 using Api.Utilities.Result;
@@ -58,9 +59,9 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 }
             };
 
-            var expectList = new List<FriendDto>
+            var expectList = new List<SimpleUserDto>
             {
-                new FriendDto { UserName = _sampleUser2.UserName!, Id = _sampleUser2.Id }
+                new SimpleUserDto { userName = _sampleUser2.UserName!, Id = _sampleUser2.Id }
             };
 
 
@@ -68,7 +69,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 .Returns(Task.FromResult(friendshipInvitations));
 
             // Act
-            var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
+            var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<SimpleUserDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -128,7 +129,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 .Returns(Task.FromResult(friendshipInvitations));
 
             // Act
-            var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
+            var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<SimpleUserDto>>;
 
             // Assert
             result.Should().NotBeNull();

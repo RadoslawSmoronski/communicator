@@ -2,6 +2,7 @@
 using Api.Managers;
 using Api.Managers.Interfaces;
 using Api.Models;
+using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Models.Friendship;
 using Api.Utilities.Result;
@@ -42,17 +43,17 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 new Friendship { Id = Guid.NewGuid(), User1Id = _sampleUser.Id, User2Id = "2", User2 = new UserAccount() {Id = "2", UserName = "userName2"} },
             };
 
-            var expectedfriendsUserDtos = new List<FriendDto>
+            var expectedfriendsUserDtos = new List<SimpleUserDto>
             {
-                new FriendDto { UserName = "userName1", Id = "1" },
-                new FriendDto { UserName = "userName2", Id = "2" }
+                new SimpleUserDto { userName = "userName1", Id = "1" },
+                new SimpleUserDto { userName = "userName2", Id = "2" }
             };
 
             A.CallTo(() => _unitOfWork.Friendships.WhereAsync(A<Expression<Func<Friendship, bool>>>._))
                 .Returns(Task.FromResult(friendships));
 
             // Act
-            var result = await _friendsManager.GetFriendsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
+            var result = await _friendsManager.GetFriendsAsync(_sampleUser.Id) as ResultT<List<SimpleUserDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -110,7 +111,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 .Returns(Task.FromResult(friendships));
 
             // Act
-            var result = await _friendsManager.GetFriendsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
+            var result = await _friendsManager.GetFriendsAsync(_sampleUser.Id) as ResultT<List<SimpleUserDto>>;
 
             // Assert
             result.Should().NotBeNull();

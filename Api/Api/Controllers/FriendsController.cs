@@ -5,6 +5,7 @@ using Api.Managers.Interfaces;
 using AutoMapper;
 using Api.Models.Dtos.Responses.Interfaces;
 using Api.Models.Dtos.Responses;
+using Api.Models.Dtos;
 
 namespace Api.Controllers
 {
@@ -30,9 +31,9 @@ namespace Api.Controllers
 
         [Authorize]
         [HttpPost("sendInviteAsync")]
-        public async Task<IActionResult> SendInviteAsync(SendInviteDto sendInviteDto)
+        public async Task<IActionResult> SendInviteAsync(InviteDto inviteDto)
         {
-            var inviteResult = await _friendsManager.SendInviteAsync(sendInviteDto.SenderId, sendInviteDto.RecipientId);
+            var inviteResult = await _friendsManager.SendInviteAsync(inviteDto.SenderId, inviteDto.RecipientId);
 
             if (inviteResult.IsSuccess)
             {
@@ -67,7 +68,7 @@ namespace Api.Controllers
 
             if (result.IsSuccess)
             {
-                var responseOk = _responseHttpFactory.Create<List<FriendDto>>
+                var responseOk = _responseHttpFactory.Create<List<SimpleUserDto>>
                     (ResponseHttpType.Success,
                     "Invitations found.",
                     result.Value);
@@ -88,9 +89,9 @@ namespace Api.Controllers
 
         [Authorize]
         [HttpPost("decelineInvite")]
-        public async Task<IActionResult> DecelineInviteAsync(DecelineInviteDto decelineInviteDto)
+        public async Task<IActionResult> DecelineInviteAsync(InviteDto inviteDto)
         {
-            var result = await _friendsManager.DecelineInviteAsync(decelineInviteDto.SenderId, decelineInviteDto.RecipientId);
+            var result = await _friendsManager.DecelineInviteAsync(inviteDto.SenderId, inviteDto.RecipientId);
 
             if (result.IsSuccess)
             {
@@ -111,7 +112,7 @@ namespace Api.Controllers
 
         [Authorize]
         [HttpPost("acceptInvite")]
-        public async Task<IActionResult> AcceptInviteAsync(AcceptInviteDto acceptInviteDto)
+        public async Task<IActionResult> AcceptInviteAsync(InviteDto acceptInviteDto)
         {
             var result = await _friendsManager.AddFriendsAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
 
@@ -156,7 +157,7 @@ namespace Api.Controllers
 
             if (result.IsSuccess)
             {
-                var responseOk = _responseHttpFactory.Create<List<FriendDto>>
+                var responseOk = _responseHttpFactory.Create<List<SimpleUserDto>>
                     (ResponseHttpType.Success,
                     "Friends found.",
                     result.Value);
