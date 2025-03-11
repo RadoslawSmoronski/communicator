@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Api.Models.Dtos.Controllers.UserController;
 using Api.Models.Dtos.Service;
+using Api.Models.Dtos;
 
 namespace Api.Controllers
 {
@@ -42,16 +43,17 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    var resultData = new Dictionary<string, RegisteredUserDto>
+                    var resultData = new Dictionary<string, SimpleUserDto>
                         {
-                            { "user", new RegisteredUserDto()
+                            { "user", new SimpleUserDto()
                                 {
-                                    UserName = user.UserName
+                                    Id = user.Id,
+                                    Username = user.UserName
                                 }
                             }
                         };
 
-                    var response = _responseFactory.Create<Dictionary<string, RegisteredUserDto>>
+                    var response = _responseFactory.Create<Dictionary<string, SimpleUserDto>>
                         (ResponseHttpType.Success, "The user has been successfully created.", resultData);
 
                     return Ok(response);
