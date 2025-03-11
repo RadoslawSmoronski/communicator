@@ -1,5 +1,5 @@
 ﻿using Api.Models;
-using Api.Models.Dtos.Controllers.UsersController;
+using Api.Models.Dtos;
 using Api.Models.Dtos.Responses;
 using Api.Models.Dtos.Responses.Interfaces;
 using AutoMapper;
@@ -62,8 +62,8 @@ namespace Api.Controllers
                     return NotFound(response);
                 }
 
-                var responseOk = _responseHttpFactory.Create<UsersDto>
-                               (ResponseHttpType.Success, "User/s has been found.", _mapper.Map<UsersDto>(user));
+                var responseOk = _responseHttpFactory.Create<SimpleUserDto>
+                               (ResponseHttpType.Success, "User/s has been found.", _mapper.Map<SimpleUserDto>(user));
 
                 return Ok(responseOk);
             }
@@ -121,9 +121,9 @@ namespace Api.Controllers
                     return NotFound(response);
                 }
 
-                var userDtos = _mapper.Map<List<UsersDto>>(users);
+                var userDtos = _mapper.Map<List<SimpleUserDto>>(users);
 
-                var responseOk = _responseHttpFactory.Create<List<UsersDto>>
+                var responseOk = _responseHttpFactory.Create<List<SimpleUserDto>>
                               (ResponseHttpType.Success,
                               "User/s has been found.",
                               userDtos);

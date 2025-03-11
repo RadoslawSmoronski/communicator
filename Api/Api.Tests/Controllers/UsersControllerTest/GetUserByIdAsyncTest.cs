@@ -6,8 +6,8 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using FluentAssertions;
-using Api.Models.Dtos.Controllers.UsersController;
 using Microsoft.AspNetCore.Http;
+using Api.Models.Dtos;
 
 namespace Api.Tests.Controllers.UsersControllerTest
 {
@@ -47,7 +47,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
             result!.StatusCode.Should().Be(200);
             result.Value.Should().NotBeNull();
 
-            var response = result.Value as SuccessResponseWithResultDataDto<UsersDto>;
+            var response = result.Value as SuccessResponseWithResultDataDto<SimpleUserDto>;
             response!.Status.Should().Be(200);
             response.Title.Should().Contain("User/s has been found.");
         }

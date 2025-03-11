@@ -6,10 +6,10 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using FluentAssertions;
-using Api.Models.Dtos.Controllers.UsersController;
 using MockQueryable;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Api.Models.Dtos;
 
 namespace Api.Tests.Controllers.UsersControllerTest
 {
@@ -51,7 +51,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
         public async Task GetUserByTextAsyncTest_ShouldReturnOk()
         {
             // Arrange
-            var expectedDtoUsers = _mapper.Map<List<UsersDto>>(_sampleUsersList.Where(x => x.UserName != null && x.UserName.Contains("Joh")));
+            var expectedDtoUsers = _mapper.Map<List<SimpleUserDto>>(_sampleUsersList.Where(x => x.UserName != null && x.UserName.Contains("Joh")));
 
             var users = _sampleUsersList.AsQueryable().BuildMock();
 
@@ -66,7 +66,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
             result!.StatusCode.Should().Be(200);
             result.Value.Should().NotBeNull();
 
-            var response = result.Value as SuccessResponseWithResultDataDto<List<UsersDto>>;
+            var response = result.Value as SuccessResponseWithResultDataDto<List<SimpleUserDto>>;
             response!.Status.Should().Be(200);
             response.Title.Should().Contain("User/s has been found.");
             response.ResultData.Should().BeEquivalentTo(expectedDtoUsers);
@@ -78,7 +78,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
             // Arrange
             var textToSearch = "Joh";
 
-            var expectedDtoUsers = _mapper.Map<List<UsersDto>>
+            var expectedDtoUsers = _mapper.Map<List<SimpleUserDto>>
                 (_sampleUsersList.Where(x => x.UserName != null && x.UserName.Contains(textToSearch) && x.Id != _sampleUsersList[0].Id));
 
             var users = _sampleUsersList.AsQueryable().BuildMock();
@@ -104,7 +104,7 @@ namespace Api.Tests.Controllers.UsersControllerTest
             result!.StatusCode.Should().Be(200);
             result.Value.Should().NotBeNull();
 
-            var response = result.Value as SuccessResponseWithResultDataDto<List<UsersDto>>;
+            var response = result.Value as SuccessResponseWithResultDataDto<List<SimpleUserDto>>;
             response!.Status.Should().Be(200);
             response.Title.Should().Contain("User/s has been found.");
             response.ResultData.Should().BeEquivalentTo(expectedDtoUsers);
