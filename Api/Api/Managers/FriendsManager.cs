@@ -84,14 +84,10 @@ namespace Api.Managers
 
                 if (list.Count > 0)
                 {
-                    return list.Select(x => new FriendDto
-                    {
-                        Id = x.SenderId,
-                        UserName = "to do, in progess.."
-                    }).ToList();
+                    return list;
                 }
 
-                return Error.NotFound("INVITITIES_NOT_FOUND", "No invitation was found.");
+                return Error.NotFound("INVITITIES_NOT_FOUND", "Invitations were not found.");
 
             }
             catch
@@ -250,12 +246,16 @@ namespace Api.Managers
             await _unitOfWork.SaveAsync();
         }
 
-        private async Task<List<FriendshipInvitation>> GetUserInvitationsAsync(UserAccount user)
+        private async Task<List<FriendDto>> GetUserInvitationsAsync(UserAccount user)
         {
             var result = await _unitOfWork.FriendshipInvitations
                 .WhereAsync(x => x.RecipientId == user.Id);
-            
-            return result.ToList();
+
+            return result.Select(x => new FriendDto()
+            {
+                Id = x.SenderId,
+                UserName = x.SenderUser.UserName!
+            }).ToList();
         }
 
         private async Task<Result> DeleteInviteAsync(UserAccount senderUser, UserAccount recipientUser)
