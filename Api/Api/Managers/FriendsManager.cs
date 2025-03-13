@@ -176,7 +176,7 @@ namespace Api.Managers
                     return Error.NotFound("INVITATION_NOT_FOUND", "The invitation was not found.");
                 }
 
-                if(await IsFriendsExists(senderId, recipientId))
+                if(await IsFriendsExistAsync(senderId, recipientId))
                 {
                     return Error.Conflict("FRIENDS_ALREADY_EXISTS", "This relationship has already exist.");
                 }
@@ -224,7 +224,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<bool> IsFriendsExists(string userId1, string userId2)
+        public async Task<bool> IsFriendsExistAsync(string userId1, string userId2)
         {
             return await _unitOfWork.Friendships
                 .AnyAsync(x => (x.User1Id == userId1 && x.User2Id == userId2)

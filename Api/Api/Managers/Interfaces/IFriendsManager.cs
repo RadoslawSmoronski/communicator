@@ -11,7 +11,7 @@ namespace Api.Managers.Interfaces
         Task<Result> DecelineInviteAsync(string senderId, string recipientId);
         Task<Result> AddFriendsAsync(string senderId, string recipientId);
         Task<ResultT<List<SimpleUserDto>>> GetFriendsAsync(string userId);
-        Task<bool> IsFriendsExists(string userId1, string userId2);
+        Task<bool> IsFriendsExistAsync(string userId1, string userId2);
         //Task<ResultT<List<UserForFriendInviteDto>>> GetUsersForFriendInviteByTextAsync(string userId, string text);
     }
 }
