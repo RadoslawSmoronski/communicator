@@ -11,11 +11,13 @@ namespace Api.Managers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<UserAccount> _userManager;
+        private readonly IFriendsManager _friendsManager;
 
-        public ChatManager(IUnitOfWork unitOfWork, UserManager<UserAccount> userManager)
+        public ChatManager(IUnitOfWork unitOfWork, UserManager<UserAccount> userManager, IFriendsManager friendsManager)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _friendsManager = friendsManager;   
         }
 
         public async Task<ResultT<Conversation>> GetOrCreateConversationAsync(string userId, string friendId)
@@ -43,7 +45,7 @@ namespace Api.Managers
 
                 if (friendUser == null || friendUser.UserName == null)
                 {
-                    return Error.NotFound("FRIENDUSER_NOT_FOUND", "FriendUser was not found.");
+                    return Error.NotFound("FRIENDUSER_NOT_FOUND", "Friend was not found.");
                 }
 
                 var conversation = await GetConversationAsync(userId, friendId);
