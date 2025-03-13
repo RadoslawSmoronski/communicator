@@ -6,7 +6,7 @@ namespace Api.Managers.Interfaces
     public interface IChatManager
     {
         //Conversation
-        ResultT<Conversation> GetOrCreateConversation(string friendId);
+        Task<ResultT<Conversation>> GetOrCreateConversationAsync(string userId, string friendId);
 
         //Message
         //ResultT<bool> SendMessage(string conversationId, string message);

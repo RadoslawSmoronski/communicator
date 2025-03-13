@@ -29,6 +29,7 @@ namespace Api
             builder.Services.AddSingleton<TokenCleanupService>();
             builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IChatManager, ChatManager>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<ResponseHttpFactory>();
