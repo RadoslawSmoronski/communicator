@@ -17,6 +17,7 @@ namespace Api.Tests.Managers.ChatManagerTest
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFriendsManager _friendsManager;
 
         private readonly IChatManager _chatManager;
         private readonly UserAccount _sampleUser1;
@@ -27,8 +28,9 @@ namespace Api.Tests.Managers.ChatManagerTest
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _unitOfWork = A.Fake<IUnitOfWork>();
+            _friendsManager = A.Fake<IFriendsManager>();
 
-            _chatManager = new ChatManager(_unitOfWork, _userManager);
+            _chatManager = new ChatManager(_unitOfWork, _userManager, _friendsManager);
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab254" };
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab255" };
 
@@ -46,10 +48,13 @@ namespace Api.Tests.Managers.ChatManagerTest
         {
             // Arrange
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id))
-                           .Returns(Task.FromResult<UserAccount?>(_sampleUser1));
+                .Returns(Task.FromResult<UserAccount?>(_sampleUser1));
 
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
-               .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
+                .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
+
+            A.CallTo(() => _friendsManager.IsFriendsExists(_sampleUser1.Id, _sampleUser2.Id))
+                .Returns(Task.FromResult(true));
 
             A.CallTo(() => _unitOfWork.Conversations.FirstOrDefaultAsync(A<Expression<Func<Conversation, bool>>>._))
                 .Returns(Task.FromResult<Conversation?>(_sampleConversation));
@@ -76,6 +81,9 @@ namespace Api.Tests.Managers.ChatManagerTest
 
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
                .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
+
+            A.CallTo(() => _friendsManager.IsFriendsExists(_sampleUser1.Id, _sampleUser2.Id))
+                .Returns(Task.FromResult(true));
 
             A.CallTo(() => _unitOfWork.Conversations.FirstOrDefaultAsync(A<Expression<Func<Conversation, bool>>>._))
                 .Returns(Task.FromResult<Conversation?>(null));
