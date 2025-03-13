@@ -4,6 +4,7 @@ using Api.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Reflection.Emit;
 using Api.Models.Friendship;
+using Api.Models.Chat;
 
 namespace Api.Data
 {
@@ -12,6 +13,8 @@ namespace Api.Data
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
         public DbSet<FriendshipInvitation> FriendshipInvitations { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -62,6 +65,52 @@ namespace Api.Data
             builder.Entity<FriendshipInvitation>()
                 .HasIndex(f => new { f.SenderId, f.RecipientId })
                 .IsUnique();
+
+            builder.Entity<Conversation>()
+                 .HasKey(c => c.Id);
+
+            builder.Entity<Conversation>()
+                .HasOne(c => c.User1)
+                .WithMany()
+                .HasForeignKey(c => c.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Conversation>()
+                .HasOne(c => c.User2)
+                .WithMany()
+                .HasForeignKey(c => c.User2Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Conversation>()
+                .HasOne(c => c.LastMessage)
+                .WithMany()
+                .HasForeignKey(c => c.LastMessageId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<Conversation>()
+                .HasIndex(c => new { c.User1Id, c.User2Id }).IsUnique();
+
+            builder.Entity<Message>()
+                .HasKey(m => m.Id);
+
+            builder.Entity<Message>()
+                .HasOne(m => m.Conversation)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(m => m.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Message>()
+                .HasIndex(m => new { m.ConversationId, m.Timestamp });
+
+            builder.Entity<Message>()
+                .Property(m => m.IsRead)
+                .HasDefaultValue(false);
         }
 
     }
