@@ -224,6 +224,13 @@ namespace Api.Managers
             }
         }
 
+        public async Task<bool> IsFriendsExists(string userId1, string userId2)
+        {
+            return await _unitOfWork.Friendships
+                .AnyAsync(x => (x.User1Id == userId1 && x.User2Id == userId2)
+                || (x.User1Id == userId2 && x.User2Id == userId1));
+        }
+
         private async Task<bool> IsFriendsInvitationExists(string user1Id, string user2Id)
         {
             return await _unitOfWork.FriendshipInvitations.AnyAsync(x =>
@@ -275,13 +282,6 @@ namespace Api.Managers
             {
                 return Error.NotFound("INVITATION_NOT_FOUND", "Invitation not found.");
             }
-        }
-
-        private async Task<bool> IsFriendsExists(string userId1, string userId2)
-        {
-            return await _unitOfWork.Friendships
-                .AnyAsync(x => (x.User1Id == userId1 && x.User2Id == userId2)
-                || (x.User1Id == userId2 && x.User2Id == userId1));
         }
 
         private async Task AddFriendsAsync(UserAccount user1, UserAccount user2)
