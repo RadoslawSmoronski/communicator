@@ -109,41 +109,11 @@ class MessagePage extends Component {
         sessionStorage.removeItem('userInfo');
     }
 
-    async refreshAccessToken(){
-        const {setAuth, username, userID ,roles,accessToken} = this.context;
-
-
-    const refreshToken = sessionStorage.getItem('refreshToken');
-    //fetch
-    try{
-        const data = await axios.post(APIs.REFRESH_TOKEN_URL,{
-            refreshToken: refreshToken
-        }, // Pass as a plain object
-          {
-            withCredentials: true, //pass a http only cookie
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-    
-            let res = data.data;
-            //is ok
-            if(data.status == 200){
-                console.log("SUKCES: ", res.title);
-                await setAuth(username, userID ,roles, res.resultData);
-            }
-    
-        } catch(err){
-            console.log("Error: Can't refresh token: ", err);
-        }
-    }
 
     
 
     async searchPeople(){
-        const {username, accessToken} = this.context;
+        const {username, accessToken, refreshAccessToken} = this.context;
 
         if(this.state.searchBar == "") return;
 
@@ -170,7 +140,7 @@ class MessagePage extends Component {
 
         } catch(err){
             if (err.response && err.response.status === 401) { // Unauthorized, token expired
-                await this.refreshAccessToken();
+                await refreshAccessToken();
                 // retry request
                 await this.searchPeople();
             }else if(err.response.status === 400){
@@ -200,7 +170,7 @@ class MessagePage extends Component {
     }
 
     async getInvitations(){
-        const {userID ,accessToken} = this.context;
+        const {userID ,accessToken, refreshAccessToken} = this.context;
 
         //fetch
         try{
@@ -225,7 +195,7 @@ class MessagePage extends Component {
 
         }catch(err){
             if (err.response && err.response.status === 401) { // Unauthorized, token expired
-                await this.refreshAccessToken();
+                await refreshAccessToken();
                 // retry request
                 await this.getInvitations();
             }else if(err.response.status === 400){
@@ -241,7 +211,7 @@ class MessagePage extends Component {
     }
 
     async invitationActions(action, recipientID){
-        const {userID ,accessToken} = this.context;
+        const {userID ,accessToken, refreshAccessToken} = this.context;
 
         const API_URL = action == "accept" ? APIs.ACCEPT_INVITE_URL : APIs.DECELINE_INVITE_URL;
         
@@ -280,7 +250,7 @@ class MessagePage extends Component {
         } catch(err){
             console.log(err);
             if (err.response && err.response.status === 401) { // Unauthorized, token expired
-                await this.refreshAccessToken();
+                await refreshAccessToken();
                 // retry request
                 await this.invitationActions(action, recipientID);
             }else if(err.response.status === 404){
@@ -294,7 +264,7 @@ class MessagePage extends Component {
     }
 
     async getFriends(){
-        const {username, userID, accessToken} = this.context;
+        const {username, userID, accessToken, refreshAccessToken} = this.context;
 
         //fetch
         try{
@@ -322,7 +292,7 @@ class MessagePage extends Component {
 
         }catch(err){
             if (err.response && err.response.status === 401) { // Unauthorized, token expired
-                await this.refreshAccessToken();
+                await refreshAccessToken();
                 // retry request
                 await this.searchPeople();
             }else if(err.response.status === 400){
@@ -341,11 +311,11 @@ class MessagePage extends Component {
 
 
     componentDidMount(){
-        const { setAuth,username, accessToken} = this.context;
+        const { setAuth,username, accessToken, refreshAccessToken} = this.context;
         this.setState({username: username});
 
         if(!accessToken){
-            this.refreshAccessToken();
+            refreshAccessToken();
         }
 
         this.getInvitations();
@@ -455,7 +425,7 @@ class MessagePage extends Component {
                             :
                             (
                                 this.state.listOfUsers.map(user => (
-                                    <PersonTile key={user.id} username={user.userName} userId={user.id} refreshToken={this.refreshAccessToken}/>
+                                    <PersonTile key={user.id} username={user.userName} userId={user.id}/>
                                 ))
                             )
                         )

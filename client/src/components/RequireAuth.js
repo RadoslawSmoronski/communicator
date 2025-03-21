@@ -15,44 +15,11 @@ class RequireAuth extends React.Component {
     }
   }
 
-  async refreshAccessToken(){
-    const {setAuth ,username, userID ,roles,accessToken} = this.context;
-
-
-    const refreshToken = sessionStorage.getItem('refreshToken');
-    const userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
-
-    //fetch
-    try{
-        const data = await axios.post(APIs.REFRESH_TOKEN_URL, {
-              refreshToken: refreshToken
-          }, // Pass as a plain object
-          {
-            withCredentials: true, //pass a http only cookie
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-
-        let res = data.data;
-        //is ok
-        if(data.status == 200){
-            console.log("SUKCES: ", res.title);
-            await setAuth(userInfo.name,userInfo.userID ,userInfo.rules, res.resultData);
-        }
-
-    } catch(err){
-        console.log("Error: Can't refresh token: ", err);
-    }
-  }
-
   async componentDidMount(){
-    const {accessToken } = this.context;
+    const {accessToken, refreshAccessToken } = this.context;
     if(accessToken == ""){
       //no accessToken
-      await this.refreshAccessToken();
+      await refreshAccessToken();
       await this.setState({loaded: true});
     }else{
       //there is accessToken

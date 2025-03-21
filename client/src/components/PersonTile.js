@@ -19,7 +19,7 @@ class PersonTile extends Component {
 
     async sendInvitation(){
 
-        const { username, userID, accessToken} = this.context;
+        const { username, userID, accessToken, refreshAccessToken} = this.context;
         const recipientId = this.props.userId;
 
         console.log("My id: " + userID + " yours id: " + recipientId);
@@ -55,7 +55,7 @@ class PersonTile extends Component {
         } catch(err){
             console.log(err);
             if (err.response && err.response.status === 401) { // Unauthorized, token expired
-                await this.props.refreshToken();
+                await refreshAccessToken();
                 // retry request
                 await this.sendInvitation();
             }else if (err.response.status === 409) { // An invitation has already exist

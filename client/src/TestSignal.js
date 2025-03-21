@@ -6,7 +6,11 @@ const SIGNAL_URL = "/testsignal";
 const SEND_MESSAGE = "sendMessage";
 const GET_MESSAGE = "getNewMessage";
 
+import { AuthContext } from "./context/AuthProvider";
+
 class TestSignal extends Component {
+    static contextType = AuthContext;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -50,10 +54,23 @@ class TestSignal extends Component {
 
     }
 
-    componentDidMount(){
+    async componentDidMount(){
+        const { accessToken, refreshAccessToken, tokenIsExpired } = this.context;
         // new connection
+        if(accessToken == ''){
+            refreshAccessToken();
+        }
+
+        console.log(accessToken);
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("http://localhost:5205" + SIGNAL_URL)
+            .withUrl("http://localhost:5205" + SIGNAL_URL, {
+                accessTokenFactory: async () => {
+                    if(tokenIsExpired(accessToken)){
+                        await refreshAccessToken();
+                    }
+                    return accessToken;
+                }
+            })
             .withAutomaticReconnect()
             .build();
 
