@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SignalRJWTServer.Hubs;
 
 namespace Api
 {
@@ -24,6 +25,7 @@ namespace Api
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
+            builder.Services.AddSignalR();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddSingleton<TokenCleanupService>();
@@ -98,6 +100,19 @@ namespace Api
                         System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
                     )
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("Authentication failed: " + context.Exception.Message);
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("Token validated successfully for user: " + context.Principal.Identity.Name);
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
 
@@ -107,7 +122,7 @@ namespace Api
                 options.AddPolicy("AllowSpecificOrigin",
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:3010")
+                        builder.WithOrigins("http://localhost:5100") // change to 3010 for react clientside
                                .AllowAnyMethod()
                                .AllowAnyHeader()
                                .AllowCredentials();
@@ -145,6 +160,8 @@ namespace Api
             app.UseCors("AllowSpecificOrigin");
 
             app.UseAuthorization();
+
+            app.MapHub<ChatHub>("/chatHub");
 
             app.MapControllers();
 

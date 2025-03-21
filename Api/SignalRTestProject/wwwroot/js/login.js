@@ -40,7 +40,7 @@ async function startConnection() {
     }
 
      connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:7003/chatHub", {
+         .withUrl("https://localhost:5205/chatHub", {
             accessTokenFactory: () => {
                 return token; 
             }
