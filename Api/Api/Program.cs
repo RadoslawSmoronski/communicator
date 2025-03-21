@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SignalRJWTServer.Hubs;
+using Microsoft.Extensions.Logging;
 
 namespace Api
 {
@@ -102,14 +103,14 @@ namespace Api
                 };
                 options.Events = new JwtBearerEvents
                 {
-                    OnAuthenticationFailed = context =>
-                    {
-                        Console.WriteLine("Authentication failed: " + context.Exception.Message);
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated = context =>
-                    {
-                        Console.WriteLine("Token validated successfully for user: " + context.Principal.Identity.Name);
+                    OnMessageReceived = context => {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken)
+                            && path.StartsWithSegments("/ChatHub"))
+                        {
+                            context.Token = accessToken;
+                        }
                         return Task.CompletedTask;
                     }
                 };
@@ -122,7 +123,7 @@ namespace Api
                 options.AddPolicy("AllowSpecificOrigin",
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:5100") // change to 3010 for react clientside
+                        builder.WithOrigins("http://localhost:3010")
                                .AllowAnyMethod()
                                .AllowAnyHeader()
                                .AllowCredentials();
@@ -161,7 +162,7 @@ namespace Api
 
             app.UseAuthorization();
 
-            app.MapHub<ChatHub>("/chatHub");
+            app.MapHub<ChatHub>("/ChatHub");
 
             app.MapControllers();
 
