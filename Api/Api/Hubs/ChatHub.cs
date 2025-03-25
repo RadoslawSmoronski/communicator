@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Api.Managers;
+using Api.Managers.Interfaces;
+using Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -9,15 +12,19 @@ namespace SignalRJWTServer.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        private ConcurrentDictionary<string, string> _usersOnline = new ConcurrentDictionary<string, string>();
-
+        private readonly IUsersConnectionManager _usersConnectionManager;
+        
+        public ChatHub(IUsersConnectionManager usersConnectionManager)
+        {
+            _usersConnectionManager = usersConnectionManager;
+        }
 
         public override async Task OnConnectedAsync()
         {
             var userName = Context.User!.Identity.Name;
             var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            _usersOnline.TryAdd(Context.ConnectionId, userId);
+            _usersConnectionManager.AddUpdateAsync(Context.ConnectionId, userId);
 
 
             await Clients.All.SendAsync("ReceiveMessage", "System", $"Welcome {userName}, has successfully connected to the chat!");
@@ -32,21 +39,16 @@ namespace SignalRJWTServer.Hubs
 
         public async Task GetOnlineUsers()
         {
-            var result = _usersOnline.ToDictionary(
-                pair => pair.Key,
-                pair => pair.Value.ToList()
-            );
-
-            await Clients.Caller.SendAsync("ReceiveConnections", result);
+            await Clients.Caller.SendAsync("ReceiveConnections", _usersConnectionManager.GetOnlineUsersIdAsync());
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            if (_usersOnline.TryRemove(Context.ConnectionId, out var userId))
-            {
-                var userName = Context.User?.Identity?.Name;
-                await Clients.All.SendAsync("ReceiveMessage", "System", $"{userName} has disconnected.");
-            }
+            var userName = Context.User?.Identity?.Name;
+            var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            await Clients.All.SendAsync("ReceiveMessage", "System", $"{userName} has disconnected.");
+
+            _usersConnectionManager.RemoveAsync(Context.ConnectionId, userId);
 
             await base.OnDisconnectedAsync(exception);
         }

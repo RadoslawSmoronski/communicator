@@ -36,6 +36,7 @@ namespace Api
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<ResponseHttpFactory>();
+            builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
             builder.Services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
