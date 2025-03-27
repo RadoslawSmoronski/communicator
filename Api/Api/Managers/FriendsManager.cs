@@ -99,9 +99,9 @@ namespace Api.Managers
 
         public async Task<ResultT<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(string userId, string text)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(text))
             {
-                return Error.BadRequest("USERID_IS_EMPTY", "UserId cannot be null or empty.");
+                return Error.BadRequest("USERID_OR_TEXT_ARE_EMPTY", "UserId or text cannot be null or empty.");
             }
 
             try
@@ -120,7 +120,7 @@ namespace Api.Managers
                     return list;
                 }
 
-                return Error.NotFound("INVITITIES_NOT_FOUND", "Users to invite were not found.");
+                return Error.NotFound("USERS_NOT_FOUND", "Users to invite were not found.");
 
             }
             catch
@@ -304,16 +304,15 @@ namespace Api.Managers
         private async Task<List<UserToInviteDto>> GetUsersToInviteByTextAsync(UserAccount user, string text)
         {
             var users = await _userManager.Users
+                .AsNoTracking()
                 .Where(x => x.UserName != user.UserName && x.UserName!.Contains(text))
                 .ToListAsync();
-
-            var invitations = _unitOfWork.FriendshipInvitations;
 
             var result = new List<UserToInviteDto>();
 
             foreach (var x in users)
             {
-                var isInvited = await invitations.AnyAsync(inv =>
+                var isInvited = await _unitOfWork.FriendshipInvitations.AnyAsync(inv =>
                     (inv.SenderId == user.Id && inv.RecipientId == x.Id) ||
                     (inv.RecipientId == user.Id && inv.SenderId == x.Id));
 
