@@ -6,6 +6,8 @@ using AutoMapper;
 using Api.Models.Dtos.Responses.Interfaces;
 using Api.Models.Dtos.Responses;
 using Api.Models.Dtos;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -71,6 +73,51 @@ namespace Api.Controllers
                 var responseOk = _responseHttpFactory.Create<List<SimpleUserDto>>
                     (ResponseHttpType.Success,
                     "Invitations found.",
+                    result.Value);
+
+                return Ok(responseOk);
+            }
+
+            if (result.Error != null)
+            {
+                var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, result.Error.Description);
+                return StatusCode(response.Status, response);
+            }
+
+            var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
+            return StatusCode(500, fallbackResponse);
+        }
+
+        [Authorize]
+        [HttpGet("getUsersToInviteByText/{text}")]
+        public async Task<IActionResult> GetUsersToInviteByTextAsync(string text)
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return StatusCode(500, _responseHttpFactory.Create(
+                    ResponseHttpType.InternalServerError,
+                    "JWT Token error."));
+            }
+
+
+            if (!Guid.TryParse(userId, out Guid resultGuid))
+            {
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "UserId not valid format.");
+
+                return BadRequest(response);
+            }
+
+            var result = await _friendsManager.GetUsersToInviteByTextAsync(userId, text);
+
+            if (result.IsSuccess)
+            {
+                var responseOk = _responseHttpFactory.Create<List<UserToInviteDto>>
+                    (ResponseHttpType.Success,
+                    "User to invite found.",
                     result.Value);
 
                 return Ok(responseOk);

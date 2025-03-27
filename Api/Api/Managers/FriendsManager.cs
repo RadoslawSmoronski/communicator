@@ -6,6 +6,8 @@ using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Models.Friendship;
 using Api.Utilities.Result;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Api.Managers
 {
@@ -87,6 +89,38 @@ namespace Api.Managers
                 }
 
                 return Error.NotFound("INVITITIES_NOT_FOUND", "Invitations were not found.");
+
+            }
+            catch
+            {
+                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
+
+        public async Task<ResultT<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(string userId, string text)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(text))
+            {
+                return Error.BadRequest("USERID_OR_TEXT_ARE_EMPTY", "UserId or text cannot be null or empty.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null || user.UserName == null)
+                {
+                    return Error.NotFound("USERID_NOT_FOUND", "User was not found.");
+                }
+
+                var list = await GetUsersToInviteByTextAsync(user, text);
+
+                if (list.Count > 0)
+                {
+                    return list;
+                }
+
+                return Error.NotFound("USERS_NOT_FOUND", "Users to invite were not found.");
 
             }
             catch
@@ -265,6 +299,32 @@ namespace Api.Managers
                 Id = x.SenderId,
                 userName = x.SenderUser.UserName ?? throw new Exception()
             }).ToList();
+        }
+
+        private async Task<List<UserToInviteDto>> GetUsersToInviteByTextAsync(UserAccount user, string text)
+        {
+            var users = await _userManager.Users
+                .AsNoTracking()
+                .Where(x => x.UserName != user.UserName && x.UserName!.Contains(text))
+                .ToListAsync();
+
+            var result = new List<UserToInviteDto>();
+
+            foreach (var x in users)
+            {
+                var isInvited = await _unitOfWork.FriendshipInvitations.AnyAsync(inv =>
+                    (inv.SenderId == user.Id && inv.RecipientId == x.Id) ||
+                    (inv.RecipientId == user.Id && inv.SenderId == x.Id));
+
+                result.Add(new UserToInviteDto
+                {
+                    Id = x.Id,
+                    userName = x.UserName ?? throw new Exception("UserName is null"),
+                    IsInvited = isInvited
+                });
+            }
+
+            return result;
         }
 
         private async Task<Result> DeleteInviteAsync(UserAccount senderUser, UserAccount recipientUser)
