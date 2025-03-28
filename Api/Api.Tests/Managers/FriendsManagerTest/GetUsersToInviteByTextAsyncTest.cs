@@ -14,28 +14,8 @@ using MockQueryable;
 
 namespace Api.Tests.Managers.FriendsManagerTest
 {
-    public class GetUsersToInviteByTextAsync
+    public class GetUsersToInviteByTextAsync : FriendsManagerTest
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-
-        private readonly FriendsManager _friendsManager;
-        private readonly UserAccount _sampleUser;
-
-        public GetUsersToInviteByTextAsync()
-        {
-            _userManager = A.Fake<UserManager<UserAccount>>();
-            _unitOfWork = A.Fake<IUnitOfWork>();
-
-            _friendsManager = new FriendsManager(_userManager, _unitOfWork);
-
-            _sampleUser = new UserAccount
-            {
-                Id = "c9fbf188-e309-48c9-811d-7d5be45ab255",
-                UserName = "userName"
-            };
-        }
-
         [Fact]
         public async Task GetUsersToInviteByTextAsync_ShouldReturnOk()
         {

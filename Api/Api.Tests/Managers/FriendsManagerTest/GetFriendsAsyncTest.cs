@@ -13,23 +13,8 @@ using System.Linq.Expressions;
 
 namespace Api.Tests.Managers.FriendsManagerTest
 {
-    public class GetFriendsAsyncTest
+    public class GetFriendsAsyncTest : FriendsManagerTest
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-
-        private readonly IFriendsManager _friendsManager;
-        private readonly UserAccount _sampleUser;
-
-        public GetFriendsAsyncTest()
-        {
-            _userManager = A.Fake<UserManager<UserAccount>>();
-            _unitOfWork = A.Fake<IUnitOfWork>();
-
-            _friendsManager = new FriendsManager(_userManager, _unitOfWork);
-            _sampleUser = new UserAccount { UserName = "userLogin", Id = "c9fbf188-e309-48c9-811d-7d5be45ab254" };
-        }
-
         [Fact]
         public async Task GetFriendsAsync_ShouldReturnOk()
         {

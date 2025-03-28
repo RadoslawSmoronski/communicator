@@ -11,34 +11,17 @@ using System.Linq.Expressions;
 
 namespace Api.Tests.Managers.FriendsManagerTest
 {
-    public class DecelineInviteAsyncTest
+    public class DecelineInviteAsyncTest : FriendsManagerTest
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-
-        private readonly IFriendsManager _friendsManager;
-        private readonly UserAccount _sampleSenderUser;
-        private readonly UserAccount _sampleRecipientUser;
-
-        public DecelineInviteAsyncTest()
-        {
-            _userManager = A.Fake<UserManager<UserAccount>>();
-            _unitOfWork = A.Fake<IUnitOfWork>();
-
-            _friendsManager = new FriendsManager(_userManager, _unitOfWork);
-            _sampleSenderUser = new UserAccount { UserName = "senderUserLogin", Id = "c9fbf188-e309-48c9-811d-7d5be45ab254" };
-            _sampleRecipientUser = new UserAccount { UserName = "recipientUserLogin", Id = "c9fbf188-e309-48c9-811d-7d5be45ab255" };
-        }
-
         [Fact]
         public async Task DecelineInviteAsync_ShouldReturnOk()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id))
-                           .Returns(Task.FromResult<UserAccount?>(_sampleSenderUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleRecipientUser.Id))
-               .Returns(Task.FromResult<UserAccount?>(_sampleRecipientUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
+               .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
 
             A.CallTo(() => _unitOfWork.FriendshipInvitations.AnyAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
                 .Returns(Task.FromResult(true));
@@ -47,7 +30,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 .Returns(Task.FromResult<FriendshipInvitation?>(new FriendshipInvitation()));
 
             // Act
-            var result = await _friendsManager.DecelineInviteAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
+            var result = await _friendsManager.DecelineInviteAsync(_sampleUser.Id, _sampleUser2.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -92,11 +75,11 @@ namespace Api.Tests.Managers.FriendsManagerTest
         public async Task DecelineInviteAsync_ShouldReturnNotFoundError_WhenSenderUserWasNotFound()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
                 .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
-            var result = await _friendsManager.DecelineInviteAsync(_sampleSenderUser.Id, "recipientId") as Result;
+            var result = await _friendsManager.DecelineInviteAsync(_sampleUser.Id, "recipientId") as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -112,15 +95,15 @@ namespace Api.Tests.Managers.FriendsManagerTest
         public async Task DecelineInviteAsync_ShouldReturnNotFoundError_WhenRecipientUserDoesNotExist()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id))
-                           .Returns(Task.FromResult<UserAccount?>(_sampleSenderUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleRecipientUser.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
                .Returns(Task.FromResult<UserAccount?>(null));
 
 
             // Act
-            var result = await _friendsManager.DecelineInviteAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
+            var result = await _friendsManager.DecelineInviteAsync(_sampleUser.Id, _sampleUser2.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -138,18 +121,18 @@ namespace Api.Tests.Managers.FriendsManagerTest
             // Arrange
             var recipientUser = new UserAccount { UserName = "recipientUserLogin2", Id = "2" };
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id))
-                .Returns(Task.FromResult<UserAccount?>(_sampleSenderUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
+                .Returns(Task.FromResult<UserAccount?>(_sampleUser));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleRecipientUser.Id))
-               .Returns(Task.FromResult<UserAccount?>(_sampleRecipientUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
+               .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
 
             A.CallTo(() => _unitOfWork.FriendshipInvitations
                 .FirstOrDefaultAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
                 .Returns(Task.FromResult<FriendshipInvitation?>(null));
 
             // Act
-            var result = await _friendsManager.DecelineInviteAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
+            var result = await _friendsManager.DecelineInviteAsync(_sampleUser.Id, _sampleUser2.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();

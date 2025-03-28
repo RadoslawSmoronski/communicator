@@ -8,6 +8,8 @@ using Api.Models.Dtos.Responses;
 using Api.Models.Dtos;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Api.Managers;
+using Api.Utilities.Result;
 
 namespace Api.Controllers
 {
@@ -19,16 +21,19 @@ namespace Api.Controllers
         private readonly IMapper _mapper;
         private readonly ResponseHttpFactory _responseHttpFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IChatManager _chatManager;
 
         public FriendsController(IFriendsManager friendsManager,
             IMapper mapper,
             ResponseHttpFactory responseHttpFactory,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IChatManager chatManager    )
         {
             _friendsManager = friendsManager;
             _mapper = mapper;
             _responseHttpFactory = responseHttpFactory;
             _httpContextAccessor = httpContextAccessor;
+            _chatManager = chatManager;
         }
 
         [Authorize]
@@ -161,18 +166,25 @@ namespace Api.Controllers
         [HttpPost("acceptInvite")]
         public async Task<IActionResult> AcceptInviteAsync(InviteDto acceptInviteDto)
         {
-            var result = await _friendsManager.AddFriendsAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+            var addFriendsResult = await _friendsManager.AddFriendsAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+            var getOrCreateConversationResult = await _chatManager.GetOrCreateConversationAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId); // Temporary
 
-            if (result.IsSuccess)
+            if (addFriendsResult.IsSuccess && getOrCreateConversationResult.IsSuccess)
             {
                 var responseOk = _responseHttpFactory.Create(ResponseHttpType.Success, "Friend has been successfully added.");
                 return Ok(responseOk);
             }
 
-            if (result.Error != null)
+            if (addFriendsResult.Error != null)
             {
-                var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
-                var response = _responseHttpFactory.Create(errorType, result.Error.Description);
+                var errorType = _mapper.Map<ResponseHttpType>(addFriendsResult.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, addFriendsResult.Error.Description);
+                return StatusCode(response.Status, response);
+            }
+            else if (addFriendsResult.Error != null)
+            {
+                var errorType = _mapper.Map<ResponseHttpType>(addFriendsResult.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, addFriendsResult.Error.Description);
                 return StatusCode(response.Status, response);
             }
 
