@@ -217,7 +217,6 @@ namespace Api.Managers
 
                 await DeleteInviteAsync(senderUser, recipientUser);
                 await AddFriendsAsync(senderUser, recipientUser);
-
                 return Result.Success();
             }
             catch (Exception)

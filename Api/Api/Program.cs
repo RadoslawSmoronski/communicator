@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SignalRJWTServer.Hubs;
+using Microsoft.Extensions.Logging;
 
 namespace Api
 {
@@ -24,14 +26,16 @@ namespace Api
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
+            builder.Services.AddSignalR();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddSingleton<TokenCleanupService>();
             builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IChatManager, ChatManager>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<ResponseHttpFactory>();
+            builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
             builder.Services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
@@ -97,6 +101,19 @@ namespace Api
                         System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
                     )
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context => {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken)
+                            && path.StartsWithSegments("/ChatHub"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
 
@@ -144,6 +161,8 @@ namespace Api
             app.UseCors("AllowSpecificOrigin");
 
             app.UseAuthorization();
+
+            app.MapHub<ChatHub>("/ChatHub");
 
             app.MapControllers();
 
