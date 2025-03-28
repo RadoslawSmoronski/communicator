@@ -70,11 +70,34 @@ namespace Api.Managers
             }
         }
 
+        public async Task<Result> DeleteConversationAsync(string conversationId) // Need tests
+        {
+            if (string.IsNullOrWhiteSpace(conversationId))
+            {
+                return Error.BadRequest("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be null or empty.");
+            }
+
+            try
+            {
+                await _DeleteConversationAsync(conversationId);
+                return Result.Success();
+            }
+            catch (Exception)
+            {
+                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
+
         private async Task<Conversation?> GetConversationAsync(string user1Id, string user2Id)
         {
             return await _unitOfWork.Conversations.FirstOrDefaultAsync(x =>
                 (x.User1Id == user1Id || x.User2Id == user2Id) ||
                 (x.User1Id == user2Id || x.User2Id == user1Id));
+        }
+
+        private async Task<Conversation?> GetConversationByIdAsync(string conversationId)
+        {
+            return await _unitOfWork.Conversations.FirstOrDefaultAsync(x => x.Id == Guid.Parse(conversationId));
         }
 
         private async Task<Conversation> CreateConversationAsync(UserAccount user1, UserAccount user2)
@@ -91,6 +114,14 @@ namespace Api.Managers
             await _unitOfWork.SaveAsync();
 
             return conversation;
+        }
+
+        private async Task _DeleteConversationAsync(string conversationId)
+        {
+            var conversation = await GetConversationByIdAsync(conversationId);
+
+            _unitOfWork.Conversations.Delete(conversation!);
+            await _unitOfWork.SaveAsync();
         }
     }
 }
