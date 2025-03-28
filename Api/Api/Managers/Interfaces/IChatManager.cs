@@ -7,6 +7,7 @@ namespace Api.Managers.Interfaces
     {
         //Conversation
         Task<ResultT<Conversation>> GetOrCreateConversationAsync(string userId, string friendId);
+        Task<Result> DeleteConversationAsync(string conversationId);
 
         //Message
         //ResultT<bool> SendMessage(string conversationId, string message);
