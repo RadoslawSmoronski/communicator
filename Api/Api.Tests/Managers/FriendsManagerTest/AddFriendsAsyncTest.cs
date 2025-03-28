@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 
 namespace Api.Tests.Managers.FriendsManagerTest
 {
-    public class AddFriendsAsyncTest
+    public class GetOrCreateConversationAsyncTest
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
@@ -19,7 +19,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
         private readonly UserAccount _sampleSenderUser;
         private readonly UserAccount _sampleRecipientUser;
 
-        public AddFriendsAsyncTest()
+        public GetOrCreateConversationAsyncTest()
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _unitOfWork = A.Fake<IUnitOfWork>();

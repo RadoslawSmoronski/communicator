@@ -1,5 +1,4 @@
 ﻿using Api.Data;
-using Api.Data.IRepository;
 using Api.Data.Repository;
 using Api.Managers;
 using Api.Managers.Interfaces;
@@ -7,15 +6,13 @@ using Api.Data.UnitOfWork;
 using Api.Models;
 using Api.Models.Dtos.Responses;
 using Api.Service;
-using Api.Service.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SignalRJWTServer.Hubs;
+using Microsoft.Extensions.Logging;
 
 namespace Api
 {
@@ -29,12 +26,17 @@ namespace Api
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
+            builder.Services.AddSignalR();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddScoped<IFriendsManager, FriendsManager>();
+            builder.Services.AddSingleton<TokenCleanupService>();
+            builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IChatManager, ChatManager>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-           //builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<ResponseHttpFactory>();
+            builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
             builder.Services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
@@ -100,6 +102,19 @@ namespace Api
                         System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
                     )
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context => {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken)
+                            && path.StartsWithSegments("/ChatHub"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
 
@@ -147,6 +162,8 @@ namespace Api
             app.UseCors("AllowSpecificOrigin");
 
             app.UseAuthorization();
+
+            app.MapHub<ChatHub>("/ChatHub");
 
             app.MapControllers();
 
