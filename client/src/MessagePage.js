@@ -119,7 +119,7 @@ class MessagePage extends Component {
 
         //fetch
         try{
-            const data = await axios.get(`${APIs.FIND_PEOPLE_URL}/${this.state.searchBar}`,
+            const data = await axios.get(`${APIs.FIND_PEOPLE_TO_INVITE_URL}/${this.state.searchBar}`,
                 {
                     withCredentials: true,
                     headers: { 
@@ -425,7 +425,7 @@ class MessagePage extends Component {
                             :
                             (
                                 this.state.listOfUsers.map(user => (
-                                    <PersonTile key={user.id} username={user.userName} userId={user.id}/>
+                                    <PersonTile key={user.id} username={user.userName} userId={user.id} isInvited={user.isInvited}/>
                                 ))
                             )
                         )

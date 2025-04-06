@@ -4,6 +4,7 @@ const APIs = {
     REGISTER_URL : "/api/user/register",
     FIND_PEOPLE_URL : "/api/users/getUsersByText",
     FIND_FRIENDS_URL : "/api/friends/getFriends",
+    FIND_PEOPLE_TO_INVITE_URL: "/api/friends/getUsersToInviteByText",
     REFRESH_TOKEN_URL: "/api/user/refreshAccessToken",
 
     SEND_INVITE_URL: "/api/friends/sendInviteAsync",

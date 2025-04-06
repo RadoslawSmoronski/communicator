@@ -11,7 +11,7 @@ class PersonTile extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sendBtnIsActive: true
+            sendBtnIsActive: !this.props.isInvited
         }
 
         this.sendInvitation = this.sendInvitation.bind(this);
