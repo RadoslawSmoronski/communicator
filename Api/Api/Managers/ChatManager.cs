@@ -135,7 +135,7 @@ namespace Api.Managers
             return Error.NotFound("MESSAGES_NOT_FOUND", "Messages were not found.");
         }
 
-        public async Task<Result> SaveMessageAsync(Message message)
+        public async Task<Result> SaveMessageAsync(Message message) // Need tests
         {
             try
             {
