@@ -115,6 +115,26 @@ namespace Api.Managers
             ).ToList();
         }
 
+        public async Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId) // Need tests
+        {
+            var messages = await _unitOfWork.Messages.WhereAsync(x => x.ConversationId.ToString() == conversationId);
+
+            if(messages.Any())
+            {
+                return messages.Select(x => new MessageDto()
+                {
+                    MessageId = x.Id.ToString(),
+                    ConversationId = x.ConversationId.ToString(),
+                    SenderId = x.SenderId.ToString(),
+                    Content = x.Content,
+                    Timestamp = x.Timestamp,
+                    IsRead = x.IsRead,
+                }).ToList();
+            }
+
+            return Error.NotFound("MESSAGES_NOT_FOUND", "Messages were not found.");
+        }
+
         private async Task<Conversation?> GetConversationAsync(string user1Id, string user2Id)
         {
             return await _unitOfWork.Conversations.FirstOrDefaultAsync(x =>
