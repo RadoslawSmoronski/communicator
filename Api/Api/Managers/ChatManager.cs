@@ -2,6 +2,8 @@
 using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Chat;
+using Api.Models.Dtos;
+using Api.Models.Dtos.Chat;
 using Api.Utilities.Result;
 using Microsoft.AspNetCore.Identity;
 
@@ -86,6 +88,31 @@ namespace Api.Managers
             {
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
+        }
+
+        public async Task<ResultT<List<ChatDto>>> GetChatsAsync(string userId) // Need tests
+        {
+            var conversations = await _unitOfWork.Conversations.WhereAsync(
+                x => (x.User1Id == userId || x.User2Id == userId),
+                x => x.User1,
+                x => x.User2,
+                x => x.LastMessage
+                );
+
+
+            return conversations.Select(x => new ChatDto()
+            {
+                FriendId = x.User1Id == userId ? x.User2Id : x.User1Id,
+                FriendUserName = x.User1.UserName != null && x.User2.UserName != null
+                ? (x.User1Id == userId ? x.User2.UserName : x.User1.UserName)
+                : throw new Exception(),
+                ConversationId = x.Id.ToString(),
+                LastMessageId = x.LastMessageId?.ToString(),  
+                LastMessageContent = x.LastMessage?.Content,  
+                IsFriendSenderMessage = x.LastMessage != null && x.LastMessage.SenderId == (x.User1Id == userId ? x.User2Id : x.User1Id),
+                LastMessageTimestamp = x.LastMessage?.Timestamp,
+            }
+            ).ToList();
         }
 
         private async Task<Conversation?> GetConversationAsync(string user1Id, string user2Id)
