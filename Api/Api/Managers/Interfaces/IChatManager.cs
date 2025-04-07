@@ -13,13 +13,12 @@ namespace Api.Managers.Interfaces
         Task<ResultT<List<ChatDto>>> GetChatsAsync(string userId);
 
         //Message
-        //ResultT<bool> SendMessage(string conversationId, string message);
+        Task<Result> SaveMessageAsync(Message message);
         Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId);
         //ResultT<List<Message>> GetUnreadMessages();
         //ResultT<Message> GetLastMessage();
 
         ////GetUserStatus(string userId);
         ////Result MarkMessagesAsRead(Guid conversationId, List<Guid> messageIds);
-        ////ResultT<List<Conversation>> GetConversations(int amount, int offset);
     }
 }
