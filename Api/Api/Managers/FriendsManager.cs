@@ -311,16 +311,21 @@ namespace Api.Managers
 
             foreach (var x in users)
             {
-                var isInvited = await _unitOfWork.FriendshipInvitations.AnyAsync(inv =>
-                    (inv.SenderId == user.Id && inv.RecipientId == x.Id) ||
-                    (inv.RecipientId == user.Id && inv.SenderId == x.Id));
+                var isFriend = await IsFriendsExistAsync(x.Id, user.Id);
 
-                result.Add(new UserToInviteDto
+                if (isFriend == false)
                 {
-                    Id = x.Id,
-                    userName = x.UserName ?? throw new Exception("UserName is null"),
-                    IsInvited = isInvited
-                });
+                    var isInvited = await _unitOfWork.FriendshipInvitations.AnyAsync(inv =>
+                        (inv.SenderId == user.Id && inv.RecipientId == x.Id) ||
+                        (inv.RecipientId == user.Id && inv.SenderId == x.Id));
+
+                    result.Add(new UserToInviteDto
+                    {
+                        Id = x.Id,
+                        userName = x.UserName ?? throw new Exception("UserName is null"),
+                        IsInvited = isInvited
+                    });
+                }
             }
 
             return result;
