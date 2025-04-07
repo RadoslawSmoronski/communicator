@@ -135,6 +135,25 @@ namespace Api.Managers
             return Error.NotFound("MESSAGES_NOT_FOUND", "Messages were not found.");
         }
 
+        public async Task<Result> SaveMessageAsync(Message message) // Need tests
+        {
+            try
+            {
+                await _SaveMessageAsync(message);
+                return Result.Success();
+            }
+            catch (Exception)
+            {
+                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
+
+        private async Task _SaveMessageAsync(Message message)
+        {
+            _unitOfWork.Messages.AddAsync(message);
+            await _unitOfWork.SaveAsync();
+        }
+
         private async Task<Conversation?> GetConversationAsync(string user1Id, string user2Id)
         {
             return await _unitOfWork.Conversations.FirstOrDefaultAsync(x =>
@@ -170,5 +189,6 @@ namespace Api.Managers
             _unitOfWork.Conversations.Delete(conversation!);
             await _unitOfWork.SaveAsync();
         }
+
     }
 }

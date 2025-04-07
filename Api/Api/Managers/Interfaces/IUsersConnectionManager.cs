@@ -9,5 +9,6 @@ namespace Api.Managers.Interfaces
 
         Task<List<string>> GetOnlineUsersIdAsync();
         Task<bool> IsUserOnlineAsync(string userId);
+        Task<List<string>> GetUserConnectionsId(string UserId);
     }
 }

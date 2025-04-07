@@ -55,5 +55,10 @@ namespace Api.Managers
         {
             return Task.FromResult(_usersOnline.ContainsKey(userId));
         }
+
+        public async Task<List<string>> GetUserConnectionsId(string UserId)
+        {
+            return _usersOnline[UserId].ToList();
+        }
     }
 }
