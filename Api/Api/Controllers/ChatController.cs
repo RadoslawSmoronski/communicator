@@ -81,5 +81,50 @@ namespace Api.Controllers
             return StatusCode(500, fallbackResponse);
         }
 
+        [Authorize]
+        [HttpGet("getMessages")]
+        public async Task<IActionResult> GetMessagesAsync(string conversationId)
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return StatusCode(500, _responseHttpFactory.Create(
+                    ResponseHttpType.InternalServerError,
+                    "JWT Token error."));
+            }
+
+
+            if (!Guid.TryParse(userId, out Guid resultGuid))
+            {
+                var response = _responseHttpFactory.Create
+                               (ResponseHttpType.BadRequest, "UserId not valid format.");
+
+                return BadRequest(response);
+            }
+
+            var result = await _chatManager.GetMessagesAsync(conversationId);
+
+            if (result.IsSuccess)
+            {
+                var responseOk = _responseHttpFactory.Create<List<MessageDto>>
+                    (ResponseHttpType.Success,
+                    "Messages were found.",
+                    result.Value);
+
+                return Ok(responseOk);
+            }
+
+            if (result.Error != null)
+            {
+                var errorType = _mapper.Map<ResponseHttpType>(result.Error.ErrorType);
+                var response = _responseHttpFactory.Create(errorType, result.Error.Description);
+                return StatusCode(response.Status, response);
+            }
+
+            var fallbackResponse = _responseHttpFactory.Create(ResponseHttpType.InternalServerError, "An unexpected error occurred.");
+            return StatusCode(500, fallbackResponse);
+        }
+
     }
 }

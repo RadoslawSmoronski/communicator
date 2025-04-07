@@ -14,7 +14,7 @@ namespace Api.Managers.Interfaces
 
         //Message
         //ResultT<bool> SendMessage(string conversationId, string message);
-        //ResultT<List<Message>> GetMessages(string conversationId, int amount, string? beforeMessageId);
+        Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId);
         //ResultT<List<Message>> GetUnreadMessages();
         //ResultT<Message> GetLastMessage();
 
