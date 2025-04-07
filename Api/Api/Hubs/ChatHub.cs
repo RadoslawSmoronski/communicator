@@ -49,7 +49,7 @@ namespace SignalRJWTServer.Hubs
                 throw new Exception();
             }
 
-            await Clients.Clients(recipientConnectionsId).SendAsync("ReceiveMessage", userName, content);
+            await Clients.Clients(recipientConnectionsId).SendAsync("ReceiveMessage", userName, conversationId, content);
 
             var conversation = await _chatManager.GetOrCreateConversationAsync(userId, recipientId);
             var sender = await _userManager.FindByIdAsync(userId);
