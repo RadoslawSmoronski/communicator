@@ -1,4 +1,5 @@
 ﻿using Api.Models.Chat;
+using Api.Models.Dtos.Chat;
 using Api.Utilities.Result;
 
 namespace Api.Managers.Interfaces
@@ -8,6 +9,8 @@ namespace Api.Managers.Interfaces
         //Conversation
         Task<ResultT<Conversation>> GetOrCreateConversationAsync(string userId, string friendId);
         Task<Result> DeleteConversationAsync(string conversationId);
+
+        Task<ResultT<List<ChatDto>>> GetChatsAsync(string userId);
 
         //Message
         //ResultT<bool> SendMessage(string conversationId, string message);
