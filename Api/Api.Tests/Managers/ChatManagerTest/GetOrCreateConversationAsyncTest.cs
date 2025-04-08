@@ -13,36 +13,8 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Api.Tests.Managers.ChatManagerTest
 {
-    public class GetOrCreateConversationAsyncTest
+    public class GetOrCreateConversationAsyncTest : ChatManagerTest
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IFriendsManager _friendsManager;
-
-        private readonly IChatManager _chatManager;
-        private readonly UserAccount _sampleUser1;
-        private readonly UserAccount _sampleUser2;
-        private readonly Conversation _sampleConversation;
-
-        public GetOrCreateConversationAsyncTest()
-        {
-            _userManager = A.Fake<UserManager<UserAccount>>();
-            _unitOfWork = A.Fake<IUnitOfWork>();
-            _friendsManager = A.Fake<IFriendsManager>();
-
-            _chatManager = new ChatManager(_unitOfWork, _userManager, _friendsManager);
-            _sampleUser1 = new UserAccount { UserName = "User1Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab254" };
-            _sampleUser2 = new UserAccount { UserName = "User2Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab255" };
-
-            _sampleConversation = new Conversation()
-            {
-                User1Id = _sampleUser1.Id,
-                User2Id = _sampleUser2.Id,
-                User1 = _sampleUser1,
-                User2 = _sampleUser2
-            };
-        }
-
         [Fact]
         public async Task GetOrCreateConversationAsync_ShouldReturnOk_WhenConversationExist()
         {

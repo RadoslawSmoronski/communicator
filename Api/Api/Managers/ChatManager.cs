@@ -81,8 +81,15 @@ namespace Api.Managers
 
             try
             {
-                await _DeleteConversationAsync(conversationId);
-                return Result.Success();
+                var conversation = await GetConversationByIdAsync(conversationId);
+
+                if(conversation != null)
+                {
+                    await _DeleteConversationAsync(conversation);
+                    return Result.Success();
+                }
+
+                return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
             }
             catch (Exception)
             {
@@ -182,11 +189,9 @@ namespace Api.Managers
             return conversation;
         }
 
-        private async Task _DeleteConversationAsync(string conversationId)
+        private async Task _DeleteConversationAsync(Conversation conversation)
         {
-            var conversation = await GetConversationByIdAsync(conversationId);
-
-            _unitOfWork.Conversations.Delete(conversation!);
+            _unitOfWork.Conversations.Delete(conversation);
             await _unitOfWork.SaveAsync();
         }
 
