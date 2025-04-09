@@ -11,8 +11,8 @@ namespace Api.Models.Dtos.Chat
         public string FriendId { get; set; } = String.Empty;
         public string FriendUserName {  get; set; } = String.Empty;
         public string ConversationId { get; set; } = String.Empty;
-        public string LastMessageId { get; set; } = String.Empty;
-        public string LastMessageContent { get; set; } = String.Empty;
+        public string? LastMessageId { get; set; }
+        public string? LastMessageContent { get; set; }
         public bool IsFriendSenderMessage { get; set; }
         public DateTime? LastMessageTimestamp { get; set; }
     }

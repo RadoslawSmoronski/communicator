@@ -12,8 +12,8 @@ namespace Api.Models.Chat
         public string User1Id { get; set; } = string.Empty;
         public string User2Id { get; set; } = string.Empty;
 
-        public UserAccount User1 { get; set; } = null!;
-        public UserAccount User2 { get; set; } = null!;
+        public UserAccount? User1 { get; set; }
+        public UserAccount? User2 { get; set; }
 
         public Guid? LastMessageId { get; set; }
         public Message? LastMessage { get; set; }
