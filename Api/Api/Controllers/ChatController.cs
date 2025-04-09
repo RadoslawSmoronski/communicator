@@ -109,7 +109,7 @@ namespace Api.Controllers
             {
                 var responseOk = _responseHttpFactory.Create<List<MessageDto>>
                     (ResponseHttpType.Success,
-                    "Messages were found.",
+                    "TEXT TO REFACTOR.",
                     result.Value);
 
                 return Ok(responseOk);

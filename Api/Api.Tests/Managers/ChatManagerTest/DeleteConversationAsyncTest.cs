@@ -1,15 +1,8 @@
-﻿using Api.Data.UnitOfWork;
-using Api.Managers;
-using Api.Managers.Interfaces;
-using Api.Models;
-using Api.Models.Chat;
-using Api.Models.Friendship;
+﻿using Api.Models.Chat;
 using Api.Utilities.Result;
 using FakeItEasy;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
-using System.Runtime.Intrinsics.X86;
 
 namespace Api.Tests.Managers.ChatManagerTest
 {
