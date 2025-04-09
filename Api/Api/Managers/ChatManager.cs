@@ -5,6 +5,7 @@ using Api.Models.Chat;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Chat;
 using Api.Utilities.Result;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using System;
 
@@ -15,12 +16,17 @@ namespace Api.Managers
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IFriendsManager _friendsManager;
+        private readonly IMapper _mapper;
 
-        public ChatManager(IUnitOfWork unitOfWork, UserManager<UserAccount> userManager, IFriendsManager friendsManager)
+        public ChatManager(IUnitOfWork unitOfWork,
+            UserManager<UserAccount> userManager,
+            IFriendsManager friendsManager,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _friendsManager = friendsManager;   
+            _friendsManager = friendsManager;  
+            _mapper = mapper;
         }
 
         public async Task<ResultT<Conversation>> GetOrCreateConversationAsync(string userId, string friendId)
@@ -136,33 +142,35 @@ namespace Api.Managers
 
                 return chatDtos;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId) // Need tests
+        public async Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId)
         {
-            var messages = await _unitOfWork.Messages.WhereAsync(x => x.ConversationId.ToString() == conversationId);
-
-            if(messages.Any())
+            if (string.IsNullOrWhiteSpace(conversationId))
             {
-                return messages.Select(x => new MessageDto()
-                {
-                    MessageId = x.Id.ToString(),
-                    ConversationId = x.ConversationId.ToString(),
-                    SenderId = x.SenderId.ToString(),
-                    Content = x.Content,
-                    Timestamp = x.Timestamp,
-                    IsRead = x.IsRead,
-                }).ToList();
+                return Error.BadRequest("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be null or empty.");
             }
 
-            return Error.NotFound("MESSAGES_NOT_FOUND", "Messages were not found.");
+            try
+            {
+                var messages = await _unitOfWork.Messages
+                    .WhereAsync(x => x.ConversationId.ToString() == conversationId);
+
+                var messageDtos = _mapper.Map<List<MessageDto>>(messages);
+
+                return messageDtos;
+            }
+            catch(Exception)
+            {
+                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
         }
 
-        public async Task<Result> SaveMessageAsync(Message message) // Need tests
+        public async Task<Result> SaveMessageAsync(Message message)
         {
             try
             {
@@ -177,7 +185,7 @@ namespace Api.Managers
 
         private async Task _SaveMessageAsync(Message message)
         {
-            _unitOfWork.Messages.AddAsync(message);
+            await _unitOfWork.Messages.AddAsync(message);
             await _unitOfWork.SaveAsync();
         }
 

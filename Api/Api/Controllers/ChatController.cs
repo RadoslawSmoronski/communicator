@@ -64,7 +64,7 @@ namespace Api.Controllers
             {
                 var responseOk = _responseHttpFactory.Create<List<ChatDto>>
                     (ResponseHttpType.Success,
-                    "Chat/s was/were found.",
+                    "TEXT TO REFACTOR.",
                     result.Value);
 
                 return Ok(responseOk);
