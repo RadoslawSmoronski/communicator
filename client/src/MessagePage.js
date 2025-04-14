@@ -7,6 +7,8 @@ import axios from "./api/axios";
 import { FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import { faCircleInfo, faMagnifyingGlass, faMessage, faPaperPlane, faPhone, faBell } from "@fortawesome/free-solid-svg-icons";
 
+import * as signalR from "@microsoft/signalr";
+
 import FriendTile from './components/FriendTile';
 import MessageTile from './components/MessageTile';
 import PersonTile from './components/PersonTile';
@@ -14,6 +16,7 @@ import InvitationTile from './components/InvitationTile';
 import UserInfoPanel from './components/UserInfoPanel';
 
 import APIs from './context/ApiURL';
+import SIGNALR_HUBS from './context/SignalRHubs';
 
 class MessagePage extends Component {
     static contextType = AuthContext;
@@ -30,7 +33,6 @@ class MessagePage extends Component {
             invitationListIsDisplayed: false,
             userInfoPanelIsDiplayed: false,
 
-            messages: [],
             messKey: 0,
 
             listOfUsers: [],
@@ -38,16 +40,22 @@ class MessagePage extends Component {
             listOfFriends: [],
             listOfFriends_filtered: [],
             findFriendsStatus: "not found",
-            listOfInvitations: []
+            listOfInvitations: [],
+
+            selectedChatId: null,
+            activeReciepientId: null,
+            allMessages: {},
+            signalRConnection: null
         }
         this.handleChangeTxt = this.handleChangeTxt.bind(this);
         this.handleSwitchBtn = this.handleSwitchBtn.bind(this);
-        this.addMessage = this.addMessage.bind(this);
         this.singOut = this.singOut.bind(this);
         this.displayInvationList = this.displayInvationList.bind(this);
         this.displayUserInfoPanel = this.displayUserInfoPanel.bind(this);
 
         this.invitationActions = this.invitationActions.bind(this);
+        this.selectChat = this.selectChat.bind(this);
+        this.sendMessageToFriend = this.sendMessageToFriend.bind(this);
     }
 
     handleChangeTxt = async (event) => {
@@ -64,7 +72,7 @@ class MessagePage extends Component {
             }else{
                 // Your chats
                 let v_listOfFriends_filtered = this.state.listOfFriends.filter(user =>
-                    user.userName.toLowerCase().includes(this.state.searchBar.toLowerCase())
+                    user.friendUserName.toLowerCase().includes(this.state.searchBar.toLowerCase())
                 );
                 await this.setState({listOfFriends_filtered: v_listOfFriends_filtered});
                 
@@ -88,19 +96,6 @@ class MessagePage extends Component {
         
     }
 
-    addMessage() {
-        // temporary for testing 
-        const newMessage = {
-            text: this.state.messageInput, 
-            yours: true,                    
-            time: new Date().toLocaleTimeString()  
-        };
-
-        this.setState((prevState) => ({
-            messages: [newMessage,...prevState.messages],
-            messageInput: '',  
-        }));
-    }
 
     singOut(){
         const { setAuth} = this.context;
@@ -131,8 +126,8 @@ class MessagePage extends Component {
             let res = data.data;
             //is ok
             if(data.status == 200){
-                console.log(res.title);
-                console.log(res.resultData);
+                // console.log(res.title);
+                // console.log(res.resultData);
 
                 await this.setState({findUsersStatus: 'found',listOfUsers: res.resultData});
 
@@ -186,8 +181,8 @@ class MessagePage extends Component {
             let res = data.data;
             //is ok
             if(data.status == 200){
-                console.log(data.data.title);
-                console.log(res.resultData);
+                // console.log(data.data.title);
+                // console.log(res.resultData);
 
                 await this.setState({listOfInvitations: res.resultData});
 
@@ -233,12 +228,12 @@ class MessagePage extends Component {
 
             let res = data.data;
             //is ok
-            console.log(data);
+            //console.log(data);
 
 
             if(data.status == 200){
-                console.log(res.title);
-                console.log(res.traceId);
+                //console.log(res.title);
+                //console.log(res.traceId);
 
                 // delete invitation
                 await this.setState(prevState => ({
@@ -248,13 +243,13 @@ class MessagePage extends Component {
             }
 
         } catch(err){
-            console.log(err);
+            //console.log(err);
             if (err.response && err.response.status === 401) { // Unauthorized, token expired
                 await refreshAccessToken();
                 // retry request
                 await this.invitationActions(action, recipientID);
             }else if(err.response.status === 404){
-                console.log(recipientID);
+                //console.log(recipientID);
                 console.error("Invitation or RecipientUser doesn't exist");
             }
             else {
@@ -268,7 +263,7 @@ class MessagePage extends Component {
 
         //fetch
         try{
-            const data = await axios.get(`${APIs.FIND_FRIENDS_URL}/${userID}`,
+            const data = await axios.get(APIs.GET_CHATS_URL,
                 {
                     withCredentials: true,
                     headers: { 
@@ -280,8 +275,8 @@ class MessagePage extends Component {
             let res = data.data;
             //is ok
             if(data.status == 200){
-                console.log(data.data.title);
-                console.log(res.resultData);
+                //console.log(data.data.title);
+                //console.log(res.resultData);
 
                 await this.setState({
                     listOfFriends: res.resultData,
@@ -308,7 +303,88 @@ class MessagePage extends Component {
 
     }
 
+    async sendMessageToFriend(){
+        const { signalRConnection, selectedChatId, activeReciepientId} = this.state;
+        
+        let content = this.state.messageInput;
 
+        if (signalRConnection && signalRConnection.state === signalR.HubConnectionState.Connected && content.trim() !== "") {
+            try {
+                await signalRConnection.invoke(SIGNALR_HUBS.SEND_MESSAGE, activeReciepientId, selectedChatId, content);
+                this.setState({
+                    messageInput: ""
+                });
+            } catch (err) {
+                console.error("Error sending message: ", err);
+            }
+        } else {
+            console.error("Connection not established or message is empty.");
+        }
+    }
+
+    async selectChat(conversationId, friendId, friendName){
+        this.setState({
+            selectedChatId: conversationId,
+            activeReciepientId: friendId,
+            activeFriend: friendName
+        });
+
+        await this.getMessagesForFriend(conversationId);
+
+    }
+
+    async getMessagesForFriend(conversationId){
+        const {accessToken, refreshAccessToken} = this.context;
+
+        //fetch
+        try{
+            const data = await axios.get(`${APIs.GET_MESSAGES_URL}/${conversationId}`,
+                {
+                    withCredentials: true,
+                    headers: { 
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+
+            let res = data.data;
+            //is ok
+            if(data.status == 200){
+                console.log(res.resultData);
+
+                // add new messeges for [conversationId]
+                await this.setState(prevState => ({
+                    allMessages: {
+                      ...prevState.allMessages,
+                      [conversationId]: res.resultData
+                    }
+                }));
+
+            }
+
+        }catch(err){
+            if (err.response && err.response.status === 401) { // Unauthorized, token expired
+                await refreshAccessToken();
+                // retry request
+                await this.searchPeople();
+            }else if(err.response.status === 400){
+                console.error("getMessagesForChat: Bad request");
+            }
+            else if(err.response.status === 404){
+                // no messages
+                console.log(`getMessagesForChat: No messages for ${conversationId}`);
+                await this.setState(prevState => ({
+                    allMessages: {
+                      ...prevState.allMessages,
+                      [conversationId]: {}
+                    }
+                }));
+            }
+            else {
+                console.error(err);
+            }
+        }
+    }
 
     componentDidMount(){
         const { setAuth,username, accessToken, refreshAccessToken} = this.context;
@@ -320,6 +396,29 @@ class MessagePage extends Component {
 
         this.getInvitations();
         this.getFriends();
+
+        // SignalR
+        // HUB: /chathub
+
+        // load the SignalR
+        // new connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://localhost:5205" + SIGNALR_HUBS.CHATHUB,{
+                accessTokenFactory: () => accessToken
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        // get connection
+        connection.start()
+            .then(() => console.log("Connected to SignalR"))
+            .catch(err => console.error("Connection failed: ", err));
+        
+        connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE, (userName, conversationId, content) => {
+            console.log(userName, conversationId, content);
+        });
+
+        this.setState({signalRConnection: connection});
     }
 
     
@@ -327,9 +426,9 @@ class MessagePage extends Component {
     render() {
 
 
-        const { username, roles, accessToken } = this.context;
+        const { username, roles, accessToken, userID } = this.context;
 
-        console.log("Current context MESSAGE PAGE:", username, roles, accessToken);
+        //console.log("Current context MESSAGE PAGE:", username, roles, accessToken);
 
         return (
             <div id='mainMessagePage'>
@@ -407,7 +506,9 @@ class MessagePage extends Component {
                         this.state.listOfFriends.length > 0 ?
                             this.state.listOfFriends_filtered.length > 0 ?
                                 this.state.listOfFriends_filtered.map(user => (
-                                    <FriendTile key={user.id} username={user.userName} author={"You"} mess={"hello my friend!"} />
+                                    <FriendTile key={user.friendId} username={user.friendUserName} 
+                                    onClick={() => this.selectChat(user.conversationId, user.friendId ,user.friendUserName)}
+                                    author={"You"} mess={"hello my friend!"} selected={this.state.selectedChatId == user.conversationId}/>
                                 ))
                             :
                             <div className='infoText'>There are no friends named {this.state.searchBar} ...</div>
@@ -449,15 +550,20 @@ class MessagePage extends Component {
 
                 {/* MESSAGE BOX */}
                 <div id='messageBox'>
-                    {/* Renderowanie wiadomości z tablicy messages */}
-                    {this.state.messages.map((message, index) => (
-                        <MessageTile key={index} mess={message.text} yours={message.yours} time={message.time} />
-                    ))}
+                    {/* Renderowanie wiadomości z tablicy allMessages */}
+                    {Array.isArray(this.state.allMessages[this.state.selectedChatId]) &&
+                        this.state.allMessages[this.state.selectedChatId].map((message) => (
+                            <MessageTile
+                            key={message.messageId}
+                            mess={message.content}
+                            yours={message.senderId === userID}
+                            time={message.timestamp}
+                            />
+                        ))
+                    }
 
-                    <MessageTile mess=" eu commodo lectus, ac viverra est. Sed eleifend massa a dignissim varius. Mauris id diam nec metus aliquam dapibus sit amet at odio. Praesent q" yours={false} time="16:40"/>
                     <MessageTile mess="j suscipit metus convalli" yours={true} time="15:34"/>
                     <MessageTile mess=" sapien euismod aliquam. Nulla" yours={true} time="15:33"/>
-                    <MessageTile mess="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque et leo quis arcu maximus mattis. Nullam ac libero enim. Sed ut orci mi. Curabitur sollicitudin urna velit, sed porta nulla porta nec. Morbi volutpat pharetra orci vehicula ultricies. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Maecenas non mi vel sem aliquet laoreet. Vivamus sodales nisl a lectus accumsan, eu tincidunt felis ullamcorper. Praesent molestie non purus in finibus. Suspendisse hendrerit varius co" yours={false} time="14:33"/>
                 
                 </div>
 
@@ -465,7 +571,7 @@ class MessagePage extends Component {
                 <div id='sendMessageBox'>
                     <input className='textInput2 sendMessageInput' placeholder='Type a message...' value={this.state.messageInput}
                     onChange={this.handleChangeTxt} name='messageInput' type="text" autoComplete='off'/>
-                    <FontAwesomeIcon icon={faPaperPlane} className='friendBarIcon' onClick={this.addMessage}/>
+                    <FontAwesomeIcon icon={faPaperPlane} className='friendBarIcon' onClick={this.sendMessageToFriend}/>
                 </div>
             </div>
         );

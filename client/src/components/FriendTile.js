@@ -7,7 +7,7 @@ class FriendTile extends Component {
 
     render() {
         return (
-            <div className='friendTile'>
+            <div className={this.props.selected ? 'friendTile selectedChat' : 'friendTile'} onClick={this.props.onClick} >
                 <div className='friendTileIcon'/>
                 <div className='friendTileWrapper'>
                     <div className='friendTileUserName'>{this.props.username}</div>
