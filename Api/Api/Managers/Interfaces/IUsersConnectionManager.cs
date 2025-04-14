@@ -7,8 +7,8 @@ namespace Api.Managers.Interfaces
         Task AddUpdateAsync(string connectionId, string userId);
         Task RemoveAsync(string connectionId, string userId);
 
-        Task<List<string>> GetOnlineUsersIdAsync();
+        List<string> GetOnlineUsersIdAsync();
         Task<bool> IsUserOnlineAsync(string userId);
-        Task<List<string>> GetUserConnectionsId(string UserId);
+        List<string>? GetUserConnectionsId(string UserId);
     }
 }

@@ -157,6 +157,11 @@ namespace Api.Managers
 
             try
             {
+                if(await GetConversationByIdAsync(conversationId) == null)
+                {
+                    return Error.NotFound("CONVERSATION_ID_NOT_FOUND", "ConversationId was not found.");
+                }
+
                 var messages = await _unitOfWork.Messages
                     .WhereAsync(x => x.ConversationId.ToString() == conversationId);
 
