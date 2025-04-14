@@ -42,15 +42,13 @@ namespace SignalRJWTServer.Hubs
             var userName = Context.User!.Identity.Name;
             var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var recipientConnectionsId = await _usersConnectionManager.GetUserConnectionsId(recipientId);
+            var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
 
-            if(recipientConnectionsId.Count < 0)
+            if(recipientConnectionsId != null)
             {
-                throw new Exception();
+                await Clients.Clients(recipientConnectionsId).SendAsync("ReceiveMessage", userName, conversationId, content);
             }
-
-            await Clients.Clients(recipientConnectionsId).SendAsync("ReceiveMessage", userName, conversationId, content);
-
+      
             var conversation = await _chatManager.GetOrCreateConversationAsync(userId, recipientId);
             var sender = await _userManager.FindByIdAsync(userId);
 

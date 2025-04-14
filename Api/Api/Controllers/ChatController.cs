@@ -15,7 +15,7 @@ using Api.Models.Dtos.Chat;
 
 namespace Api.Controllers
 {
-    [Route("api/friends")]
+    [Route("api/chat")]
     [ApiController]
     public class ChatController : Controller
     {
@@ -82,7 +82,7 @@ namespace Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("getMessages")]
+        [HttpGet("getMessages/{conversationId}")]
         public async Task<IActionResult> GetMessagesAsync(string conversationId)
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

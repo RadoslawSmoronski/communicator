@@ -32,7 +32,7 @@ namespace Api.Tests.Managers.ChatManagerTest
         [Fact]
         public async Task GetMessagesAsync_ShouldReturnOk_WhenThereAreNoMessages()
         {
-            // Arranged
+            // Arrange
             A.CallTo(() => _unitOfWork.Messages.WhereAsync(A<Expression<Func<Message, bool>>>._))
                 .Returns(Task.FromResult<IEnumerable<Message>>(new List<Message>()));
 
@@ -50,10 +50,29 @@ namespace Api.Tests.Managers.ChatManagerTest
         }
 
         [Fact]
+        public async Task GetMessagesAsync_ShouldReturnNotFoundError_WhenConversionIdWasNotFound()
+        {
+            // Arrange
+            A.CallTo(() => _unitOfWork.Conversations.FirstOrDefaultAsync(A<Expression<Func<Conversation, bool>>>._))
+                .Returns(Task.FromResult<Conversation?>(null));
+
+            // Act
+            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString()) as ResultT<List<MessageDto>>;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.IsSuccess.Should().BeFalse();
+            result.Error.Should().NotBeNull();
+
+            var error = result.Error! as Error;
+            error.ErrorType.Should().Be(HttpErrorType.NotFound);
+        }
+
+        [Fact]
         public async Task GetMessagesAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
         {
             // Act
-            var result = await _chatManager.GetMessagesAsync("") as Result;
+            var result = await _chatManager.GetMessagesAsync("") as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();

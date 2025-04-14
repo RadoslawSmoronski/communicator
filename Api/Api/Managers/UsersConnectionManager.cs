@@ -46,7 +46,7 @@ namespace Api.Managers
             return Task.CompletedTask;
         }
 
-        public async Task<List<string>> GetOnlineUsersIdAsync()
+        public List<string> GetOnlineUsersIdAsync()
         {
             return _usersOnline.Keys.ToList();
         }
@@ -56,9 +56,14 @@ namespace Api.Managers
             return Task.FromResult(_usersOnline.ContainsKey(userId));
         }
 
-        public async Task<List<string>> GetUserConnectionsId(string UserId)
+        public List<string>? GetUserConnectionsId(string UserId)
         {
-            return _usersOnline[UserId].ToList();
+            if (_usersOnline.TryGetValue(UserId, out var connections))
+            {
+                return connections.ToList();
+            }
+
+            return null;
         }
     }
 }
