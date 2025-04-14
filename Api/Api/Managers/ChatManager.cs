@@ -192,8 +192,8 @@ namespace Api.Managers
         private async Task<Conversation?> GetConversationAsync(string user1Id, string user2Id)
         {
             return await _unitOfWork.Conversations.FirstOrDefaultAsync(x =>
-                (x.User1Id == user1Id || x.User2Id == user2Id) ||
-                (x.User1Id == user2Id || x.User2Id == user1Id));
+                (x.User1Id == user1Id && x.User2Id == user2Id) ||
+                (x.User1Id == user2Id && x.User2Id == user1Id));
         }
 
         private async Task<Conversation?> GetConversationByIdAsync(string conversationId)
