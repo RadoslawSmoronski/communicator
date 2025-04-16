@@ -240,6 +240,8 @@
 }
 
 .friendTileWrapper{
+    position: relative;
+    //display: inline-block;
     display: flex;
     width: 230px;
     flex-direction: column;
@@ -347,7 +349,31 @@
     color: #bf7210;
     filter: brightness(0.7);
 }
-    
+
+.newMessageNotification {
+    position: absolute;
+    top: -10px;
+    left: -60px;
+    background-color: blue;
+    color: white;
+    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 18px;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    animation: blink 2s forwards;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
 
 // ------ MESSAGE BOX ---------
 

@@ -40,6 +40,7 @@ class FriendTile extends Component {
             mess = mess.slice(0,17) + "...";
         }
 
+        console.log(`Nowa wiad dla ${this.props.username}: ${this.props.newMessageNotify}`)
 
         return (
             <div className={this.props.selected ? 'friendTile selectedChat' : 'friendTile'} onClick={this.props.onClick} >
@@ -47,6 +48,11 @@ class FriendTile extends Component {
                 <div className='friendTileWrapper'>
                     <div className='friendTileUserName'>{this.props.username}</div>
                     <div className='friendTileMess'>{this.props.author} {mess} {dateOrTimeToDisplay}</div>
+                    {
+                        this.props.newMessageNotify &&
+                        <div className='newMessageNotification'/>
+                    }
+                    
                 </div>
             </div>
         );

@@ -71,15 +71,21 @@ class MessagePage extends Component {
                 this.searchPeople();
             }else{
                 // Your chats
-                let v_listOfFriends_filtered = this.state.listOfFriends.filter(user =>
-                    user.friendUserName.toLowerCase().includes(this.state.searchBar.toLowerCase())
-                );
-                await this.setState({listOfFriends_filtered: v_listOfFriends_filtered});
-                
+                await this.setState({
+                    listOfFriends_filtered: this.returnFilteredFriends(this.state.listOfFriends)
+                });
             }
 
         }
     };
+
+    returnFilteredFriends(friendList){
+        let v_listOfFriends_filtered = friendList.filter(user =>
+            user.friendUserName.toLowerCase().includes(this.state.searchBar.toLowerCase())
+        );
+        
+        return v_listOfFriends_filtered;
+    }
 
     handleSwitchBtn = async (event) => {
         const {name}  = event.target;
@@ -280,15 +286,25 @@ class MessagePage extends Component {
 
                 console.log(res.resultData);
 
+                // add new value (newMessNotify) to listOfFriends
+                for(let i = 0; i < res.resultData.length; i++){
+                    res.resultData[i]={
+                        ...res.resultData[i],
+                        newMessNotify: false
+                    }
+                }
+
                 await this.setState({
                     listOfFriends: res.resultData,
                     listOfFriends_filtered: res.resultData
                 });
 
+
                 // add empty chats to allMessages
                 res.resultData.forEach((friend, index) =>{
-                    this.setState(prevState => ({
+                    this.setState(prevState =>({
                         allMessages:{
+                            ...prevState.allMessages,
                             [friend.conversationId]: []
                         }
                     }));
@@ -338,6 +354,7 @@ class MessagePage extends Component {
                 this.setState(prevState => ({
                     messageInput: "",
                     allMessages:{
+                        ...prevState.allMessages,
                         [selectedChatId]: [myMessObj ,...prevState.allMessages[selectedChatId]]
                     }
                 }));
@@ -351,10 +368,23 @@ class MessagePage extends Component {
     }
 
     async selectChat(conversationId, friendId, friendName){
+        const updatedListOfFriends= this.state.listOfFriends.map(friend => {
+            if (friend.conversationId === conversationId) {
+                // modify the friend
+                return {
+                    ...friend,
+                    newMessNotify: false
+                };
+            }
+            return friend;
+        });
+
         this.setState({
             selectedChatId: conversationId,
             activeReciepientId: friendId,
-            activeFriend: friendName
+            activeFriend: friendName,
+            listOfFriends: updatedListOfFriends,
+            listOfFriends_filtered: this.returnFilteredFriends(updatedListOfFriends)
         });
 
         await this.getMessagesForFriend(conversationId);
@@ -404,7 +434,7 @@ class MessagePage extends Component {
                 await this.setState(prevState => ({
                     allMessages: {
                       ...prevState.allMessages,
-                      [conversationId]: {}
+                      [conversationId]: []
                     }
                 }));
             }
@@ -418,6 +448,7 @@ class MessagePage extends Component {
         // it lacks crucial data
         let senderId;
 
+        console.log(typeof(this.state.listOfFriends));
 
         const updatedListOfFriends= this.state.listOfFriends.map(friend => {
             if (friend.conversationId === conversationId) {
@@ -428,13 +459,16 @@ class MessagePage extends Component {
                     ...friend,
                     isFriendSenderMessage: true,
                     lastMessageContent: content,
-                    lastMessageTimestamp: new Date()
+                    lastMessageTimestamp: new Date(),
+                    newMessNotify: conversationId != this.state.selectedChatId
                 };
             }
             return friend;
         });
 
-        console.log(updatedListOfFriends);
+        
+
+        //console.log(updatedListOfFriends);
 
         let newMessObj = {
             content : content,
@@ -448,9 +482,9 @@ class MessagePage extends Component {
         // add message to allMessages list
         // add last message to FriendTile
 
-
         await this.setState(prevState => ({
-            listOfFriends_filtered: updatedListOfFriends,
+            listOfFriends: updatedListOfFriends,
+            listOfFriends_filtered: this.returnFilteredFriends(updatedListOfFriends),
             allMessages:{
                 ...prevState.allMessages,
                 [conversationId]: [newMessObj ,...prevState.allMessages[conversationId]]
@@ -459,7 +493,7 @@ class MessagePage extends Component {
 
         
 
-        await console.log(this.state.allMessages);
+        //await console.log(this.state.allMessages);
     }
 
     componentDidMount(){
@@ -594,6 +628,7 @@ class MessagePage extends Component {
                                         mess={friend.lastMessageContent} 
                                         messTimestamp={friend.lastMessageTimestamp}
                                         selected={this.state.selectedChatId == friend.conversationId}
+                                        newMessageNotify={friend.newMessNotify}
                                     />
                                 ))
                             :
