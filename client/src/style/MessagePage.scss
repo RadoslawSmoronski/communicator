@@ -58,6 +58,7 @@
     justify-content: flex-start;
     align-items: stretch;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #messageBox::-webkit-scrollbar,
@@ -380,6 +381,9 @@
     padding: 10px 30px 10px 30px;
     margin: 10px;
     width:fit-content;
+
+    overflow-wrap: break-word;
+    //word-break:break-all;
 }
 
 .messageCloudLeft{
@@ -401,6 +405,15 @@
     margin-left: 10px;
     margin-right: 30px;
     padding-left: 30px;
+}
+
+.disabledSendButton{
+    cursor:not-allowed;
+}
+
+.disabledSendButton:hover, .disabledSendButton:active{
+    color: #bf7210;
+    filter: brightness(1);
 }
 
 // -------- INVITATIONS BOX

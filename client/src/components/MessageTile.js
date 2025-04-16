@@ -6,6 +6,27 @@ class MessageTile extends Component {
     }
 
     render() {
+        let dateNow = new Date();
+        let dateOfMessage = new Date(this.props.time);
+        let hours = dateOfMessage.getHours();
+        let minutes = dateOfMessage.getMinutes();
+        let day = '';
+        let month = '';
+        let year = '';
+
+        if(dateNow.getDate() != dateOfMessage.getDate() ||
+            dateNow.getMonth() != dateOfMessage.getMonth() || 
+            dateNow.getFullYear() != dateOfMessage.getFullYear()){
+
+            day = dateOfMessage.getDate();
+            month = dateOfMessage.toLocaleString('en-US', { month: 'short' });
+
+            if(dateNow.getFullYear() != dateOfMessage.getFullYear()){
+                year = dateOfMessage.getFullYear();
+            }
+        }
+        
+
         return (
             this.props.yours ?
             <div className="messageTileRight">
@@ -14,7 +35,7 @@ class MessageTile extends Component {
                     {this.props.mess}
                 </div>
                 <div className='messageTileTime'>
-                    {this.props.time}
+                    {`${day} ${month} ${year} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`}
                 </div>
             </div>
             </div>
@@ -25,7 +46,7 @@ class MessageTile extends Component {
                 {this.props.mess}
             </div>
             <div className='messageTileTime'>
-                {this.props.time}
+                {`${day} ${month} ${year} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`}
             </div>
         </div>
         </div>

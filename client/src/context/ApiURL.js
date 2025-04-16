@@ -12,8 +12,8 @@ const APIs = {
     DECELINE_INVITE_URL: "/api/friends/decelineInvite",
     ACCEPT_INVITE_URL: "/api/friends/acceptInvite",
 
-    GET_CHATS_URL: "/api/friends/getChats",
-    GET_MESSAGES_URL: "/api/friends/getMessages"
+    GET_CHATS_URL: "/api/chat/getChats",
+    GET_MESSAGES_URL: "/api/chat/getMessages"
 }
 
 export default APIs;

@@ -26,7 +26,7 @@ class MessagePage extends Component {
         this.state = {
             username: 'Bartek',
             searchBar: '',
-            activeFriend: 'Rado',
+            activeFriend: '',
             messageInput: '',
 
             yourChatIsActive: true,
@@ -278,11 +278,21 @@ class MessagePage extends Component {
                 //console.log(data.data.title);
                 //console.log(res.resultData);
 
+                console.log(res.resultData);
+
                 await this.setState({
                     listOfFriends: res.resultData,
                     listOfFriends_filtered: res.resultData
                 });
 
+                // add empty chats to allMessages
+                res.resultData.forEach((friend, index) =>{
+                    this.setState(prevState => ({
+                        allMessages:{
+                            [friend.conversationId]: []
+                        }
+                    }));
+                });
             }
 
         }catch(err){
@@ -305,15 +315,33 @@ class MessagePage extends Component {
 
     async sendMessageToFriend(){
         const { signalRConnection, selectedChatId, activeReciepientId} = this.state;
+        const {userID} = this.context;
         
         let content = this.state.messageInput;
 
         if (signalRConnection && signalRConnection.state === signalR.HubConnectionState.Connected && content.trim() !== "") {
             try {
                 await signalRConnection.invoke(SIGNALR_HUBS.SEND_MESSAGE, activeReciepientId, selectedChatId, content);
-                this.setState({
-                    messageInput: ""
-                });
+                // to later change 
+                // I think sender shoud also get his own message by SignalR
+                let myMessObj = {
+                    content : content,
+                    conversationId : selectedChatId,
+                    isRead: false,
+                    messageId : null,
+                    senderId : userID,
+                    timestamp: new Date()
+                };
+
+                
+                // add message to allMessages list
+                this.setState(prevState => ({
+                    messageInput: "",
+                    allMessages:{
+                        [selectedChatId]: [myMessObj ,...prevState.allMessages[selectedChatId]]
+                    }
+                }));
+
             } catch (err) {
                 console.error("Error sending message: ", err);
             }
@@ -356,7 +384,7 @@ class MessagePage extends Component {
                 await this.setState(prevState => ({
                     allMessages: {
                       ...prevState.allMessages,
-                      [conversationId]: res.resultData
+                      [conversationId]: res.resultData.reverse()
                     }
                 }));
 
@@ -384,6 +412,54 @@ class MessagePage extends Component {
                 console.error(err);
             }
         }
+    }
+
+    async handleNewMessageFromFriend(userName, conversationId, content){
+        // it lacks crucial data
+        let senderId;
+
+
+        const updatedListOfFriends= this.state.listOfFriends.map(friend => {
+            if (friend.conversationId === conversationId) {
+                senderId = friend.friendId;
+    
+                // modify the friend
+                return {
+                    ...friend,
+                    isFriendSenderMessage: true,
+                    lastMessageContent: content,
+                    lastMessageTimestamp: new Date()
+                };
+            }
+            return friend;
+        });
+
+        console.log(updatedListOfFriends);
+
+        let newMessObj = {
+            content : content,
+            conversationId : conversationId,
+            isRead: false,
+            messageId : null,
+            senderId : senderId,
+            timestamp: new Date()
+        };
+
+        // add message to allMessages list
+        // add last message to FriendTile
+
+
+        await this.setState(prevState => ({
+            listOfFriends_filtered: updatedListOfFriends,
+            allMessages:{
+                ...prevState.allMessages,
+                [conversationId]: [newMessObj ,...prevState.allMessages[conversationId]]
+            }
+        }));
+
+        
+
+        await console.log(this.state.allMessages);
     }
 
     componentDidMount(){
@@ -416,6 +492,10 @@ class MessagePage extends Component {
         
         connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE, (userName, conversationId, content) => {
             console.log(userName, conversationId, content);
+            if(userName != "System"){
+                this.handleNewMessageFromFriend(userName, conversationId, content);
+            }
+            
         });
 
         this.setState({signalRConnection: connection});
@@ -505,10 +585,16 @@ class MessagePage extends Component {
                     (
                         this.state.listOfFriends.length > 0 ?
                             this.state.listOfFriends_filtered.length > 0 ?
-                                this.state.listOfFriends_filtered.map(user => (
-                                    <FriendTile key={user.friendId} username={user.friendUserName} 
-                                    onClick={() => this.selectChat(user.conversationId, user.friendId ,user.friendUserName)}
-                                    author={"You"} mess={"hello my friend!"} selected={this.state.selectedChatId == user.conversationId}/>
+                                this.state.listOfFriends_filtered.map(friend => (
+                                    <FriendTile 
+                                        key={friend.friendId} 
+                                        username={friend.friendUserName} 
+                                        onClick={() => this.selectChat(friend.conversationId, friend.friendId ,friend.friendUserName)}
+                                        author={friend.isFriendSenderMessage ? '' : 'You: '} 
+                                        mess={friend.lastMessageContent} 
+                                        messTimestamp={friend.lastMessageTimestamp}
+                                        selected={this.state.selectedChatId == friend.conversationId}
+                                    />
                                 ))
                             :
                             <div className='infoText'>There are no friends named {this.state.searchBar} ...</div>
@@ -552,26 +638,33 @@ class MessagePage extends Component {
                 <div id='messageBox'>
                     {/* Renderowanie wiadomości z tablicy allMessages */}
                     {Array.isArray(this.state.allMessages[this.state.selectedChatId]) &&
-                        this.state.allMessages[this.state.selectedChatId].map((message) => (
+                        this.state.allMessages[this.state.selectedChatId].map((message, index) => (
                             <MessageTile
-                            key={message.messageId}
-                            mess={message.content}
-                            yours={message.senderId === userID}
-                            time={message.timestamp}
+                                //key={message.messageId}
+                                key={index}
+                                mess={message.content}
+                                yours={message.senderId === userID}
+                                time={message.timestamp}
                             />
                         ))
                     }
 
-                    <MessageTile mess="j suscipit metus convalli" yours={true} time="15:34"/>
-                    <MessageTile mess=" sapien euismod aliquam. Nulla" yours={true} time="15:33"/>
                 
                 </div>
 
                 {/* SEND MESSAGE BOX */}
                 <div id='sendMessageBox'>
-                    <input className='textInput2 sendMessageInput' placeholder='Type a message...' value={this.state.messageInput}
-                    onChange={this.handleChangeTxt} name='messageInput' type="text" autoComplete='off'/>
-                    <FontAwesomeIcon icon={faPaperPlane} className='friendBarIcon' onClick={this.sendMessageToFriend}/>
+                    <input
+                        className='textInput2 sendMessageInput' 
+                        placeholder={this.state.selectedChatId == null ?'Select chat...' : 'Type a message...'}
+                        value={this.state.messageInput} onChange={this.handleChangeTxt} 
+                        name='messageInput' type="text" autoComplete='off' disabled={this.state.selectedChatId == null}
+                    />
+                    <FontAwesomeIcon 
+                        icon={faPaperPlane} 
+                        className={`friendBarIcon ${this.state.selectedChatId == null ? 'disabledSendButton' : ''}`}
+                        onClick={this.state.selectedChatId == null ? null : this.sendMessageToFriend}
+                    />
                 </div>
             </div>
         );
