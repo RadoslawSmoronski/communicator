@@ -47,6 +47,7 @@ namespace SignalRJWTServer.Hubs
             var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
+            var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
 
             var conversation = await _chatManager.GetOrCreateConversationAsync(userId, recipientId);
             var sender = await _userManager.FindByIdAsync(userId);
@@ -65,11 +66,12 @@ namespace SignalRJWTServer.Hubs
                 Content = content,
             };
 
-            if (recipientConnectionsId != null)
+            if (recipientConnectionsId != null && recipientConnectionsId != null)
             {
                 var messageDto = _mapper.Map<MessageDto>(message);
 
                 await Clients.Clients(recipientConnectionsId).ReceiveMessage(messageDto);
+                await Clients.Clients(senderConnectionsId).ReceiveMessage(messageDto);
             }
 
             await _chatManager.SaveMessageAsync(message);

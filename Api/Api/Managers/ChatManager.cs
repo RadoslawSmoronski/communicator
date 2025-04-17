@@ -134,8 +134,8 @@ namespace Api.Managers
                         FriendUserName = friend.UserName,
                         ConversationId = x.Id.ToString(),
                         LastMessageId = x.LastMessageId?.ToString(),
-                        LastMessageContent = (x.LastMessage == null) ? null : x.LastMessage.Content,
-                        IsFriendSenderMessage = x.LastMessage != null && x.LastMessage.SenderId == friend.Id,
+                        LastMessageContent = x.LastMessage?.Content,
+                        IsFriendSenderMessage = x.LastMessage?.SenderId == friend.Id,
                         LastMessageTimestamp = x.LastMessage?.Timestamp
                     };
                 }).ToList();
@@ -180,6 +180,7 @@ namespace Api.Managers
             try
             {
                 await _SaveMessageAsync(message);
+                await UpdateLastMessageInConversationAsync(message);
                 return Result.Success();
             }
             catch (Exception)
@@ -191,6 +192,17 @@ namespace Api.Managers
         private async Task _SaveMessageAsync(Message message)
         {
             await _unitOfWork.Messages.AddAsync(message);
+            await _unitOfWork.SaveAsync();
+        }
+
+        private async Task UpdateLastMessageInConversationAsync(Message message)
+        {
+            var conversation = message.Conversation;
+            conversation.LastMessage = message;
+            conversation.LastMessageTime = message.Timestamp;
+            conversation.LastMessageId = message.Id;
+
+            _unitOfWork.Conversations.Update(conversation);
             await _unitOfWork.SaveAsync();
         }
 
