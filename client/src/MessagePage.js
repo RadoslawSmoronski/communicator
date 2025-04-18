@@ -87,6 +87,12 @@ class MessagePage extends Component {
         return v_listOfFriends_filtered;
     }
 
+    returnSortedByLastMessDateFriendsList(friendList){
+        let sortedList = friendList.sort((a, b) => new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp));
+
+        return sortedList;
+    }
+
     handleSwitchBtn = async (event) => {
         const {name}  = event.target;
         let flag = name == "yourChatsBtn" ? true : false;
@@ -132,8 +138,6 @@ class MessagePage extends Component {
             let res = data.data;
             //is ok
             if(data.status == 200){
-                // console.log(res.title);
-                // console.log(res.resultData);
 
                 await this.setState({findUsersStatus: 'found',listOfUsers: res.resultData});
 
@@ -187,8 +191,6 @@ class MessagePage extends Component {
             let res = data.data;
             //is ok
             if(data.status == 200){
-                // console.log(data.data.title);
-                // console.log(res.resultData);
 
                 await this.setState({listOfInvitations: res.resultData});
 
@@ -238,8 +240,6 @@ class MessagePage extends Component {
 
 
             if(data.status == 200){
-                //console.log(res.title);
-                //console.log(res.traceId);
 
                 // delete invitation
                 await this.setState(prevState => ({
@@ -281,8 +281,6 @@ class MessagePage extends Component {
             let res = data.data;
             //is ok
             if(data.status == 200){
-                //console.log(data.data.title);
-                //console.log(res.resultData);
 
                 console.log(res.resultData);
 
@@ -294,10 +292,17 @@ class MessagePage extends Component {
                     }
                 }
 
+                let sortedFriendList = this.returnSortedByLastMessDateFriendsList(res.resultData);
+
                 await this.setState({
-                    listOfFriends: res.resultData,
-                    listOfFriends_filtered: res.resultData
+                    listOfFriends: sortedFriendList,
+                    listOfFriends_filtered: sortedFriendList
                 });
+
+                // await this.setState({
+                //     listOfFriends: res.resultData,
+                //     listOfFriends_filtered: res.resultData
+                // });
 
 
                 // add empty chats to allMessages
@@ -338,26 +343,11 @@ class MessagePage extends Component {
         if (signalRConnection && signalRConnection.state === signalR.HubConnectionState.Connected && content.trim() !== "") {
             try {
                 await signalRConnection.invoke(SIGNALR_HUBS.SEND_MESSAGE, activeReciepientId, selectedChatId, content);
-                // to later change 
-                // I think sender shoud also get his own message by SignalR
-                let myMessObj = {
-                    content : content,
-                    conversationId : selectedChatId,
-                    isRead: false,
-                    messageId : null,
-                    senderId : userID,
-                    timestamp: new Date()
-                };
-
                 
                 // add message to allMessages list
-                this.setState(prevState => ({
+                this.setState({
                     messageInput: "",
-                    allMessages:{
-                        ...prevState.allMessages,
-                        [selectedChatId]: [myMessObj ,...prevState.allMessages[selectedChatId]]
-                    }
-                }));
+                });
 
             } catch (err) {
                 console.error("Error sending message: ", err);
@@ -444,53 +434,46 @@ class MessagePage extends Component {
         }
     }
 
-    async handleNewMessageFromFriend(userName, conversationId, content){
+    async handleNewMessageFromFriend(messageDto){
         // it lacks crucial data
         let senderId;
 
-        console.log(typeof(this.state.listOfFriends));
+        console.log(messageDto);
 
         const updatedListOfFriends= this.state.listOfFriends.map(friend => {
-            if (friend.conversationId === conversationId) {
+            if (friend.conversationId === messageDto.conversationId) {
                 senderId = friend.friendId;
     
                 // modify the friend
                 return {
                     ...friend,
                     isFriendSenderMessage: true,
-                    lastMessageContent: content,
-                    lastMessageTimestamp: new Date(),
-                    newMessNotify: conversationId != this.state.selectedChatId
+                    lastMessageContent: messageDto.content,
+                    lastMessageTimestamp: messageDto.timestamp,
+                    newMessNotify: messageDto.conversationId != this.state.selectedChatId
                 };
             }
             return friend;
         });
 
-        
 
-        //console.log(updatedListOfFriends);
-
-        let newMessObj = {
-            content : content,
-            conversationId : conversationId,
-            isRead: false,
-            messageId : null,
-            senderId : senderId,
-            timestamp: new Date()
-        };
 
         // add message to allMessages list
         // add last message to FriendTile
 
+
         await this.setState(prevState => ({
-            listOfFriends: updatedListOfFriends,
-            listOfFriends_filtered: this.returnFilteredFriends(updatedListOfFriends),
+            listOfFriends: this.returnSortedByLastMessDateFriendsList(updatedListOfFriends),
+            listOfFriends_filtered: this.returnSortedByLastMessDateFriendsList(this.returnFilteredFriends(updatedListOfFriends)),
+            // listOfFriends: updatedListOfFriends,
+            // listOfFriends_filtered: this.returnFilteredFriends(updatedListOfFriends),
             allMessages:{
                 ...prevState.allMessages,
-                [conversationId]: [newMessObj ,...prevState.allMessages[conversationId]]
+                [messageDto.conversationId]: [messageDto ,...prevState.allMessages[messageDto.conversationId]]
             }
         }));
 
+        
         
 
         //await console.log(this.state.allMessages);
@@ -524,11 +507,8 @@ class MessagePage extends Component {
             .then(() => console.log("Connected to SignalR"))
             .catch(err => console.error("Connection failed: ", err));
         
-        connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE, (userName, conversationId, content) => {
-            console.log(userName, conversationId, content);
-            if(userName != "System"){
-                this.handleNewMessageFromFriend(userName, conversationId, content);
-            }
+        connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE, (messageDto) => {
+            this.handleNewMessageFromFriend(messageDto);
             
         });
 
