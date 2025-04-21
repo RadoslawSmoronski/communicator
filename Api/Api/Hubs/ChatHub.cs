@@ -66,11 +66,15 @@ namespace SignalRJWTServer.Hubs
                 Content = content,
             };
 
-            if (recipientConnectionsId != null && recipientConnectionsId != null)
-            {
-                var messageDto = _mapper.Map<MessageDto>(message);
+            var messageDto = _mapper.Map<MessageDto>(message);
 
+            if (recipientConnectionsId != null)
+            {
                 await Clients.Clients(recipientConnectionsId).ReceiveMessage(messageDto);
+            }
+
+            if (senderConnectionsId != null)
+            {
                 await Clients.Clients(senderConnectionsId).ReceiveMessage(messageDto);
             }
 
