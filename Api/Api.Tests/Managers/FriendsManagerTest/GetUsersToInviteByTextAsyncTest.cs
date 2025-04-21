@@ -38,9 +38,9 @@ namespace Api.Tests.Managers.FriendsManagerTest
 
             var expectList = new List<UserToInviteDto>
             {
-                new UserToInviteDto { Id = fakeUsers[0].Id, userName = fakeUsers[0].UserName!, IsInvited = false },
-                new UserToInviteDto { Id = fakeUsers[1].Id, userName = fakeUsers[1].UserName!, IsInvited = false },
-                new UserToInviteDto { Id = fakeUsers[2].Id, userName = fakeUsers[2].UserName!, IsInvited = false }
+                new UserToInviteDto { Id = fakeUsers[0].Id, UserName = fakeUsers[0].UserName!, IsInvited = false },
+                new UserToInviteDto { Id = fakeUsers[1].Id, UserName = fakeUsers[1].UserName!, IsInvited = false },
+                new UserToInviteDto { Id = fakeUsers[2].Id, UserName = fakeUsers[2].UserName!, IsInvited = false }
             };
 
             // Act

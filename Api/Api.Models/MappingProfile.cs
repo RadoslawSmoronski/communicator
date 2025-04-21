@@ -1,8 +1,6 @@
 ﻿using Api.Models.Chat;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Chat;
-using Api.Models.Dtos.Controllers.UserController;
-using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Responses.Interfaces;
 using Api.Utilities.Result;
 using AutoMapper;
