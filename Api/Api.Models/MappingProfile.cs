@@ -1,4 +1,5 @@
 ﻿using Api.Models.Dtos;
+using Api.Models.Dtos.Controllers.FriendsController;
 using Api.Models.Dtos.Controllers.UserController;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using Api.Models.Dtos.Responses.Interfaces;

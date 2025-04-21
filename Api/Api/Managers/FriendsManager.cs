@@ -3,11 +3,12 @@ using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.FriendsController;
+using Api.Models.Dtos.Responses.Interfaces;
 using Api.Models.Friendship;
 using Api.Utilities.Result;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Api.Managers
 {
@@ -16,7 +17,8 @@ namespace Api.Managers
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
 
-        public FriendsManager(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork)
+        public FriendsManager(UserManager<UserAccount> userManager,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
@@ -300,35 +302,41 @@ namespace Api.Managers
             }).ToList();
         }
 
-        private async Task<List<UserToInviteDto>> GetUsersToInviteByTextAsync(UserAccount user, string text)
+        private async Task<List<UserToInviteDto>> GetUsersToInviteByTextAsync(
+            UserAccount user,
+            string text)
         {
             var users = await _userManager.Users
                 .AsNoTracking()
-                .Where(x => x.UserName != user.UserName && x.UserName!.Contains(text))
+                .Where(x =>
+                    x.UserName != user.UserName &&
+                    x.UserName!.Contains(text))
                 .ToListAsync();
 
-            var result = new List<UserToInviteDto>();
+            var friends = await GetFriendsFromDbAsync(user.Id);
 
-            foreach (var x in users)
+            var toInvite = friends.Count > 0
+                ? users.Where(x => !friends.Any(f => f.Id == x.Id)).ToList()
+                : users;
+
+            var dtos = new List<UserToInviteDto>(toInvite.Count);
+            foreach (var u in toInvite)
             {
-                var isFriend = await IsFriendsExistAsync(x.Id, user.Id);
+                bool alreadyInvited = await _unitOfWork
+                    .FriendshipInvitations
+                    .AnyAsync(f =>
+                        f.SenderId == u.Id ||
+                        f.RecipientId == u.Id);
 
-                if (isFriend == false)
+                dtos.Add(new UserToInviteDto
                 {
-                    var isInvited = await _unitOfWork.FriendshipInvitations.AnyAsync(inv =>
-                        (inv.SenderId == user.Id && inv.RecipientId == x.Id) ||
-                        (inv.RecipientId == user.Id && inv.SenderId == x.Id));
-
-                    result.Add(new UserToInviteDto
-                    {
-                        Id = x.Id,
-                        userName = x.UserName ?? throw new Exception("UserName is null"),
-                        IsInvited = isInvited
-                    });
-                }
+                    Id = u.Id,
+                    UserName = u.UserName!,
+                    IsInvited = alreadyInvited
+                });
             }
 
-            return result;
+            return dtos;
         }
 
         private async Task<Result> DeleteInviteAsync(UserAccount senderUser, UserAccount recipientUser)
