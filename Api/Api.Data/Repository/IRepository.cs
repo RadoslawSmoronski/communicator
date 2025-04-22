@@ -9,6 +9,13 @@ namespace Api.Data.Repository
         Task<IEnumerable<T>> WhereAsync(
             Expression<Func<T, bool>> predicate,
             params Expression<Func<T, object>>[] includes);
+        Task<IEnumerable<T>> WherePagedAsync<TKey>(
+            Expression<Func<T, bool>> predicate,
+            Expression<Func<T, TKey>> orderBy,
+            bool orderByDescending,
+            int pageSize,
+            int pageNumber,
+            params Expression<Func<T, object>>[] includes);
         Task<T?> FirstOrDefaultAsync(
             Expression<Func<T, bool>> predicate,
             params Expression<Func<T, object>>[] includes);
