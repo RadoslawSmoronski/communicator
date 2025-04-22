@@ -13,13 +13,19 @@ namespace Api.Tests.Managers.ChatManagerTest
         public async Task GetMessagesAsync_ShouldReturnOk()
         {
             // Arranged
-            A.CallTo(() => _unitOfWork.Messages.WhereAsync(A<Expression<Func<Message, bool>>>._))
+            A.CallTo(() => _unitOfWork.Messages.WherePagedAsync(
+                A<Expression<Func<Message, bool>>>._,
+                A<Expression<Func<Message, DateTime>>>._,
+                A<bool>._,
+                A<int>._,
+                A<int>._,
+                A<Expression<Func<Message, object>>[]>._))
                 .Returns(Task.FromResult<IEnumerable<Message>>(_sampleMessagesList));
 
             var expectedMessageDtos = _mapper.Map<List<MessageDto>>(_sampleMessagesList);
 
             // Act
-            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString()) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString(), 1) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -39,7 +45,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             var expectedMessageDtos = new List<MessageDto>();
 
             // Act
-            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString()) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString(), 1) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -57,7 +63,7 @@ namespace Api.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<Conversation?>(null));
 
             // Act
-            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString()) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString(), 1) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -72,7 +78,7 @@ namespace Api.Tests.Managers.ChatManagerTest
         public async Task GetMessagesAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
         {
             // Act
-            var result = await _chatManager.GetMessagesAsync("") as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetMessagesAsync("", 1) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -89,11 +95,17 @@ namespace Api.Tests.Managers.ChatManagerTest
         {
             // Arrange
 
-            A.CallTo(() => _unitOfWork.Messages.WhereAsync(A<Expression<Func<Message, bool>>>._))
+            A.CallTo(() => _unitOfWork.Messages.WherePagedAsync(
+                    A<Expression<Func<Message, bool>>>._,
+                    A<Expression<Func<Message, DateTime>>>._,
+                    A<bool>._,
+                    A<int>._,
+                    A<int>._,
+                    A<Expression<Func<Message, object>>[]>._))
                 .Throws(new Exception());
 
             // Act
-            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString()) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString(), 1) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
