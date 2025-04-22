@@ -18,6 +18,8 @@ namespace Api.Managers
         private readonly IFriendsManager _friendsManager;
         private readonly IMapper _mapper;
 
+        private readonly int _messagesPageSize = 10;
+
         public ChatManager(IUnitOfWork unitOfWork,
             UserManager<UserAccount> userManager,
             IFriendsManager friendsManager,
@@ -148,7 +150,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId)
+        public async Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId, int pageNumber)
         {
             if (string.IsNullOrWhiteSpace(conversationId))
             {
@@ -162,8 +164,13 @@ namespace Api.Managers
                     return Error.NotFound("CONVERSATION_ID_NOT_FOUND", "ConversationId was not found.");
                 }
 
-                var messages = await _unitOfWork.Messages
-                    .WhereAsync(x => x.ConversationId.ToString() == conversationId);
+                var messages = await _unitOfWork.Messages.WherePagedAsync(
+                    x => x.ConversationId.ToString() == conversationId,
+                    x => x.Timestamp,
+                    orderByDescending: true,
+                    pageSize: _messagesPageSize,
+                    pageNumber: pageNumber
+                );
 
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
