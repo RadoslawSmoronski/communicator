@@ -82,8 +82,8 @@ namespace Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("getMessages/{conversationId}")]
-        public async Task<IActionResult> GetMessagesAsync(string conversationId)
+        [HttpGet("getMessages")]
+        public async Task<IActionResult> GetMessagesAsync([FromQuery] GetMessagesDto getMessagesDto)
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -103,7 +103,7 @@ namespace Api.Controllers
                 return BadRequest(response);
             }
 
-            var result = await _chatManager.GetMessagesAsync(conversationId);
+            var result = await _chatManager.GetMessagesAsync(getMessagesDto.ConversationId, getMessagesDto.PageNumber);
 
             if (result.IsSuccess)
             {
