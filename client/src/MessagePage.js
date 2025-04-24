@@ -24,6 +24,7 @@ class MessagePage extends Component {
     constructor(props) {
         super(props);
         this.scrollMessageBoxRef = React.createRef();
+        this.tempPageNumbers = {};
         this.state = {
             username: 'Bartek',
             searchBar: '',
@@ -47,6 +48,7 @@ class MessagePage extends Component {
             activeReciepientId: null,
             allMessages: {},
             pageNumbersForMessages: {},
+            blockScrollHandler: false,
             signalRConnection: null
         }
         this.handleChangeTxt = this.handleChangeTxt.bind(this);
@@ -61,6 +63,10 @@ class MessagePage extends Component {
     }
 
     waitForDOMUpdate = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    setStateAsync = (state) => {
+        return new Promise(resolve => this.setState(state, resolve));
+    }
 
     handleChangeTxt = async (event) => {
 
@@ -338,6 +344,8 @@ class MessagePage extends Component {
     }
 
     async sendMessageToFriend(){
+        this.scrollMessageBoxRef.current.scrollTop = 0;
+
         const { signalRConnection, selectedChatId, activeReciepientId} = this.state;
         const {userID} = this.context;
         
@@ -361,6 +369,10 @@ class MessagePage extends Component {
     }
 
     async selectChat(conversationId, friendId, friendName){
+        await this.setStateAsync({ blockScrollHandler: true });
+
+        this.scrollMessageBoxRef.current.scrollTop = 0;
+
         const updatedListOfFriends= this.state.listOfFriends.map(friend => {
             if (friend.conversationId === conversationId) {
                 // modify the friend
@@ -372,7 +384,7 @@ class MessagePage extends Component {
             return friend;
         });
 
-        this.setState({
+        await this.setStateAsync({
             selectedChatId: conversationId,
             activeReciepientId: friendId,
             activeFriend: friendName,
@@ -382,35 +394,47 @@ class MessagePage extends Component {
 
         // fetch new messages if there are no fetched messages
         if(this.state.pageNumbersForMessages[conversationId] == 1){
+            await this.waitForDOMUpdate();
+
             const box = this.scrollMessageBoxRef.current;
             let isScrollBarNotVisible = box.clientHeight == box.scrollHeight;
 
             while(isScrollBarNotVisible){
-                console.log(box.clientHeight, box.scrollHeight);
+                
+                console.log("Od selectChat ", box.clientHeight, box.scrollHeight);
                 await this.getMessagesForFriend(conversationId);
-                await this.waitForDOMUpdate(); // wait for DOM to update MessageBox size
 
+
+
+                await this.waitForDOMUpdate(); // wait for DOM to update MessageBox size
                 isScrollBarNotVisible = box.clientHeight == box.scrollHeight;
             }
             
         }
 
+        await this.setStateAsync({ blockScrollHandler: false });
     }
 
-    handleScrollMessageBox = () =>{
-        const box = this.scrollMessageBoxRef.current;
-        const isAtTop = box.clientHeight - box.scrollTop >= box.scrollHeight - 1;
+    handleScrollMessageBox = async () =>{
+        if (this.state.blockScrollHandler) return;
 
-        console.log(box.scrollTop, box.clientHeight, box.scrollHeight );
+        const box = this.scrollMessageBoxRef.current;
+        const isAtTop = box.clientHeight - box.scrollTop >= box.scrollHeight;
+
+        console.log(box.clientHeight, box.scrollTop , box.scrollHeight );
         if(isAtTop){
             console.log('Is at top:', isAtTop);
-            this.getMessagesForFriend(this.state.selectedChatId);
+            await this.getMessagesForFriend(this.state.selectedChatId);
+            await this.waitForDOMUpdate();
         }
     }
 
     async getMessagesForFriend(conversationId){
         const {accessToken, refreshAccessToken} = this.context;
-        let pageNumber = this.state.pageNumbersForMessages[conversationId];
+
+
+        const pageNumber = this.state.pageNumbersForMessages[conversationId];
+        console.log("page nr: ", pageNumber);
 
         //fetch
         try{
@@ -427,15 +451,17 @@ class MessagePage extends Component {
             let res = data.data;
             //is ok
             if(data.status == 200){
-                console.log(res.resultData);
+                console.log(`Wiadomości dla ${conversationId}`);
+                console.log(res.resultData)
+
 
                 // add new messeges for [conversationId]
                 // and update pageNumber
-                await this.setState(prevState => ({
+                await this.setStateAsync(prevState => ({
                     allMessages: {
                       ...prevState.allMessages,
                       [conversationId]: [
-                        ...(prevState.allMessages[conversationId] || []),
+                        ...prevState.allMessages[conversationId],
                         ...res.resultData
                     ]
                     },
@@ -444,7 +470,7 @@ class MessagePage extends Component {
                         [conversationId]: pageNumber + 1
                     }
                 }));
-
+                
             }
 
         }catch(err){
@@ -558,6 +584,7 @@ class MessagePage extends Component {
         const { username, roles, accessToken, userID } = this.context;
 
         //console.log("Current context MESSAGE PAGE:", username, roles, accessToken);
+
 
         return (
             <div id='mainMessagePage'>
