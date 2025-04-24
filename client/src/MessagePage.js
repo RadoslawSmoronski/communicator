@@ -23,6 +23,7 @@ class MessagePage extends Component {
 
     constructor(props) {
         super(props);
+        this.scrollMessageBoxRef = React.createRef();
         this.state = {
             username: 'Bartek',
             searchBar: '',
@@ -45,6 +46,7 @@ class MessagePage extends Component {
             selectedChatId: null,
             activeReciepientId: null,
             allMessages: {},
+            pageNumbersForMessages: {},
             signalRConnection: null
         }
         this.handleChangeTxt = this.handleChangeTxt.bind(this);
@@ -57,6 +59,8 @@ class MessagePage extends Component {
         this.selectChat = this.selectChat.bind(this);
         this.sendMessageToFriend = this.sendMessageToFriend.bind(this);
     }
+
+    waitForDOMUpdate = () => new Promise(resolve => setTimeout(resolve, 0));
 
     handleChangeTxt = async (event) => {
 
@@ -299,18 +303,17 @@ class MessagePage extends Component {
                     listOfFriends_filtered: sortedFriendList
                 });
 
-                // await this.setState({
-                //     listOfFriends: res.resultData,
-                //     listOfFriends_filtered: res.resultData
-                // });
 
-
-                // add empty chats to allMessages
+                // add empty chats add pages to allMessages, pageNumbersForMessages
                 res.resultData.forEach((friend, index) =>{
                     this.setState(prevState =>({
                         allMessages:{
                             ...prevState.allMessages,
                             [friend.conversationId]: []
+                        },
+                        pageNumbersForMessages: {
+                            ...prevState.pageNumbersForMessages,
+                            [friend.conversationId]: 1
                         }
                     }));
                 });
@@ -377,16 +380,42 @@ class MessagePage extends Component {
             listOfFriends_filtered: this.returnFilteredFriends(updatedListOfFriends)
         });
 
-        await this.getMessagesForFriend(conversationId);
+        // fetch new messages if there are no fetched messages
+        if(this.state.pageNumbersForMessages[conversationId] == 1){
+            const box = this.scrollMessageBoxRef.current;
+            let isScrollBarNotVisible = box.clientHeight == box.scrollHeight;
 
+            while(isScrollBarNotVisible){
+                console.log(box.clientHeight, box.scrollHeight);
+                await this.getMessagesForFriend(conversationId);
+                await this.waitForDOMUpdate(); // wait for DOM to update MessageBox size
+
+                isScrollBarNotVisible = box.clientHeight == box.scrollHeight;
+            }
+            
+        }
+
+    }
+
+    handleScrollMessageBox = () =>{
+        const box = this.scrollMessageBoxRef.current;
+        const isAtTop = box.clientHeight - box.scrollTop >= box.scrollHeight - 1;
+
+        console.log(box.scrollTop, box.clientHeight, box.scrollHeight );
+        if(isAtTop){
+            console.log('Is at top:', isAtTop);
+            this.getMessagesForFriend(this.state.selectedChatId);
+        }
     }
 
     async getMessagesForFriend(conversationId){
         const {accessToken, refreshAccessToken} = this.context;
+        let pageNumber = this.state.pageNumbersForMessages[conversationId];
 
         //fetch
         try{
-            const data = await axios.get(`${APIs.GET_MESSAGES_URL}/${conversationId}`,
+            const data = await axios.get(`${APIs.GET_MESSAGES_URL}/?ConversationId=${conversationId}
+                &PageNumber=${pageNumber}`,
                 {
                     withCredentials: true,
                     headers: { 
@@ -401,10 +430,18 @@ class MessagePage extends Component {
                 console.log(res.resultData);
 
                 // add new messeges for [conversationId]
+                // and update pageNumber
                 await this.setState(prevState => ({
                     allMessages: {
                       ...prevState.allMessages,
-                      [conversationId]: res.resultData.reverse()
+                      [conversationId]: [
+                        ...(prevState.allMessages[conversationId] || []),
+                        ...res.resultData
+                    ]
+                    },
+                    pageNumbersForMessages: {
+                        ...prevState.pageNumbersForMessages,
+                        [conversationId]: pageNumber + 1
                     }
                 }));
 
@@ -465,8 +502,6 @@ class MessagePage extends Component {
         await this.setState(prevState => ({
             listOfFriends: this.returnSortedByLastMessDateFriendsList(updatedListOfFriends),
             listOfFriends_filtered: this.returnSortedByLastMessDateFriendsList(this.returnFilteredFriends(updatedListOfFriends)),
-            // listOfFriends: updatedListOfFriends,
-            // listOfFriends_filtered: this.returnFilteredFriends(updatedListOfFriends),
             allMessages:{
                 ...prevState.allMessages,
                 [messageDto.conversationId]: [messageDto ,...prevState.allMessages[messageDto.conversationId]]
@@ -650,7 +685,10 @@ class MessagePage extends Component {
                 </div>
 
                 {/* MESSAGE BOX */}
-                <div id='messageBox'>
+                <div id='messageBox'
+                    ref={this.scrollMessageBoxRef}
+                    onScroll={this.handleScrollMessageBox}    
+                >
                     {/* Renderowanie wiadomości z tablicy allMessages */}
                     {Array.isArray(this.state.allMessages[this.state.selectedChatId]) &&
                         this.state.allMessages[this.state.selectedChatId].map((message, index) => (
