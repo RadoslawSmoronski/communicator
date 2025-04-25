@@ -57,6 +57,8 @@ public class Repository<T> : IRepository<T> where T : class
             query = query.Include(include);
         }
 
+        query = query.Where(predicate);
+
         query = orderByDescending
             ? query.OrderByDescending(orderBy)
             : query.OrderBy(orderBy);
