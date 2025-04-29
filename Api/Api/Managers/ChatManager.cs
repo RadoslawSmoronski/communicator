@@ -27,7 +27,7 @@ namespace Api.Managers
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _friendsManager = friendsManager;  
+            _friendsManager = friendsManager;
             _mapper = mapper;
         }
 
@@ -92,7 +92,7 @@ namespace Api.Managers
             {
                 var conversation = await GetConversationByIdAsync(conversationId);
 
-                if(conversation != null)
+                if (conversation != null)
                 {
                     await _DeleteConversationAsync(conversation);
                     return Result.Success();
@@ -159,13 +159,16 @@ namespace Api.Managers
 
             try
             {
-                if(await GetConversationByIdAsync(conversationId) == null)
+                if (await GetConversationByIdAsync(conversationId) == null)
                 {
                     return Error.NotFound("CONVERSATION_ID_NOT_FOUND", "ConversationId was not found.");
                 }
 
+                if (!Guid.TryParse(conversationId, out var conversationIdGuid))
+                    throw new ArgumentException("Invalid conversation ID", nameof(conversationId));
+
                 var messages = await _unitOfWork.Messages.WherePagedAsync(
-                    x => x.ConversationId.ToString() == conversationId,
+                    x => x.ConversationId == conversationIdGuid,
                     x => x.Timestamp,
                     orderByDescending: true,
                     pageSize: _messagesPageSize,
@@ -176,7 +179,7 @@ namespace Api.Managers
 
                 return messageDtos;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
