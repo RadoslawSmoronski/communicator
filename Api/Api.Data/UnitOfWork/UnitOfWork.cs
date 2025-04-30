@@ -1,4 +1,5 @@
 ﻿using Api.Data.Repository;
+using Api.Data.Repository.Interfaces;
 using Api.Models;
 using Api.Models.Chat;
 using Api.Models.Friendship;
@@ -12,7 +13,7 @@ namespace Api.Data.UnitOfWork
         private IRepository<Friendship> _friendships;
         private IRepository<FriendshipInvitation> _friendshipInvitations;
         private IRepository<Conversation> _conversations;
-        private IRepository<Message> _messages;
+        private IMessageRepository _messages;
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -23,7 +24,7 @@ namespace Api.Data.UnitOfWork
         public IRepository<Friendship> Friendships => _friendships ??= new Repository<Friendship>(_context);
         public IRepository<FriendshipInvitation> FriendshipInvitations => _friendshipInvitations ??= new Repository<FriendshipInvitation>(_context);
         public IRepository<Conversation> Conversations => _conversations ??= new Repository<Conversation>(_context);
-        public IRepository<Message> Messages => _messages ??= new Repository<Message>(_context);
+        public IMessageRepository Messages => _messages ??= new MessageRepository(_context);
 
 
         public async Task<int> SaveAsync()

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Api.Models.Dtos.Chat
 {
-    public class GetMessagesDto
+    public class GetPagedMessagesDto
     {
         public string ConversationId { get; set; }
-        public int PageNumber { get; set; }
+        public string FromMessageId { get; set; }
     }
 }

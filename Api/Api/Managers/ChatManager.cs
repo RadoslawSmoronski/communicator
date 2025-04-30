@@ -150,7 +150,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId, int pageNumber)
+        public async Task<ResultT<List<MessageDto>>> GetPagedMessagesFromMessageIdAsync(string conversationId, string fromMessageId)
         {
             if (string.IsNullOrWhiteSpace(conversationId))
             {
@@ -164,16 +164,7 @@ namespace Api.Managers
                     return Error.NotFound("CONVERSATION_ID_NOT_FOUND", "ConversationId was not found.");
                 }
 
-                if (!Guid.TryParse(conversationId, out var conversationIdGuid))
-                    throw new ArgumentException("Invalid conversation ID", nameof(conversationId));
-
-                var messages = await _unitOfWork.Messages.WherePagedAsync(
-                    x => x.ConversationId == conversationIdGuid,
-                    x => x.Timestamp,
-                    orderByDescending: true,
-                    pageSize: _messagesPageSize,
-                    pageNumber: pageNumber
-                );
+                var messages = await _GetPagedMessagesFromMessageIdAsync(conversationId, fromMessageId);
 
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
@@ -197,6 +188,23 @@ namespace Api.Managers
             {
                 return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
+        }
+
+        private async Task<List<Message>> _GetPagedMessagesFromMessageIdAsync(string conversationId, string fromMessageId)
+        {
+            if (!Guid.TryParse(conversationId, out var conversationIdGuid))
+                throw new ArgumentException("Invalid conversationId", nameof(conversationId));
+
+            if (!Guid.TryParse(fromMessageId, out var fromMessageIdGuid))
+                throw new ArgumentException("Invalid fromMessageId", nameof(fromMessageId));
+
+            var messages = await _unitOfWork.Messages.GetPagedMessagesFromMessageIdAsync(
+                conversationIdGuid,
+                fromMessageIdGuid,
+                _messagesPageSize
+                );
+
+            return messages.ToList();
         }
 
         private async Task _SaveMessageAsync(Message message)

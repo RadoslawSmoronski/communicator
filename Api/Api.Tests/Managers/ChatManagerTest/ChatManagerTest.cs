@@ -75,6 +75,7 @@ namespace Api.Tests.Managers.ChatManagerTest
                 SenderId = _sampleUser1.Id,
                 Sender = _sampleUser1,
                 Content = "sampleMessage1",
+                Timestamp = DateTime.UtcNow.AddSeconds(-20),
                 IsRead = true
             };
 
@@ -85,6 +86,7 @@ namespace Api.Tests.Managers.ChatManagerTest
                 SenderId = _sampleUser2.Id,
                 Sender = _sampleUser2,
                 Content = "sampleMessage2",
+                Timestamp = DateTime.UtcNow.AddSeconds(-10),
                 IsRead = true
             };
 
@@ -95,6 +97,7 @@ namespace Api.Tests.Managers.ChatManagerTest
                 SenderId = _sampleUser1.Id,
                 Sender = _sampleUser1,
                 Content = "sampleMessage3",
+                Timestamp = DateTime.UtcNow,
                 IsRead = true
             };
 
