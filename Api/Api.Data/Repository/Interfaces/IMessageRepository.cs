@@ -9,6 +9,6 @@ namespace Api.Data.Repository.Interfaces
 {
     public interface IMessageRepository : IRepository<Message>
     {
-        Task<List<Message>> GetPagedMessagesFromIdAsync(Guid ConversationId, Guid fromMessageId, int pageSize);
+        Task<IEnumerable<Message>> GetPagedMessagesFromMessageIdAsync(Guid ConversationId, Guid fromMessageId, int pageSize);
     }
 }

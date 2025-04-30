@@ -7,25 +7,25 @@ using System.Linq.Expressions;
 
 namespace Api.Tests.Managers.ChatManagerTest
 {
-    public class GetMessagesAsyncTest : ChatManagerTest
+    public class GetPagedMessagesAsyncTest : ChatManagerTest
     {
         [Fact]
-        public async Task GetMessagesAsync_ShouldReturnOk()
+        public async Task GetPagedMessagesAsync_ShouldReturnOk()
         {
             // Arranged
-            A.CallTo(() => _unitOfWork.Messages.WherePagedAsync(
-                A<Expression<Func<Message, bool>>>._,
-                A<Expression<Func<Message, DateTime>>>._,
-                A<bool>._,
-                A<int>._,
-                A<int>._,
-                A<Expression<Func<Message, object>>[]>._))
-                .Returns(Task.FromResult<IEnumerable<Message>>(_sampleMessagesList));
 
-            var expectedMessageDtos = _mapper.Map<List<MessageDto>>(_sampleMessagesList);
+            var _extraSampleMessageList = _sampleMessagesList.Where(x => x.Id != _sampleMessage1.Id);
+
+            A.CallTo(() => _unitOfWork.Messages.GetPagedMessagesFromMessageIdAsync(
+                _sampleConversation.Id,
+                _sampleMessage2.Id,
+                10))
+                .Returns(Task.FromResult<IEnumerable<Message>>(_extraSampleMessageList));
+
+            var expectedMessageDtos = _mapper.Map<List<MessageDto>>(_extraSampleMessageList);
 
             // Act
-            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString(), 1) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id.ToString(), _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -36,16 +36,19 @@ namespace Api.Tests.Managers.ChatManagerTest
         }
 
         [Fact]
-        public async Task GetMessagesAsync_ShouldReturnOk_WhenThereAreNoMessages()
+        public async Task GetPagedMessagesFromMessageIdAsync_ShouldReturnOk_WhenThereAreNoMessages()
         {
             // Arrange
-            A.CallTo(() => _unitOfWork.Messages.WhereAsync(A<Expression<Func<Message, bool>>>._))
+            A.CallTo(() => _unitOfWork.Messages.GetPagedMessagesFromMessageIdAsync(
+                _sampleConversation.Id,
+                _sampleMessage2.Id,
+                10))
                 .Returns(Task.FromResult<IEnumerable<Message>>(new List<Message>()));
 
             var expectedMessageDtos = new List<MessageDto>();
 
             // Act
-            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString(), 1) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id.ToString(), _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -56,14 +59,14 @@ namespace Api.Tests.Managers.ChatManagerTest
         }
 
         [Fact]
-        public async Task GetMessagesAsync_ShouldReturnNotFoundError_WhenConversionIdWasNotFound()
+        public async Task GetPagedMessagesFromMessageIdAsync_ShouldReturnNotFoundError_WhenConversionIdWasNotFound()
         {
             // Arrange
             A.CallTo(() => _unitOfWork.Conversations.FirstOrDefaultAsync(A<Expression<Func<Conversation, bool>>>._))
                 .Returns(Task.FromResult<Conversation?>(null));
 
             // Act
-            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString(), 1) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id.ToString(), _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -75,10 +78,10 @@ namespace Api.Tests.Managers.ChatManagerTest
         }
 
         [Fact]
-        public async Task GetMessagesAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
+        public async Task GetPagedMessagesFromMessageIdAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
         {
             // Act
-            var result = await _chatManager.GetMessagesAsync("", 1) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync("", _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -91,21 +94,17 @@ namespace Api.Tests.Managers.ChatManagerTest
         }
 
         [Fact]
-        public async Task GetMessagesAsync_ShouldReturnInternalServerError()
+        public async Task GetPagedMessagesFromMessageIdAsync_ShouldReturnInternalServerError()
         {
             // Arrange
-
-            A.CallTo(() => _unitOfWork.Messages.WherePagedAsync(
-                    A<Expression<Func<Message, bool>>>._,
-                    A<Expression<Func<Message, DateTime>>>._,
-                    A<bool>._,
-                    A<int>._,
-                    A<int>._,
-                    A<Expression<Func<Message, object>>[]>._))
-                .Throws(new Exception());
+            A.CallTo(() => _unitOfWork.Messages.GetPagedMessagesFromMessageIdAsync(
+                _sampleConversation.Id,
+                _sampleMessage2.Id,
+                10))
+            .Throws(new Exception());
 
             // Act
-            var result = await _chatManager.GetMessagesAsync(_sampleConversation.Id.ToString(), 1) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id.ToString(), _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();

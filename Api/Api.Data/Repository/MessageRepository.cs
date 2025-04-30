@@ -20,18 +20,17 @@ namespace Api.Data.Repository
             _dbSet = context.Set<Message>();
         }
 
-        public async Task<List<Message>> GetPagedMessagesFromIdAsync(Guid conversationId, Guid fromMessageId, int pageSize)
+        public async Task<IEnumerable<Message>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId, int pageSize)
         {
             var fromMessage = await _dbSet.FirstOrDefaultAsync(x => x.Id == fromMessageId);
 
             if (fromMessage == null)
                 throw new Exception();
 
-            return await _dbSet
+            return _dbSet
                 .Where(x => x.ConversationId == conversationId && x.Timestamp <= fromMessage.Timestamp)
                 .OrderByDescending(x => x.Timestamp)
-                .Take(pageSize)
-                .ToListAsync();
+                .Take(pageSize);
         }
     }
 }

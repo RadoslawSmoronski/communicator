@@ -103,7 +103,7 @@ namespace Api.Controllers
                 return BadRequest(response);
             }
 
-            var result = await _chatManager.GetPagedMessagesAsync(getMessagesDto.ConversationId, getMessagesDto.FromMessageId);
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(getMessagesDto.ConversationId, getMessagesDto.FromMessageId);
 
             if (result.IsSuccess)
             {
