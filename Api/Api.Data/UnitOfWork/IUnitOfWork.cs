@@ -1,4 +1,5 @@
 ﻿using Api.Data.Repository;
+using Api.Data.Repository.Interfaces;
 using Api.Models;
 using Api.Models.Chat;
 using Api.Models.Friendship;
@@ -13,7 +14,7 @@ namespace Api.Data.UnitOfWork
 
         //Chat
         public IRepository<Conversation> Conversations { get; }
-        public IRepository<Message> Messages { get; }
+        public IMessageRepository Messages { get; }
         Task<int> SaveAsync();
     }
 }

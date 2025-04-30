@@ -14,7 +14,7 @@ namespace Api.Managers.Interfaces
 
         //Message
         Task<Result> SaveMessageAsync(Message message);
-        Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId, int pageNumber);
+        Task<ResultT<List<MessageDto>>> GetPagedMessagesAsync(string conversationId, string fromMessageId);
         //ResultT<List<Message>> GetUnreadMessages();
         //ResultT<Message> GetLastMessage();
 

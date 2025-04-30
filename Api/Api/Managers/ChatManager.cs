@@ -150,7 +150,7 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<List<MessageDto>>> GetMessagesAsync(string conversationId, int pageNumber)
+        public async Task<ResultT<List<MessageDto>>> GetPagedMessagesAsync(string conversationId, string fromMessageId)
         {
             if (string.IsNullOrWhiteSpace(conversationId))
             {
@@ -165,15 +165,16 @@ namespace Api.Managers
                 }
 
                 if (!Guid.TryParse(conversationId, out var conversationIdGuid))
-                    throw new ArgumentException("Invalid conversation ID", nameof(conversationId));
+                    throw new ArgumentException("Invalid conversationId", nameof(conversationId));
 
-                var messages = await _unitOfWork.Messages.WherePagedAsync(
-                    x => x.ConversationId == conversationIdGuid,
-                    x => x.Timestamp,
-                    orderByDescending: true,
-                    pageSize: _messagesPageSize,
-                    pageNumber: pageNumber
-                );
+                if (!Guid.TryParse(fromMessageId, out var fromMessageIdGuid))
+                    throw new ArgumentException("Invalid fromMessageId", nameof(fromMessageId));
+
+                var messages = await _unitOfWork.Messages.GetPagedMessagesFromIdAsync(
+                    conversationIdGuid,
+                    fromMessageIdGuid,
+                    _messagesPageSize
+                    );
 
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
