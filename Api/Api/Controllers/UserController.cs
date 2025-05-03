@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Api.Models.Dtos.Controllers.UserController;
 using Api.Models.Dtos.Service;
 using Api.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -169,6 +171,56 @@ namespace Api.Controllers
                 (ResponseHttpType.InternalServerError, "An internal server error occurred.");
 
             return StatusCode(500, response500);
+        }
+
+        // Refactor this – quick & dirty implementation
+        [Authorize]
+        [HttpPatch("changeUsername")]
+        public async Task<IActionResult> ChangeUsernameAsync([FromQuery] string newUsername)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if(userId == null)
+                {
+                    var response = _responseFactory.Create
+                        (ResponseHttpType.InternalServerError, "To edit.");
+
+                    return StatusCode(response.Status, response);
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null)
+                {
+                    var response = _responseFactory.Create
+                        (ResponseHttpType.InternalServerError, "To edit.");
+
+                    return StatusCode(response.Status, response);
+                }
+
+                var isUsernameExists = await _userManager.FindByNameAsync(newUsername);
+
+                if (isUsernameExists != null)
+                {   
+                    var response = _responseFactory.Create
+                        (ResponseHttpType.Conflict, "To edit.");
+
+                    return Conflict(response);
+                }
+
+                var result = await _userManager.SetUserNameAsync(user, newUsername);
+                return result.Succeeded ? NoContent() : BadRequest(result.Errors);
+            }
+            catch
+            {
+                var response = _responseFactory.Create
+                                (ResponseHttpType.InternalServerError, "To edit.");
+
+                return StatusCode(response.Status, response);
+            }
+
         }
     }
 }
