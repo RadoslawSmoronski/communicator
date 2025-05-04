@@ -202,7 +202,6 @@ namespace Api.Controllers
         /// </returns>
         /// <response code="200">Access token successfully refreshed.</response>
         /// <response code="400">Invalid or expired refresh token.</response>
-        /// <response code="401">Unauthorized access due to invalid token.</response>
         /// <response code="500">Unexpected server error occurred.</response>
         /// <example>
         /// <code>
@@ -214,32 +213,32 @@ namespace Api.Controllers
         ///</example>
         [HttpPost("refreshAccessToken")]
         [ProducesResponseType<RefreshAccessTokenDto>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
         {
             var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshTokenDto.RefreshToken);
 
             if (newToken.IsSuccess)
-            {
-                var response = _responseFactory.Create<RefreshAccessTokenDto>
-                    (ResponseHttpType.Success, "The access token has been successfully refreshed.", newToken.Value);
-                
-                return Ok(response);
+            {       
+                return Ok(newToken.Value);
             }
             else if(newToken.Error != null)
             {
-                var error = newToken.Error;
-
-                var errorResponseType = _mapper.Map<ResponseHttpType>(error.ErrorType);
-
-                var errorResponse = _responseFactory.Create(errorResponseType, error.Description);
-
-                return StatusCode(errorResponse.Status, errorResponse);
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected refreshing access token failure",
+                    detail: "Refreshing access token failed unexpectedly. Please try again later or contact support.",
+                    instance: HttpContext.Request.Path
+                );
             }
 
-            var response500 = _responseFactory.Create
-                (ResponseHttpType.InternalServerError, "An internal server error occurred.");
-
-            return StatusCode(500, response500);
+            return Problem(
+                statusCode: 500,
+                title: "Unexpected server error",
+                detail: "An unexpected error occurred during refreshing access token.",
+                instance: HttpContext.Request.Path
+            );
         }
 
         // REFACTOR - Refactor this – quick & dirty implementation
