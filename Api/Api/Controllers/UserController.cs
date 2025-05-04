@@ -107,52 +107,47 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// Login
+        /// Login.
         /// </summary>
         /// <remarks>
-        /// This endpoint validates the provided username and password. On success, it returns a JWT access token
-        /// and a refresh token for session management. If the credentials are invalid or the user does not exist,
-        /// an appropriate error is returned.
+        /// This endpoint validates the provided login credentials. If authentication is successful, it returns a JWT access token
+        /// and a refresh token for session management. If the user does not exist or the credentials are invalid, an appropriate error is returned.
         /// </remarks>
-        /// <param name="loginDto">The login credentials including username and password.</param>
+        /// <param name="loginDto">The login credentials, including username and password.</param>
         /// <returns>
-        /// A response containing the authenticated user's ID, access token, and refresh token, or an error message.
+        /// A <see cref="LoggedUserDto"/> object containing the authenticated user's ID, username, access token, and refresh token,
+        /// or a <see cref="ProblemDetails"/> response in case of failure.
         /// </returns>
         /// <response code="200">User successfully authenticated. Tokens returned.</response>
-        /// <response code="400">Invalid login attempt (e.g., wrong password).</response>
-        /// <response code="404">No user with the specified username exists.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="400">Invalid login request (e.g., malformed input).</response>
+        /// <response code="401">Invalid username or password.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
-        /// <code>
         /// POST /api/login
         /// {
         ///     "userName": "existinguser",
         ///     "password": "UserPassword123!"
         /// }
-        /// </code>
-        ///<code>
-        /// Response object:
-        /// {
-        ///     "userName": string,
-        ///     "id": string,
-        ///     "accessToken": string,
-        ///     "refreshToken": string,
-        /// }
-        ///</code>
-        ///</example>
+        /// </example>
         [HttpPost("login")]
         [ProducesResponseType<LoggedUserDto>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
             try
             {
                 var user = await _userManager.FindByNameAsync(loginDto.UserName);
+
                 if (user == null)
                 {
-                    var response = _responseFactory.Create
-                        (ResponseHttpType.NotFound, "No user with this username exists.");
-
-                    return NotFound(response);
+                    return Problem(
+                        statusCode: 401,
+                        title: "Invalid credentials",
+                        detail: "Username or password is incorrect.",
+                        instance: HttpContext.Request.Path
+                    );
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
@@ -164,38 +159,33 @@ namespace Api.Controllers
 
                     if (refreshToken.IsSuccess && accessToken.IsSuccess)
                     {
-                        var resultData = new Dictionary<string, LoggedUserDto>
-                            {
-                                { "user", new LoggedUserDto()
-                                    {
-                                        UserName = loginDto.UserName,
-                                        Id = user.Id,
-                                        AccessToken = accessToken.Value,
-                                        RefreshToken = refreshToken.Value
-                                    }
-                                }
-                            };
+                        var resultObj = new LoggedUserDto()
+                        {
+                            UserName = loginDto.UserName,
+                            Id = user.Id,
+                            AccessToken = accessToken.Value,
+                            RefreshToken = refreshToken.Value
+                        };
 
-                        var response = _responseFactory.Create<Dictionary<string, LoggedUserDto>>
-                            (ResponseHttpType.Success, "The user has been successfully logged in.", resultData);
-
-                        return Ok(response);
+                        return Ok(resultObj);
                     }
-
-
                 }
 
-                var responseBadRequest = _responseFactory.Create
-                    (ResponseHttpType.BadRequest, "Invalid login attempt.");
-
-                return BadRequest(responseBadRequest);
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected logging failure",
+                    detail: "User logging failed unexpectedly. Please try again later or contact support.",
+                    instance: HttpContext.Request.Path
+                );
             }
             catch (Exception)
             {
-                var response = _responseFactory.Create
-                    (ResponseHttpType.InternalServerError, "An internal server error occurred.");
-
-                return StatusCode(500, response);
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected server error",
+                    detail: "An unexpected error occurred during user logging.",
+                    instance: HttpContext.Request.Path
+                );
             }
         }
 
