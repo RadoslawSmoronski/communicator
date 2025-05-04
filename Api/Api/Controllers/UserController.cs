@@ -35,7 +35,32 @@ namespace Api.Controllers
             _responseFactory = responseFactory;
         }
 
+        /// <summary>
+        /// Register.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint creates a new user using a username and password. If the username already exists,
+        /// a conflict response is returned. On success, basic user data is returned.
+        /// </remarks>
+        /// <param name="registerDto">The registration data including username and password.</param>
+        /// <returns>
+        /// A response containing the created user's ID and username, or an error message.
+        /// </returns>
+        /// <response code="200">User successfully created.</response>
+        /// <response code="400">Invalid registration data (e.g., password policy not met).</response>
+        /// <response code="409">Username already exists.</response>
+        /// <response code="500">Unexpected server error occurred.</response>
+        /// <example>
+        /// <code>
+        /// POST /api/register
+        /// {
+        ///     "userName": "newuser123",
+        ///     "password": "StrongPassword123!"
+        /// }
+        /// </code>
+        ///</example>
         [HttpPost("register")]
+        [ProducesResponseType<SimpleUserDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
             try
@@ -85,7 +110,42 @@ namespace Api.Controllers
 
         }
 
+        /// <summary>
+        /// Login
+        /// </summary>
+        /// <remarks>
+        /// This endpoint validates the provided username and password. On success, it returns a JWT access token
+        /// and a refresh token for session management. If the credentials are invalid or the user does not exist,
+        /// an appropriate error is returned.
+        /// </remarks>
+        /// <param name="loginDto">The login credentials including username and password.</param>
+        /// <returns>
+        /// A response containing the authenticated user's ID, access token, and refresh token, or an error message.
+        /// </returns>
+        /// <response code="200">User successfully authenticated. Tokens returned.</response>
+        /// <response code="400">Invalid login attempt (e.g., wrong password).</response>
+        /// <response code="404">No user with the specified username exists.</response>
+        /// <response code="500">Unexpected server error occurred.</response>
+        /// <example>
+        /// <code>
+        /// POST /api/login
+        /// {
+        ///     "userName": "existinguser",
+        ///     "password": "UserPassword123!"
+        /// }
+        /// </code>
+        ///<code>
+        /// Response object:
+        /// {
+        ///     "userName": string,
+        ///     "id": string,
+        ///     "accessToken": string,
+        ///     "refreshToken": string,
+        /// }
+        ///</code>
+        ///</example>
         [HttpPost("login")]
+        [ProducesResponseType<LoggedUserDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
             try
@@ -143,8 +203,31 @@ namespace Api.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Refresh access token
+        /// </summary>
+        /// <remarks>
+        /// This endpoint validates the provided refresh token and, if valid, issues a new access token.
+        /// It is typically used when the current access token has expired but the refresh token is still valid.
+        /// </remarks>
+        /// <param name="refreshTokenDto">The object containing the refresh token string.</param>
+        /// <returns>
+        /// A response containing a new access token, or an error indicating why the refresh failed.
+        /// </returns>
+        /// <response code="200">Access token successfully refreshed.</response>
+        /// <response code="400">Invalid or expired refresh token.</response>
+        /// <response code="401">Unauthorized access due to invalid token.</response>
+        /// <response code="500">Unexpected server error occurred.</response>
+        /// <example>
+        /// <code>
+        /// POST /api/refreshAccessToken
+        /// {
+        ///     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        /// }
+        /// </code>
+        ///</example>
         [HttpPost("refreshAccessToken")]
+        [ProducesResponseType<RefreshAccessTokenDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
         {
             var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshTokenDto.RefreshToken);
@@ -173,7 +256,28 @@ namespace Api.Controllers
             return StatusCode(500, response500);
         }
 
-        // Refactor this – quick & dirty implementation
+        // REFACTOR - Refactor this – quick & dirty implementation
+        /// <summary>
+        /// changeUsername [Dirty endpoint to refactor but it workings.]
+        /// </summary>
+        /// <remarks>
+        /// This endpoint allows an authenticated user to update their username. It verifies whether the new username
+        /// is already taken and returns a conflict response if so. The user ID is extracted from the JWT token.
+        /// </remarks>
+        /// <param name="newUsername">The new username to assign to the current user.</param>
+        /// <returns>
+        /// A response indicating whether the username was successfully updated or an appropriate error message.
+        /// </returns>
+        /// <response code="204">Username successfully updated. No content returned.</response>
+        /// <response code="400">Invalid request or update failed.</response>
+        /// <response code="409">Username already exists.</response>
+        /// <response code="500">Unexpected server error occurred.</response>
+        /// <example>
+        /// <code>
+        /// PATCH /api/changeUsername?newUsername=new_name_123
+        /// Authorization: Bearer {token}
+        /// </code>
+        /// </example>
         [Authorize]
         [HttpPatch("changeUsername")]
         public async Task<IActionResult> ChangeUsernameAsync([FromQuery] string newUsername)
@@ -211,7 +315,10 @@ namespace Api.Controllers
                 }
 
                 var result = await _userManager.SetUserNameAsync(user, newUsername);
-                return result.Succeeded ? NoContent() : BadRequest(result.Errors);
+                //return result.Succeeded ? NoContent() : BadRequest(result.Errors);
+
+                //return  CreatedAtAction(nameof(CreateScheduleItem), new { scheduleItem.ScheduleItemId }, scheduleItem);
+                return Ok(result);
             }
             catch
             {
