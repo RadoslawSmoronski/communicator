@@ -46,21 +46,24 @@ namespace Api.Controllers
         /// <returns>
         /// A response containing the created user's ID and username, or an error message.
         /// </returns>
-        /// <response code="200">User successfully created.</response>
+        /// <response code="201">User successfully created.</response>
         /// <response code="400">Invalid registration data (e.g., password policy not met).</response>
         /// <response code="409">Username already exists.</response>
         /// <response code="500">Unexpected server error occurred.</response>
         /// <example>
         /// <code>
-        /// POST /api/register
+        /// POST /api/user/register
         /// {
         ///     "userName": "newuser123",
         ///     "password": "StrongPassword123!"
         /// }
         /// </code>
-        ///</example>
+        /// </example>
         [HttpPost("register")]
-        [ProducesResponseType<SimpleUserDto>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SimpleUserDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
             try
@@ -70,44 +73,37 @@ namespace Api.Controllers
 
                 if (result.Succeeded)
                 {
-                    var resultData = new Dictionary<string, SimpleUserDto>
-                        {
-                            { "user", new SimpleUserDto()
-                                {
-                                    Id = user.Id,
-                                    userName = user.UserName
-                                }
-                            }
-                        };
-
-                    var response = _responseFactory.Create<Dictionary<string, SimpleUserDto>>
-                        (ResponseHttpType.Success, "The user has been successfully created.", resultData);
-
-                    return Ok(response);
+                    var dto = _mapper.Map<SimpleUserDto>(user);
+                    return Created(string.Empty, dto);
                 }
 
                 var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
                 if (conflictError != null)
                 {
-                    var response = _responseFactory.Create
-                        (ResponseHttpType.Conflict, "A user with this username already exists.");
-
-                    return Conflict(response);
+                    return Problem(
+                        statusCode: 409,
+                        title: "Conflict",
+                        detail: "A user with this username already exists.",
+                        instance: HttpContext.Request.Path
+                    );
                 }
 
-                var responseBadRequest = _responseFactory.Create
-                    (ResponseHttpType.BadRequest, "Invalid registration attempt.");
-
-                return BadRequest(responseBadRequest);
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected registration failure",
+                    detail: "User registration failed unexpectedly. Please try again later or contact support.",
+                    instance: HttpContext.Request.Path
+                );
             }
             catch (Exception)
             {
-                var response = _responseFactory.Create
-                    (ResponseHttpType.InternalServerError, "An internal server error occurred.");
-
-                return StatusCode(500, response);
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected server error",
+                    detail: "An unexpected error occurred during user registration.",
+                    instance: HttpContext.Request.Path
+                );
             }
-
         }
 
         /// <summary>
