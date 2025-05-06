@@ -2,8 +2,6 @@
 using Api.Models;
 using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
 using Api.Models.Dtos.Controllers.UserController.LoginAsync;
-using Api.Models.Dtos.Responses;
-using Api.Models.Dtos.Responses.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,16 +22,14 @@ namespace Api.Controllers
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
         private readonly ITokenManager _tokenManager;
-        private readonly ResponseHttpFactory _responseFactory;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper, ITokenManager tokenManager, ResponseHttpFactory responseFactory)
+            IMapper mapper, ITokenManager tokenManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
             _tokenManager = tokenManager;
-            _responseFactory = responseFactory;
         }
 
         /// <summary>
