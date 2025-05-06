@@ -12,6 +12,7 @@ using Api.Models.Dtos.Service;
 using Api.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Api.Utilities.Result;
 
 namespace Api.Controllers
 {
@@ -198,11 +199,12 @@ namespace Api.Controllers
         /// </remarks>
         /// <param name="refreshTokenDto">The object containing the refresh token string.</param>
         /// <returns>
-        /// A response containing a new access token, or an error indicating why the refresh failed.
+        /// A new access token if the refresh token is valid; otherwise, a problem detail describing the failure.
         /// </returns>
         /// <response code="200">Access token successfully refreshed.</response>
-        /// <response code="400">Invalid or expired refresh token.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="400">The refresh token is invalid or malformed (e.g., structurally incorrect).</response>
+        /// <response code="401">The refresh token is valid in format but unauthorized (e.g., expired, revoked, or forged).</response>
+        /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
         /// <code>
         /// POST /api/refreshAccessToken
@@ -210,10 +212,11 @@ namespace Api.Controllers
         ///     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         /// }
         /// </code>
-        ///</example>
+        /// </example>
         [HttpPost("refreshAccessToken")]
         [ProducesResponseType<RefreshAccessTokenDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshTokenDto refreshTokenDto)
         {
@@ -225,6 +228,25 @@ namespace Api.Controllers
             }
             else if(newToken.Error != null)
             {
+                if(newToken.Error.ErrorType == ErrorType.Validation)
+                {
+                    return Problem(
+                        statusCode: 400,
+                        title: "Bad Request",
+                        detail: "The provided refresh token is invalid or malformed.",
+                        instance: HttpContext.Request.Path
+                    );
+                }
+                else if(newToken.Error.ErrorType == ErrorType.Unauthorized)
+                {
+                    return Problem(
+                        statusCode: 401,
+                        title: "Unauthorized",
+                        detail: "Refreshing access token validation failed due to unauthorized access. Please log in again.",
+                        instance: HttpContext.Request.Path
+                    );
+                }
+
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected refreshing access token failure",
