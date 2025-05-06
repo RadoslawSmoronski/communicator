@@ -53,7 +53,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         [Theory]
         [InlineData("login", "")]
         [InlineData("", "id")]
-        public async Task CreateAccessTokenAsync_ShouldReturnBadRequestError_WhenDataIsNotValid(string login, string id)
+        public async Task CreateAccessTokenAsync_ShouldReturnValidationError_WhenDataIsNotValid(string login, string id)
         {
             // Arrange
             var user = new UserAccount { UserName = login, Id = id };
@@ -67,12 +67,11 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Be("User, Username, or User Id cannot be null or empty.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
-        public async Task CreateAccessTokenAsync_ShouldReturnNotFoundErrorWhenUserNotFound()
+        public async Task CreateAccessTokenAsync_ShouldReturnUnauthorizedErrorWhenUserNotFound()
         {
             // Arrange
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
@@ -87,12 +86,11 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Contains("User not found or username is invalid.");
+            error.ErrorType.Should().Be(ErrorType.Unauthorized);
         }
 
         [Fact]
-        public async Task CreateAccessTokenAsync_ShouldReturnInternalServerError()
+        public async Task CreateAccessTokenAsync_ShouldReturnUnknownError()
         {
             // Arrange
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
@@ -107,8 +105,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Description.Contains("An internal server error occurred.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }

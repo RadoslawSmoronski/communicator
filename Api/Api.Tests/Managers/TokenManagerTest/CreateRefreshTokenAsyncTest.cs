@@ -51,7 +51,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         [Theory]
         [InlineData("")]
         [InlineData(null)]
-        public async Task CreateRefreshTokenAsync_ShouldReturnBadRequestError_WhenDataIsNotValid(string? testInput)
+        public async Task CreateRefreshTokenAsync_ShouldReturnValidationError_WhenDataIsNotValid(string? testInput)
         {
             // Act
             var result = await _tokenManager.CreateRefreshTokenAsync(testInput);
@@ -62,12 +62,11 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Contains("UserID cannot be null or empty.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
-        public async Task CreateRefreshTokenAsync_ShouldReturnInternalServerError()
+        public async Task CreateRefreshTokenAsync_ShouldReturnUnknownError()
         {
             // Arrange
             A.CallTo(() => _unitOfWork.RefreshTokens.FirstOrDefaultAsync(A<Expression<Func<RefreshToken, bool>>>._))
@@ -82,8 +81,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Description.Contains("An internal server error occurred.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }

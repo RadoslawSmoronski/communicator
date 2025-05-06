@@ -37,7 +37,7 @@ namespace Api.Managers
         {
             if (inputUser == null || string.IsNullOrEmpty(inputUser.UserName) || string.IsNullOrEmpty(inputUser.Id))
             {
-                return Error.BadRequest("USER_IS_INVALID", "User, Username, or User Id cannot be null or empty.");
+                return Error.Validation("USER_INPUT_INVALID", "User, username, and user ID are required and cannot be null or empty.");
             }
 
             try
@@ -54,7 +54,7 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
+                return Error.Unknown("TOKEN_GENERATION_FAILED", "An unexpected error occurred while generating the access token.");
             }
         }
 
@@ -62,12 +62,12 @@ namespace Api.Managers
         {
             if (string.IsNullOrEmpty(refreshToken))
             {
-                return Error.BadRequest("REFRESHTOKEN_IS_NULL", "Refresh token cannot be null or empty.");
+                return Error.Validation("REFRESH_TOKEN_MISSING", "Refresh token is required and cannot be null or empty.");
             }
 
             if (!await IsRefreshTokenValidAsync(refreshToken))
             {
-                return Error.NotFound("REFRESHTOKEN_NOT_FOUND", "Refresh token was not found.");
+                return Error.Unauthorized("REFRESH_TOKEN_INVALID", "The provided refresh token is invalid or has expired.");
             }
 
             var refreshTokenResult = await GetRefreshTokenObjectAsync(refreshToken);
@@ -75,7 +75,7 @@ namespace Api.Managers
 
             if (refreshTokenResult == null || refreshTokenResult.UserId == null)
             {
-                return Error.NotFound("DATABASE_DATA_ERROR", "Refresh token record doesn't have user data, or the refresh token has been deleted.");
+                return Error.Unknown("REFRESH_TOKEN_DATA_INCONSISTENCY", "The refresh token exists, but required user data is missing. This may indicate data inconsistency.");
             }
 
             var user = await ValidateUserAsync(refreshTokenResult.UserId);
@@ -97,7 +97,7 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
+                return Error.Unknown("TOKEN_REFRESH_PROCESS_FAILED", "An unexpected error occurred during the token refresh process.");
             }
 
             var result = new RefreshAccessTokenDto()
@@ -113,7 +113,7 @@ namespace Api.Managers
         {
             if (string.IsNullOrEmpty(userId))
             {
-                return Error.BadRequest("USER_ID_IS_NULL", "UserID cannot be null or empty.");
+                return Error.Validation("USER_ID_MISSING", "User ID is required and cannot be null or empty.");
             }
 
             try
@@ -148,7 +148,7 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
+                return Error.Unknown("REFRESH_TOKEN_SAVE_FAILED", "Failed to save the refresh token due to an unexpected internal error.");
             }
         }
 
@@ -165,12 +165,12 @@ namespace Api.Managers
                 }
 
                 //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
-                return Error.NotFound("EXPIRED_REFRESH_TOKENS_NOT_FOUND", "No refresh tokens to remove.");
+                return Error.Failure("NO_EXPIRED_REFRESH_TOKENS", "There are no expired refresh tokens to remove.");
             }
             catch (Exception)
             {
                 //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
-                return Error.InternalServerError("INTERNAL_ERROR", "An internal server error occurred.");
+                return Error.Unknown("REFRESH_TOKEN_CLEANUP_FAILED", "An unexpected error occurred while removing expired refresh tokens.");
             }
         }
 
@@ -247,14 +247,14 @@ namespace Api.Managers
         {
             if (string.IsNullOrEmpty(userId))
             {
-                return Error.BadRequest("USER_ID_IS_NULL", "User ID cannot be null or empty.");
+                return Error.Validation("USER_ID_MISSING", "User ID is required and cannot be null or empty.");
             }
 
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null || string.IsNullOrEmpty(user.UserName))
             {
-                return Error.NotFound("USER_NOT_FOUND", "User was not found or username is invalid.");
+                return Error.Unauthorized("INVALID_USER", "Authentication failed. User not found or invalid.");
             }
 
             return user;

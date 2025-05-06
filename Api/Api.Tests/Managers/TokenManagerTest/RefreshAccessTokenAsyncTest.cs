@@ -62,7 +62,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         }
 
         [Fact]
-        public async Task RefreshAccessTokenAsync_ShouldReturnBadRequestError_WhenRefreshTokenIsEmpty()
+        public async Task RefreshAccessTokenAsync_ShouldReturnValidationError_WhenRefreshTokenIsEmpty()
         {
             // Act
             var result = await _tokenManager.RefreshAccessTokenAsync("");
@@ -73,12 +73,11 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("Refresh token cannot be null or empty.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
-        public async Task RefreshAccessTokenAsync_ShouldReturnNotFoundError_WhenRefreshTokenDoesntExistsInDatabase()
+        public async Task RefreshAccessTokenAsync_ShouldReturnUnauthorizedError_WhenRefreshTokenDoesntExistsInDatabase()
         {
             // Arrange
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
@@ -96,8 +95,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("Refresh token was not found.");
+            error.ErrorType.Should().Be(ErrorType.Unauthorized);
         }
 
         [Fact]
@@ -119,8 +117,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("Refresh token record doesn't have user data, or the refresh token has been deleted.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }
