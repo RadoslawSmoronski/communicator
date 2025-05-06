@@ -263,9 +263,8 @@ namespace Api.Controllers
             );
         }
 
-        // REFACTOR - Refactor this – quick & dirty implementation
         /// <summary>
-        /// changeUsername [Dirty endpoint to refactor but it workings.]
+        /// Change username
         /// </summary>
         /// <remarks>
         /// This endpoint allows an authenticated user to update their username. It verifies whether the new username
@@ -275,10 +274,11 @@ namespace Api.Controllers
         /// <returns>
         /// A response indicating whether the username was successfully updated or an appropriate error message.
         /// </returns>
-        /// <response code="204">Username successfully updated. No content returned.</response>
-        /// <response code="400">Invalid request or update failed.</response>
-        /// <response code="409">Username already exists.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="200">Username successfully updated. Returns the new username.</response>
+        /// <response code="400">The provided username is null, empty, or invalid.</response>
+        /// <response code="401">The access token is missing, invalid, or refers to a non-existent user.</response>
+        /// <response code="409">The desired username is already taken by another user.</response>
+        /// <response code="500">An unexpected server error occurred while updating the username.</response>
         /// <example>
         /// <code>
         /// PATCH /api/changeUsername?newUsername=new_name_123
@@ -287,54 +287,84 @@ namespace Api.Controllers
         /// </example>
         [Authorize]
         [HttpPatch("changeUsername")]
+        [ProducesResponseType<String>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangeUsernameAsync([FromQuery] string newUsername)
         {
+            if (string.IsNullOrWhiteSpace(newUsername))
+            {
+                return Problem(
+                    statusCode: 400,
+                    title: "Bad Request",
+                    detail: "Username cannot be empty or null.",
+                    instance: HttpContext.Request.Path
+                );
+            }
+
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if(userId == null)
                 {
-                    var response = _responseFactory.Create
-                        (ResponseHttpType.InternalServerError, "To edit.");
-
-                    return StatusCode(response.Status, response);
+                    return Problem(
+                        statusCode: 401,
+                        title: "Unauthorized",
+                        detail: "Unable to extract user ID from the access token. Please log in again.",
+                        instance: HttpContext.Request.Path
+                    );
                 }
 
                 var user = await _userManager.FindByIdAsync(userId);
 
                 if (user == null)
                 {
-                    var response = _responseFactory.Create
-                        (ResponseHttpType.InternalServerError, "To edit.");
-
-                    return StatusCode(response.Status, response);
+                    return Problem(
+                        statusCode: 401,
+                        title: "Unauthorized",
+                        detail: "The user associated with the access token does not exist. Please log in again.",
+                        instance: HttpContext.Request.Path
+                    );
                 }
 
                 var isUsernameExists = await _userManager.FindByNameAsync(newUsername);
 
                 if (isUsernameExists != null)
-                {   
-                    var response = _responseFactory.Create
-                        (ResponseHttpType.Conflict, "To edit.");
-
-                    return Conflict(response);
+                {
+                    return Problem(
+                        statusCode: 409,
+                        title: "Conflict",
+                        detail: "The chosen username is already taken. Please choose a different one.",
+                        instance: HttpContext.Request.Path
+                    );
                 }
 
                 var result = await _userManager.SetUserNameAsync(user, newUsername);
-                //return result.Succeeded ? NoContent() : BadRequest(result.Errors);
 
-                //return  CreatedAtAction(nameof(CreateScheduleItem), new { scheduleItem.ScheduleItemId }, scheduleItem);
-                return Ok(result);
+                if (result.Succeeded)
+                {
+                    return Ok(newUsername);
+                }
+
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected username change failure",
+                    detail: "An unexpected error occurred while attempting to change the username. Please try again later or contact support.",
+                    instance: HttpContext.Request.Path
+                );
             }
             catch
             {
-                var response = _responseFactory.Create
-                                (ResponseHttpType.InternalServerError, "To edit.");
-
-                return StatusCode(response.Status, response);
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected server error",
+                    detail: "An unexpected error occurred during refreshing access token.",
+                    instance: HttpContext.Request.Path
+                );
             }
-
         }
     }
 }
