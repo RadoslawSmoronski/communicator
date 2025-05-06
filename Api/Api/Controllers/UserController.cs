@@ -120,7 +120,7 @@ namespace Api.Controllers
         /// <response code="401">Invalid username or password.</response>
         /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
-        /// POST /api/login
+        /// POST /api/user/login
         /// {
         ///     "userName": "existinguser",
         ///     "password": "UserPassword123!"

@@ -21,7 +21,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         private readonly IUnitOfWork _unitOfWork;
 
         private readonly ITokenManager _tokenManager;
-        private readonly String _sampleRefreshToken;
+        private readonly Guid _sampleRefreshToken;
         private readonly UserAccount _sampleUserAccount;
 
         public RefreshAccessTokenAsyncTest()
@@ -36,8 +36,8 @@ namespace Api.Tests.Managers.TokenManagerTest
             _unitOfWork = A.Fake<IUnitOfWork>();
 
             _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
-            _sampleRefreshToken = new Guid().ToString();
-            _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = new Guid().ToString() };
+            _sampleRefreshToken = Guid.NewGuid();
+            _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = Guid.NewGuid() };
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             A.CallTo(() => _unitOfWork.RefreshTokens.FirstOrDefaultAsync(A<Expression<Func<RefreshToken, bool>>>._))
                            .Returns(Task.FromResult<RefreshToken?>(new RefreshToken() {UserId = _sampleUserAccount.Id }));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
             // Act
@@ -62,25 +62,10 @@ namespace Api.Tests.Managers.TokenManagerTest
         }
 
         [Fact]
-        public async Task RefreshAccessTokenAsync_ShouldReturnValidationError_WhenRefreshTokenIsEmpty()
-        {
-            // Act
-            var result = await _tokenManager.RefreshAccessTokenAsync("");
-
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
-
-            var error = result.Error! as Error;
-            error.ErrorType.Should().Be(ErrorType.Validation);
-        }
-
-        [Fact]
         public async Task RefreshAccessTokenAsync_ShouldReturnUnauthorizedError_WhenRefreshTokenDoesntExistsInDatabase()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
                .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
             A.CallTo(() => _unitOfWork.RefreshTokens.AnyAsync(A<Expression<Func<RefreshToken, bool>>>._))

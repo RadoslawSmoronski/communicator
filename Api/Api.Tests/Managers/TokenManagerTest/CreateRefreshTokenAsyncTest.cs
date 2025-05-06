@@ -18,7 +18,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         private readonly IUnitOfWork _unitOfWork;
 
         private readonly ITokenManager _tokenManager;
-        private readonly String _sampleUserId;
+        private readonly Guid _sampleUserId;
 
         public CreateRefreshTokenAsyncTest()
         {
@@ -32,7 +32,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             _unitOfWork = A.Fake<IUnitOfWork>();
 
             _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
-            _sampleUserId = new Guid().ToString();
+            _sampleUserId = Guid.NewGuid();
         }
 
 
@@ -40,29 +40,11 @@ namespace Api.Tests.Managers.TokenManagerTest
         public async Task CreateRefreshTokenAsync_ShouldReturnSuccess()
         {
             // Act
-            var result = await _tokenManager.CreateRefreshTokenAsync(_sampleUserId) as ResultT<string>;
+            var result = await _tokenManager.CreateRefreshTokenAsync(_sampleUserId) as ResultT<Guid>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
-            Guid.TryParse(result.Value as string, out Guid parsedGuid).Should().BeTrue();
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(null)]
-        public async Task CreateRefreshTokenAsync_ShouldReturnValidationError_WhenDataIsNotValid(string? testInput)
-        {
-            // Act
-            var result = await _tokenManager.CreateRefreshTokenAsync(testInput);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
-
-            var error = result.Error! as Error;
-            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]

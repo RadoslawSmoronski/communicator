@@ -31,7 +31,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             _unitOfWork = A.Fake<IUnitOfWork>();
 
             _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
-            _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = new Guid().ToString() };
+            _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = Guid.NewGuid() };
         }
 
 
@@ -39,7 +39,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         public async Task CreateAccessTokenAsync_ShouldReturnSuccess()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
             // Act
@@ -51,12 +51,12 @@ namespace Api.Tests.Managers.TokenManagerTest
         }
 
         [Theory]
-        [InlineData("login", "")]
-        [InlineData("", "id")]
+        [InlineData("login", "00000000-0000-0000-0000-000000000000")]
+        [InlineData("", "d2719a18-7f24-4d57-85a2-2b42cc7d2827")]
         public async Task CreateAccessTokenAsync_ShouldReturnValidationError_WhenDataIsNotValid(string login, string id)
         {
             // Arrange
-            var user = new UserAccount { UserName = login, Id = id };
+            var user = new UserAccount { UserName = login, Id = Guid.Parse(id) };
 
             // Act
             var result = await _tokenManager.CreateAccessTokenAsync(user);
@@ -74,7 +74,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         public async Task CreateAccessTokenAsync_ShouldReturnUnauthorizedErrorWhenUserNotFound()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
                            .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
@@ -93,7 +93,7 @@ namespace Api.Tests.Managers.TokenManagerTest
         public async Task CreateAccessTokenAsync_ShouldReturnUnknownError()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
                            .ThrowsAsync(new Exception());
 
             // Act
