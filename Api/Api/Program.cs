@@ -27,7 +27,7 @@ namespace Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<ITokenService, TokenService>();
+            //builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>
@@ -64,7 +64,7 @@ namespace Api
             builder.Services.AddDbContext<ApplicationDbContext>
                 (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddIdentity<UserAccount, IdentityRole>(options =>
+            builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 6;
@@ -78,7 +78,8 @@ namespace Api
 
                 options.User.RequireUniqueEmail = false;
             })
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
             builder.Services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme =
@@ -101,7 +102,7 @@ namespace Api
             });
 
 
-            builder.Services.AddScoped<ITokenService, TokenService>();
+            //builder.Services.AddScoped<ITokenService, TokenService>();
 
             // Add CORS configuration
             builder.Services.AddCors(options =>
