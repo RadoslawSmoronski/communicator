@@ -35,7 +35,7 @@ namespace Api.Managers
 
         public async Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? inputUser)
         {
-            if (inputUser == null || string.IsNullOrEmpty(inputUser.UserName) || string.IsNullOrEmpty(inputUser.Id))
+            if (inputUser == null || string.IsNullOrEmpty(inputUser.UserName) || inputUser.Id == Guid.Empty)
             {
                 return Error.Validation("USER_INPUT_INVALID", "User, username, and user ID are required and cannot be null or empty.");
             }
@@ -58,13 +58,8 @@ namespace Api.Managers
             }
         }
 
-        public async Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(string refreshToken)
+        public async Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(Guid refreshToken)
         {
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                return Error.Validation("REFRESH_TOKEN_MISSING", "Refresh token is required and cannot be null or empty.");
-            }
-
             if (!await IsRefreshTokenValidAsync(refreshToken))
             {
                 return Error.Unauthorized("REFRESH_TOKEN_INVALID", "The provided refresh token is invalid or has expired.");
@@ -73,7 +68,7 @@ namespace Api.Managers
             var refreshTokenResult = await GetRefreshTokenObjectAsync(refreshToken);
 
 
-            if (refreshTokenResult == null || refreshTokenResult.UserId == null)
+            if (refreshTokenResult == null || refreshTokenResult.UserId == Guid.Empty)
             {
                 return Error.Unknown("REFRESH_TOKEN_DATA_INCONSISTENCY", "The refresh token exists, but required user data is missing. This may indicate data inconsistency.");
             }
@@ -85,7 +80,7 @@ namespace Api.Managers
             }
 
             var accessToken = CreateJwtToken(user.Value);
-            var newRefreshToken = Guid.NewGuid().ToString();
+            var newRefreshToken = Guid.NewGuid();
 
             refreshTokenResult.Token = newRefreshToken;
             refreshTokenResult.Expiration = DateTime.UtcNow.Add(_refreshTokenLifeTime);
@@ -109,18 +104,13 @@ namespace Api.Managers
             return result;
         }
 
-        public async Task<ResultT<string>> CreateRefreshTokenAsync(string? userId)
+        public async Task<ResultT<Guid>> CreateRefreshTokenAsync(Guid userId)
         {
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Error.Validation("USER_ID_MISSING", "User ID is required and cannot be null or empty.");
-            }
-
             try
             {
                 var oldRefreshToken = await GetRefreshTokenObjectByUserIdAsync(userId);
 
-                var newRefreshToken = Guid.NewGuid().ToString();
+                var newRefreshToken = Guid.NewGuid();
                 var expiration = DateTime.UtcNow.Add(_refreshTokenLifeTime);
 
 
@@ -174,29 +164,23 @@ namespace Api.Managers
             }
         }
 
-        private async Task<bool> IsRefreshTokenValidAsync(string refreshToken)
+        private async Task<bool> IsRefreshTokenValidAsync(Guid refreshToken)
         {
-            if (string.IsNullOrWhiteSpace(refreshToken))
-            {
-                return false;
-            }
-
             return await _unitOfWork.RefreshTokens
                 .AnyAsync(rt => rt.Token == refreshToken && rt.Expiration > DateTime.UtcNow);
         }
 
-        private async Task<RefreshToken?> GetRefreshTokenObjectAsync(string refreshToken)
+        private async Task<RefreshToken?> GetRefreshTokenObjectAsync(Guid refreshToken)
         {
-            var result = await _unitOfWork.RefreshTokens.FirstOrDefaultAsync(x => x.Token == refreshToken);
-
-            return result;
+            return await _unitOfWork.RefreshTokens
+                .FirstOrDefaultAsync(x => x.Token == refreshToken);
         }
 
-        private async Task<RefreshToken?> GetRefreshTokenObjectByUserIdAsync(string userId)
+        private async Task<RefreshToken?> GetRefreshTokenObjectByUserIdAsync(Guid userId)
         {
-            var result = await _unitOfWork.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == userId);
+            return await _unitOfWork.RefreshTokens
+                .FirstOrDefaultAsync(x => x.UserId == userId);
 
-            return result;
         }
 
         private async Task<int> RemoveFromDbExpiredRefreshTokensAsync()
@@ -216,7 +200,7 @@ namespace Api.Managers
 
         private string CreateJwtToken(UserAccount user)
         {
-            if (user == null || user.Id == null || user.UserName == null)
+            if (user == null || user.Id == Guid.Empty || user.UserName == null)
             {
                 throw new ArgumentNullException(nameof(user), "User, UserId or UserName cannot be null.");
             }
@@ -224,7 +208,7 @@ namespace Api.Managers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
@@ -243,15 +227,16 @@ namespace Api.Managers
             return tokenHandler.WriteToken(token);
         }
 
-        private async Task<ResultT<UserAccount>> ValidateUserAsync(string? userId)
+        private async Task<ResultT<UserAccount>> ValidateUserAsync(Guid? userId)
         {
-            if (string.IsNullOrEmpty(userId))
+            if (userId == Guid.Empty)
             {
                 return Error.Validation("USER_ID_MISSING", "User ID is required and cannot be null or empty.");
             }
 
+            string idString = userId?.ToString() ?? string.Empty;
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(idString);
             if (user == null || string.IsNullOrEmpty(user.UserName))
             {
                 return Error.Unauthorized("INVALID_USER", "Authentication failed. User not found or invalid.");

@@ -10,8 +10,6 @@ namespace Api.Models.Dtos.Controllers.UserController
     public class RefreshTokenDto
     {
         [Required(ErrorMessage = "RefreshToken is required.")]
-        [RegularExpression(@"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
-        ErrorMessage = "Not valid format.")]
-        public string RefreshToken { get; set; } = string.Empty;
+        public Guid RefreshToken { get; set; } = Guid.Empty;
     }
 }
