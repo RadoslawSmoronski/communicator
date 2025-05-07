@@ -1,7 +1,5 @@
 ﻿using Api.Models;
 using Api.Models.Dtos;
-using Api.Models.Dtos.Responses;
-using Api.Models.Dtos.Responses.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,62 +15,32 @@ namespace Api.Controllers
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
-        private readonly ResponseHttpFactory _responseHttpFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UsersController(UserManager<UserAccount> userManager, IMapper mapper,
-            ResponseHttpFactory responseHttpFactory, IHttpContextAccessor httpContextAccessor)
+        public UsersController(UserManager<UserAccount> userManager, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _mapper = mapper;
-            _responseHttpFactory = responseHttpFactory;
             _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet("getUserById/{id}")]
         [Authorize]
-        public async Task<IActionResult> GetUserByIdAsync([FromRoute] string id)
+        public async Task<IActionResult> GetUserByIdAsync([FromRoute] Guid id)
         {
-
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "Id cannot be empty.");
-
-                return BadRequest(response);
-            }
-
-            if (!Guid.TryParse(id, out Guid result))
-            {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "Not valid format.");
-
-                return BadRequest(response);
-            }
-
             try
             {
-                var user = await _userManager.FindByIdAsync(id);
+                var user = await _userManager.FindByIdAsync(id.ToString());
 
-                if (user == null)
-                {
-                    var response = _responseHttpFactory.Create
-                                   (ResponseHttpType.NotFound, "User does not exist.");
-
-                    return NotFound(response);
-                }
-
-                var responseOk = _responseHttpFactory.Create<SimpleUserDto>
-                               (ResponseHttpType.Success, "User/s has been found.", _mapper.Map<SimpleUserDto>(user));
-
-                return Ok(responseOk);
+                return Ok(_mapper.Map<SimpleUserDto>(user));
             }
             catch (Exception)
             {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.InternalServerError, "An internal server error occurred.");
-
-                return StatusCode(500, response);
+                return Problem(
+                statusCode: 500,
+                title: "Unexpected server error",
+                detail: "An unexpected error occurred while retrieving the user."
+                );
             }
         }
 
@@ -82,20 +50,20 @@ namespace Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(text))
             {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest,
-                               "Input value is empty.");
-
-                return BadRequest(response);
+                return Problem(
+                    detail: "Input value is empty.",
+                    statusCode: 400,
+                    title: "Bad Request"
+                );
             }
 
             if (text.Length > 25 || text.Length < 3)
             {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest,
-                               "Username must be between 3 and 25 characters long.");
-
-                return BadRequest(response);
+                return Problem(
+                    detail: "Username must be between 3 and 25 characters long.",
+                    statusCode: 400,
+                    title: "Bad Request"
+                );
             }
 
             try
@@ -104,38 +72,32 @@ namespace Api.Controllers
 
                 if (excludeCurrentUser)
                 {
-                    var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                    if (userId != null)
+                    if (!Guid.TryParse(userIdClaim, out var userId))
+                    {
+                        return Problem(
+                            statusCode: 401,
+                            title: "Unauthorized",
+                            detail: "Invalid user ID in access token."
+                        );
+                    }
+
+                    if (userId != Guid.Empty)
                         usersQuery = usersQuery.Where(x => x.Id != userId);
                 }
 
                 var users = await usersQuery.ToListAsync();
 
-                if (users == null || users.Count == 0)
-                {
-                    var response = _responseHttpFactory.Create
-                                   (ResponseHttpType.NotFound,
-                                   "User does not exist.");
-
-                    return NotFound(response);
-                }
-
-                var userDtos = _mapper.Map<List<SimpleUserDto>>(users);
-
-                var responseOk = _responseHttpFactory.Create<List<SimpleUserDto>>
-                              (ResponseHttpType.Success,
-                              "User/s has been found.",
-                              userDtos);
-
-                return Ok(responseOk);
+                return Ok(_mapper.Map<List<SimpleUserDto>>(users));
             }
             catch (Exception)
             {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.InternalServerError, "An internal server error occurred.");
-
-                return StatusCode(500, response);
+                return Problem(
+                statusCode: 500,
+                title: "Unexpected server error",
+                detail: "An unexpected error occurred while retrieving the users."
+                );
             }
         }
     }

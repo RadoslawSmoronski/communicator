@@ -2,7 +2,11 @@
 
 namespace Api.Models
 {
-    public class UserAccount : IdentityUser
+    public class UserAccount : IdentityUser<Guid>
+    {
+    }
+
+    public class ApplicationRole : IdentityRole<Guid>
     {
     }
 }

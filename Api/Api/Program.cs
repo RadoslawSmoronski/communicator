@@ -3,16 +3,12 @@ using Api.Data.IRepository;
 using Api.Data.Repository;
 using Api.Data.UnitOfWork;
 using Api.Models;
-using Api.Models.Dtos.Responses;
-using Api.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace Api
 {
@@ -29,12 +25,14 @@ namespace Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<ITokenService, TokenService>();
+            //builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-            builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>
             {
-                option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                option.IncludeXmlComments(xmlPath);
+                option.SwaggerDoc("v1", new OpenApiInfo { Title = "ChatCommunicator REST API docs", Version = "in dev" });
                 option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -63,7 +61,7 @@ namespace Api
             builder.Services.AddDbContext<ApplicationDbContext>
                 (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddIdentity<UserAccount, IdentityRole>(options =>
+            builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 6;
@@ -77,7 +75,8 @@ namespace Api
 
                 options.User.RequireUniqueEmail = false;
             })
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
             builder.Services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme =
@@ -100,7 +99,7 @@ namespace Api
             });
 
 
-            builder.Services.AddScoped<ITokenService, TokenService>();
+            //builder.Services.AddScoped<ITokenService, TokenService>();
 
             // Add CORS configuration
             builder.Services.AddCors(options =>
@@ -140,9 +139,14 @@ namespace Api
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            app.UseReDoc(c =>
+            {
+                c.RoutePrefix = "docs";
+                c.SpecUrl("/swagger/v1/swagger.json");
+                c.DocumentTitle = "ChatCommunicator REST API Docs";
+            });
 
-            // Use CORS before Authorization
+            app.UseHttpsRedirection();
             app.UseCors("AllowSpecificOrigin");
 
             app.UseAuthorization();

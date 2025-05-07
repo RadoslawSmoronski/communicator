@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace Api.Utilities.Result
 {
-    public enum HttpErrorType
+    public enum ErrorType
     {
-        InternalServerError,
-        BadRequest,
+        Unknown,
+        Validation,
         Unauthorized,
+        Forbidden,
         NotFound,
         Conflict,
+        Failure
     }
 }
