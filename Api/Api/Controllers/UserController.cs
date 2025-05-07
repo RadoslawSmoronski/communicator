@@ -80,16 +80,14 @@ namespace Api.Controllers
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
-                        detail: "A user with this username already exists.",
-                        instance: HttpContext.Request.Path
+                        detail: "A user with this username already exists."
                     );
                 }
 
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected registration failure",
-                    detail: "User registration failed unexpectedly. Please try again later or contact support.",
-                    instance: HttpContext.Request.Path
+                    detail: "User registration failed unexpectedly. Please try again later or contact support."
                 );
             }
             catch (Exception)
@@ -97,8 +95,7 @@ namespace Api.Controllers
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected server error",
-                    detail: "An unexpected error occurred during user registration.",
-                    instance: HttpContext.Request.Path
+                    detail: "An unexpected error occurred during user registration."
                 );
             }
         }
@@ -142,8 +139,7 @@ namespace Api.Controllers
                     return Problem(
                         statusCode: 401,
                         title: "Invalid credentials",
-                        detail: "Username or password is incorrect.",
-                        instance: HttpContext.Request.Path
+                        detail: "Username or password is incorrect."
                     );
                 }
 
@@ -171,8 +167,7 @@ namespace Api.Controllers
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected logging failure",
-                    detail: "User logging failed unexpectedly. Please try again later or contact support.",
-                    instance: HttpContext.Request.Path
+                    detail: "User logging failed unexpectedly. Please try again later or contact support."
                 );
             }
             catch (Exception)
@@ -180,8 +175,7 @@ namespace Api.Controllers
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected server error",
-                    detail: "An unexpected error occurred during user logging.",
-                    instance: HttpContext.Request.Path
+                    detail: "An unexpected error occurred during user logging."
                 );
             }
         }
@@ -229,8 +223,7 @@ namespace Api.Controllers
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
-                        detail: "The provided refresh token is invalid or malformed.",
-                        instance: HttpContext.Request.Path
+                        detail: "The provided refresh token is invalid or malformed."
                     );
                 }
                 else if(newToken.Error.ErrorType == ErrorType.Unauthorized)
@@ -238,24 +231,21 @@ namespace Api.Controllers
                     return Problem(
                         statusCode: 401,
                         title: "Unauthorized",
-                        detail: "Refreshing access token validation failed due to unauthorized access. Please log in again.",
-                        instance: HttpContext.Request.Path
+                        detail: "Refreshing access token validation failed due to unauthorized access. Please log in again."
                     );
                 }
 
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected refreshing access token failure",
-                    detail: "Refreshing access token failed unexpectedly. Please try again later or contact support.",
-                    instance: HttpContext.Request.Path
+                    detail: "Refreshing access token failed unexpectedly. Please try again later or contact support."
                 );
             }
 
             return Problem(
                 statusCode: 500,
                 title: "Unexpected server error",
-                detail: "An unexpected error occurred during refreshing access token.",
-                instance: HttpContext.Request.Path
+                detail: "An unexpected error occurred during refreshing access token."
             );
         }
 
@@ -295,8 +285,7 @@ namespace Api.Controllers
                 return Problem(
                     statusCode: 400,
                     title: "Bad Request",
-                    detail: "Username cannot be empty or null.",
-                    instance: HttpContext.Request.Path
+                    detail: "Username cannot be empty or null."
                 );
             }
 
@@ -309,8 +298,7 @@ namespace Api.Controllers
                     return Problem(
                         statusCode: 401,
                         title: "Unauthorized",
-                        detail: "Unable to extract user ID from the access token. Please log in again.",
-                        instance: HttpContext.Request.Path
+                        detail: "Unable to extract user ID from the access token. Please log in again."
                     );
                 }
 
@@ -321,8 +309,7 @@ namespace Api.Controllers
                     return Problem(
                         statusCode: 401,
                         title: "Unauthorized",
-                        detail: "The user associated with the access token does not exist. Please log in again.",
-                        instance: HttpContext.Request.Path
+                        detail: "The user associated with the access token does not exist. Please log in again."
                     );
                 }
 
@@ -333,8 +320,7 @@ namespace Api.Controllers
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
-                        detail: "The chosen username is already taken. Please choose a different one.",
-                        instance: HttpContext.Request.Path
+                        detail: "The chosen username is already taken. Please choose a different one."
                     );
                 }
 
@@ -348,8 +334,7 @@ namespace Api.Controllers
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected username change failure",
-                    detail: "An unexpected error occurred while attempting to change the username. Please try again later or contact support.",
-                    instance: HttpContext.Request.Path
+                    detail: "An unexpected error occurred while attempting to change the username. Please try again later or contact support."
                 );
             }
             catch
@@ -357,8 +342,7 @@ namespace Api.Controllers
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected server error",
-                    detail: "An unexpected error occurred during refreshing access token.",
-                    instance: HttpContext.Request.Path
+                    detail: "An unexpected error occurred during refreshing access token."
                 );
             }
         }
