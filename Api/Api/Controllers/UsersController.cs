@@ -1,5 +1,6 @@
 ﻿using Api.Models;
 using Api.Models.Dtos;
+using Api.Models.Dtos.Controllers.UserController.LoginAsync;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,8 +25,29 @@ namespace Api.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpGet("getUserById/{id}")]
+        /// <summary>
+        /// GetUserById.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint retrieves a user based on their unique GUID identifier.
+        /// The request requires authorization, and the user must exist in the system.
+        /// </remarks>
+        /// <param name="id">The GUID of the user to retrieve.</param>
+        /// <returns>
+        /// A <see cref="SimpleUserDto"/> representing the user if found; otherwise, a <see cref="ProblemDetails"/> response.
+        /// </returns>
+        /// <response code="200">User successfully retrieved.</response>
+        /// <response code="500">Unexpected server error occurred while retrieving the user.</response>
+        /// <example>
+        /// <code>
+        /// GET /api/users/getUserById/3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// Authorization: Bearer {token}
+        /// </code>
+        /// </example>
         [Authorize]
+        [HttpGet("getUserById/{id}")]
+        [ProducesResponseType(typeof(SimpleUserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUserByIdAsync([FromRoute] Guid id)
         {
             try
@@ -44,8 +66,34 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("getUsersByText/{text}")]
+        /// <summary>
+        /// GetUsersByText.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint returns a list of users whose usernames contain the provided text.
+        /// Optionally, the currently authenticated user can be excluded from the results.
+        /// </remarks>
+        /// <param name="text">The text to search for within usernames.</param>
+        /// <param name="excludeCurrentUser">Whether to exclude the currently authenticated user from the result.</param>
+        /// <returns>
+        /// A list of <see cref="SimpleUserDto"/> matching the search criteria; or a <see cref="ProblemDetails"/> response on failure.
+        /// </returns>
+        /// <response code="200">List of matching users returned.</response>
+        /// <response code="400">The search text is empty or does not meet length constraints.</response>
+        /// <response code="401">Access token is missing or user ID is invalid.</response>
+        /// <response code="500">Unexpected server error occurred while retrieving users.</response>
+        /// <example>
+        /// <code>
+        /// GET /api/users/getUsersByText/john?excludeCurrentUser=true
+        /// Authorization: Bearer {token}
+        /// </code>
+        /// </example>
         [Authorize]
+        [HttpGet("getUsersByText/{text}")]
+        [ProducesResponseType<LoggedUserDto>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUsersByTextAsync([FromRoute] string text, bool excludeCurrentUser = false)
         {
             if (string.IsNullOrWhiteSpace(text))
