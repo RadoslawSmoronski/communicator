@@ -56,16 +56,8 @@ namespace Api.Controllers
 
         [Authorize]
         [HttpGet("getInvitations/{userId}")]
-        public async Task<IActionResult> GetInvitationsAsync(string userId)
+        public async Task<IActionResult> GetInvitationsAsync(Guid userId)
         {
-            if (!Guid.TryParse(userId, out Guid resultGuid))
-            {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "UserId not valid format.");
-
-                return BadRequest(response);
-            }
-
             var result = await _friendsManager.GetInvitationsAsync(userId);
 
             if (result.IsSuccess)
@@ -93,9 +85,9 @@ namespace Api.Controllers
         [HttpGet("getUsersToInviteByText/{text}")]
         public async Task<IActionResult> GetUsersToInviteByTextAsync(string text)
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userClaimId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId == null)
+            if (userClaimId == null)
             {
                 return StatusCode(500, _responseHttpFactory.Create(
                     ResponseHttpType.InternalServerError,
@@ -103,7 +95,7 @@ namespace Api.Controllers
             }
 
 
-            if (!Guid.TryParse(userId, out Guid resultGuid))
+            if (!Guid.TryParse(userClaimId, out Guid userId))
             {
                 var response = _responseHttpFactory.Create
                                (ResponseHttpType.BadRequest, "UserId not valid format.");
@@ -182,24 +174,8 @@ namespace Api.Controllers
 
         [Authorize]
         [HttpGet("getFriends/{userId}")]
-        public async Task<IActionResult> GetFriendsAsync(string userId)
+        public async Task<IActionResult> GetFriendsAsync(Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "UserId is required.");
-
-                return BadRequest(response);
-            }
-
-            if (!Guid.TryParse(userId, out Guid resultGuid))
-            {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "UserId not valid format.");
-
-                return BadRequest(response);
-            }
-
             var result = await _friendsManager.GetFriendsAsync(userId);
 
             if (result.IsSuccess)

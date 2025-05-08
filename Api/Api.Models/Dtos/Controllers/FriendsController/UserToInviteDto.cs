@@ -8,7 +8,7 @@ namespace Api.Models.Dtos.Controllers.FriendsController
 {
     public class UserToInviteDto
     {
-        public string Id { get; set; } = String.Empty;
+        public Guid Id { get; set; } = Guid.Empty;
         public string userName { get; set; } = String.Empty;
         public bool IsInvited { get; set; } = false;
     }

@@ -6,12 +6,12 @@ namespace Api.Managers.Interfaces
 {
     public interface IFriendsManager
     {
-        Task<Result> SendInviteAsync(string senderId, string recipientId);
-        Task<ResultT<List<SimpleUserDto>>> GetInvitationsAsync(string userId);
-        Task<ResultT<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(string userId, string text);
-        Task<Result> DecelineInviteAsync(string senderId, string recipientId);
-        Task<Result> AddFriendsAsync(string senderId, string recipientId);
-        Task<ResultT<List<SimpleUserDto>>> GetFriendsAsync(string userId);
-        Task<bool> IsFriendsExistAsync(string userId1, string userId2);
+        Task<Result> SendInviteAsync(Guid senderId, Guid recipientId);
+        Task<ResultT<List<SimpleUserDto>>> GetInvitationsAsync(Guid userId);
+        Task<ResultT<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(Guid userId, string text);
+        Task<Result> DecelineInviteAsync(Guid senderId, Guid recipientId);
+        Task<Result> AddFriendsAsync(Guid senderId, Guid recipientId);
+        Task<ResultT<List<SimpleUserDto>>> GetFriendsAsync(Guid userId);
+        Task<bool> IsFriendsExistAsync(Guid userId1, Guid userId2);
     }
 }

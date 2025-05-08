@@ -10,13 +10,9 @@ namespace Api.Models.Dtos.Controllers.FriendsController
     public class InviteDto
     {
         [Required(ErrorMessage = "SenderId is required.")]
-        [RegularExpression(@"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
-        ErrorMessage = "SenderId not valid format.")]
-        public string SenderId { get; set; } = string.Empty;
+        public Guid SenderId { get; set; } = Guid.Empty;
 
         [Required(ErrorMessage = "RecipientId is required.")]
-        [RegularExpression(@"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$",
-        ErrorMessage = "RecipientId not valid format.")]
-        public string RecipientId { get; set; } = string.Empty;
+        public Guid RecipientId { get; set; } = Guid.Empty;
     }
 }
