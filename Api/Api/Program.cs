@@ -5,7 +5,6 @@ using Api.Managers;
 using Api.Managers.Interfaces;
 using Api.Data.UnitOfWork;
 using Api.Models;
-using Api.Models.Dtos.Responses;
 using Api.Service;
 using Api.Service.IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,7 +31,6 @@ namespace Api
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
            //builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
-            builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSwaggerGen(option =>
             {
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
