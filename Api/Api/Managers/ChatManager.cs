@@ -30,10 +30,10 @@ namespace Api.Managers
 
         public async Task<ResultT<Conversation>> GetOrCreateConversationAsync(Guid userId, Guid friendId)
         {
-            //if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(friendId)) //todo
-            //{
-            //    return Error.Validation("USERID_IS_EMPTY", "UserId or FriendId cannot be null or empty.");
-            //}
+            if (userId == Guid.Empty || friendId == Guid.Empty)
+            {
+                return Error.Validation("USERID_IS_EMPTY", "UserId or FriendId cannot be empty.");
+            }
 
             if (userId == friendId)
             {
@@ -80,10 +80,10 @@ namespace Api.Managers
 
         public async Task<Result> DeleteConversationAsync(Guid conversationId)
         {
-            //if (string.IsNullOrWhiteSpace(conversationId)) //todo
-            //{
-            //    return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be null or empty.");
-            //}
+            if (conversationId == Guid.Empty)
+            {
+                return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
+            }
 
             try
             {
@@ -105,10 +105,10 @@ namespace Api.Managers
 
         public async Task<ResultT<List<ChatDto>>> GetChatsAsync(Guid userId)
         {
-            //if (string.IsNullOrWhiteSpace(userId)) // to do
-            //{
-            //    return Error.Validation("USERID_IS_EMPTY", "UserId cannot be null or empty.");
-            //}
+            if (userId == Guid.Empty)
+            {
+                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
+            }
 
             try
             {
@@ -125,7 +125,7 @@ namespace Api.Managers
                     var friend = isUser1 ? x.User2 : x.User1;
 
                     if (friend?.UserName == null)
-                        throw new Exception("Friend's username is null");
+                        return new ChatDto();
 
                     return new ChatDto
                     {
@@ -149,10 +149,10 @@ namespace Api.Managers
 
         public async Task<ResultT<List<MessageDto>>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId)
         {
-            //if (string.IsNullOrWhiteSpace(conversationId)) //todo
-            //{
-            //    return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be null or empty.");
-            //}
+            if (conversationId == Guid.Empty || fromMessageId == Guid.Empty)
+            {
+                return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId and fromMessageId cannot be empty.");
+            }
 
             try
             {
@@ -189,12 +189,6 @@ namespace Api.Managers
 
         private async Task<List<Message>> _GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId)
         {
-            //if (!Guid.TryParse(conversationId, out var conversationIdGuid))
-            //    throw new ArgumentException("Invalid conversationId", nameof(conversationId));
-
-            //if (!Guid.TryParse(fromMessageId, out var fromMessageIdGuid))
-            //    throw new ArgumentException("Invalid fromMessageId", nameof(fromMessageId)); //todo
-
             var messages = await _unitOfWork.Messages.GetPagedMessagesFromMessageIdAsync(
                 conversationId,
                 fromMessageId,
