@@ -8,7 +8,7 @@ using Api.Models.Chat;
 
 namespace Api.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<UserAccount>
+    public class ApplicationDbContext : IdentityDbContext<UserAccount, ApplicationRole, Guid>
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Friendship> Friendships { get; set; }

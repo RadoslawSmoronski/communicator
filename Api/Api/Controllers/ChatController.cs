@@ -40,34 +40,32 @@ namespace Api.Controllers
         [HttpGet("getChats")]
         public async Task<IActionResult> GetChatsAsync()
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userClaimId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId == null)
+            if (userClaimId == null)
             {
-                return StatusCode(500, _responseHttpFactory.Create(
-                    ResponseHttpType.InternalServerError,
-                    "JWT Token error."));
+                return Problem(
+                    statusCode: 401,
+                    title: "Unauthorized",
+                    detail: "JWT Token is not valid."
+                );
             }
 
 
-            if (!Guid.TryParse(userId, out Guid resultGuid))
+            if (!Guid.TryParse(userClaimId, out Guid userId))
             {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "UserId not valid format.");
-
-                return BadRequest(response);
+                return Problem(
+                    statusCode: 401,
+                    title: "Unauthorized",
+                    detail: "UserId from JWT Token is not a guid."
+                );
             }
 
             var result = await _chatManager.GetChatsAsync(userId);
 
             if (result.IsSuccess)
             {
-                var responseOk = _responseHttpFactory.Create<List<ChatDto>>
-                    (ResponseHttpType.Success,
-                    "TEXT TO REFACTOR.",
-                    result.Value);
-
-                return Ok(responseOk);
+                return Ok(result.Value);
             }
 
             if (result.Error != null)
@@ -85,34 +83,29 @@ namespace Api.Controllers
         [HttpGet("getPagedMessages")]
         public async Task<IActionResult> GetPagedMessagesAsync([FromQuery] GetPagedMessagesDto getMessagesDto)
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId == null)
-            {
-                return StatusCode(500, _responseHttpFactory.Create(
-                    ResponseHttpType.InternalServerError,
-                    "JWT Token error."));
-            }
+            //if (userId == null)
+            //{
+            //    return StatusCode(500, _responseHttpFactory.Create(
+            //        ResponseHttpType.InternalServerError,
+            //        "JWT Token error."));
+            //}
 
 
-            if (!Guid.TryParse(userId, out Guid resultGuid))
-            {
-                var response = _responseHttpFactory.Create
-                               (ResponseHttpType.BadRequest, "UserId not valid format.");
+            //if (!Guid.TryParse(userId, out Guid resultGuid))
+            //{
+            //    var response = _responseHttpFactory.Create
+            //                   (ResponseHttpType.BadRequest, "UserId not valid format.");
 
-                return BadRequest(response);
-            }
+            //    return BadRequest(response);
+            //}
 
             var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(getMessagesDto.ConversationId, getMessagesDto.FromMessageId);
 
             if (result.IsSuccess)
             {
-                var responseOk = _responseHttpFactory.Create<List<MessageDto>>
-                    (ResponseHttpType.Success,
-                    "TEXT TO REFACTOR.",
-                    result.Value);
-
-                return Ok(responseOk);
+                return Ok(result.Value);
             }
 
             if (result.Error != null)

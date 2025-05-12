@@ -66,7 +66,7 @@ namespace Api
             builder.Services.AddDbContext<ApplicationDbContext>
                 (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddIdentity<UserAccount, IdentityRole>(options =>
+            builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 6;
@@ -80,7 +80,8 @@ namespace Api
 
                 options.User.RequireUniqueEmail = false;
             })
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
             builder.Services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme =
@@ -114,7 +115,6 @@ namespace Api
                     }
                 };
             });
-
 
             // Add CORS configuration
             builder.Services.AddCors(options =>

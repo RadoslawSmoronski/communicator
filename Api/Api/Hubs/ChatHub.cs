@@ -36,21 +36,23 @@ namespace SignalRJWTServer.Hubs
             var userName = Context.User!.Identity.Name;
             var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            await _usersConnectionManager.AddUpdateAsync(Context.ConnectionId, userId);
+            await _usersConnectionManager.AddUpdateAsync(Context.ConnectionId, Guid.Parse(userId));
 
             await base.OnConnectedAsync();
         }
 
-        public async Task SendMessage(string recipientId, string conversationId, string content) // Needs tests
+        public async Task SendMessage(Guid recipientId, Guid conversationId, string content) // Needs tests
         {
             var userName = Context.User!.Identity.Name;
-            var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdString = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var userId = Guid.Parse(userIdString);
 
             var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
             var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
 
             var conversation = await _chatManager.GetOrCreateConversationAsync(userId, recipientId);
-            var sender = await _userManager.FindByIdAsync(userId);
+            var sender = await _userManager.FindByIdAsync(userIdString);
 
             if (sender == null)
             {
@@ -59,7 +61,7 @@ namespace SignalRJWTServer.Hubs
 
             var message = new Message()
             {
-                ConversationId = Guid.Parse(conversationId),
+                ConversationId = conversationId,
                 Conversation = conversation.Value,
                 SenderId = userId,
                 Sender = sender,
@@ -86,7 +88,7 @@ namespace SignalRJWTServer.Hubs
             var userName = Context.User?.Identity?.Name;
             var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            await _usersConnectionManager.RemoveAsync(Context.ConnectionId, userId);
+            await _usersConnectionManager.RemoveAsync(Context.ConnectionId, Guid.Parse(userId));
 
             await base.OnDisconnectedAsync(exception);
         }

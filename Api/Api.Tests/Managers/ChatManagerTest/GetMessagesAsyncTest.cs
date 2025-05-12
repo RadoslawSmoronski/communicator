@@ -25,7 +25,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             var expectedMessageDtos = _mapper.Map<List<MessageDto>>(_extraSampleMessageList);
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id.ToString(), _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
+                var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -48,7 +48,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             var expectedMessageDtos = new List<MessageDto>();
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id.ToString(), _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -66,7 +66,7 @@ namespace Api.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<Conversation?>(null));
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id.ToString(), _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -74,14 +74,14 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
+            error.ErrorType.Should().Be(ErrorType.NotFound);
         }
 
         [Fact]
         public async Task GetPagedMessagesFromMessageIdAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
         {
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync("", _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(Guid.Empty, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -89,8 +89,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("ConversationId cannot be null or empty.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
@@ -104,7 +103,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             .Throws(new Exception());
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id.ToString(), _sampleMessage2.Id.ToString()) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -112,8 +111,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Description.Should().Contain("An internal server error occurred.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }

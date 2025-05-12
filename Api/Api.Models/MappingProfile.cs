@@ -1,10 +1,6 @@
 ﻿using Api.Models.Chat;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Chat;
-using Api.Models.Dtos.Controllers.UserController;
-using Api.Models.Dtos.Controllers.UserController.LoginAsync;
-using Api.Models.Dtos.Responses.Interfaces;
-using Api.Utilities.Result;
 using AutoMapper;
 
 namespace Api.Models
@@ -13,7 +9,7 @@ namespace Api.Models
     {
         public MappingProfile()
         {
-            CreateMap<HttpErrorType, ResponseHttpType>();
+            //CreateMap<UserAccount, GetUsersUserResponseDto>();
             CreateMap<UserAccount, SimpleUserDto>();
             CreateMap<Message, MessageDto>()
                 .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.Id.ToString()))

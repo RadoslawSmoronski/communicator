@@ -42,9 +42,9 @@ namespace Api.Tests.Managers.ChatManagerTest
             _mapper = configuration.CreateMapper();
 
             _chatManager = new ChatManager(_unitOfWork, _userManager, _mapper);
-            _sampleUser1 = new UserAccount { UserName = "User1Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab254" };
-            _sampleUser2 = new UserAccount { UserName = "User2Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab255" };
-            _sampleUser3 = new UserAccount { UserName = "User3Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab256" };
+            _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
+            _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };
+            _sampleUser3 = new UserAccount { UserName = "User3Login", Id = Guid.NewGuid() };
 
             _sampleConversation = new Conversation()
             {
