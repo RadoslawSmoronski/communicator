@@ -5,7 +5,6 @@ using Api.Managers.Interfaces;
 using Api.Data.UnitOfWork;
 using Api.Models;
 using Api.Models.Dtos.Responses;
-using Api.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +27,9 @@ namespace Api
             builder.Services.AddControllers();
             builder.Services.AddSignalR();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddScoped<IFriendsManager, FriendsManager>();
-            builder.Services.AddSingleton<TokenCleanupService>();
-            builder.Services.AddScoped<ITokenManager, TokenManager>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IChatManager, ChatManager>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
             builder.Services.AddSwaggerGen(option =>

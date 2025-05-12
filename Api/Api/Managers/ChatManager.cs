@@ -15,19 +15,16 @@ namespace Api.Managers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<UserAccount> _userManager;
-        private readonly IFriendsManager _friendsManager;
         private readonly IMapper _mapper;
 
         private readonly int _messagesPageSize = 10;
 
         public ChatManager(IUnitOfWork unitOfWork,
             UserManager<UserAccount> userManager,
-            IFriendsManager friendsManager,
             IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _friendsManager = friendsManager;
             _mapper = mapper;
         }
 
@@ -59,12 +56,12 @@ namespace Api.Managers
                     return Error.NotFound("FRIENDUSER_NOT_FOUND", "Friend was not found.");
                 }
 
-                var isFriends = await _friendsManager.IsFriendsExistAsync(userId, friendId);
+                //var isFriends = await _friendsManager.IsFriendsExistAsync(userId, friendId);
 
-                if (isFriends == false)
-                {
-                    return Error.Conflict("USERS_ARE_NOT_FRIENDS", "Users are not friends.");
-                }
+                //if (isFriends == false)
+                //{
+                //    return Error.Conflict("USERS_ARE_NOT_FRIENDS", "Users are not friends.");
+                //}
 
                 var conversation = await GetConversationAsync(userId, friendId);
 
