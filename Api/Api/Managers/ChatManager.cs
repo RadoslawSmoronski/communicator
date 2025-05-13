@@ -56,13 +56,6 @@ namespace Api.Managers
                     return Error.NotFound("FRIENDUSER_NOT_FOUND", "Friend was not found.");
                 }
 
-                //var isFriends = await _friendsManager.IsFriendsExistAsync(userId, friendId);
-
-                //if (isFriends == false)
-                //{
-                //    return Error.Conflict("USERS_ARE_NOT_FRIENDS", "Users are not friends.");
-                //}
-
                 var conversation = await GetConversationAsync(userId, friendId);
 
                 if (conversation == null)

@@ -23,25 +23,26 @@ namespace Api.Services
                 return Error.Validation("USERID_IS_EMPTY", "UserId or FriendId cannot be empty.");
             }
 
-            var resultConversation = await _chatManager.GetOrCreateConversationAsync(user1Id, user2Id);
             var resultFriends = await _friendManager.AddFriendsAsync(user1Id, user2Id);
 
-            if(resultConversation.IsSuccess == false && resultConversation.Error != null)
-            {
-                return resultConversation.Error;
-            }
-            else if (resultFriends.IsSuccess == false && resultFriends.Error != null)
+            if (resultFriends.IsSuccess == false && resultFriends.Error != null)
             {
                 return resultFriends.Error;
             }
-            else if(resultConversation.IsSuccess && resultConversation.IsSuccess)
+
+            var resultConversation = await _chatManager.GetOrCreateConversationAsync(user1Id, user2Id);
+
+            if (resultConversation.IsSuccess == false && resultConversation.Error != null)
+            {
+                return resultConversation.Error;
+            }
+
+            if(resultConversation.IsSuccess && resultConversation.IsSuccess)
             {
                 return Result.Success();
             }
 
             return Error.Unknown("INTERNAL_SERVER_ERROR", "Problem with AddFriendAndCreateConversationAsync, conntact with administrator.");
         }
-
-        public async Task<bool> IsFriendsExistAsync(Guid user1Id, Guid user2Id) => await _friendManager.IsFriendsExistAsync(user1Id, user2Id);
     }
 }
