@@ -27,7 +27,7 @@ namespace Api.Service
                     {
                         Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {result.Value} expired tokens removed.");
                     }
-                    else if (result.Error!.ErrorType == HttpErrorType.NotFound)
+                    else if (result.Error!.ErrorType == ErrorType.NotFound)
                     {
                         Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
                     }

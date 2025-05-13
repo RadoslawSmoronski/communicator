@@ -10,10 +10,10 @@ namespace Api.Managers.Interfaces
     {
         //Access Token
         Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? user);
-        Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(string refreshToken);
+        Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(Guid refreshToken);
 
         //RefreshToken
-        Task<ResultT<string>> CreateRefreshTokenAsync(string? userId);
+        Task<ResultT<Guid>> CreateRefreshTokenAsync(Guid userId);
         Task<ResultT<int>> RemoveExpiredRefreshTokensAsync();
     }
 }

@@ -4,7 +4,6 @@ using Api.Managers;
 using Api.Managers.Interfaces;
 using Api.Data.UnitOfWork;
 using Api.Models;
-using Api.Models.Dtos.Responses;
 using Api.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -34,8 +33,8 @@ namespace Api
             builder.Services.AddScoped<IChatManager, ChatManager>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
+            builder.Services.AddHostedService<TokenCleanupService>();
             builder.Services.AddSwaggerGen(option =>
             {
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -70,7 +69,7 @@ namespace Api
             builder.Services.AddDbContext<ApplicationDbContext>
                 (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddIdentity<UserAccount, IdentityRole>(options =>
+            builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 6;
@@ -84,7 +83,8 @@ namespace Api
 
                 options.User.RequireUniqueEmail = false;
             })
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
             builder.Services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme =

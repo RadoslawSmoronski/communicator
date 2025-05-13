@@ -9,6 +9,6 @@ namespace Api.Models.Dtos.Service
     public class RefreshAccessTokenDto
     {
         public string AccessToken { get; set; } = string.Empty;
-        public string RefreshToken { get; set; } = string.Empty;
+        public Guid RefreshToken { get; set; } = Guid.Empty;
     }
 }

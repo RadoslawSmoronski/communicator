@@ -9,8 +9,8 @@ namespace Api.Models.Dtos.Controllers.UserController.LoginAsync
     public class LoggedUserDto
     {
         public string UserName { get; set; } = string.Empty;
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; } = Guid.Empty;
         public string AccessToken { get; set; } = string.Empty;
-        public string RefreshToken { get; set; } = string.Empty;
+        public Guid RefreshToken { get; set; } = Guid.Empty;
     }
 }

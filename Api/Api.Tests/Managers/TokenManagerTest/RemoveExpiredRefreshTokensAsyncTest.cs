@@ -74,8 +74,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Contains("No refresh tokens to remove.");
+            error.ErrorType.Should().Be(ErrorType.Failure);
         }
 
         [Fact]
@@ -94,8 +93,7 @@ namespace Api.Tests.Managers.TokenManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Description.Contains("An internal server error occurred.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }
