@@ -123,7 +123,33 @@ namespace Api.Controllers
             );
         }
 
-
+        /// <summary>
+        /// GetPagedMessages.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint returns a subset of messages from a given conversation, starting after the specified message ID.
+        /// It requires a valid JWT token provided in the Authorization header. The user's identity is inferred from the token,
+        /// and only messages from conversations that the user has access to will be returned.
+        /// 
+        /// If the conversation ID or message ID is invalid, or the user does not have access, appropriate error responses will be returned.
+        /// </remarks>
+        /// <param name="getMessagesDto">DTO containing the conversation ID and the starting message ID for pagination.</param>
+        /// <returns>
+        /// A paginated list of messages or an error response.
+        /// </returns>
+        /// <response code="200">Returns the paginated list of messages.</response>
+        /// <response code="400">Invalid input or validation failure (e.g. malformed GUID).</response>
+        /// <response code="401">Unauthorized – missing or invalid JWT token.</response>
+        /// <response code="404">Conversation not found or user does not have access.</response>
+        /// <response code="500">Unexpected server error occurred.</response>
+        /// <example>
+        /// POST /api/user/getPagedMessages
+        /// Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
+        /// {
+        ///   "conversationId": "123e4567-e89b-12d3-a456-426614174000",
+        ///   "fromMessageId": "789e4567-e89b-12d3-a456-426614174999"
+        /// }
+        /// </example>
         [Authorize]
         [HttpGet("getPagedMessages")]
         [ProducesResponseType(typeof(List<MessageDto>), StatusCodes.Status200OK)]
@@ -131,7 +157,7 @@ namespace Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetPagedMessagesAsync([FromQuery] GetPagedMessagesDto getMessagesDto)
+        public async Task<IActionResult> GetPagedMessagesAsync([FromBody] GetPagedMessagesDto getMessagesDto)
         {
             var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(getMessagesDto.ConversationId, getMessagesDto.FromMessageId);
 
