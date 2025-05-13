@@ -4,7 +4,6 @@ using Api.Managers;
 using Api.Managers.Interfaces;
 using Api.Data.UnitOfWork;
 using Api.Models;
-using Api.Models.Dtos.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +29,8 @@ namespace Api
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IChatManager, ChatManager>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<ResponseHttpFactory>();
             builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
+            builder.Services.AddScoped<IFriendsManager, FriendsManager>();
             builder.Services.AddSwaggerGen(option =>
             {
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

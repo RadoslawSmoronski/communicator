@@ -1,16 +1,9 @@
-﻿using Api.Models.Dtos.Controllers.FriendsController;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Api.Managers.Interfaces;
 using AutoMapper;
-using Api.Models.Dtos.Responses.Interfaces;
-using Api.Models.Dtos.Responses;
-using Api.Models.Dtos;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using Api.Managers;
 using Api.Utilities.Result;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Api.Models.Dtos.Chat;
 
 namespace Api.Controllers
@@ -20,18 +13,15 @@ namespace Api.Controllers
     public class ChatController : Controller
     {
         private readonly IMapper _mapper;
-        private readonly ResponseHttpFactory _responseHttpFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IChatManager _chatManager;
 
         public ChatController(
             IMapper mapper,
-            ResponseHttpFactory responseHttpFactory,
             IHttpContextAccessor httpContextAccessor,
-            IChatManager chatManager    )
+            IChatManager chatManager)
         {
             _mapper = mapper;
-            _responseHttpFactory = responseHttpFactory;
             _httpContextAccessor = httpContextAccessor;
             _chatManager = chatManager;
         }
