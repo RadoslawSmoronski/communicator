@@ -8,7 +8,7 @@ namespace Api.Models.Dtos.Chat
 {
     public class GetPagedMessagesDto
     {
-        public string ConversationId { get; set; }
-        public string FromMessageId { get; set; }
+        public Guid ConversationId { get; set; }
+        public Guid FromMessageId { get; set; }
     }
 }

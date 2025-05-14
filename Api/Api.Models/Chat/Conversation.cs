@@ -9,8 +9,8 @@ namespace Api.Models.Chat
     public class Conversation
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string User1Id { get; set; } = string.Empty;
-        public string User2Id { get; set; } = string.Empty;
+        public Guid User1Id { get; set; } = Guid.Empty;
+        public Guid User2Id { get; set; } = Guid.Empty;
 
         public UserAccount? User1 { get; set; }
         public UserAccount? User2 { get; set; }

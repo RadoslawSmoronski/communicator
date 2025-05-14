@@ -15,55 +15,45 @@ namespace Api.Managers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<UserAccount> _userManager;
-        private readonly IFriendsManager _friendsManager;
         private readonly IMapper _mapper;
 
         private readonly int _messagesPageSize = 10;
 
         public ChatManager(IUnitOfWork unitOfWork,
             UserManager<UserAccount> userManager,
-            IFriendsManager friendsManager,
             IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _friendsManager = friendsManager;
             _mapper = mapper;
         }
 
-        public async Task<ResultT<Conversation>> GetOrCreateConversationAsync(string userId, string friendId)
+        public async Task<ResultT<Conversation>> GetOrCreateConversationAsync(Guid userId, Guid friendId)
         {
-            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(friendId))
+            if (userId == Guid.Empty || friendId == Guid.Empty)
             {
-                return Error.BadRequest("USERID_IS_EMPTY", "UserId or FriendId cannot be null or empty.");
+                return Error.Validation("USERID_IS_EMPTY", "UserId or FriendId cannot be empty.");
             }
 
             if (userId == friendId)
             {
-                return Error.BadRequest("USERID_AND_FRIENDID_ARE_THE_SAME", "UserId and FriendId must be different.");
+                return Error.Validation("USERID_AND_FRIENDID_ARE_THE_SAME", "UserId and FriendId must be different.");
             }
 
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (user == null || user.UserName == null)
                 {
                     return Error.NotFound("USER_NOT_FOUND", "User was not found.");
                 }
 
-                var friendUser = await _userManager.FindByIdAsync(friendId);
+                var friendUser = await _userManager.FindByIdAsync(friendId.ToString());
 
                 if (friendUser == null || friendUser.UserName == null)
                 {
                     return Error.NotFound("FRIENDUSER_NOT_FOUND", "Friend was not found.");
-                }
-
-                var isFriends = await _friendsManager.IsFriendsExistAsync(userId, friendId);
-
-                if (isFriends == false)
-                {
-                    return Error.Conflict("USERS_ARE_NOT_FRIENDS", "Users are not friends.");
                 }
 
                 var conversation = await GetConversationAsync(userId, friendId);
@@ -77,15 +67,15 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<Result> DeleteConversationAsync(string conversationId)
+        public async Task<Result> DeleteConversationAsync(Guid conversationId)
         {
-            if (string.IsNullOrWhiteSpace(conversationId))
+            if (conversationId == Guid.Empty)
             {
-                return Error.BadRequest("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be null or empty.");
+                return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
             }
 
             try
@@ -102,15 +92,15 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<ResultT<List<ChatDto>>> GetChatsAsync(string userId)
+        public async Task<ResultT<List<ChatDto>>> GetChatsAsync(Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (userId == Guid.Empty)
             {
-                return Error.BadRequest("USERID_IS_EMPTY", "UserId cannot be null or empty.");
+                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
             }
 
             try
@@ -128,14 +118,14 @@ namespace Api.Managers
                     var friend = isUser1 ? x.User2 : x.User1;
 
                     if (friend?.UserName == null)
-                        throw new Exception("Friend's username is null");
+                        return new ChatDto();
 
                     return new ChatDto
                     {
                         FriendId = friend.Id,
                         FriendUserName = friend.UserName,
-                        ConversationId = x.Id.ToString(),
-                        LastMessageId = x.LastMessageId?.ToString(),
+                        ConversationId = x.Id,
+                        LastMessageId = x.LastMessageId,
                         LastMessageContent = x.LastMessage?.Content,
                         IsFriendSenderMessage = x.LastMessage?.SenderId == friend.Id,
                         LastMessageTimestamp = x.LastMessage?.Timestamp
@@ -146,15 +136,15 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<ResultT<List<MessageDto>>> GetPagedMessagesFromMessageIdAsync(string conversationId, string fromMessageId)
+        public async Task<ResultT<List<MessageDto>>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId)
         {
-            if (string.IsNullOrWhiteSpace(conversationId))
+            if (conversationId == Guid.Empty || fromMessageId == Guid.Empty)
             {
-                return Error.BadRequest("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be null or empty.");
+                return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId and fromMessageId cannot be empty.");
             }
 
             try
@@ -172,7 +162,7 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
@@ -186,21 +176,15 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        private async Task<List<Message>> _GetPagedMessagesFromMessageIdAsync(string conversationId, string fromMessageId)
+        private async Task<List<Message>> _GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId)
         {
-            if (!Guid.TryParse(conversationId, out var conversationIdGuid))
-                throw new ArgumentException("Invalid conversationId", nameof(conversationId));
-
-            if (!Guid.TryParse(fromMessageId, out var fromMessageIdGuid))
-                throw new ArgumentException("Invalid fromMessageId", nameof(fromMessageId));
-
             var messages = await _unitOfWork.Messages.GetPagedMessagesFromMessageIdAsync(
-                conversationIdGuid,
-                fromMessageIdGuid,
+                conversationId,
+                fromMessageId,
                 _messagesPageSize
                 );
 
@@ -224,16 +208,16 @@ namespace Api.Managers
             await _unitOfWork.SaveAsync();
         }
 
-        private async Task<Conversation?> GetConversationAsync(string user1Id, string user2Id)
+        private async Task<Conversation?> GetConversationAsync(Guid user1Id, Guid user2Id)
         {
             return await _unitOfWork.Conversations.FirstOrDefaultAsync(x =>
                 (x.User1Id == user1Id && x.User2Id == user2Id) ||
                 (x.User1Id == user2Id && x.User2Id == user1Id));
         }
 
-        private async Task<Conversation?> GetConversationByIdAsync(string conversationId)
+        private async Task<Conversation?> GetConversationByIdAsync(Guid conversationId)
         {
-            return await _unitOfWork.Conversations.FirstOrDefaultAsync(x => x.Id == Guid.Parse(conversationId));
+            return await _unitOfWork.Conversations.FirstOrDefaultAsync(x => x.Id == conversationId);
         }
 
         private async Task<Conversation> CreateConversationAsync(UserAccount user1, UserAccount user2)

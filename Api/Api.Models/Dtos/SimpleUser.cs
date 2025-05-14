@@ -8,7 +8,7 @@ namespace Api.Models.Dtos
 {
     public class SimpleUserDto
     {
-        public string Id { get; set; } = String.Empty;
+        public Guid Id { get; set; } = Guid.Empty;
         public string userName { get; set; } = String.Empty;
     }
 }

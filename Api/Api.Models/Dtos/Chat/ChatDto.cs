@@ -8,10 +8,10 @@ namespace Api.Models.Dtos.Chat
 {
     public class ChatDto
     {
-        public string FriendId { get; set; } = String.Empty;
+        public Guid FriendId { get; set; } = Guid.Empty;
         public string FriendUserName {  get; set; } = String.Empty;
-        public string ConversationId { get; set; } = String.Empty;
-        public string? LastMessageId { get; set; }
+        public Guid ConversationId { get; set; } = Guid.Empty;
+        public Guid? LastMessageId { get; set; }
         public string? LastMessageContent { get; set; }
         public bool IsFriendSenderMessage { get; set; }
         public DateTime? LastMessageTimestamp { get; set; }

@@ -1,19 +1,14 @@
-﻿using Api.Data.Repository;
-using Api.Managers.Interfaces;
-using Api.Models;
-using Api.Models.Chat;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Api.Managers.Interfaces;
 using System.Collections.Concurrent;
 
 namespace Api.Managers
 {
     public class UsersConnectionManager : IUsersConnectionManager
     {
-        private readonly ConcurrentDictionary<string, HashSet<string>> _usersOnline = new();
+        private readonly ConcurrentDictionary<Guid, HashSet<string>> _usersOnline = new();
 
 
-        public Task AddUpdateAsync(string connectionId, string userId)
+        public Task AddUpdateAsync(string connectionId, Guid userId)
         {
             _usersOnline.AddOrUpdate(userId,
                 _ => new HashSet<string> { connectionId },
@@ -29,7 +24,7 @@ namespace Api.Managers
             return Task.CompletedTask;
         }
 
-        public Task RemoveAsync(string connectionId, string userId)
+        public Task RemoveAsync(string connectionId, Guid userId)
         {
             if (_usersOnline.TryGetValue(userId, out var connections))
             {
@@ -46,17 +41,17 @@ namespace Api.Managers
             return Task.CompletedTask;
         }
 
-        public List<string> GetOnlineUsersIdAsync()
+        public List<Guid> GetOnlineUsersIdAsync()
         {
             return _usersOnline.Keys.ToList();
         }
 
-        public Task<bool> IsUserOnlineAsync(string userId)
+        public Task<bool> IsUserOnlineAsync(Guid userId)
         {
             return Task.FromResult(_usersOnline.ContainsKey(userId));
         }
 
-        public List<string>? GetUserConnectionsId(string UserId)
+        public List<string>? GetUserConnectionsId(Guid UserId)
         {
             if (_usersOnline.TryGetValue(UserId, out var connections))
             {

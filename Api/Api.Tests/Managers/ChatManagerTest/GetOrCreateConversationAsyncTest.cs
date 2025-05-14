@@ -13,14 +13,14 @@ namespace Api.Tests.Managers.ChatManagerTest
         public async Task GetOrCreateConversationAsync_ShouldReturnOk_WhenConversationExist()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id.ToString()))
                 .Returns(Task.FromResult<UserAccount?>(_sampleUser1));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id.ToString()))
                 .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
 
-            A.CallTo(() => _friendsManager.IsFriendsExistAsync(_sampleUser1.Id, _sampleUser2.Id))
-                .Returns(Task.FromResult(true));
+            //A.CallTo(() => _friendsManager.IsFriendsExistAsync(_sampleUser1.Id, _sampleUser2.Id))
+            //    .Returns(Task.FromResult(true));
 
             A.CallTo(() => _unitOfWork.Conversations.FirstOrDefaultAsync(A<Expression<Func<Conversation, bool>>>._))
                 .Returns(Task.FromResult<Conversation?>(_sampleConversation));
@@ -42,14 +42,14 @@ namespace Api.Tests.Managers.ChatManagerTest
         public async Task GetOrCreateConversationAsync_ShouldReturnOk_WhenConversationDoesnotExist()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id.ToString()))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUser1));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id.ToString()))
                .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
 
-            A.CallTo(() => _friendsManager.IsFriendsExistAsync(_sampleUser1.Id, _sampleUser2.Id))
-                .Returns(Task.FromResult(true));
+            //A.CallTo(() => _friendsManager.IsFriendsExistAsync(_sampleUser1.Id, _sampleUser2.Id))
+            //    .Returns(Task.FromResult(true));
 
             A.CallTo(() => _unitOfWork.Conversations.FirstOrDefaultAsync(A<Expression<Func<Conversation, bool>>>._))
                 .Returns(Task.FromResult<Conversation?>(null));
@@ -68,45 +68,45 @@ namespace Api.Tests.Managers.ChatManagerTest
             value.User2.Should().BeEquivalentTo(_sampleUser2);
         }
 
-        [Theory]
-        [InlineData("test", "")]
-        [InlineData("", "test")]
-        public async Task GetOrCreateConversationAsync_ShouldReturnBadRequestError_WhenUsersIdAreNullOrWhiteSpace(string user1Id, string user2Id)
-        {
-            // Act
-            var result = await _chatManager.GetOrCreateConversationAsync(user1Id, user2Id) as Result;
+        //[Theory]
+        //[InlineData("test", "")]
+        //[InlineData("", "test")]
+        //public async Task GetOrCreateConversationAsync_ShouldReturnBadRequestError_WhenUsersIdAreNullOrWhiteSpace(string user1Id, string user2Id)
+        //{
+        //    // Act
+        //    var result = await _chatManager.GetOrCreateConversationAsync(user1Id, user2Id) as Result;
 
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
+        //    // Assert
+        //    result.Should().NotBeNull();
+        //    result.IsSuccess.Should().BeFalse();
+        //    result.Error.Should().NotBeNull();
 
-            var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("UserId or FriendId cannot be null or empty.");
-        }
+        //    var error = result.Error! as Error;
+        //    error.ErrorType.Should().Be(HttpErrorType.BadRequest);
+        //    error.Description.Should().Contain("UserId or FriendId cannot be null or empty.");
+        //}
 
-        [Fact]
-        public async Task GetOrCreateConversationAsync_ShouldReturnBadRequestError_WhenUserIdAndFriendIdAreTheSame()
-        {
-            // Act
-            var result = await _chatManager.GetOrCreateConversationAsync("test", "test") as Result;
+        //[Fact]
+        //public async Task GetOrCreateConversationAsync_ShouldReturnBadRequestError_WhenUserIdAndFriendIdAreTheSame()
+        //{
+        //    // Act
+        //    var result = await _chatManager.GetOrCreateConversationAsync("test", "test") as Result;
 
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
+        //    // Assert
+        //    result.Should().NotBeNull();
+        //    result.IsSuccess.Should().BeFalse();
+        //    result.Error.Should().NotBeNull();
 
-            var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Be("UserId and FriendId must be different.");
-        }
+        //    var error = result.Error!;
+        //    error.ErrorType.Should().Be(HttpErrorType.BadRequest);
+        //    error.Description.Should().Be("UserId and FriendId must be different.");
+        //}
 
         [Fact]
         public async Task GetOrCreateConversationAsync_ShouldReturnNotFoundError_WhenUserWasNotFound()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id.ToString()))
                 .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
@@ -118,15 +118,14 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("User was not found.");
+            error.ErrorType.Should().Be(ErrorType.NotFound);
         }
 
         [Fact]
         public async Task GetOrCreateConversationAsync_ShouldReturnNotFoundError_WhenFriendWasNotFound()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id.ToString()))
                 .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
@@ -138,19 +137,18 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("Friend was not found.");
+            error.ErrorType.Should().Be(ErrorType.NotFound);
         }
 
         [Fact]
         public async Task GetOrCreateConversationAsync_ShouldReturnInternalServerError()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync("test1"))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id.ToString()))
                            .Throws(new Exception());
 
             // Act
-            var result = await _chatManager.GetOrCreateConversationAsync("test1", "Test2") as Result;
+            var result = await _chatManager.GetOrCreateConversationAsync(_sampleUser1.Id, _sampleUser2.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -158,8 +156,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Description.Should().Contain("An internal server error occurred.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }

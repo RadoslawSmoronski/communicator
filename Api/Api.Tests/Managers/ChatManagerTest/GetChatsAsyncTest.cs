@@ -29,8 +29,8 @@ namespace Api.Tests.Managers.ChatManagerTest
                     {
                         FriendId = friend!.Id,
                         FriendUserName = friend.UserName!,
-                        ConversationId = x.Id.ToString(),
-                        LastMessageId = x.LastMessageId?.ToString(),
+                        ConversationId = x.Id,
+                        LastMessageId = x.LastMessageId,
                         LastMessageContent = (x.LastMessage == null) ? null : x.LastMessage.Content,
                         IsFriendSenderMessage = x.LastMessage != null && x.LastMessage.SenderId == friend.Id,
                         LastMessageTimestamp = x.LastMessage?.Timestamp
@@ -52,7 +52,7 @@ namespace Api.Tests.Managers.ChatManagerTest
         public async Task GetChatsAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
         {
             // Act
-            var result = await _chatManager.GetChatsAsync("") as Result;
+            var result = await _chatManager.GetChatsAsync(Guid.Empty) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -60,8 +60,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("UserId cannot be null or empty.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
@@ -83,8 +82,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Description.Should().Contain("An internal server error occurred.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }

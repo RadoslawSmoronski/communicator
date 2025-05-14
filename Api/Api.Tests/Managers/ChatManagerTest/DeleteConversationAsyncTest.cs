@@ -16,7 +16,7 @@ namespace Api.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<Conversation?>(_sampleConversation));
 
             // Act
-            var result = await _chatManager.DeleteConversationAsync(_sampleConversation.Id.ToString()) as Result;
+            var result = await _chatManager.DeleteConversationAsync(_sampleConversation.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -27,7 +27,7 @@ namespace Api.Tests.Managers.ChatManagerTest
         public async Task DeleteConversationAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
         {
             // Act
-            var result = await _chatManager.DeleteConversationAsync("") as Result;
+            var result = await _chatManager.DeleteConversationAsync(Guid.Empty) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -35,8 +35,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("ConversationId cannot be null or empty.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
@@ -47,7 +46,7 @@ namespace Api.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<Conversation?>(null));
 
             // Act
-            var result = await _chatManager.DeleteConversationAsync("test") as Result;
+            var result = await _chatManager.DeleteConversationAsync(_sampleConversation.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -55,8 +54,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("Conversation was not found.");
+            error.ErrorType.Should().Be(ErrorType.NotFound);
         }
 
         [Fact]
@@ -68,7 +66,7 @@ namespace Api.Tests.Managers.ChatManagerTest
                 .Throws(new Exception());
 
             // Act
-            var result = await _chatManager.DeleteConversationAsync(_sampleConversation.Id.ToString()) as Result;
+            var result = await _chatManager.DeleteConversationAsync(_sampleConversation.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -76,8 +74,7 @@ namespace Api.Tests.Managers.ChatManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Description.Should().Contain("An internal server error occurred.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }

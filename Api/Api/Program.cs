@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SignalRJWTServer.Hubs;
 using System.Reflection;
+using Api.Services.Interfaces;
+using Api.Services;
 
 namespace Api
 {
@@ -35,6 +37,7 @@ namespace Api
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
             builder.Services.AddHostedService<TokenCleanupService>();
+            builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
             builder.Services.AddSwaggerGen(option =>
             {
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -118,7 +121,6 @@ namespace Api
                     }
                 };
             });
-
 
             // Add CORS configuration
             builder.Services.AddCors(options =>

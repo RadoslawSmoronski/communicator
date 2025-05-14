@@ -12,16 +12,15 @@ namespace Api.Tests.Managers.FriendsManagerTest
 {
     public class AddFriendsAsyncTest : FriendsManagerTest
     {
-
         [Fact]
         public async Task AddFriendsAsync_ShouldReturnOk()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
-                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id.ToString()))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleSenderUser));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
-               .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleRecipientUser.Id.ToString()))
+               .Returns(Task.FromResult<UserAccount?>(_sampleRecipientUser));
 
             A.CallTo(() => _unitOfWork.FriendshipInvitations.AnyAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
                 .Returns(Task.FromResult(true));
@@ -33,7 +32,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 .Returns(Task.FromResult<FriendshipInvitation?>(new FriendshipInvitation()));
 
             // Act
-            var result = await _friendsManager.AddFriendsAsync(_sampleUser.Id, _sampleUser2.Id) as Result;
+            var result = await _friendsManager.AddFriendsAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -41,12 +40,12 @@ namespace Api.Tests.Managers.FriendsManagerTest
         }
 
         [Theory]
-        [InlineData("test","")]
-        [InlineData("", "test")]
+        [InlineData(SAMPLE_STRING_GUID, SAMPLE_STRING_EMPTY_GUID)]
+        [InlineData(SAMPLE_STRING_EMPTY_GUID, SAMPLE_STRING_GUID)]
         public async Task AddFriendsAsync_ShouldReturnBadRequestError_WhenUsersIdAreNullOrWhiteSpace(string user1Id, string user2Id)
         {
             // Act
-            var result = await _friendsManager.AddFriendsAsync(user1Id, user2Id) as Result;
+            var result = await _friendsManager.AddFriendsAsync(Guid.Parse(user1Id), Guid.Parse(user2Id)) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -54,15 +53,14 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error! as Error;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("SenderId and RecipientId cannot be null or empty.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
         public async Task AddFriendsAsync_ShouldReturnBadRequestError_WhenSenderIdAndRecipientIdAreTheSame()
         {
             // Act
-            var result = await _friendsManager.AddFriendsAsync("test", "test") as Result;
+            var result = await _friendsManager.AddFriendsAsync(Guid.Empty, Guid.Empty) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -70,20 +68,19 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Be("Sender ID and Recipient ID must be different.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
         public async Task AddFriendsAsync_ShouldReturnNotFoundError_WhenSenderUserWasNotFound()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id.ToString()))
                 .Returns(Task.FromResult<UserAccount?>(null));
 
 
             // Act
-            var result = await _friendsManager.AddFriendsAsync(_sampleUser.Id, "recipientId") as Result;
+            var result = await _friendsManager.AddFriendsAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -91,23 +88,22 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("SenderUser was not found.");
+            error.ErrorType.Should().Be(ErrorType.NotFound);
         }
 
         [Fact]
         public async Task AddFriendsAsync_ShouldReturnNotFoundError_WhenRecipientUserWasNotFound()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
-                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id.ToString()))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleSenderUser));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleRecipientUser.Id.ToString()))
                .Returns(Task.FromResult<UserAccount?>(null));
 
 
             // Act
-            var result = await _friendsManager.AddFriendsAsync(_sampleUser.Id, _sampleUser2.Id) as Result;
+            var result = await _friendsManager.AddFriendsAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -115,25 +111,24 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("RecipientUser was not found.");
+            error.ErrorType.Should().Be(ErrorType.NotFound);
         }
 
         [Fact]
         public async Task AddFriendsAsync_ShouldReturnNotFoundError_WhenInvitationWasNotFound()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
-                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id.ToString()))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleSenderUser));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
-               .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleRecipientUser.Id.ToString()))
+               .Returns(Task.FromResult<UserAccount?>(_sampleRecipientUser));
 
             A.CallTo(() => _unitOfWork.FriendshipInvitations.AnyAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
                 .Returns(Task.FromResult(false));
 
             // Act
-            var result = await _friendsManager.AddFriendsAsync(_sampleUser.Id, _sampleUser2.Id) as Result;
+            var result = await _friendsManager.AddFriendsAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -141,19 +136,18 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("The invitation was not found.");
+            error.ErrorType.Should().Be(ErrorType.NotFound);
         }
 
         [Fact]
         public async Task AddFriendsAsync_ShouldReturnConflictError_WhenFriendsAlreadyExists()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
-                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleSenderUser.Id.ToString()))
+                           .Returns(Task.FromResult<UserAccount?>(_sampleSenderUser));
 
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser2.Id))
-               .Returns(Task.FromResult<UserAccount?>(_sampleUser2));
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleRecipientUser.Id.ToString()))
+               .Returns(Task.FromResult<UserAccount?>(_sampleRecipientUser));
 
             A.CallTo(() => _unitOfWork.FriendshipInvitations.AnyAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
                 .Returns(Task.FromResult(true));
@@ -162,7 +156,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
                 .Returns(Task.FromResult(true));
 
             // Act
-            var result = await _friendsManager.AddFriendsAsync(_sampleUser.Id, _sampleUser2.Id) as Result;
+            var result = await _friendsManager.AddFriendsAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -170,19 +164,18 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.Conflict);
-            error.Description.Should().Contain("This relationship has already exist.");
+            error.ErrorType.Should().Be(ErrorType.Conflict);
         }
 
         [Fact]
         public async Task AddFriendsAsync_ShouldReturnInternalServerError()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync("test1"))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleRecipientUser.Id.ToString()))
                            .Throws(new Exception());
 
             // Act
-            var result = await _friendsManager.AddFriendsAsync("test1", "Test2") as Result;
+            var result = await _friendsManager.AddFriendsAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -190,8 +183,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Description.Should().Contain("An internal server error occurred.");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
     }
 }

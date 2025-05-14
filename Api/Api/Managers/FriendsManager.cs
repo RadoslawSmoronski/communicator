@@ -3,7 +3,6 @@ using Api.Managers.Interfaces;
 using Api.Models;
 using Api.Models.Dtos;
 using Api.Models.Dtos.Controllers.FriendsController;
-using Api.Models.Dtos.Responses.Interfaces;
 using Api.Models.Friendship;
 using Api.Utilities.Result;
 using AutoMapper;
@@ -24,28 +23,28 @@ namespace Api.Managers
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result> SendInviteAsync(string senderId, string recipientId)
+        public async Task<Result> SendInviteAsync(Guid senderId, Guid recipientId)
         {
-            if (string.IsNullOrWhiteSpace(senderId) || string.IsNullOrWhiteSpace(recipientId))
+            if (senderId == Guid.Empty || recipientId == Guid.Empty)
             {
-                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId or RecipientId cannot be null or empty.");
+                return Error.Validation("SENDERID_IS_EMPTY", "SenderId or RecipientId cannot be empty.");
             }
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
+                return Error.Validation("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
             }
 
             try
             {
-                var senderUser = await _userManager.FindByIdAsync(senderId);
+                var senderUser = await _userManager.FindByIdAsync(senderId.ToString());
 
                 if (senderUser == null || senderUser.UserName == null)
                 {
                     return Error.NotFound("SENDERUSER_NOT_FOUND", "SenderUser was not found.");
                 }
 
-                var recipientUser = await _userManager.FindByIdAsync(recipientId);
+                var recipientUser = await _userManager.FindByIdAsync(recipientId.ToString());
 
                 if (recipientUser == null || recipientUser.UserName == null)
                 {
@@ -63,20 +62,20 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
-
-        public async Task<ResultT<List<SimpleUserDto>>> GetInvitationsAsync(string userId)
+            
+        public async Task<ResultT<List<SimpleUserDto>>> GetInvitationsAsync(Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (userId == Guid.Empty)
             {
-                return Error.BadRequest("USERID_IS_EMPTY", "UserId cannot be null or empty.");
+                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be null or empty.");
             }
 
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (user == null || user.UserName == null)
                 {
@@ -85,30 +84,24 @@ namespace Api.Managers
 
                 var list = await GetUserInvitationsAsync(user);
 
-                if (list.Count > 0)
-                {
-                    return list;
-                }
-
-                return Error.NotFound("INVITITIES_NOT_FOUND", "Invitations were not found.");
-
+                return list;
             }
             catch
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<ResultT<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(string userId, string text)
+        public async Task<ResultT<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(Guid userId, string text)
         {
-            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(text))
+            if ( userId == Guid.Empty || string.IsNullOrWhiteSpace(text))
             {
-                return Error.BadRequest("USERID_OR_TEXT_ARE_EMPTY", "UserId or text cannot be null or empty.");
+                return Error.Validation("USERID_OR_TEXT_ARE_EMPTY", "UserId or text cannot be null or empty.");
             }
 
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (user == null || user.UserName == null)
                 {
@@ -117,42 +110,36 @@ namespace Api.Managers
 
                 var list = await GetUsersToInviteByTextAsync(user, text);
 
-                if (list.Count > 0)
-                {
-                    return list;
-                }
-
-                return Error.NotFound("USERS_NOT_FOUND", "Users to invite were not found.");
-
+                return list;
             }
             catch
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<Result> DecelineInviteAsync(string senderId, string recipientId)
+        public async Task<Result> DecelineInviteAsync(Guid senderId, Guid recipientId)
         {
-            if (string.IsNullOrWhiteSpace(senderId) || string.IsNullOrWhiteSpace(recipientId))
+            if ( senderId == Guid.Empty || recipientId == Guid.Empty)
             {
-                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId and RecipientId cannot be null or empty.");
+                return Error.Validation("SENDERID_IS_EMPTY", "SenderId and RecipientId cannot be empty.");
             }
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId must be different.");
+                return Error.Validation("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "SenderId and RecipientId must be different.");
             }
 
             try
             {
-                var senderUser = await _userManager.FindByIdAsync(senderId);
+                var senderUser = await _userManager.FindByIdAsync(senderId.ToString());
 
                 if (senderUser == null || senderUser.UserName == null)
                 {
                     return Error.NotFound("SENDERUSER_NOT_FOUND", "SenderUser was not found.");
                 }
 
-                var recipientUser = await _userManager.FindByIdAsync(recipientId);
+                var recipientUser = await _userManager.FindByIdAsync(recipientId.ToString());
 
                 if (recipientUser == null || recipientUser.UserName == null)
                 {
@@ -171,36 +158,36 @@ namespace Api.Managers
                     return Error.NotFound("INVITATION_NOT_FOUND", "Invitation was not found.");
                 }
 
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<Result> AddFriendsAsync(string senderId, string recipientId)
+        public async Task<Result> AddFriendsAsync(Guid senderId, Guid recipientId)
         {
-            if (string.IsNullOrWhiteSpace(senderId) || string.IsNullOrWhiteSpace(recipientId))
+            if (senderId == Guid.Empty || recipientId == Guid.Empty)
             {
-                return Error.BadRequest("SENDERID_IS_EMPTY", "SenderId and RecipientId cannot be null or empty.");
+                return Error.Validation("SENDERID_IS_EMPTY", "SenderId and RecipientId cannot be null or empty.");
             }
 
             if (senderId == recipientId)
             {
-                return Error.BadRequest("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
+                return Error.Validation("SENDERID_AND_RECIPIENTID_ARE_THE_SAME", "Sender ID and Recipient ID must be different.");
             }
 
             try
             {
-                var senderUser = await _userManager.FindByIdAsync(senderId);
+                var senderUser = await _userManager.FindByIdAsync(senderId.ToString());
 
                 if (senderUser == null || senderUser.UserName == null)
                 {
                     return Error.NotFound("SENDERUSER_NOT_FOUND", "SenderUser was not found.");
                 }
 
-                var recipientUser = await _userManager.FindByIdAsync(recipientId);
+                var recipientUser = await _userManager.FindByIdAsync(recipientId.ToString());
 
                 if (recipientUser == null || recipientUser.UserName == null)
                 {
@@ -223,20 +210,20 @@ namespace Api.Managers
             }
             catch (Exception)
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<ResultT<List<SimpleUserDto>>> GetFriendsAsync(string userId)
+        public async Task<ResultT<List<SimpleUserDto>>> GetFriendsAsync(Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (userId == Guid.Empty)
             {
-                return Error.BadRequest("USERID_IS_EMPTY", "UserId cannot be null or empty.");
+                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be null or empty.");
             }
 
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (user == null || user.UserName == null)
                 {
@@ -245,28 +232,22 @@ namespace Api.Managers
 
                 var list = await GetFriendsFromDbAsync(userId);
 
-                if (list.Count > 0)
-                {
-                    return list;
-                }
-
-                return Error.NotFound("INVITITIES_NOT_FOUND", "No friends were found.");
-
+                return list;
             }
             catch
             {
-                return Error.InternalServerError("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        public async Task<bool> IsFriendsExistAsync(string userId1, string userId2)
+        public async Task<bool> IsFriendsExistAsync(Guid userId1, Guid userId2)
         {
             return await _unitOfWork.Friendships
                 .AnyAsync(x => (x.User1Id == userId1 && x.User2Id == userId2)
                 || (x.User1Id == userId2 && x.User2Id == userId1));
         }
 
-        private async Task<bool> IsFriendsInvitationExists(string user1Id, string user2Id)
+        private async Task<bool> IsFriendsInvitationExists(Guid user1Id, Guid user2Id)
         {
             return await _unitOfWork.FriendshipInvitations.AnyAsync(x =>
             (x.SenderId == user1Id && x.RecipientId == user2Id) ||
@@ -370,7 +351,7 @@ namespace Api.Managers
             await _unitOfWork.SaveAsync();
         }
 
-        private async Task<List<SimpleUserDto>> GetFriendsFromDbAsync(string userId)
+        private async Task<List<SimpleUserDto>> GetFriendsFromDbAsync(Guid userId)
         {
             var result = await _unitOfWork.Friendships.WhereAsync(
                 x => (x.User1Id == userId || x.User2Id == userId),

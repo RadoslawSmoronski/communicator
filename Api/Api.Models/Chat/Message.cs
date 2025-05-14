@@ -12,7 +12,7 @@ namespace Api.Models.Chat
         public Guid ConversationId { get; set; }
         public Conversation Conversation { get; set; }
 
-        public string SenderId { get; set; } = string.Empty;
+        public Guid SenderId { get; set; } = Guid.Empty;
         public UserAccount Sender { get; set; }
 
         public string Content { get; set; } = string.Empty;

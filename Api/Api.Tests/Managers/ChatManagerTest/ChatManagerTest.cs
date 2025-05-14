@@ -14,7 +14,6 @@ namespace Api.Tests.Managers.ChatManagerTest
         protected readonly UserManager<UserAccount> _userManager;
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IChatManager _chatManager;
-        protected readonly IFriendsManager _friendsManager;
         protected readonly IMapper _mapper;
 
         protected readonly UserAccount _sampleUser1;
@@ -34,7 +33,6 @@ namespace Api.Tests.Managers.ChatManagerTest
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _unitOfWork = A.Fake<IUnitOfWork>();
-            _friendsManager = A.Fake<IFriendsManager>();
 
             var configuration = new MapperConfiguration(cfg =>
             {
@@ -43,10 +41,10 @@ namespace Api.Tests.Managers.ChatManagerTest
 
             _mapper = configuration.CreateMapper();
 
-            _chatManager = new ChatManager(_unitOfWork, _userManager, _friendsManager, _mapper);
-            _sampleUser1 = new UserAccount { UserName = "User1Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab254" };
-            _sampleUser2 = new UserAccount { UserName = "User2Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab255" };
-            _sampleUser3 = new UserAccount { UserName = "User3Login", Id = "c9fbf188-e309-48c9-811d-7d5be45ab256" };
+            _chatManager = new ChatManager(_unitOfWork, _userManager, _mapper);
+            _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
+            _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };
+            _sampleUser3 = new UserAccount { UserName = "User3Login", Id = Guid.NewGuid() };
 
             _sampleConversation = new Conversation()
             {

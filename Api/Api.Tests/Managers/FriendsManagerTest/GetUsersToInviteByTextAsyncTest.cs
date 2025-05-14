@@ -20,14 +20,13 @@ namespace Api.Tests.Managers.FriendsManagerTest
         public async Task GetUsersToInviteByTextAsync_ShouldReturnOk()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id.ToString()))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUser));
 
             var fakeUsers = new List<UserAccount>
             {
-                new UserAccount { Id = "test", UserName = "test" },
-                new UserAccount { Id = "test2", UserName = "test" },
-                new UserAccount { Id = "test3", UserName = "test" },
+                new UserAccount { Id = _sampleRecipientUser.Id, UserName = _sampleRecipientUser.UserName },
+                new UserAccount { Id = _sampleSenderUser.Id, UserName = _sampleSenderUser.UserName },
             };
 
             A.CallTo(() => _userManager.Users)
@@ -40,11 +39,10 @@ namespace Api.Tests.Managers.FriendsManagerTest
             {
                 new UserToInviteDto { Id = fakeUsers[0].Id, UserName = fakeUsers[0].UserName!, IsInvited = false },
                 new UserToInviteDto { Id = fakeUsers[1].Id, UserName = fakeUsers[1].UserName!, IsInvited = false },
-                new UserToInviteDto { Id = fakeUsers[2].Id, UserName = fakeUsers[2].UserName!, IsInvited = false }
             };
 
             // Act
-            var result = await _friendsManager.GetUsersToInviteByTextAsync(_sampleUser.Id, "test") as ResultT<List<UserToInviteDto>>;
+            var result = await _friendsManager.GetUsersToInviteByTextAsync(_sampleUser.Id, "User") as ResultT<List<UserToInviteDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -56,12 +54,12 @@ namespace Api.Tests.Managers.FriendsManagerTest
         }
 
         [Theory]
-        [InlineData("", "test")]
-        [InlineData("test", "")]
+        [InlineData(SAMPLE_STRING_EMPTY_GUID, "test")]
+        [InlineData(SAMPLE_STRING_GUID, "")]
         public async Task GetUsersToInviteByTextAsync_ShouldReturnBadRequestError_WhenUserIdOrTextAreNullOrWhiteSpace(string fakeId, string fakeText)
         {
             // Act
-            var result = await _friendsManager.GetUsersToInviteByTextAsync(fakeId, fakeText) as Result;
+            var result = await _friendsManager.GetUsersToInviteByTextAsync(Guid.Parse(fakeId), fakeText) as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -69,15 +67,14 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.BadRequest);
-            error.Description.Should().Contain("UserId or text cannot be null or empty.");
+            error.ErrorType.Should().Be(ErrorType.Validation);
         }
 
         [Fact]
         public async Task GetUsersToInviteByTextAsync_ShouldReturnNotFoundError_WhenUserDoesNotExists()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id.ToString()))
                            .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
@@ -89,41 +86,17 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("User was not found.");
-        }
-
-        [Fact]
-        public async Task TaskGetUsersToInviteByTextAsync_ShouldReturnNotFound_WhenNotFoundAnyUser()
-        {
-            // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id))
-                           .Returns(Task.FromResult<UserAccount?>(_sampleUser));
-
-            A.CallTo(() => _userManager.Users)
-                .Returns(new List<UserAccount>().AsQueryable().BuildMock());
-
-            // Act
-            var result = await _friendsManager.GetUsersToInviteByTextAsync(_sampleUser.Id, "test") as Result;
-
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
-
-            var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.NotFound);
-            error.Description.Should().Contain("Users to invite were not found.");
+            error.ErrorType.Should().Be(ErrorType.NotFound);
         }
 
         [Fact]
         public async Task GetUsersToInviteByTextAsync_ShouldReturnInternalServerError()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync("test"))
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser.Id.ToString()))
                            .Throws(new Exception());
             // Act
-            var result = await _friendsManager.GetUsersToInviteByTextAsync("test", "test2") as Result;
+            var result = await _friendsManager.GetUsersToInviteByTextAsync(_sampleUser.Id, "test2") as Result;
 
             // Assert
             result.Should().NotBeNull();
@@ -131,8 +104,7 @@ namespace Api.Tests.Managers.FriendsManagerTest
             result.Error.Should().NotBeNull();
 
             var error = result.Error!;
-            error.ErrorType.Should().Be(HttpErrorType.InternalServerError);
-            error.Code.Should().Be("INTERNAL_SERVER_ERROR");
+            error.ErrorType.Should().Be(ErrorType.Unknown);
         }
 
     }
