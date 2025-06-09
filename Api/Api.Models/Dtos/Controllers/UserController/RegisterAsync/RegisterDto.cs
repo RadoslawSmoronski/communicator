@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Controllers.UserController.RegisterAsync
+namespace ChatCommunicator.Models.Dtos.Controllers.UserController.RegisterAsync
 {
     public class RegisterDto
     {

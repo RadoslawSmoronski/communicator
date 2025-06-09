@@ -1,6 +1,6 @@
-﻿using Api.Models;
-using Api.Models.Dtos;
-using Api.Models.Dtos.Controllers.UserController.LoginAsync;
+﻿using ChatCommunicator.Models;
+using ChatCommunicator.Models.Dtos;
+using ChatCommunicator.Models.Dtos.Controllers.UserController.LoginAsync;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace Api.Controllers
+namespace ChatCommunicator.Controllers
 {
     [Route("api/users")]
     [ApiController]

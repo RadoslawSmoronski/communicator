@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Api.Models;
+using ChatCommunicator.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Reflection.Emit;
-using Api.Models.Friendship;
-using Api.Models.Chat;
+using ChatCommunicator.Models.Friendship;
+using ChatCommunicator.Models.Chat;
 
-namespace Api.Data
+namespace ChatCommunicator.Data
 {
     public class ApplicationDbContext : IdentityDbContext<UserAccount, ApplicationRole, Guid>
     {

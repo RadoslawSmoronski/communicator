@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Api.Data\Api.Data.csproj" />
+    <ProjectReference Include="..\ChatCommunicator.Shared\ChatCommunicator.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

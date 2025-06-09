@@ -1,15 +1,15 @@
-﻿using Api.Data.UnitOfWork;
-using Api.Managers.Interfaces;
-using Api.Models;
-using Api.Models.Chat;
-using Api.Models.Dtos;
-using Api.Models.Dtos.Chat;
-using Api.Utilities.Result;
+﻿using ChatCommunicator.Data.UnitOfWork;
+using ChatCommunicator.Managers.Interfaces;
+using ChatCommunicator.Models;
+using ChatCommunicator.Models.Chat;
+using ChatCommunicator.Models.Dtos;
+using ChatCommunicator.Models.Dtos.Chat;
+using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using System;
 
-namespace Api.Managers
+namespace ChatCommunicator.Managers
 {
     public class ChatManager : IChatManager
     {

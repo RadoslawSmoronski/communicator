@@ -1,10 +1,10 @@
-﻿using Api.Models;
-using Api.Models.Dtos.Controllers.UserController;
-using Api.Models.Dtos.Service;
-using Api.Utilities.Result;
+﻿using ChatCommunicator.Models;
+using ChatCommunicator.Models.Dtos.Controllers.UserController;
+using ChatCommunicator.Models.Dtos.Service;
+using ChatCommunicator.Shared.Result;
 using System.Security.Claims;
 
-namespace Api.Managers.Interfaces
+namespace ChatCommunicator.Managers.Interfaces
 {
     public interface ITokenManager
     {

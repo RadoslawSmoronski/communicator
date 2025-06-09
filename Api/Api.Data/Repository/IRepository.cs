@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Api.Data.Repository
+namespace ChatCommunicator.Data.Repository
 {
     public interface IRepository<T> where T : class
     {

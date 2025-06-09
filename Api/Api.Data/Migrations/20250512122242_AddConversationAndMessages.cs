@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Api.Data.Migrations
+namespace ChatCommunicator.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AddConversationAndMessages : Migration

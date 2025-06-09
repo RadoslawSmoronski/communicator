@@ -1,8 +1,8 @@
-﻿using Api.Models.Dtos;
-using Api.Models.Dtos.Controllers.FriendsController;
-using Api.Utilities.Result;
+﻿using ChatCommunicator.Models.Dtos;
+using ChatCommunicator.Models.Dtos.Controllers.FriendsController;
+using ChatCommunicator.Shared.Result;
 
-namespace Api.Managers.Interfaces
+namespace ChatCommunicator.Managers.Interfaces
 {
     public interface IFriendsManager
     {

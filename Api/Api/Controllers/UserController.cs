@@ -1,18 +1,18 @@
-﻿using Api.Managers.Interfaces;
-using Api.Models;
-using Api.Models.Dtos.Controllers.UserController.RegisterAsync;
-using Api.Models.Dtos.Controllers.UserController.LoginAsync;
+﻿using ChatCommunicator.Managers.Interfaces;
+using ChatCommunicator.Models;
+using ChatCommunicator.Models.Dtos.Controllers.UserController.RegisterAsync;
+using ChatCommunicator.Models.Dtos.Controllers.UserController.LoginAsync;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Api.Models.Dtos.Controllers.UserController;
-using Api.Models.Dtos.Service;
-using Api.Models.Dtos;
+using ChatCommunicator.Models.Dtos.Controllers.UserController;
+using ChatCommunicator.Models.Dtos.Service;
+using ChatCommunicator.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Api.Utilities.Result;
+using ChatCommunicator.Shared.Result;
 
-namespace Api.Controllers
+namespace ChatCommunicator.Controllers
 {
     [Route("api/user")]
     [ApiController]

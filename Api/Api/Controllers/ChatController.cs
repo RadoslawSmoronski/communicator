@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Api.Managers.Interfaces;
+using ChatCommunicator.Managers.Interfaces;
 using AutoMapper;
 using System.Security.Claims;
-using Api.Utilities.Result;
-using Api.Models.Dtos.Chat;
+using ChatCommunicator.Models.Dtos.Chat;
+using ChatCommunicator.Shared.Result;
 
-namespace Api.Controllers
+namespace ChatCommunicator.Controllers
 {
     [Route("api/chat")]
     [ApiController]

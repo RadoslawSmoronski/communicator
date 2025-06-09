@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Service
+namespace ChatCommunicator.Models.Dtos.Service
 {
     public class RefreshAccessTokenDto
     {

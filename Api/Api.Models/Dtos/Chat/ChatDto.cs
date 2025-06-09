@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Chat
+namespace ChatCommunicator.Models.Dtos.Chat
 {
     public class ChatDto
     {

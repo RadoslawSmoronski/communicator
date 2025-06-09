@@ -1,6 +1,6 @@
-﻿using Api.Models.Dtos.Chat;
+﻿using ChatCommunicator.Models.Dtos.Chat;
 
-namespace Api.Hubs.Interfaces
+namespace ChatCommunicator.Hubs.Interfaces
 {
     public interface IChatClient
     {

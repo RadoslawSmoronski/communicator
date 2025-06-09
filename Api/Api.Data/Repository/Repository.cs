@@ -1,4 +1,4 @@
-﻿using Api.Data.Repository;
+﻿using ChatCommunicator.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

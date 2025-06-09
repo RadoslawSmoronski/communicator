@@ -1,11 +1,11 @@
-﻿using Api.Models.Chat;
+﻿using ChatCommunicator.Models.Chat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Chat
+namespace ChatCommunicator.Models.Dtos.Chat
 {
     public class MessageDto
     {

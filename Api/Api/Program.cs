@@ -1,10 +1,10 @@
-﻿using Api.Data;
-using Api.Data.Repository;
-using Api.Managers;
-using Api.Managers.Interfaces;
-using Api.Data.UnitOfWork;
-using Api.Models;
-using Api.Service;
+﻿using ChatCommunicator.Data;
+using ChatCommunicator.Data.Repository;
+using ChatCommunicator.Managers;
+using ChatCommunicator.Managers.Interfaces;
+using ChatCommunicator.Data.UnitOfWork;
+using ChatCommunicator.Models;
+using ChatCommunicator.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +12,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SignalRJWTServer.Hubs;
 using System.Reflection;
-using Api.Services.Interfaces;
-using Api.Services;
+using ChatCommunicator.Services.Interfaces;
+using ChatCommunicator.Services;
 
-namespace Api
+namespace ChatCommunicator
 {
     public class Program
     {

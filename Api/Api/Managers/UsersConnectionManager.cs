@@ -1,7 +1,7 @@
-﻿using Api.Managers.Interfaces;
+﻿using ChatCommunicator.Managers.Interfaces;
 using System.Collections.Concurrent;
 
-namespace Api.Managers
+namespace ChatCommunicator.Managers
 {
     public class UsersConnectionManager : IUsersConnectionManager
     {

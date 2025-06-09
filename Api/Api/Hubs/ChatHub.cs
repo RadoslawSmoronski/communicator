@@ -1,9 +1,9 @@
-﻿using Api.Hubs;
-using Api.Hubs.Interfaces;
-using Api.Managers.Interfaces;
-using Api.Models;
-using Api.Models.Chat;
-using Api.Models.Dtos.Chat;
+﻿using ChatCommunicator.Hubs;
+using ChatCommunicator.Hubs.Interfaces;
+using ChatCommunicator.Managers.Interfaces;
+using ChatCommunicator.Models;
+using ChatCommunicator.Models.Chat;
+using ChatCommunicator.Models.Dtos.Chat;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

@@ -1,7 +1,7 @@
-﻿using Api.Models.Friendship;
+﻿using ChatCommunicator.Models.Friendship;
 using Microsoft.AspNetCore.Identity;
 
-namespace Api.Models
+namespace ChatCommunicator.Models
 {
     public class UserAccount : IdentityUser<Guid>
     {

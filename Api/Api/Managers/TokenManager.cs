@@ -1,15 +1,15 @@
-﻿using Api.Data.UnitOfWork;
-using Api.Managers.Interfaces;
-using Api.Models;
-using Api.Models.Dtos.Service;
-using Api.Utilities.Result;
+﻿using ChatCommunicator.Data.UnitOfWork;
+using ChatCommunicator.Managers.Interfaces;
+using ChatCommunicator.Models;
+using ChatCommunicator.Models.Dtos.Service;
+using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Api.Managers
+namespace ChatCommunicator.Managers
 {
     public class TokenManager : ITokenManager
     {

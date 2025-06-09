@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Chat
+namespace ChatCommunicator.Models.Chat
 {
     public class Message
     {

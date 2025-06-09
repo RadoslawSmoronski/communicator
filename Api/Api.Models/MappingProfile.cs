@@ -1,9 +1,9 @@
-﻿using Api.Models.Chat;
-using Api.Models.Dtos;
-using Api.Models.Dtos.Chat;
+﻿using ChatCommunicator.Models.Chat;
+using ChatCommunicator.Models.Dtos;
+using ChatCommunicator.Models.Dtos.Chat;
 using AutoMapper;
 
-namespace Api.Models
+namespace ChatCommunicator.Models
 {
     public class MappingProfile : Profile
     {

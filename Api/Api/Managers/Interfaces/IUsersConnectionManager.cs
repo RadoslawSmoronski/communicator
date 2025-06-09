@@ -1,6 +1,6 @@
-﻿using Api.Models;
+﻿using ChatCommunicator.Models;
 
-namespace Api.Managers.Interfaces
+namespace ChatCommunicator.Managers.Interfaces
 {
     public interface IUsersConnectionManager
     {

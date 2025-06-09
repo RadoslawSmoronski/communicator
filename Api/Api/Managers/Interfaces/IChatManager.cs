@@ -1,8 +1,8 @@
-﻿using Api.Models.Chat;
-using Api.Models.Dtos.Chat;
-using Api.Utilities.Result;
+﻿using ChatCommunicator.Models.Chat;
+using ChatCommunicator.Models.Dtos.Chat;
+using ChatCommunicator.Shared.Result;
 
-namespace Api.Managers.Interfaces
+namespace ChatCommunicator.Managers.Interfaces
 {
     public interface IChatManager
     {

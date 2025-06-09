@@ -1,5 +1,5 @@
-﻿using Api.Data.Repository.Interfaces;
-using Api.Models.Chat;
+﻿using ChatCommunicator.Data.Repository.Interfaces;
+using ChatCommunicator.Models.Chat;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Data.Repository
+namespace ChatCommunicator.Data.Repository
 {
     public class MessageRepository : Repository<Message>, IMessageRepository
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Models.Dtos.Controllers.FriendsController
+namespace ChatCommunicator.Models.Dtos.Controllers.FriendsController
 {
     public class UserToInviteDto
     {

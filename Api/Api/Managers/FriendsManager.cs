@@ -1,15 +1,15 @@
-﻿using Api.Data.UnitOfWork;
-using Api.Managers.Interfaces;
-using Api.Models;
-using Api.Models.Dtos;
-using Api.Models.Dtos.Controllers.FriendsController;
-using Api.Models.Friendship;
-using Api.Utilities.Result;
+﻿using ChatCommunicator.Data.UnitOfWork;
+using ChatCommunicator.Managers.Interfaces;
+using ChatCommunicator.Models;
+using ChatCommunicator.Models.Dtos;
+using ChatCommunicator.Models.Dtos.Controllers.FriendsController;
+using ChatCommunicator.Models.Friendship;
+using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Managers
+namespace ChatCommunicator.Managers
 {
     public class FriendsManager : IFriendsManager
     {

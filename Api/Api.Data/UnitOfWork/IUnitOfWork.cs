@@ -1,10 +1,10 @@
-﻿using Api.Data.Repository;
-using Api.Data.Repository.Interfaces;
-using Api.Models;
-using Api.Models.Chat;
-using Api.Models.Friendship;
+﻿using ChatCommunicator.Data.Repository;
+using ChatCommunicator.Data.Repository.Interfaces;
+using ChatCommunicator.Models;
+using ChatCommunicator.Models.Chat;
+using ChatCommunicator.Models.Friendship;
 
-namespace Api.Data.UnitOfWork
+namespace ChatCommunicator.Data.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {
