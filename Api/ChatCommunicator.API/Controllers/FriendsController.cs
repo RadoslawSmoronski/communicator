@@ -1,13 +1,13 @@
 ﻿using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ChatCommunicator.Managers.Interfaces;
 using AutoMapper;
 using ChatCommunicator.Contracts.Dtos;
 using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
+using ChatCommunicator.API.Managers.Interfaces;
 
-namespace ChatCommunicator.Controllers
+namespace ChatCommunicator.API.Controllers
 {
     [Route("api/friends")]
     [ApiController]

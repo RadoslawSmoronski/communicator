@@ -1,9 +1,9 @@
-﻿using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Services.Interfaces;
+﻿using ChatCommunicator.API.Managers.Interfaces;
+using ChatCommunicator.API.Services.Interfaces;
 using ChatCommunicator.Shared.Result;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace ChatCommunicator.Services
+namespace ChatCommunicator.API.Services
 {
     public class ChatFriendsService : IChatFriendsService
     {

@@ -1,5 +1,4 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Managers;
 using ChatCommunicator.Contracts;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChatCommunicator.API.Managers;
 
 namespace ChatCommunicator.Tests.Managers.FriendsManagerTest
 {

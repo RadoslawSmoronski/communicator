@@ -1,11 +1,11 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Managers;
+using ChatCommunicator.API.Managers;
 using ChatCommunicator.Contracts;
 using Microsoft.AspNetCore.Identity;
 using FakeItEasy;
-using ChatCommunicator.Managers.Interfaces;
 using ChatCommunicator.Contracts.Chat;
 using AutoMapper;
+using ChatCommunicator.API.Managers.Interfaces;
 
 namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 {

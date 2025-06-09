@@ -1,6 +1,6 @@
 ﻿using ChatCommunicator.Contracts.Dtos.Chat;
 
-namespace ChatCommunicator.Hubs.Interfaces
+namespace ChatCommunicator.API.Hubs.Interfaces
 {
     public interface IChatClient
     {

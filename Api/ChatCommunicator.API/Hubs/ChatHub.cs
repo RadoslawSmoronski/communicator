@@ -1,7 +1,4 @@
-﻿using ChatCommunicator.Hubs;
-using ChatCommunicator.Hubs.Interfaces;
-using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Contracts;
+﻿using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Chat;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using AutoMapper;
@@ -9,8 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
+using ChatCommunicator.API.Hubs.Interfaces;
+using ChatCommunicator.API.Managers.Interfaces;
 
-namespace SignalRJWTServer.Hubs
+namespace ChatCommunicator.API.Hubs
 {
     [Authorize]
     public class ChatHub : Hub<IChatClient>

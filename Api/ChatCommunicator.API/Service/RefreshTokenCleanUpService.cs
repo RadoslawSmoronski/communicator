@@ -1,7 +1,7 @@
-﻿using ChatCommunicator.Managers.Interfaces;
+﻿using ChatCommunicator.API.Managers.Interfaces;
 using ChatCommunicator.Shared.Result;
 
-namespace ChatCommunicator.Service
+namespace ChatCommunicator.API.Service
 
 {
    public class TokenCleanupService : BackgroundService

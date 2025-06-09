@@ -1,5 +1,4 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Managers.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Chat;
 using ChatCommunicator.Contracts.Dtos;
@@ -8,8 +7,9 @@ using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using System;
+using ChatCommunicator.API.Managers.Interfaces;
 
-namespace ChatCommunicator.Managers
+namespace ChatCommunicator.API.Managers
 {
     public class ChatManager : IChatManager
     {
@@ -211,8 +211,8 @@ namespace ChatCommunicator.Managers
         private async Task<Conversation?> GetConversationAsync(Guid user1Id, Guid user2Id)
         {
             return await _unitOfWork.Conversations.FirstOrDefaultAsync(x =>
-                (x.User1Id == user1Id && x.User2Id == user2Id) ||
-                (x.User1Id == user2Id && x.User2Id == user1Id));
+                x.User1Id == user1Id && x.User2Id == user2Id ||
+                x.User1Id == user2Id && x.User2Id == user1Id);
         }
 
         private async Task<Conversation?> GetConversationByIdAsync(Guid conversationId)

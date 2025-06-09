@@ -1,5 +1,4 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Managers.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
@@ -8,8 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ChatCommunicator.API.Managers.Interfaces;
 
-namespace ChatCommunicator.Managers
+namespace ChatCommunicator.API.Managers
 {
     public class TokenManager : ITokenManager
     {

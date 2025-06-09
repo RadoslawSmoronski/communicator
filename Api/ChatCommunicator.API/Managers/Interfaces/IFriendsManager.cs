@@ -2,7 +2,7 @@
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Shared.Result;
 
-namespace ChatCommunicator.Managers.Interfaces
+namespace ChatCommunicator.API.Managers.Interfaces
 {
     public interface IFriendsManager
     {

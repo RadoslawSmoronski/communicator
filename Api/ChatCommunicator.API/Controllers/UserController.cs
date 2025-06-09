@@ -1,5 +1,4 @@
-﻿using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Contracts;
+﻿using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using AutoMapper;
@@ -11,8 +10,9 @@ using ChatCommunicator.Contracts.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
+using ChatCommunicator.API.Managers.Interfaces;
 
-namespace ChatCommunicator.Controllers
+namespace ChatCommunicator.API.Controllers
 {
     [Route("api/user")]
     [ApiController]
@@ -273,7 +273,7 @@ namespace ChatCommunicator.Controllers
         /// </example>
         [Authorize]
         [HttpPatch("changeUsername")]
-        [ProducesResponseType<String>(StatusCodes.Status200OK)]
+        [ProducesResponseType<string>(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]

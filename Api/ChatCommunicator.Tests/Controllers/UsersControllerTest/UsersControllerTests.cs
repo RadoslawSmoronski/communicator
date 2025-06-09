@@ -1,9 +1,9 @@
-﻿using ChatCommunicator.Controllers;
-using ChatCommunicator.Contracts;
+﻿using ChatCommunicator.Contracts;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using FakeItEasy;
+using ChatCommunicator.API.Controllers;
 
 namespace ChatCommunicator.Tests.Controllers.UsersControllerTest
 {

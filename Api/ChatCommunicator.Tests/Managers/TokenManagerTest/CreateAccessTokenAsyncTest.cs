@@ -1,12 +1,12 @@
-﻿using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Contracts;
+﻿using ChatCommunicator.Contracts;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Shared.Result;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using ChatCommunicator.Managers;
+using ChatCommunicator.API.Managers;
 using ChatCommunicator.Infrastructure.UnitOfWork;
+using ChatCommunicator.API.Managers.Interfaces;
 
 namespace ChatCommunicator.Tests.Managers.TokenManagerTest
 {

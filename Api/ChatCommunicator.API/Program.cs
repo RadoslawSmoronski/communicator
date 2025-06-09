@@ -1,21 +1,21 @@
 ﻿using ChatCommunicator.Infrastructure;
 using ChatCommunicator.Infrastructure.Repository;
-using ChatCommunicator.Managers;
-using ChatCommunicator.Managers.Interfaces;
 using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Contracts;
-using ChatCommunicator.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SignalRJWTServer.Hubs;
 using System.Reflection;
-using ChatCommunicator.Services.Interfaces;
-using ChatCommunicator.Services;
+using ChatCommunicator.API.Services;
+using ChatCommunicator.API.Services.Interfaces;
+using ChatCommunicator.API.Managers;
+using ChatCommunicator.API.Service;
+using ChatCommunicator.API.Managers.Interfaces;
+using ChatCommunicator.API.Hubs;
 
-namespace ChatCommunicator
+namespace ChatCommunicator.API
 {
     public class Program
     {

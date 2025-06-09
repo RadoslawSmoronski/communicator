@@ -1,5 +1,4 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Managers.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
@@ -8,8 +7,9 @@ using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ChatCommunicator.API.Managers.Interfaces;
 
-namespace ChatCommunicator.Managers
+namespace ChatCommunicator.API.Managers
 {
     public class FriendsManager : IFriendsManager
     {
@@ -243,15 +243,15 @@ namespace ChatCommunicator.Managers
         public async Task<bool> IsFriendsExistAsync(Guid userId1, Guid userId2)
         {
             return await _unitOfWork.Friendships
-                .AnyAsync(x => (x.User1Id == userId1 && x.User2Id == userId2)
-                || (x.User1Id == userId2 && x.User2Id == userId1));
+                .AnyAsync(x => x.User1Id == userId1 && x.User2Id == userId2
+                || x.User1Id == userId2 && x.User2Id == userId1);
         }
 
         private async Task<bool> IsFriendsInvitationExists(Guid user1Id, Guid user2Id)
         {
             return await _unitOfWork.FriendshipInvitations.AnyAsync(x =>
-            (x.SenderId == user1Id && x.RecipientId == user2Id) ||
-            (x.SenderId == user2Id && x.RecipientId == user1Id));
+            x.SenderId == user1Id && x.RecipientId == user2Id ||
+            x.SenderId == user2Id && x.RecipientId == user1Id);
         }
 
         private async Task SendFriendshipInviteAsync(UserAccount senderUser, UserAccount recipientUser)
@@ -354,14 +354,14 @@ namespace ChatCommunicator.Managers
         private async Task<List<SimpleUserDto>> GetFriendsFromDbAsync(Guid userId)
         {
             var result = await _unitOfWork.Friendships.WhereAsync(
-                x => (x.User1Id == userId || x.User2Id == userId),
+                x => x.User1Id == userId || x.User2Id == userId,
                 x => x.User1,
                 x => x.User2);
 
             return result.Select(x => new SimpleUserDto()
             {
                 Id = x.User1Id == userId ? x.User2Id : x.User1Id,
-                userName = x.User1Id == userId ? (x.User2.UserName ?? throw new Exception()) : (x.User1.UserName ?? throw new Exception())
+                userName = x.User1Id == userId ? x.User2.UserName ?? throw new Exception() : x.User1.UserName ?? throw new Exception()
             }).ToList();
         }
 

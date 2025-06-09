@@ -1,6 +1,6 @@
 ﻿using ChatCommunicator.Contracts;
 
-namespace ChatCommunicator.Managers.Interfaces
+namespace ChatCommunicator.API.Managers.Interfaces
 {
     public interface IUsersConnectionManager
     {
