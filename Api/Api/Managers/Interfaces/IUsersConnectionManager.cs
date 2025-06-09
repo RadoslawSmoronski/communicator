@@ -1,4 +1,4 @@
-﻿using ChatCommunicator.Models;
+﻿using ChatCommunicator.Contracts;
 
 namespace ChatCommunicator.Managers.Interfaces
 {

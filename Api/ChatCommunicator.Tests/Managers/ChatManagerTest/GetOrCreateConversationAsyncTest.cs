@@ -1,5 +1,5 @@
-﻿using ChatCommunicator.Models;
-using ChatCommunicator.Models.Chat;
+﻿using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Chat;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;

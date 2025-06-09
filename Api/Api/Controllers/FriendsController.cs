@@ -1,9 +1,9 @@
-﻿using ChatCommunicator.Models.Dtos.Controllers.FriendsController;
+﻿using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ChatCommunicator.Managers.Interfaces;
 using AutoMapper;
-using ChatCommunicator.Models.Dtos;
+using ChatCommunicator.Contracts.Dtos;
 using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
 

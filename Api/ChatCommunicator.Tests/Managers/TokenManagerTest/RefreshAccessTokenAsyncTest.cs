@@ -1,8 +1,8 @@
-﻿using ChatCommunicator.Data.UnitOfWork;
+﻿using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Managers;
 using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Models;
-using ChatCommunicator.Models.Dtos.Service;
+using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Service;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;

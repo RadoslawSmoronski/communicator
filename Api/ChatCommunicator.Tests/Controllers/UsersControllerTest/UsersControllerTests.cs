@@ -1,5 +1,5 @@
 ﻿using ChatCommunicator.Controllers;
-using ChatCommunicator.Models;
+using ChatCommunicator.Contracts;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

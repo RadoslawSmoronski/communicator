@@ -1,5 +1,5 @@
-﻿using ChatCommunicator.Models.Dtos;
-using ChatCommunicator.Models.Dtos.Controllers.FriendsController;
+﻿using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Shared.Result;
 
 namespace ChatCommunicator.Managers.Interfaces

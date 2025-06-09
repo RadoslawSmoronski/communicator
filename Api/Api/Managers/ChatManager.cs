@@ -1,9 +1,9 @@
-﻿using ChatCommunicator.Data.UnitOfWork;
+﻿using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Models;
-using ChatCommunicator.Models.Chat;
-using ChatCommunicator.Models.Dtos;
-using ChatCommunicator.Models.Dtos.Chat;
+using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Chat;
+using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;

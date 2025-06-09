@@ -1,4 +1,4 @@
-﻿using ChatCommunicator.Models.Dtos.Chat;
+﻿using ChatCommunicator.Contracts.Dtos.Chat;
 
 namespace ChatCommunicator.Hubs.Interfaces
 {

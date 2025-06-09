@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using ChatCommunicator.Managers.Interfaces;
 using AutoMapper;
 using System.Security.Claims;
-using ChatCommunicator.Models.Dtos.Chat;
+using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
 
 namespace ChatCommunicator.Controllers

@@ -1,6 +1,6 @@
-﻿using ChatCommunicator.Models;
-using ChatCommunicator.Models.Dtos;
-using ChatCommunicator.Models.Friendship;
+﻿using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Contracts.Friendship;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;

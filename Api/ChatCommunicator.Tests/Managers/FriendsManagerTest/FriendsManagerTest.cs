@@ -1,6 +1,6 @@
-﻿using ChatCommunicator.Data.UnitOfWork;
+﻿using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Managers;
-using ChatCommunicator.Models;
+using ChatCommunicator.Contracts;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using System;

@@ -4,7 +4,7 @@ using FluentAssertions;
 using MockQueryable;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using ChatCommunicator.Models.Dtos;
+using ChatCommunicator.Contracts.Dtos;
 
 namespace ChatCommunicator.Tests.Controllers.UsersControllerTest
 {

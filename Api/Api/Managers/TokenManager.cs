@@ -1,7 +1,7 @@
-﻿using ChatCommunicator.Data.UnitOfWork;
+﻿using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Models;
-using ChatCommunicator.Models.Dtos.Service;
+using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;

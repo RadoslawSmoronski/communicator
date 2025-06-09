@@ -1,8 +1,8 @@
-﻿using ChatCommunicator.Data.UnitOfWork;
+﻿using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Managers;
 using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Models;
-using ChatCommunicator.Models.Friendship;
+using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Friendship;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;

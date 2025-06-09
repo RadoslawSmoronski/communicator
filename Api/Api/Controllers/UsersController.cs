@@ -1,6 +1,6 @@
-﻿using ChatCommunicator.Models;
-using ChatCommunicator.Models.Dtos;
-using ChatCommunicator.Models.Dtos.Controllers.UserController.LoginAsync;
+﻿using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

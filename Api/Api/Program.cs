@@ -1,9 +1,9 @@
-﻿using ChatCommunicator.Data;
-using ChatCommunicator.Data.Repository;
+﻿using ChatCommunicator.Infrastructure;
+using ChatCommunicator.Infrastructure.Repository;
 using ChatCommunicator.Managers;
 using ChatCommunicator.Managers.Interfaces;
-using ChatCommunicator.Data.UnitOfWork;
-using ChatCommunicator.Models;
+using ChatCommunicator.Infrastructure.UnitOfWork;
+using ChatCommunicator.Contracts;
 using ChatCommunicator.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;

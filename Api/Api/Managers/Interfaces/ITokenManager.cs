@@ -1,6 +1,6 @@
-﻿using ChatCommunicator.Models;
-using ChatCommunicator.Models.Dtos.Controllers.UserController;
-using ChatCommunicator.Models.Dtos.Service;
+﻿using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
+using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
 using System.Security.Claims;
 
