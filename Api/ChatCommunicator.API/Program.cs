@@ -34,6 +34,7 @@ namespace ChatCommunicator.Application
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IChatManager, ChatManager>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();
+            builder.Services.AddScoped<IAccountManager, AccountManager>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
             builder.Services.AddHostedService<TokenCleanupService>();

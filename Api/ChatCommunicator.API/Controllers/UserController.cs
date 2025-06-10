@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
 using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Managers;
 
 namespace ChatCommunicator.Application.Controllers
 {
@@ -22,14 +23,16 @@ namespace ChatCommunicator.Application.Controllers
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
         private readonly ITokenManager _tokenManager;
+        private readonly IAccountManager _accountManager;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper, ITokenManager tokenManager)
+            IMapper mapper, ITokenManager tokenManager, IAccountManager accountManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
             _tokenManager = tokenManager;
+            _accountManager = accountManager;
         }
 
         /// <summary>
@@ -63,41 +66,39 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
-            try
+            var result = await _accountManager.RegisterAsync(registerDto);
+
+            if (result.IsSuccess)
             {
-                var user = new UserAccount { UserName = registerDto.UserName };
-                var result = await _userManager.CreateAsync(user, registerDto.Password);
+                return Ok(result.Value);
+            }
 
-                if (result.Succeeded)
-                {
-                    var dto = _mapper.Map<SimpleUserDto>(user);
-                    return Created(string.Empty, dto);
-                }
+            if (result.Error != null)
+            {
+                var errorCode = result.Error.ErrorType;
+                var errorMessage = result.Error.Description;
 
-                var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
-                if (conflictError != null)
+                if (errorCode == ErrorType.Conflict)
                 {
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
-                        detail: "A user with this username already exists."
+                        detail: errorMessage
                     );
                 }
 
                 return Problem(
                     statusCode: 500,
-                    title: "Unexpected registration failure",
-                    detail: "User registration failed unexpectedly. Please try again later or contact support."
+                    title: "InternalServerError",
+                    detail: errorMessage
                 );
             }
-            catch (Exception)
-            {
-                return Problem(
-                    statusCode: 500,
-                    title: "Unexpected server error",
-                    detail: "An unexpected error occurred during user registration."
-                );
-            }
+
+            return Problem(
+                statusCode: 500,
+                title: "Unexpected server error",
+                detail: "An unexpected error occurred during user registration."
+            );
         }
 
         /// <summary>
