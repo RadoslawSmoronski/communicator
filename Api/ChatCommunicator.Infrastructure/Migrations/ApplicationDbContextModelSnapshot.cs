@@ -22,7 +22,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Api.Models.ApplicationRole", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.ApplicationRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,7 +49,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Api.Models.Chat.Conversation", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Chat.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,7 +82,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.ToTable("Conversations");
                 });
 
-            modelBuilder.Entity("Api.Models.Chat.Message", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Chat.Message", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -115,7 +115,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Api.Models.Friendship.Friendship", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Friendship.Friendship", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -140,7 +140,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.ToTable("Friendships");
                 });
 
-            modelBuilder.Entity("Api.Models.Friendship.FriendshipInvitation", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Friendship.FriendshipInvitation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -165,7 +165,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.ToTable("FriendshipInvitations");
                 });
 
-            modelBuilder.Entity("Api.Models.RefreshToken", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -174,20 +174,18 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.Property<DateTime>("Expiration")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("Token")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("Api.Models.UserAccount", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.UserAccount", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -355,20 +353,20 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Api.Models.Chat.Conversation", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Chat.Conversation", b =>
                 {
-                    b.HasOne("Api.Models.Chat.Message", "LastMessage")
+                    b.HasOne("ChatCommunicator.Contracts.Chat.Message", "LastMessage")
                         .WithMany()
                         .HasForeignKey("LastMessageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Api.Models.UserAccount", "User1")
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", "User1")
                         .WithMany()
                         .HasForeignKey("User1Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Api.Models.UserAccount", "User2")
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", "User2")
                         .WithMany()
                         .HasForeignKey("User2Id")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -381,15 +379,15 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.Navigation("User2");
                 });
 
-            modelBuilder.Entity("Api.Models.Chat.Message", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Chat.Message", b =>
                 {
-                    b.HasOne("Api.Models.Chat.Conversation", "Conversation")
+                    b.HasOne("ChatCommunicator.Contracts.Chat.Conversation", "Conversation")
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Api.Models.UserAccount", "Sender")
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -400,15 +398,15 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Api.Models.Friendship.Friendship", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Friendship.Friendship", b =>
                 {
-                    b.HasOne("Api.Models.UserAccount", "User1")
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", "User1")
                         .WithMany()
                         .HasForeignKey("User1Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Api.Models.UserAccount", "User2")
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", "User2")
                         .WithMany()
                         .HasForeignKey("User2Id")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -419,15 +417,15 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.Navigation("User2");
                 });
 
-            modelBuilder.Entity("Api.Models.Friendship.FriendshipInvitation", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Friendship.FriendshipInvitation", b =>
                 {
-                    b.HasOne("Api.Models.UserAccount", "RecipientUser")
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", "RecipientUser")
                         .WithMany()
                         .HasForeignKey("RecipientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Api.Models.UserAccount", "SenderUser")
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", "SenderUser")
                         .WithMany()
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -440,7 +438,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.HasOne("Api.Models.ApplicationRole", null)
+                    b.HasOne("ChatCommunicator.Contracts.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -449,7 +447,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("Api.Models.UserAccount", null)
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -458,7 +456,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("Api.Models.UserAccount", null)
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -467,13 +465,13 @@ namespace ChatCommunicator.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("Api.Models.ApplicationRole", null)
+                    b.HasOne("ChatCommunicator.Contracts.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Api.Models.UserAccount", null)
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -482,14 +480,14 @@ namespace ChatCommunicator.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("Api.Models.UserAccount", null)
+                    b.HasOne("ChatCommunicator.Contracts.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Api.Models.Chat.Conversation", b =>
+            modelBuilder.Entity("ChatCommunicator.Contracts.Chat.Conversation", b =>
                 {
                     b.Navigation("Messages");
                 });

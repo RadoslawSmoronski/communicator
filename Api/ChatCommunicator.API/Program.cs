@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using ChatCommunicator.API.Services;
-using ChatCommunicator.API.Services.Interfaces;
-using ChatCommunicator.API.Managers;
-using ChatCommunicator.API.Service;
-using ChatCommunicator.API.Managers.Interfaces;
-using ChatCommunicator.API.Hubs;
+using ChatCommunicator.Application.Services;
+using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Application.Managers;
+using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Hubs;
+using ChatCommunicator.Application.Service;
 
-namespace ChatCommunicator.API
+namespace ChatCommunicator.Application
 {
     public class Program
     {

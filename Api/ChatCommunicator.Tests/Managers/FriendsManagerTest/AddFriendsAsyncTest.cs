@@ -1,5 +1,5 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.API.Managers;
+using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Friendship;
 using ChatCommunicator.Shared.Result;

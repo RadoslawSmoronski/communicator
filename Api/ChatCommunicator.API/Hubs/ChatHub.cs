@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using ChatCommunicator.API.Hubs.Interfaces;
-using ChatCommunicator.API.Managers.Interfaces;
+using ChatCommunicator.Application.Hubs.Interfaces;
+using ChatCommunicator.Application.Managers.Interfaces;
 
-namespace ChatCommunicator.API.Hubs
+namespace ChatCommunicator.Application.Hubs
 {
     [Authorize]
     public class ChatHub : Hub<IChatClient>

@@ -7,9 +7,10 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ChatCommunicator.API.Managers.Interfaces;
+using ChatCommunicator.Application.Managers.Interfaces;
+using Microsoft.Extensions.Configuration;
 
-namespace ChatCommunicator.API.Managers
+namespace ChatCommunicator.Application.Managers
 {
     public class TokenManager : ITokenManager
     {

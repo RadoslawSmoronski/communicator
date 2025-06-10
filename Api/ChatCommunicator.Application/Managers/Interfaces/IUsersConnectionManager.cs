@@ -1,6 +1,4 @@
-﻿using ChatCommunicator.Contracts;
-
-namespace ChatCommunicator.API.Managers.Interfaces
+﻿namespace ChatCommunicator.Application.Managers.Interfaces
 {
     public interface IUsersConnectionManager
     {

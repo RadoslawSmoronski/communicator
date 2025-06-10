@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Shared.Result;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using ChatCommunicator.API.Managers;
+using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.API.Managers.Interfaces;
+using ChatCommunicator.Application.Managers.Interfaces;
 
 namespace ChatCommunicator.Tests.Managers.TokenManagerTest
 {

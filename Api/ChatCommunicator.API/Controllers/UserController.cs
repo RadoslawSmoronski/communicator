@@ -10,9 +10,9 @@ using ChatCommunicator.Contracts.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
-using ChatCommunicator.API.Managers.Interfaces;
+using ChatCommunicator.Application.Managers.Interfaces;
 
-namespace ChatCommunicator.API.Controllers
+namespace ChatCommunicator.Application.Controllers
 {
     [Route("api/user")]
     [ApiController]

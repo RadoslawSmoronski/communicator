@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Managers\ITokenManagercs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
@@ -28,13 +24,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Api.Data\Api.Data.csproj" />
+    <ProjectReference Include="..\ChatCommunicator.Application\ChatCommunicator.Application.csproj" />
     <ProjectReference Include="..\ChatCommunicator.Contracts\ChatCommunicator.Contracts.csproj" />
     <ProjectReference Include="..\ChatCommunicator.Infrastructure\ChatCommunicator.Infrastructure.csproj" />
     <ProjectReference Include="..\ChatCommunicator.Shared\ChatCommunicator.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Service\" />
   </ItemGroup>
 
 </Project>

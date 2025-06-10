@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace ChatCommunicator.API.Controllers
+namespace ChatCommunicator.Application.Controllers
 {
     [Route("api/users")]
     [ApiController]

@@ -4,7 +4,7 @@ using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
 using System.Security.Claims;
 
-namespace ChatCommunicator.API.Managers.Interfaces
+namespace ChatCommunicator.Application.Managers.Interfaces
 {
     public interface ITokenManager
     {

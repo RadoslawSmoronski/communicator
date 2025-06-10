@@ -1,6 +1,6 @@
 ﻿using ChatCommunicator.Shared.Result;
 
-namespace ChatCommunicator.API.Services.Interfaces
+namespace ChatCommunicator.Application.Services.Interfaces
 {
     public interface IChatFriendsService
     {

@@ -7,9 +7,9 @@ using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ChatCommunicator.API.Managers.Interfaces;
+using ChatCommunicator.Application.Managers.Interfaces;
 
-namespace ChatCommunicator.API.Managers
+namespace ChatCommunicator.Application.Managers
 {
     public class FriendsManager : IFriendsManager
     {

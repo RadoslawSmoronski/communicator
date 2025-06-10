@@ -4,9 +4,9 @@ using AutoMapper;
 using System.Security.Claims;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
-using ChatCommunicator.API.Managers.Interfaces;
+using ChatCommunicator.Application.Managers.Interfaces;
 
-namespace ChatCommunicator.API.Controllers
+namespace ChatCommunicator.Application.Controllers
 {
     [Route("api/chat")]
     [ApiController]

@@ -1,7 +1,9 @@
-﻿using ChatCommunicator.API.Managers.Interfaces;
+﻿using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Shared.Result;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-namespace ChatCommunicator.API.Service
+namespace ChatCommunicator.Application.Service
 
 {
    public class TokenCleanupService : BackgroundService

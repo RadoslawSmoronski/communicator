@@ -2,7 +2,7 @@
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
 
-namespace ChatCommunicator.API.Managers.Interfaces
+namespace ChatCommunicator.Application.Managers.Interfaces
 {
     public interface IChatManager
     {
