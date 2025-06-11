@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Shared.Result;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Infrastructure.UnitOfWork;
 using System.Linq.Expressions;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Application.Services;
 
-namespace ChatCommunicator.Tests.Managers.TokenManagerTest
+namespace ChatCommunicator.Tests.Managers.TokenServiceTest
 {
     public class CreateRefreshTokenAsyncTest
     {
@@ -17,7 +17,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
 
-        private readonly ITokenManager _tokenManager;
+        private readonly ITokenService _tokenService;
         private readonly Guid _sampleUserId;
 
         public CreateRefreshTokenAsyncTest()
@@ -31,7 +31,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
 
             _unitOfWork = A.Fake<IUnitOfWork>();
 
-            _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
+            _tokenService = new TokenService(_configuration, _userManager, _unitOfWork);
             _sampleUserId = Guid.NewGuid();
         }
 
@@ -40,7 +40,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
         public async Task CreateRefreshTokenAsync_ShouldReturnSuccess()
         {
             // Act
-            var result = await _tokenManager.CreateRefreshTokenAsync(_sampleUserId) as ResultT<Guid>;
+            var result = await _tokenService.CreateRefreshTokenAsync(_sampleUserId) as ResultT<Guid>;
 
             // Assert
             result.Should().NotBeNull();
@@ -55,7 +55,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                 .ThrowsAsync(new Exception());
 
             // Act
-            var result = await _tokenManager.CreateRefreshTokenAsync(_sampleUserId);
+            var result = await _tokenService.CreateRefreshTokenAsync(_sampleUserId);
 
             // Assert
             result.Should().NotBeNull();

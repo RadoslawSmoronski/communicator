@@ -9,10 +9,11 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System.Linq.Expressions;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Application.Services;
 
 
-namespace ChatCommunicator.Tests.Managers.TokenManagerTest
+namespace ChatCommunicator.Tests.Managers.TokenServiceTest
 {
     public class RefreshAccessTokenAsyncTest
     {
@@ -20,7 +21,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
 
-        private readonly ITokenManager _tokenManager;
+        private readonly ITokenService _tokenService;
         private readonly Guid _sampleRefreshToken;
         private readonly UserAccount _sampleUserAccount;
 
@@ -35,7 +36,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
 
             _unitOfWork = A.Fake<IUnitOfWork>();
 
-            _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
+            _tokenService = new TokenService(_configuration, _userManager, _unitOfWork);
             _sampleRefreshToken = Guid.NewGuid();
             _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = Guid.NewGuid() };
         }
@@ -54,7 +55,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                            .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
             // Act
-            var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken) as ResultT<RefreshAccessTokenDto>;
+            var result = await _tokenService.RefreshAccessTokenAsync(_sampleRefreshToken) as ResultT<RefreshAccessTokenDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -72,7 +73,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                            .Returns(Task.FromResult(false));
 
             // Act
-            var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken);
+            var result = await _tokenService.RefreshAccessTokenAsync(_sampleRefreshToken);
 
             // Assert
             result.Should().NotBeNull();
@@ -94,7 +95,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                           .Returns(Task.FromResult<RefreshToken?>(null));
 
             // Act
-            var result = await _tokenManager.RefreshAccessTokenAsync(_sampleRefreshToken);
+            var result = await _tokenService.RefreshAccessTokenAsync(_sampleRefreshToken);
 
             // Assert
             result.Should().NotBeNull();

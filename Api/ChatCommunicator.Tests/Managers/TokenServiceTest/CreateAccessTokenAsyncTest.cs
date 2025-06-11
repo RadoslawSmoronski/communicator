@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Shared.Result;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Application.Services;
 
-namespace ChatCommunicator.Tests.Managers.TokenManagerTest
+namespace ChatCommunicator.Tests.Managers.TokenServiceTest
 {
     public class CreateAccessTokenAsyncTest
     {
@@ -16,7 +16,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
 
-        private readonly ITokenManager _tokenManager;
+        private readonly ITokenService _tokenService;
         private readonly UserAccount _sampleUserAccount;
 
         public CreateAccessTokenAsyncTest()
@@ -30,7 +30,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
 
             _unitOfWork = A.Fake<IUnitOfWork>();
 
-            _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
+            _tokenService = new TokenService(_configuration, _userManager, _unitOfWork);
             _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = Guid.NewGuid() };
         }
 
@@ -43,7 +43,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                            .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
             // Act
-            var result = await _tokenManager.CreateAccessTokenAsync(_sampleUserAccount) as ResultT<string>;
+            var result = await _tokenService.CreateAccessTokenAsync(_sampleUserAccount) as ResultT<string>;
 
             // Assert
             result.Should().NotBeNull();
@@ -59,7 +59,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
             var user = new UserAccount { UserName = login, Id = Guid.Parse(id) };
 
             // Act
-            var result = await _tokenManager.CreateAccessTokenAsync(user);
+            var result = await _tokenService.CreateAccessTokenAsync(user);
 
             // Assert
             result.Should().NotBeNull();
@@ -78,7 +78,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                            .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
-            var result = await _tokenManager.CreateAccessTokenAsync(_sampleUserAccount);
+            var result = await _tokenService.CreateAccessTokenAsync(_sampleUserAccount);
 
             // Assert
             result.Should().NotBeNull();
@@ -97,7 +97,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                            .ThrowsAsync(new Exception());
 
             // Act
-            var result = await _tokenManager.CreateAccessTokenAsync(_sampleUserAccount);
+            var result = await _tokenService.CreateAccessTokenAsync(_sampleUserAccount);
 
             // Assert
             result.Should().NotBeNull();

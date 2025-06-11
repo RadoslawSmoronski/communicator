@@ -1,4 +1,4 @@
-﻿using ChatCommunicator.Application.Managers.Interfaces;
+﻿using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Shared.Result;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +22,7 @@ namespace ChatCommunicator.Application.Service
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    var tokenManager = scope.ServiceProvider.GetRequiredService<ITokenManager>();
+                    var tokenManager = scope.ServiceProvider.GetRequiredService<ITokenService>();
                     var result = await tokenManager.RemoveExpiredRefreshTokensAsync();
 
                     if (result.IsSuccess)

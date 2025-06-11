@@ -7,12 +7,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ChatCommunicator.Application.Managers.Interfaces;
 using Microsoft.Extensions.Configuration;
+using ChatCommunicator.Application.Services.Interfaces;
 
-namespace ChatCommunicator.Application.Managers
+namespace ChatCommunicator.Application.Services
 {
-    public class TokenManager : ITokenManager
+    public class TokenService : ITokenService
     {
         private readonly IConfiguration _config;
         private readonly SymmetricSecurityKey _key;
@@ -21,7 +21,7 @@ namespace ChatCommunicator.Application.Managers
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TokenManager(IConfiguration config,
+        public TokenService(IConfiguration config,
             UserManager<UserAccount> userManager,
             IUnitOfWork unitOfWork)
         {

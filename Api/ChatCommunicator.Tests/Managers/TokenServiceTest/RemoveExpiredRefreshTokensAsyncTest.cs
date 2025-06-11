@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Shared.Result;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Infrastructure.UnitOfWork;
 using System.Linq.Expressions;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Application.Services;
 
-namespace ChatCommunicator.Tests.Managers.TokenManagerTest
+namespace ChatCommunicator.Tests.Managers.TokenServiceTest
 {
     public class RemoveExpiredRefreshTokensAsyncTest
     {
@@ -17,7 +17,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
 
-        private readonly ITokenManager _tokenManager;
+        private readonly ITokenService _TokenService;
 
         public RemoveExpiredRefreshTokensAsyncTest()
         {
@@ -30,7 +30,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
 
             _unitOfWork = A.Fake<IUnitOfWork>();
 
-            _tokenManager = new TokenManager(_configuration, _userManager, _unitOfWork);
+            _TokenService = new TokenService(_configuration, _userManager, _unitOfWork);
         }
 
 
@@ -48,7 +48,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                            .Returns(Task.FromResult(refreshTokenList));
 
             // Act
-            var result = await _tokenManager.RemoveExpiredRefreshTokensAsync() as ResultT<int>;
+            var result = await _TokenService.RemoveExpiredRefreshTokensAsync() as ResultT<int>;
 
             // Assert
             result.Should().NotBeNull();
@@ -66,7 +66,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                            .Returns(Task.FromResult(refreshTokenList));
 
             // Act
-            var result = await _tokenManager.RemoveExpiredRefreshTokensAsync() as ResultT<int>;
+            var result = await _TokenService.RemoveExpiredRefreshTokensAsync() as ResultT<int>;
 
             // Assert
             result.Should().NotBeNull();
@@ -85,7 +85,7 @@ namespace ChatCommunicator.Tests.Managers.TokenManagerTest
                 .ThrowsAsync(new Exception());
 
             // Act
-            var result = await _tokenManager.RemoveExpiredRefreshTokensAsync() as ResultT<int>;
+            var result = await _TokenService.RemoveExpiredRefreshTokensAsync() as ResultT<int>;
 
             // Assert
             result.Should().NotBeNull();

@@ -30,7 +30,7 @@ namespace ChatCommunicator.Application
             builder.Services.AddSignalR();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSingleton<TokenCleanupService>();
-            builder.Services.AddScoped<ITokenManager, TokenManager>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IChatManager, ChatManager>();
             builder.Services.AddScoped<IFriendsManager, FriendsManager>();

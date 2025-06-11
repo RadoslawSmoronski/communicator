@@ -4,9 +4,9 @@ using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
 using System.Security.Claims;
 
-namespace ChatCommunicator.Application.Managers.Interfaces
+namespace ChatCommunicator.Application.Services.Interfaces
 {
-    public interface ITokenManager
+    public interface ITokenService
     {
         //Access Token
         Task<ResultT<string>> CreateAccessTokenAsync(UserAccount? user);

@@ -12,6 +12,7 @@ using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
 using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Managers;
+using ChatCommunicator.Application.Services.Interfaces;
 
 namespace ChatCommunicator.Application.Controllers
 {
@@ -22,11 +23,11 @@ namespace ChatCommunicator.Application.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly IMapper _mapper;
-        private readonly ITokenManager _tokenManager;
+        private readonly ITokenService _tokenManager;
         private readonly IAccountManager _accountManager;
 
         public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper, ITokenManager tokenManager, IAccountManager accountManager)
+            IMapper mapper, ITokenService tokenManager, IAccountManager accountManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
