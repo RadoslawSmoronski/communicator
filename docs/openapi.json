@@ -5,14 +5,16 @@
     "version": "in dev"
   },
   "paths": {
-    "/api/chat/getChats": {
+    "/api/chat/get-chats": {
       "get": {
-        "tags": ["Chat"],
-        "summary": "GetChats.",
-        "description": "This endpoint returns all chat conversations that belong to the currently authenticated user.\r\nA valid JWT token must be provided in the Authorization header. The user's ID is extracted from\r\nthe token claims and used to fetch associated chat data.\r\n\r\nIf the user's ID is missing or not a valid GUID, a 401 Unauthorized response is returned.\r\nIf a validation or internal error occurs, appropriate error responses are provided.",
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Retrieves all chat conversations for the authenticated user.",
+        "description": "This endpoint returns all chat conversations associated with the currently authenticated user.\r\nA valid JWT token must be included in the Authorization header. The user's ID is extracted\r\nfrom the token claims and used to fetch the relevant chat data.\r\n            \r\nIf the user ID is missing or not a valid GUID, a 401 Unauthorized response is returned.\r\nAppropriate error responses are returned in case of validation failures or internal errors.",
         "responses": {
           "200": {
-            "description": "Returns the list of chats.",
+            "description": "Successfully retrieved the list of chats.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -41,7 +43,7 @@
             }
           },
           "400": {
-            "description": "Invalid input or validation failure.",
+            "description": "Invalid input or validation error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -101,7 +103,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "Internal server error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -123,11 +125,13 @@
         }
       }
     },
-    "/api/chat/getPagedMessages": {
+    "/api/chat/get-paged-messages": {
       "get": {
-        "tags": ["Chat"],
-        "summary": "GetPagedMessages.",
-        "description": "This endpoint returns a subset of messages from a given conversation, starting after the specified message ID.\r\nIt requires a valid JWT token provided in the Authorization header. The user's identity is inferred from the token,\r\nand only messages from conversations that the user has access to will be returned.\r\n\r\nIf the conversation ID or message ID is invalid, or the user does not have access, appropriate error responses will be returned.",
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Retrieves paginated messages from a specific conversation.",
+        "description": "This endpoint returns a paginated list of messages from a specific conversation,\r\nstarting after a given message ID. It requires a valid JWT token in the Authorization header.\r\n            \r\nOnly messages from conversations the user has access to will be returned.\r\nIf the conversation ID or message ID is invalid, or the user is unauthorized to access the conversation,\r\nappropriate error responses are returned.",
         "requestBody": {
           "description": "DTO containing the conversation ID and the starting message ID for pagination.",
           "content": {
@@ -150,7 +154,7 @@
         },
         "responses": {
           "200": {
-            "description": "Returns the paginated list of messages.",
+            "description": "Successfully retrieved the list of messages.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -179,7 +183,7 @@
             }
           },
           "400": {
-            "description": "Invalid input or validation failure (e.g. malformed GUID).",
+            "description": "Invalid input or validation error (e.g., malformed GUID).",
             "content": {
               "text/plain": {
                 "schema": {
@@ -219,7 +223,7 @@
             }
           },
           "404": {
-            "description": "Conversation not found or user does not have access.",
+            "description": "Conversation not found or access denied.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -239,7 +243,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "Internal server error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -261,13 +265,15 @@
         }
       }
     },
-    "/api/friends/sendInviteAsync": {
+    "/api/friends/send-invite": {
       "post": {
-        "tags": ["Friends"],
-        "summary": "SendInviteAsync.",
-        "description": "This endpoint allows an authenticated user to send a friend invitation to another user\r\nby providing sender and recipient GUIDs. The system returns an appropriate response based on\r\nthe outcome, including validation errors, conflicts, or if the recipient was not found.",
+        "tags": [
+          "Friends"
+        ],
+        "summary": "Sends a friend invitation from one user to another.",
+        "description": "This endpoint allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.\r\nReturns appropriate HTTP responses based on validation, conflicts, or if the recipient is not found.",
         "requestBody": {
-          "description": "The invitation data including sender and recipient user GUIDs.",
+          "description": "Invitation data including sender and recipient GUIDs.",
           "content": {
             "application/json": {
               "schema": {
@@ -311,7 +317,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized – valid JWT token is required.",
+            "description": "Unauthorized - JWT token required.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -331,7 +337,7 @@
             }
           },
           "404": {
-            "description": "The recipient user was not found.",
+            "description": "Recipient user not found.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -351,7 +357,7 @@
             }
           },
           "409": {
-            "description": "A conflict occurred (e.g., invitation already exists).",
+            "description": "Conflict (e.g., invitation already exists).",
             "content": {
               "text/plain": {
                 "schema": {
@@ -371,7 +377,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "Unexpected server error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -393,16 +399,18 @@
         }
       }
     },
-    "/api/friends/getInvitations/{userId}": {
+    "/api/friends/get-invitations/{userId}": {
       "get": {
-        "tags": ["Friends"],
-        "summary": "GetInvitations.",
-        "description": "This endpoint allows an authenticated user to retrieve all friend invitations\r\naddressed to the specified user by their GUID. If the user does not exist,\r\na 404 response is returned. In case of invalid input or other issues, an appropriate error is returned.",
+        "tags": [
+          "Friends"
+        ],
+        "summary": "Retrieves all friend invitations sent to a specific user.",
+        "description": "Returns all pending friend invitations for the specified user GUID.\r\nIf the user does not exist or input is invalid, returns appropriate error responses.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The GUID of the user whose invitations should be retrieved.",
+            "description": "GUID of the user whose invitations to retrieve.",
             "required": true,
             "schema": {
               "type": "string",
@@ -412,7 +420,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Invitations successfully retrieved.",
+            "description": "Invitations retrieved successfully.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -461,7 +469,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized – valid JWT token is required.",
+            "description": "Unauthorized - JWT token required.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -481,7 +489,7 @@
             }
           },
           "404": {
-            "description": "The specified user was not found.",
+            "description": "User not found.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -501,7 +509,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "Unexpected server error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -523,16 +531,18 @@
         }
       }
     },
-    "/api/friends/getUsersToInviteByText/{text}": {
+    "/api/friends/get-users-to-invite-by-text/{text}": {
       "get": {
-        "tags": ["Friends"],
-        "summary": "GetUsersToInviteByText.",
-        "description": "This endpoint allows an authenticated user to search for other users to invite by providing a text query.\r\nThe search is performed server-side, excluding users that are already invited or already friends.\r\nThe user making the request must be authenticated via a valid JWT token containing a valid GUID identifier.",
+        "tags": [
+          "Friends"
+        ],
+        "summary": "Searches for users to invite based on a text query.",
+        "description": "Authenticated users can search for other users by username or display name.\r\nThe search excludes users who are already friends or already invited.\r\nRequires a valid JWT token with user GUID.",
         "parameters": [
           {
             "name": "text",
             "in": "path",
-            "description": "The text to match usernames or display names against.",
+            "description": "Text to search users by.",
             "required": true,
             "schema": {
               "type": "string"
@@ -541,7 +551,7 @@
         ],
         "responses": {
           "200": {
-            "description": "List of users retrieved successfully.",
+            "description": "Users retrieved successfully.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -590,7 +600,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized – JWT token missing, invalid, or malformed GUID.",
+            "description": "Unauthorized - JWT token missing or invalid.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -630,7 +640,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "Unexpected server error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -652,13 +662,15 @@
         }
       }
     },
-    "/api/friends/decelineInvite": {
+    "/api/friends/deceline-invite": {
       "post": {
-        "tags": ["Friends"],
-        "summary": "DecelineInvite.",
-        "description": "This endpoint allows an authenticated user to decline a friend invitation from another user.\r\nBoth sender and recipient GUIDs must be provided in the request body. If the invitation does not exist\r\nor has already been handled, a 404 or 400 response is returned accordingly.",
+        "tags": [
+          "Friends"
+        ],
+        "summary": "Declines a friend invitation.",
+        "description": "Allows an authenticated user to decline a friend invitation by providing sender and recipient GUIDs.\r\nReturns appropriate errors if the invitation is invalid, already handled, or missing.",
         "requestBody": {
-          "description": "The invitation data containing sender and recipient user GUIDs.",
+          "description": "Invitation data with sender and recipient GUIDs.",
           "content": {
             "application/json": {
               "schema": {
@@ -682,7 +694,7 @@
             "description": "Invitation declined successfully."
           },
           "400": {
-            "description": "Invalid data provided (e.g., malformed or missing GUIDs).",
+            "description": "Invalid data (e.g., malformed GUIDs).",
             "content": {
               "text/plain": {
                 "schema": {
@@ -702,7 +714,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized – valid JWT token is required.",
+            "description": "Unauthorized - JWT token required.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -742,7 +754,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "Unexpected server error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -764,13 +776,15 @@
         }
       }
     },
-    "/api/friends/acceptInvite": {
+    "/api/friends/accept-invite": {
       "post": {
-        "tags": ["Friends"],
-        "summary": "AcceptInvite.",
-        "description": "This endpoint allows an authenticated user to accept a friend invitation by providing the sender and recipient GUIDs.\r\nOn success, the users are added to each other's friend lists. If the invitation does not exist,\r\nis invalid, or a conflict occurs (e.g., users are already friends), an appropriate error is returned.",
+        "tags": [
+          "Friends"
+        ],
+        "summary": "Accepts a friend invitation.",
+        "description": "Allows an authenticated user to accept a friend invitation by sender and recipient GUIDs.\r\nOn success, users are added to each other's friend lists.\r\nReturns errors for invalid input, not found invitations, or conflicts.",
         "requestBody": {
-          "description": "The invitation data containing sender and recipient user GUIDs.",
+          "description": "Invitation data with sender and recipient GUIDs.",
           "content": {
             "application/json": {
               "schema": {
@@ -791,10 +805,10 @@
         },
         "responses": {
           "200": {
-            "description": "Invitation accepted successfully; users are now friends."
+            "description": "Invitation accepted; users are now friends."
           },
           "400": {
-            "description": "Invalid data provided (e.g., malformed or missing GUIDs).",
+            "description": "Invalid data provided.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -814,7 +828,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized – valid JWT token is required.",
+            "description": "Unauthorized - JWT token required.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -854,7 +868,7 @@
             }
           },
           "409": {
-            "description": "Conflict – users are already friends or invitation was already accepted.",
+            "description": "Conflict - users already friends or invitation accepted.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -874,7 +888,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "Unexpected server error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -896,16 +910,18 @@
         }
       }
     },
-    "/api/friends/getFriends/{userId}": {
+    "/api/friends/get-friends/{userId}": {
       "get": {
-        "tags": ["Friends"],
-        "summary": "GetFriends.",
-        "description": "This endpoint allows an authenticated user to fetch all users that are marked as friends\r\nof the specified user identified by their GUID. If the input is invalid, or an unexpected error occurs,\r\nthe appropriate status code and message are returned.",
+        "tags": [
+          "Friends"
+        ],
+        "summary": "Retrieves a list of friends for a specified user.",
+        "description": "Fetches all users marked as friends of the specified user GUID.\r\nReturns errors for invalid input or unexpected issues.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The GUID of the user whose friends should be retrieved.",
+            "description": "GUID of the user whose friends to retrieve.",
             "required": true,
             "schema": {
               "type": "string",
@@ -915,7 +931,7 @@
         ],
         "responses": {
           "200": {
-            "description": "List of friends retrieved successfully.",
+            "description": "Friends list retrieved successfully.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -944,7 +960,7 @@
             }
           },
           "400": {
-            "description": "Invalid user ID (e.g., malformed GUID).",
+            "description": "Invalid user ID.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -964,7 +980,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized – valid JWT token is required.",
+            "description": "Unauthorized - JWT token required.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -984,7 +1000,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "Unexpected server error.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1008,8 +1024,10 @@
     },
     "/api/user/register": {
       "post": {
-        "tags": ["User"],
-        "summary": "Register.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Registers a new user.",
         "description": "This endpoint creates a new user using a username and password. If the username already exists,\r\na conflict response is returned. On success, basic user data is returned.",
         "requestBody": {
           "description": "The registration data including username and password.",
@@ -1093,7 +1111,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred.",
+            "description": "An unexpected server error occurred.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1117,9 +1135,11 @@
     },
     "/api/user/login": {
       "post": {
-        "tags": ["User"],
-        "summary": "Login.",
-        "description": "This endpoint validates the provided login credentials. If authentication is successful, it returns a JWT access token\r\nand a refresh token for session management. If the user does not exist or the credentials are invalid, an appropriate error is returned.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Authenticates a user and returns access and refresh tokens.",
+        "description": "This endpoint validates the provided login credentials. On success, it returns a JWT access token\r\nand a refresh token. If authentication fails, a detailed error is returned.",
         "requestBody": {
           "description": "The login credentials, including username and password.",
           "content": {
@@ -1224,13 +1244,15 @@
         }
       }
     },
-    "/api/user/refreshAccessToken": {
+    "/api/user/refresh-access-token": {
       "post": {
-        "tags": ["User"],
-        "summary": "Refresh access token",
-        "description": "This endpoint validates the provided refresh token and, if valid, issues a new access token.\r\nIt is typically used when the current access token has expired but the refresh token is still valid.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Refreshes the user's access token using a valid refresh token.",
+        "description": "This endpoint checks the provided refresh token and issues a new access token if it's valid.",
         "requestBody": {
-          "description": "The object containing the refresh token string.",
+          "description": "The refresh token container.",
           "content": {
             "application/json": {
               "schema": {
@@ -1271,7 +1293,7 @@
             }
           },
           "400": {
-            "description": "The refresh token is invalid or malformed (e.g., structurally incorrect).",
+            "description": "Invalid or malformed refresh token.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1291,7 +1313,7 @@
             }
           },
           "401": {
-            "description": "The refresh token is valid in format but unauthorized (e.g., expired, revoked, or forged).",
+            "description": "Unauthorized or expired refresh token.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1333,16 +1355,18 @@
         }
       }
     },
-    "/api/user/changeUsername": {
+    "/api/user/change-username": {
       "patch": {
-        "tags": ["User"],
-        "summary": "Change username",
-        "description": "This endpoint allows an authenticated user to update their username. It verifies whether the new username\r\nis already taken and returns a conflict response if so. The user ID is extracted from the JWT token.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Changes the current user's username.",
+        "description": "Authenticated users can change their username. The new username must be unique.",
         "parameters": [
           {
             "name": "newUsername",
             "in": "query",
-            "description": "The new username to assign to the current user.",
+            "description": "The new username to assign.",
             "schema": {
               "type": "string"
             }
@@ -1350,7 +1374,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Username successfully updated. Returns the new username.",
+            "description": "Username successfully updated.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1370,7 +1394,7 @@
             }
           },
           "400": {
-            "description": "The provided username is null, empty, or invalid.",
+            "description": "Invalid or missing username.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1390,7 +1414,7 @@
             }
           },
           "401": {
-            "description": "The access token is missing, invalid, or refers to a non-existent user.",
+            "description": "User is not authenticated or token is invalid.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1410,7 +1434,7 @@
             }
           },
           "409": {
-            "description": "The desired username is already taken by another user.",
+            "description": "The username is already taken.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1430,7 +1454,7 @@
             }
           },
           "500": {
-            "description": "An unexpected server error occurred while updating the username.",
+            "description": "An unexpected server error occurred.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1452,16 +1476,18 @@
         }
       }
     },
-    "/api/users/getUserById/{id}": {
+    "/api/users/get-user-by-id/{id}": {
       "get": {
-        "tags": ["Users"],
-        "summary": "GetUserById.",
-        "description": "This endpoint retrieves a user based on their unique GUID identifier.\r\nThe request requires authorization, and the user must exist in the system.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Retrieves a user by their unique identifier.",
+        "description": "Requires authorization. This endpoint returns a simplified user DTO corresponding to the given GUID.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "The GUID of the user to retrieve.",
+            "description": "The unique GUID identifier of the user.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1471,7 +1497,7 @@
         ],
         "responses": {
           "200": {
-            "description": "User successfully retrieved.",
+            "description": "Returns the requested user.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1491,7 +1517,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred while retrieving the user.",
+            "description": "An unexpected error occurred.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1513,16 +1539,18 @@
         }
       }
     },
-    "/api/users/getUsersByText/{text}": {
+    "/api/users/get-users-by-text/{text}": {
       "get": {
-        "tags": ["Users"],
-        "summary": "GetUsersByText.",
-        "description": "This endpoint returns a list of users whose usernames contain the provided text.\r\nOptionally, the currently authenticated user can be excluded from the results.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Searches for users whose usernames contain the specified text.",
+        "description": "Optionally excludes the currently authenticated user from the results.",
         "parameters": [
           {
             "name": "text",
             "in": "path",
-            "description": "The text to search for within usernames.",
+            "description": "The substring to search for in usernames.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1531,7 +1559,7 @@
           {
             "name": "excludeCurrentUser",
             "in": "query",
-            "description": "Whether to exclude the currently authenticated user from the result.",
+            "description": "Indicates whether to exclude the current user from the results.",
             "schema": {
               "type": "boolean",
               "default": false
@@ -1540,27 +1568,36 @@
         ],
         "responses": {
           "200": {
-            "description": "List of matching users returned.",
+            "description": "List of matching users retrieved.",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserDto"
+                  }
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserDto"
+                  }
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserDto"
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "The search text is empty or does not meet length constraints.",
+            "description": "The search term is invalid (too short or too long).",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1580,7 +1617,7 @@
             }
           },
           "401": {
-            "description": "Access token is missing or user ID is invalid.",
+            "description": "Authorization token is invalid or missing.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1600,7 +1637,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error occurred while retrieving users.",
+            "description": "An unexpected error occurred.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1675,7 +1712,10 @@
         "additionalProperties": false
       },
       "InviteDto": {
-        "required": ["recipientId", "senderId"],
+        "required": [
+          "recipientId",
+          "senderId"
+        ],
         "type": "object",
         "properties": {
           "senderId": {
@@ -1712,7 +1752,10 @@
         "additionalProperties": false
       },
       "LoginDto": {
-        "required": ["password", "userName"],
+        "required": [
+          "password",
+          "userName"
+        ],
         "type": "object",
         "properties": {
           "userName": {
@@ -1782,7 +1825,7 @@
             "nullable": true
           }
         },
-        "additionalProperties": {}
+        "additionalProperties": { }
       },
       "RefreshAccessTokenDto": {
         "type": "object",
@@ -1799,7 +1842,9 @@
         "additionalProperties": false
       },
       "RefreshTokenDto": {
-        "required": ["refreshToken"],
+        "required": [
+          "refreshToken"
+        ],
         "type": "object",
         "properties": {
           "refreshToken": {
@@ -1810,7 +1855,10 @@
         "additionalProperties": false
       },
       "RegisterDto": {
-        "required": ["password", "userName"],
+        "required": [
+          "password",
+          "userName"
+        ],
         "type": "object",
         "properties": {
           "userName": {
@@ -1869,7 +1917,7 @@
   },
   "security": [
     {
-      "Bearer": []
+      "Bearer": [ ]
     }
   ]
 }
