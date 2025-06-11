@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
@@ -14,12 +15,19 @@ namespace ChatCommunicator.Application.Managers
     public class AccountManager : IAccountManager
     {
         private readonly UserManager<UserAccount> _userManager;
+        private readonly SignInManager<UserAccount> _signInManager;
+        private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
 
-        public AccountManager(UserManager<UserAccount> userManager, IMapper mapper)
+        public AccountManager(UserManager<UserAccount> userManager,
+            IMapper mapper,
+            SignInManager<UserAccount> signInManager,
+            ITokenService tokenService)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _mapper = mapper;
+            _tokenService = tokenService;
         }
 
         public async Task<ResultT<SimpleUserDto>> RegisterAsync(RegisterDto registerDto)
@@ -49,15 +57,52 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
+        public async Task<ResultT<LoggedUserDto>> LoginAsync(LoginDto loginDto)
+        {
+            try
+            {
+                var user = await _userManager.FindByNameAsync(loginDto.UserName);
+
+                if (user == null)
+                {
+                    return Error.Unauthorized("UNAUTHORIZED", "Username or password is incorrect.");
+                };
+
+                var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
+
+                if (result.Succeeded)
+                {
+                    var refreshToken = await _tokenService.CreateRefreshTokenAsync(user.Id);
+                    var accessToken = await _tokenService.CreateAccessTokenAsync(user);
+
+                    if (refreshToken.IsSuccess && accessToken.IsSuccess)
+                    {
+                        var resultObj = new LoggedUserDto()
+                        {
+                            UserName = loginDto.UserName,
+                            Id = user.Id,
+                            AccessToken = accessToken.Value,
+                            RefreshToken = refreshToken.Value
+                        };
+
+                        return resultObj;
+                    }
+
+                }
+
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "User logging failed unexpectedly. Please try again later or contact support.");
+            }
+            catch (Exception ex)
+            {
+                return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
+            }
+        }
+
         public Task<ResultT<string>> ChangeUsernameAsync(string newUsername)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResultT<LoggedUserDto>> LoginAsync(LoginDto loginDto)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(RefreshTokenDto refreshTokenDto)
         {

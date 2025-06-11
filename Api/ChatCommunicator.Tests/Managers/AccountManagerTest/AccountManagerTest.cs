@@ -12,7 +12,8 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
     public abstract class AccountManagerTest
     {
         protected readonly ITokenService _tokenService;
-        protected readonly UserManager<UserAccount> _userManager; 
+        protected readonly UserManager<UserAccount> _userManager;
+        protected readonly SignInManager<UserAccount> _signInManager;
         protected readonly IMapper _mapper;
 
         protected readonly IAccountManager _accountManager;
@@ -27,6 +28,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _tokenService = A.Fake<ITokenService>();
+            _signInManager = A.Fake<SignInManager<UserAccount>>();
 
             var configuration = new MapperConfiguration(cfg =>
             {
@@ -35,7 +37,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
             _mapper = configuration.CreateMapper();
 
-            _accountManager = new AccountManager(_userManager, _mapper);    
+            _accountManager = new AccountManager(_userManager, _mapper, _signInManager, _tokenService);    
 
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };

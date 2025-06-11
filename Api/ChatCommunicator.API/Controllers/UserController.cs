@@ -71,7 +71,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(result.Value); // todo: zmienić na created
             }
 
             if (result.Error != null)
@@ -84,7 +84,7 @@ namespace ChatCommunicator.Application.Controllers
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
-                        detail: errorMessage
+                        detail: errorMessage // todo: zmienic
                     );
                 }
 
@@ -132,54 +132,39 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
-            try
-            {
-                var user = await _userManager.FindByNameAsync(loginDto.UserName);
+            var result = await _accountManager.LoginAsync(loginDto);
 
-                if (user == null)
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+
+            if (result.Error != null)
+            {
+                var errorCode = result.Error.ErrorType;
+                var errorMessage = result.Error.Description;
+
+                if (errorCode == ErrorType.Unauthorized)
                 {
                     return Problem(
                         statusCode: 401,
-                        title: "Invalid credentials",
+                        title: "Unauthorized",
                         detail: "Username or password is incorrect."
                     );
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
-
-                if (result.Succeeded)
-                {
-                    var refreshToken = await _tokenManager.CreateRefreshTokenAsync(user.Id);
-                    var accessToken = await _tokenManager.CreateAccessTokenAsync(user);
-
-                    if (refreshToken.IsSuccess && accessToken.IsSuccess)
-                    {
-                        var resultObj = new LoggedUserDto()
-                        {
-                            UserName = loginDto.UserName,
-                            Id = user.Id,
-                            AccessToken = accessToken.Value,
-                            RefreshToken = refreshToken.Value
-                        };
-
-                        return Ok(resultObj);
-                    }
-                }
-
                 return Problem(
                     statusCode: 500,
-                    title: "Unexpected logging failure",
-                    detail: "User logging failed unexpectedly. Please try again later or contact support."
+                    title: "InternalServerError",
+                    detail: errorMessage
                 );
             }
-            catch (Exception)
-            {
-                return Problem(
-                    statusCode: 500,
-                    title: "Unexpected server error",
-                    detail: "An unexpected error occurred during user logging."
-                );
-            }
+
+            return Problem(
+                statusCode: 500,
+                title: "Unexpected server error",
+                detail: "An unexpected error occurred during user registration."
+            );
         }
 
         /// <summary>
