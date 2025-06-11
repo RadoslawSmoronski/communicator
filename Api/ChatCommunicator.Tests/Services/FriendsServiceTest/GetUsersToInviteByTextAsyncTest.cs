@@ -12,9 +12,9 @@ using System.Linq.Expressions;
 using static System.Net.Mime.MediaTypeNames;
 using MockQueryable;
 
-namespace ChatCommunicator.Tests.Managers.FriendsManagerTest
+namespace ChatCommunicator.Tests.Services.FriendsManagerTest
 {
-    public class GetUsersToInviteByTextAsync : FriendsManagerTest
+    public class GetUsersToInviteByTextAsync : FriendsServiceTest
     {
         [Fact]
         public async Task GetUsersToInviteByTextAsync_ShouldReturnOk()

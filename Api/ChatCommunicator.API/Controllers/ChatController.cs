@@ -4,7 +4,7 @@ using AutoMapper;
 using System.Security.Claims;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
 
 namespace ChatCommunicator.Application.Controllers
 {
@@ -14,16 +14,16 @@ namespace ChatCommunicator.Application.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IChatManager _chatManager;
+        private readonly IChatService _chatService;
 
         public ChatController(
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            IChatManager chatManager)
+            IChatService chatManager)
         {
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
-            _chatManager = chatManager;
+            _chatService = chatManager;
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            var result = await _chatManager.GetChatsAsync(userId);
+            var result = await _chatService.GetChatsAsync(userId);
 
             if (result.IsSuccess)
             {
@@ -149,7 +149,7 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPagedMessagesAsync([FromBody] GetPagedMessagesDto getMessagesDto)
         {
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(getMessagesDto.ConversationId, getMessagesDto.FromMessageId);
+            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(getMessagesDto.ConversationId, getMessagesDto.FromMessageId);
 
             if (result.IsSuccess)
             {

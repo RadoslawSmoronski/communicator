@@ -1,6 +1,6 @@
-﻿namespace ChatCommunicator.Application.Managers.Interfaces
+﻿namespace ChatCommunicator.Application.Services.Interfaces
 {
-    public interface IUsersConnectionManager
+    public interface IUsersConnectionService
     {
         Task AddUpdateAsync(string connectionId, Guid userId);
         Task RemoveAsync(string connectionId, Guid userId);

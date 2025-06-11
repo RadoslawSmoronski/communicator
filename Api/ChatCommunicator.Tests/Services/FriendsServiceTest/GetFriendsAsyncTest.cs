@@ -6,9 +6,9 @@ using FakeItEasy;
 using FluentAssertions;
 using System.Linq.Expressions;
 
-namespace ChatCommunicator.Tests.Managers.FriendsManagerTest
+namespace ChatCommunicator.Tests.Services.FriendsManagerTest
 {
-    public class GetFriendsAsyncTest : FriendsManagerTest
+    public class GetFriendsAsyncTest : FriendsServiceTest
     {
         [Fact]
         public async Task GetFriendsAsync_ShouldReturnOk()

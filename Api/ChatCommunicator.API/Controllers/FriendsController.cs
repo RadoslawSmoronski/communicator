@@ -5,7 +5,7 @@ using AutoMapper;
 using ChatCommunicator.Contracts.Dtos;
 using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
 
 namespace ChatCommunicator.Application.Controllers
 {
@@ -13,11 +13,11 @@ namespace ChatCommunicator.Application.Controllers
     [ApiController]
     public class FriendsController : Controller
     {
-        private readonly IFriendsManager _friendsManager;
+        private readonly IFriendsService _friendsManager;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public FriendsController(IFriendsManager friendsManager,
+        public FriendsController(IFriendsService friendsManager,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor)
         {

@@ -1,25 +1,31 @@
-﻿using ChatCommunicator.Contracts;
-using FakeItEasy;
-using Microsoft.AspNetCore.Identity;
+﻿using ChatCommunicator.Infrastructure.UnitOfWork;
+using ChatCommunicator.Application.Managers;
+using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Dtos.Service;
+using ChatCommunicator.Application.Service;
 using ChatCommunicator.Shared.Result;
+using FakeItEasy;
 using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using ChatCommunicator.Infrastructure.UnitOfWork;
+using System.Linq.Expressions;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Application.Services;
 
-namespace ChatCommunicator.Tests.Managers.TokenServiceTest
+
+namespace ChatCommunicator.Tests.Services.TokenServiceTest
 {
-    public class CreateAccessTokenAsyncTest
+    public class RefreshAccessTokenAsyncTest
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
 
         private readonly ITokenService _tokenService;
+        private readonly Guid _sampleRefreshToken;
         private readonly UserAccount _sampleUserAccount;
 
-        public CreateAccessTokenAsyncTest()
+        public RefreshAccessTokenAsyncTest()
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
 
@@ -31,54 +37,43 @@ namespace ChatCommunicator.Tests.Managers.TokenServiceTest
             _unitOfWork = A.Fake<IUnitOfWork>();
 
             _tokenService = new TokenService(_configuration, _userManager, _unitOfWork);
+            _sampleRefreshToken = Guid.NewGuid();
             _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = Guid.NewGuid() };
         }
 
-
         [Fact]
-        public async Task CreateAccessTokenAsync_ShouldReturnSuccess()
+        public async Task RefreshAccessTokenAsync_ShouldReturnSuccess()
         {
             // Arrange
+            A.CallTo(() => _unitOfWork.RefreshTokens.AnyAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                           .Returns(Task.FromResult(true));
+
+            A.CallTo(() => _unitOfWork.RefreshTokens.FirstOrDefaultAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                           .Returns(Task.FromResult<RefreshToken?>(new RefreshToken() {UserId = _sampleUserAccount.Id }));
+
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
 
             // Act
-            var result = await _tokenService.CreateAccessTokenAsync(_sampleUserAccount) as ResultT<string>;
+            var result = await _tokenService.RefreshAccessTokenAsync(_sampleRefreshToken) as ResultT<RefreshAccessTokenDto>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
         }
 
-        [Theory]
-        [InlineData("login", "00000000-0000-0000-0000-000000000000")]
-        [InlineData("", "d2719a18-7f24-4d57-85a2-2b42cc7d2827")]
-        public async Task CreateAccessTokenAsync_ShouldReturnValidationError_WhenDataIsNotValid(string login, string id)
-        {
-            // Arrange
-            var user = new UserAccount { UserName = login, Id = Guid.Parse(id) };
-
-            // Act
-            var result = await _tokenService.CreateAccessTokenAsync(user);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-            result.Error.Should().NotBeNull();
-
-            var error = result.Error! as Error;
-            error.ErrorType.Should().Be(ErrorType.Validation);
-        }
-
         [Fact]
-        public async Task CreateAccessTokenAsync_ShouldReturnUnauthorizedErrorWhenUserNotFound()
+        public async Task RefreshAccessTokenAsync_ShouldReturnUnauthorizedError_WhenRefreshTokenDoesntExistsInDatabase()
         {
             // Arrange
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
-                           .Returns(Task.FromResult<UserAccount?>(null));
+               .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));
+
+            A.CallTo(() => _unitOfWork.RefreshTokens.AnyAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                           .Returns(Task.FromResult(false));
 
             // Act
-            var result = await _tokenService.CreateAccessTokenAsync(_sampleUserAccount);
+            var result = await _tokenService.RefreshAccessTokenAsync(_sampleRefreshToken);
 
             // Assert
             result.Should().NotBeNull();
@@ -90,14 +85,17 @@ namespace ChatCommunicator.Tests.Managers.TokenServiceTest
         }
 
         [Fact]
-        public async Task CreateAccessTokenAsync_ShouldReturnUnknownError()
+        public async Task RefreshAccessTokenAsync_ShouldReturnNotFoundError_WhenUserDoesntExistsInRefreshTokenDatabase()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
-                           .ThrowsAsync(new Exception());
+            A.CallTo(() => _unitOfWork.RefreshTokens.AnyAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                           .Returns(Task.FromResult(true));
+
+            A.CallTo(() => _unitOfWork.RefreshTokens.FirstOrDefaultAsync(A<Expression<Func<RefreshToken, bool>>>._))
+                          .Returns(Task.FromResult<RefreshToken?>(null));
 
             // Act
-            var result = await _tokenService.CreateAccessTokenAsync(_sampleUserAccount);
+            var result = await _tokenService.RefreshAccessTokenAsync(_sampleRefreshToken);
 
             // Assert
             result.Should().NotBeNull();

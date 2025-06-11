@@ -2,9 +2,9 @@
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
 
-namespace ChatCommunicator.Application.Managers.Interfaces
+namespace ChatCommunicator.Application.Services.Interfaces
 {
-    public interface IChatManager
+    public interface IChatService
     {
         //Conversation
         Task<ResultT<Conversation>> GetOrCreateConversationAsync(Guid userId, Guid friendId);

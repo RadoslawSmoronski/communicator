@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 {
-    public class GetOrCreateConversationAsyncTest : ChatManagerTest
+    public class GetOrCreateConversationAsyncTest : ChatServiceTest
     {
         [Fact]
         public async Task GetOrCreateConversationAsync_ShouldReturnOk_WhenConversationExist()

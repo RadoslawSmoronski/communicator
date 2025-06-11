@@ -32,11 +32,11 @@ namespace ChatCommunicator.Application
             builder.Services.AddSingleton<TokenCleanupService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IChatManager, ChatManager>();
-            builder.Services.AddScoped<IFriendsManager, FriendsManager>();
+            builder.Services.AddScoped<IChatService, ChatService>();
+            builder.Services.AddScoped<IFriendsService, FriendsService>();
             builder.Services.AddScoped<IAccountManager, AccountManager>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddSingleton<IUsersConnectionManager, UsersConnectionManager>();
+            builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
             builder.Services.AddHostedService<TokenCleanupService>();
             builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
             builder.Services.AddSwaggerGen(option =>

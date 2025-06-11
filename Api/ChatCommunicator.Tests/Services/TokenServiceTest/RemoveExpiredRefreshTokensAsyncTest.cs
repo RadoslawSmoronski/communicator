@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Application.Services;
 
-namespace ChatCommunicator.Tests.Managers.TokenServiceTest
+namespace ChatCommunicator.Tests.Services.TokenServiceTest
 {
     public class RemoveExpiredRefreshTokensAsyncTest
     {

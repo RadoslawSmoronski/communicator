@@ -1,9 +1,9 @@
-﻿using ChatCommunicator.Application.Managers.Interfaces;
+﻿using ChatCommunicator.Application.Services.Interfaces;
 using System.Collections.Concurrent;
 
 namespace ChatCommunicator.Application.Managers
 {
-    public class UsersConnectionManager : IUsersConnectionManager
+    public class UsersConnectionService : IUsersConnectionService
     {
         private readonly ConcurrentDictionary<Guid, HashSet<string>> _usersOnline = new();
 

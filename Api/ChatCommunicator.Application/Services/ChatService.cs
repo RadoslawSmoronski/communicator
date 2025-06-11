@@ -1,16 +1,15 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Chat;
-using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
 
-namespace ChatCommunicator.Application.Managers
+namespace ChatCommunicator.Application.Services
 {
-    public class ChatManager : IChatManager
+    public class ChatService : IChatService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<UserAccount> _userManager;
@@ -18,7 +17,7 @@ namespace ChatCommunicator.Application.Managers
 
         private readonly int _messagesPageSize = 10;
 
-        public ChatManager(IUnitOfWork unitOfWork,
+        public ChatService(IUnitOfWork unitOfWork,
             UserManager<UserAccount> userManager,
             IMapper mapper)
         {

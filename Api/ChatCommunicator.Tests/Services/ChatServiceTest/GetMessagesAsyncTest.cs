@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 {
-    public class GetPagedMessagesAsyncTest : ChatManagerTest
+    public class GetPagedMessagesAsyncTest : ChatServiceTest
     {
         [Fact]
         public async Task GetPagedMessagesAsync_ShouldReturnOk()

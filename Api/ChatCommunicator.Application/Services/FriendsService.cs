@@ -4,19 +4,18 @@ using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Contracts.Friendship;
 using ChatCommunicator.Shared.Result;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
 
 namespace ChatCommunicator.Application.Managers
 {
-    public class FriendsManager : IFriendsManager
+    public class FriendsService : IFriendsService
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
 
-        public FriendsManager(UserManager<UserAccount> userManager,
+        public FriendsService(UserManager<UserAccount> userManager,
             IUnitOfWork unitOfWork)
         {
             _userManager = userManager;

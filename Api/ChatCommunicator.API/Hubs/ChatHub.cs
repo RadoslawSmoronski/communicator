@@ -7,25 +7,25 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using ChatCommunicator.Application.Hubs.Interfaces;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
 
 namespace ChatCommunicator.Application.Hubs
 {
     [Authorize]
     public class ChatHub : Hub<IChatClient>
     {
-        private readonly IUsersConnectionManager _usersConnectionManager;
-        private readonly IChatManager _chatManager;
+        private readonly IUsersConnectionService _usersConnectionManager;
+        private readonly IChatService _chatService;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
 
-        public ChatHub(IUsersConnectionManager usersConnectionManager,
-            IChatManager chatManager,
+        public ChatHub(IUsersConnectionService usersConnectionManager,
+            IChatService chatService,
             UserManager<UserAccount> userManager,
             IMapper mapper)
         {
             _usersConnectionManager = usersConnectionManager;
-            _chatManager = chatManager;
+            _chatService = chatService;
             _userManager = userManager;
             _mapper = mapper;
         }
@@ -50,7 +50,7 @@ namespace ChatCommunicator.Application.Hubs
             var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
             var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
 
-            var conversation = await _chatManager.GetOrCreateConversationAsync(userId, recipientId);
+            var conversation = await _chatService.GetOrCreateConversationAsync(userId, recipientId);
             var sender = await _userManager.FindByIdAsync(userIdString);
 
             if (sender == null)
@@ -79,7 +79,7 @@ namespace ChatCommunicator.Application.Hubs
                 await Clients.Clients(senderConnectionsId).ReceiveMessage(messageDto);
             }
 
-            await _chatManager.SaveMessageAsync(message);
+            await _chatService.SaveMessageAsync(message);
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)

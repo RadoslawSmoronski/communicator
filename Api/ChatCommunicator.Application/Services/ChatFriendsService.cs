@@ -1,16 +1,14 @@
-﻿using ChatCommunicator.Application.Managers.Interfaces;
-using ChatCommunicator.Application.Services.Interfaces;
+﻿using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Shared.Result;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ChatCommunicator.Application.Services
 {
     public class ChatFriendsService : IChatFriendsService
     {
-        IChatManager _chatManager;
-        IFriendsManager _friendManager;
+        IChatService _chatManager;
+        IFriendsService _friendManager;
 
-        public ChatFriendsService(IChatManager chatManager, IFriendsManager friendManager)
+        public ChatFriendsService(IChatService chatManager, IFriendsService friendManager)
         {
             _chatManager = chatManager;
             _friendManager = friendManager;

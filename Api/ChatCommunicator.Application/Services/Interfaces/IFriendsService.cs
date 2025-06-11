@@ -2,9 +2,9 @@
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Shared.Result;
 
-namespace ChatCommunicator.Application.Managers.Interfaces
+namespace ChatCommunicator.Application.Services.Interfaces
 {
-    public interface IFriendsManager
+    public interface IFriendsService
     {
         Task<Result> SendInviteAsync(Guid senderId, Guid recipientId);
         Task<ResultT<List<SimpleUserDto>>> GetInvitationsAsync(Guid userId);

@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 {
-    public class DeleteConversationAsyncTest : ChatManagerTest
+    public class DeleteConversationAsyncTest : ChatServiceTest
     {
         [Fact]
         public async Task DeleteConversationAsync_ShouldReturnOk()

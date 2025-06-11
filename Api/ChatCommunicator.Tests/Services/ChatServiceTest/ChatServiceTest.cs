@@ -1,19 +1,19 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Contracts;
 using Microsoft.AspNetCore.Identity;
 using FakeItEasy;
 using ChatCommunicator.Contracts.Chat;
 using AutoMapper;
-using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Application.Services;
 
 namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 {
-    public abstract class ChatManagerTest
+    public abstract class ChatServiceTest
     {
         protected readonly UserManager<UserAccount> _userManager;
         protected readonly IUnitOfWork _unitOfWork;
-        protected readonly IChatManager _chatManager;
+        protected readonly IChatService _chatManager;
         protected readonly IMapper _mapper;
 
         protected readonly UserAccount _sampleUser1;
@@ -29,7 +29,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         protected readonly Message _sampleMessage3;
         protected readonly IEnumerable<Message> _sampleMessagesList;
 
-        protected ChatManagerTest()
+        protected ChatServiceTest()
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _unitOfWork = A.Fake<IUnitOfWork>();
@@ -41,7 +41,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 
             _mapper = configuration.CreateMapper();
 
-            _chatManager = new ChatManager(_unitOfWork, _userManager, _mapper);
+            _chatManager = new ChatService(_unitOfWork, _userManager, _mapper);
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };
             _sampleUser3 = new UserAccount { UserName = "User3Login", Id = Guid.NewGuid() };
