@@ -9,6 +9,7 @@ using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace ChatCommunicator.Application.Managers
 {
@@ -98,15 +99,48 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public Task<ResultT<string>> ChangeUsernameAsync(string newUsername)
+        public async Task<ResultT<string>> ChangeUsernameAsync(string userId, string newUsername)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(newUsername))
+            {
+                return Error.Validation("VALIDATION", "Username cannot be empty or null.");
+            };
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Error.Validation("VALIDATION_USERID", "UserId cannot be empty or null.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null)
+                {
+                    return Error.Unauthorized("UNAUTHORIZED", "The user associated with the access token does not exist. Please log in again.");
+                };
+
+                var isUsernameExists = await _userManager.FindByNameAsync(newUsername);
+
+                if (isUsernameExists != null)
+                {
+                    return Error.Conflict("CONFLICT", "The chosen username is already taken. Please choose a different one.");
+                }
+
+                var result = await _userManager.SetUserNameAsync(user, newUsername);
+
+                if (result.Succeeded)
+                {
+                    return newUsername;
+                }
+
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "User registration failed unexpectedly. Please try again later or contact support.");
+            }
+            catch (Exception ex)
+            {
+                return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
+            }
         }
 
-
-        public Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(RefreshTokenDto refreshTokenDto)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

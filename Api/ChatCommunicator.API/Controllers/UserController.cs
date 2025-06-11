@@ -13,6 +13,8 @@ using ChatCommunicator.Shared.Result;
 using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Hosting.Server;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ChatCommunicator.Application.Controllers
 {
@@ -267,20 +269,25 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangeUsernameAsync([FromQuery] string newUsername)
         {
-            if (string.IsNullOrWhiteSpace(newUsername))
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _accountManager.ChangeUsernameAsync(userId, newUsername);
+
+            if (result.IsSuccess)
             {
-                return Problem(
-                    statusCode: 400,
-                    title: "Bad Request",
-                    detail: "Username cannot be empty or null."
-                );
+                return Ok(result.Value);
             }
-
-            try
+            else if (result.Error != null)
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if(userId == null)
+                if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "VALIDATION")
+                {
+                    return Problem(
+                        statusCode: 400,
+                        title: "Bad Request",
+                        detail: "Username cannot be empty or null."
+                    );
+                }
+                else if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "VALIDATION_USERID")
                 {
                     return Problem(
                         statusCode: 401,
@@ -288,10 +295,7 @@ namespace ChatCommunicator.Application.Controllers
                         detail: "Unable to extract user ID from the access token. Please log in again."
                     );
                 }
-
-                var user = await _userManager.FindByIdAsync(userId);
-
-                if (user == null)
+                else if (result.Error.ErrorType == ErrorType.Unauthorized)
                 {
                     return Problem(
                         statusCode: 401,
@@ -299,10 +303,7 @@ namespace ChatCommunicator.Application.Controllers
                         detail: "The user associated with the access token does not exist. Please log in again."
                     );
                 }
-
-                var isUsernameExists = await _userManager.FindByNameAsync(newUsername);
-
-                if (isUsernameExists != null)
+                else if (result.Error.ErrorType == ErrorType.Conflict)
                 {
                     return Problem(
                         statusCode: 409,
@@ -311,27 +312,18 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
-                var result = await _userManager.SetUserNameAsync(user, newUsername);
-
-                if (result.Succeeded)
-                {
-                    return Ok(newUsername);
-                }
-
                 return Problem(
-                    statusCode: 500,
-                    title: "Unexpected username change failure",
-                    detail: "An unexpected error occurred while attempting to change the username. Please try again later or contact support."
-                );
+                statusCode: 500,
+                        title: "Unexpected server error.",
+                        detail: "Unexpected server error."
+                    );
             }
-            catch
-            {
-                return Problem(
-                    statusCode: 500,
-                    title: "Unexpected server error",
-                    detail: "An unexpected error occurred during refreshing access token."
-                );
-            }
+
+            return Problem(
+                statusCode: 500,
+                title: "Unexpected server error",
+                detail: "An unexpected error occurred."
+            );
         }
     }
 }

@@ -11,7 +11,6 @@ namespace ChatCommunicator.Application.Managers.Interfaces
     {
         Task<ResultT<SimpleUserDto>> RegisterAsync(RegisterDto registerDto);
         Task<ResultT<LoggedUserDto>> LoginAsync(LoginDto loginDto);
-        Task<ResultT<RefreshAccessTokenDto>> RefreshAccessTokenAsync(RefreshTokenDto refreshTokenDto);
-        Task<ResultT<string>> ChangeUsernameAsync(string newUsername);
+        Task<ResultT<string>> ChangeUsernameAsync(string userId, string newUsername);
     }
 }
