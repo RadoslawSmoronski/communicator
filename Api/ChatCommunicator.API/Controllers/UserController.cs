@@ -165,13 +165,13 @@ namespace ChatCommunicator.Application.Controllers
         /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
         /// <code>
-        /// POST /api/user/refreshAccessToken
+        /// POST /api/user/refresh-access-token
         /// {
         ///     "refreshToken": "your_refresh_token_here"
         /// }
         /// </code>
         /// </example>
-        [HttpPost("refreshAccessToken")]
+        [HttpPost("refresh-access-token")]
         [ProducesResponseType<RefreshAccessTokenDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -232,12 +232,12 @@ namespace ChatCommunicator.Application.Controllers
         /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
         /// <code>
-        /// PATCH /api/user/changeUsername?newUsername=new_name_123
+        /// PATCH /api/user/change-username?newUsername=new_name_123
         /// Authorization: Bearer {token}
         /// </code>
         /// </example>
         [Authorize]
-        [HttpPatch("changeUsername")]
+        [HttpPatch("change-username")]
         [ProducesResponseType<string>(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]

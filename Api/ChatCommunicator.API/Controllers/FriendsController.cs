@@ -27,35 +27,33 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// SendInviteAsync.
+        /// Sends a friend invitation from one user to another.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows an authenticated user to send a friend invitation to another user
-        /// by providing sender and recipient GUIDs. The system returns an appropriate response based on
-        /// the outcome, including validation errors, conflicts, or if the recipient was not found.
+        /// This endpoint allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.
+        /// Returns appropriate HTTP responses based on validation, conflicts, or if the recipient is not found.
         /// </remarks>
-        /// <param name="inviteDto">The invitation data including sender and recipient user GUIDs.</param>
+        /// <param name="inviteDto">Invitation data including sender and recipient GUIDs.</param>
         /// <returns>
-        /// A response indicating success or a specific error describing why the invitation could not be processed.
+        /// HTTP 200 on success, or an error response detailing the failure.
         /// </returns>
         /// <response code="200">Invitation sent successfully.</response>
         /// <response code="400">Invalid invitation data (e.g., malformed or missing GUIDs).</response>
-        /// <response code="401">Unauthorized – valid JWT token is required.</response>
-        /// <response code="404">The recipient user was not found.</response>
-        /// <response code="409">A conflict occurred (e.g., invitation already exists).</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="401">Unauthorized - JWT token required.</response>
+        /// <response code="404">Recipient user not found.</response>
+        /// <response code="409">Conflict (e.g., invitation already exists).</response>
+        /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
-        /// POST /api/user/sendInviteAsync
+        /// POST /api/user/send-invite
         /// {
         ///     "senderId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        ///     "recipientId": "d2
-        ///     719f9d-8f8c-4b5a-80c4-07afcf1c5b90"
+        ///     "recipientId": "d2719f9d-8f8c-4b5a-80c4-07afcf1c5b90"
         /// }
         /// </code>
         /// </example>
         [Authorize]
-        [HttpPost("sendInviteAsync")]
+        [HttpPost("send-invite")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -116,30 +114,28 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// GetInvitations.
+        /// Retrieves all friend invitations sent to a specific user.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows an authenticated user to retrieve all friend invitations
-        /// addressed to the specified user by their GUID. If the user does not exist,
-        /// a 404 response is returned. In case of invalid input or other issues, an appropriate error is returned.
+        /// Returns all pending friend invitations for the specified user GUID.
+        /// If the user does not exist or input is invalid, returns appropriate error responses.
         /// </remarks>
-        /// <param name="userId">The GUID of the user whose invitations should be retrieved.</param>
+        /// <param name="userId">GUID of the user whose invitations to retrieve.</param>
         /// <returns>
-        /// A response containing a list of users who have sent invitations to the specified user,
-        /// or an error describing the problem.
+        /// List of users who sent invitations, or an error response.
         /// </returns>
-        /// <response code="200">Invitations successfully retrieved.</response>
+        /// <response code="200">Invitations retrieved successfully.</response>
         /// <response code="400">Invalid user ID (e.g., malformed GUID).</response>
-        /// <response code="401">Unauthorized – valid JWT token is required.</response>
-        /// <response code="404">The specified user was not found.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="401">Unauthorized - JWT token required.</response>
+        /// <response code="404">User not found.</response>
+        /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
-        /// GET /api/user/getInvitations/3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// GET /api/user/get-invitations/3fa85f64-5717-4562-b3fc-2c963f66afa6
         /// </code>
         /// </example>
         [Authorize]
-        [HttpGet("getInvitations/{userId}")]
+        [HttpGet("get-invitations/{userId}")]
         [ProducesResponseType(typeof(List<SimpleUserDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -192,30 +188,29 @@ namespace ChatCommunicator.Application.Controllers
 
 
         /// <summary>
-        /// GetUsersToInviteByText.
+        /// Searches for users to invite based on a text query.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows an authenticated user to search for other users to invite by providing a text query.
-        /// The search is performed server-side, excluding users that are already invited or already friends.
-        /// The user making the request must be authenticated via a valid JWT token containing a valid GUID identifier.
+        /// Authenticated users can search for other users by username or display name.
+        /// The search excludes users who are already friends or already invited.
+        /// Requires a valid JWT token with user GUID.
         /// </remarks>
-        /// <param name="text">The text to match usernames or display names against.</param>
+        /// <param name="text">Text to search users by.</param>
         /// <returns>
-        /// A response containing a list of users available for invitation matching the search criteria,
-        /// or an error describing the problem.
+        /// List of users matching the search criteria available for invitation, or an error response.
         /// </returns>
-        /// <response code="200">List of users retrieved successfully.</response>
+        /// <response code="200">Users retrieved successfully.</response>
         /// <response code="400">Invalid request (e.g., empty or malformed input).</response>
-        /// <response code="401">Unauthorized – JWT token missing, invalid, or malformed GUID.</response>
+        /// <response code="401">Unauthorized - JWT token missing or invalid.</response>
         /// <response code="404">No matching users found.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
-        /// GET /api/user/getUsersToInviteByText/john
+        /// GET /api/user/get-users-to-invite-by-text/john
         /// </code>
         /// </example>
         [Authorize]
-        [HttpGet("getUsersToInviteByText/{text}")]
+        [HttpGet("get-users-to-invite-by-text/{text}")]
         [ProducesResponseType(typeof(List<UserToInviteDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -288,25 +283,24 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// DecelineInvite.
+        /// Declines a friend invitation.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows an authenticated user to decline a friend invitation from another user.
-        /// Both sender and recipient GUIDs must be provided in the request body. If the invitation does not exist
-        /// or has already been handled, a 404 or 400 response is returned accordingly.
+        /// Allows an authenticated user to decline a friend invitation by providing sender and recipient GUIDs.
+        /// Returns appropriate errors if the invitation is invalid, already handled, or missing.
         /// </remarks>
-        /// <param name="inviteDto">The invitation data containing sender and recipient user GUIDs.</param>
+        /// <param name="inviteDto">Invitation data with sender and recipient GUIDs.</param>
         /// <returns>
-        /// A response indicating whether the invitation was successfully declined or an error describing the issue.
+        /// HTTP 200 on success or an error describing the failure.
         /// </returns>
         /// <response code="200">Invitation declined successfully.</response>
-        /// <response code="400">Invalid data provided (e.g., malformed or missing GUIDs).</response>
-        /// <response code="401">Unauthorized – valid JWT token is required.</response>
+        /// <response code="400">Invalid data (e.g., malformed GUIDs).</response>
+        /// <response code="401">Unauthorized - JWT token required.</response>
         /// <response code="404">Invitation not found or already declined.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
-        /// POST /api/user/decelineInvite
+        /// POST /api/user/deceline-invite
         /// {
         ///     "senderId": "b0f4e7d2-115a-4dcf-b9f5-5b08f6bcb034",
         ///     "recipientId": "a54ff5c4-6f67-4c10-b4a7-b6d3f0d8c9cb"
@@ -319,7 +313,7 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize]
-        [HttpPost("decelineInvite")]
+        [HttpPost("deceline-invite")]
         public async Task<IActionResult> DecelineInviteAsync(InviteDto inviteDto)
         {
             var result = await _friendsManager.DecelineInviteAsync(inviteDto.SenderId, inviteDto.RecipientId);
@@ -366,23 +360,23 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// AcceptInvite.
+        /// Accepts a friend invitation.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows an authenticated user to accept a friend invitation by providing the sender and recipient GUIDs.
-        /// On success, the users are added to each other's friend lists. If the invitation does not exist,
-        /// is invalid, or a conflict occurs (e.g., users are already friends), an appropriate error is returned.
+        /// Allows an authenticated user to accept a friend invitation by sender and recipient GUIDs.
+        /// On success, users are added to each other's friend lists.
+        /// Returns errors for invalid input, not found invitations, or conflicts.
         /// </remarks>
-        /// <param name="acceptInviteDto">The invitation data containing sender and recipient user GUIDs.</param>
+        /// <param name="acceptInviteDto">Invitation data with sender and recipient GUIDs.</param>
         /// <returns>
-        /// A response indicating whether the invitation was successfully accepted or an error describing the issue.
+        /// HTTP 200 on success or an error describing the issue.
         /// </returns>
-        /// <response code="200">Invitation accepted successfully; users are now friends.</response>
-        /// <response code="400">Invalid data provided (e.g., malformed or missing GUIDs).</response>
-        /// <response code="401">Unauthorized – valid JWT token is required.</response>
+        /// <response code="200">Invitation accepted; users are now friends.</response>
+        /// <response code="400">Invalid data provided.</response>
+        /// <response code="401">Unauthorized - JWT token required.</response>
         /// <response code="404">Invitation not found.</response>
-        /// <response code="409">Conflict – users are already friends or invitation was already accepted.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="409">Conflict - users already friends or invitation accepted.</response>
+        /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
         /// POST /api/user/acceptInvite
@@ -393,7 +387,7 @@ namespace ChatCommunicator.Application.Controllers
         /// </code>
         /// </example>
         [Authorize]
-        [HttpPost("acceptInvite")]
+        [HttpPost("accept-invite")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -454,29 +448,27 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// GetFriends.
+        /// Retrieves a list of friends for a specified user.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows an authenticated user to fetch all users that are marked as friends
-        /// of the specified user identified by their GUID. If the input is invalid, or an unexpected error occurs,
-        /// the appropriate status code and message are returned.
+        /// Fetches all users marked as friends of the specified user GUID.
+        /// Returns errors for invalid input or unexpected issues.
         /// </remarks>
-        /// <param name="userId">The GUID of the user whose friends should be retrieved.</param>
+        /// <param name="userId">GUID of the user whose friends to retrieve.</param>
         /// <returns>
-        /// A response containing a list of friends for the specified user,
-        /// or an error response if the request could not be completed.
+        /// List of friends or an error response.
         /// </returns>
-        /// <response code="200">List of friends retrieved successfully.</response>
-        /// <response code="400">Invalid user ID (e.g., malformed GUID).</response>
-        /// <response code="401">Unauthorized – valid JWT token is required.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="200">Friends list retrieved successfully.</response>
+        /// <response code="400">Invalid user ID.</response>
+        /// <response code="401">Unauthorized - JWT token required.</response>
+        /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
-        /// GET /api/user/getFriends/3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// GET /api/user/get-friends/3fa85f64-5717-4562-b3fc-2c963f66afa6
         /// </code>
         /// </example>
         [Authorize]
-        [HttpGet("getFriends/{userId}")]
+        [HttpGet("get-friends/{userId}")]
         [ProducesResponseType(typeof(List<SimpleUserDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]

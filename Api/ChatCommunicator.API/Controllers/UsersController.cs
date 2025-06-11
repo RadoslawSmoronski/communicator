@@ -26,26 +26,21 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// GetUserById.
+        /// Retrieves a user by their unique identifier.
         /// </summary>
         /// <remarks>
-        /// This endpoint retrieves a user based on their unique GUID identifier.
-        /// The request requires authorization, and the user must exist in the system.
+        /// Requires authorization. This endpoint returns a simplified user DTO corresponding to the given GUID.
         /// </remarks>
-        /// <param name="id">The GUID of the user to retrieve.</param>
-        /// <returns>
-        /// A <see cref="SimpleUserDto"/> representing the user if found; otherwise, a <see cref="ProblemDetails"/> response.
-        /// </returns>
-        /// <response code="200">User successfully retrieved.</response>
-        /// <response code="500">Unexpected server error occurred while retrieving the user.</response>
+        /// <param name="id">The unique GUID identifier of the user.</param>
+        /// <returns>A <see cref="SimpleUserDto"/> if found; otherwise, a problem detail response.</returns>
+        /// <response code="200">Returns the requested user.</response>
+        /// <response code="500">An unexpected error occurred.</response>
         /// <example>
-        /// <code>
-        /// GET /api/users/getUserById/3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// GET /api/users/get-user-by-id/3fa85f64-5717-4562-b3fc-2c963f66afa6
         /// Authorization: Bearer {token}
-        /// </code>
         /// </example>
         [Authorize]
-        [HttpGet("getUserById/{id}")]
+        [HttpGet("get-user-by-id/{id}")]
         [ProducesResponseType(typeof(SimpleUserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUserByIdAsync([FromRoute] Guid id)
@@ -53,44 +48,38 @@ namespace ChatCommunicator.Application.Controllers
             try
             {
                 var user = await _userManager.FindByIdAsync(id.ToString());
-
                 return Ok(_mapper.Map<SimpleUserDto>(user));
             }
             catch (Exception)
             {
                 return Problem(
-                statusCode: 500,
-                title: "Unexpected server error",
-                detail: "An unexpected error occurred while retrieving the user."
+                    statusCode: 500,
+                    title: "Unexpected server error",
+                    detail: "An unexpected error occurred while retrieving the user."
                 );
             }
         }
 
         /// <summary>
-        /// GetUsersByText.
+        /// Searches for users whose usernames contain the specified text.
         /// </summary>
         /// <remarks>
-        /// This endpoint returns a list of users whose usernames contain the provided text.
-        /// Optionally, the currently authenticated user can be excluded from the results.
+        /// Optionally excludes the currently authenticated user from the results.
         /// </remarks>
-        /// <param name="text">The text to search for within usernames.</param>
-        /// <param name="excludeCurrentUser">Whether to exclude the currently authenticated user from the result.</param>
-        /// <returns>
-        /// A list of <see cref="SimpleUserDto"/> matching the search criteria; or a <see cref="ProblemDetails"/> response on failure.
-        /// </returns>
-        /// <response code="200">List of matching users returned.</response>
-        /// <response code="400">The search text is empty or does not meet length constraints.</response>
-        /// <response code="401">Access token is missing or user ID is invalid.</response>
-        /// <response code="500">Unexpected server error occurred while retrieving users.</response>
+        /// <param name="text">The substring to search for in usernames.</param>
+        /// <param name="excludeCurrentUser">Indicates whether to exclude the current user from the results.</param>
+        /// <returns>A list of matching <see cref="SimpleUserDto"/> or a problem detail response.</returns>
+        /// <response code="200">List of matching users retrieved.</response>
+        /// <response code="400">The search term is invalid (too short or too long).</response>
+        /// <response code="401">Authorization token is invalid or missing.</response>
+        /// <response code="500">An unexpected error occurred.</response>
         /// <example>
-        /// <code>
-        /// GET /api/users/getUsersByText/john?excludeCurrentUser=true
+        /// GET /api/users/get-users-by-text/john?excludeCurrentUser=true
         /// Authorization: Bearer {token}
-        /// </code>
         /// </example>
         [Authorize]
-        [HttpGet("getUsersByText/{text}")]
-        [ProducesResponseType<LoggedUserDto>(StatusCodes.Status200OK)]
+        [HttpGet("get-users-by-text/{text}")]
+        [ProducesResponseType(typeof(List<SimpleUserDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -99,18 +88,18 @@ namespace ChatCommunicator.Application.Controllers
             if (string.IsNullOrWhiteSpace(text))
             {
                 return Problem(
-                    detail: "Input value is empty.",
                     statusCode: 400,
-                    title: "Bad Request"
+                    title: "Bad Request",
+                    detail: "Input value is empty."
                 );
             }
 
-            if (text.Length > 25 || text.Length < 3)
+            if (text.Length < 3 || text.Length > 25)
             {
                 return Problem(
-                    detail: "Username must be between 3 and 25 characters long.",
                     statusCode: 400,
-                    title: "Bad Request"
+                    title: "Bad Request",
+                    detail: "Username must be between 3 and 25 characters long."
                 );
             }
 
@@ -142,9 +131,9 @@ namespace ChatCommunicator.Application.Controllers
             catch (Exception)
             {
                 return Problem(
-                statusCode: 500,
-                title: "Unexpected server error",
-                detail: "An unexpected error occurred while retrieving the users."
+                    statusCode: 500,
+                    title: "Unexpected server error",
+                    detail: "An unexpected error occurred while retrieving the users."
                 );
             }
         }
