@@ -3,13 +3,10 @@ using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
-using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
-using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace ChatCommunicator.Application.Managers
 {

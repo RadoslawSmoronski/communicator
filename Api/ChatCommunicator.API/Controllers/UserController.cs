@@ -1,8 +1,5 @@
-﻿using ChatCommunicator.Contracts;
-using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
+﻿using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
-using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
 using ChatCommunicator.Contracts.Dtos.Service;
@@ -11,10 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
 using ChatCommunicator.Application.Managers.Interfaces;
-using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Hosting.Server;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ChatCommunicator.Application.Controllers
 {
@@ -22,37 +16,28 @@ namespace ChatCommunicator.Application.Controllers
     [ApiController]
     public class UserController : Controller
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly SignInManager<UserAccount> _signInManager;
-        private readonly IMapper _mapper;
         private readonly ITokenService _tokenManager;
         private readonly IAccountManager _accountManager;
 
-        public UserController(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager,
-            IMapper mapper, ITokenService tokenManager, IAccountManager accountManager)
+        public UserController(ITokenService tokenManager, IAccountManager accountManager)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _mapper = mapper;
             _tokenManager = tokenManager;
             _accountManager = accountManager;
         }
 
         /// <summary>
-        /// Register.
+        /// Registers a new user.
         /// </summary>
         /// <remarks>
         /// This endpoint creates a new user using a username and password. If the username already exists,
         /// a conflict response is returned. On success, basic user data is returned.
         /// </remarks>
         /// <param name="registerDto">The registration data including username and password.</param>
-        /// <returns>
-        /// A response containing the created user's ID and username, or an error message.
-        /// </returns>
+        /// <returns>A response containing the created user's ID and username, or an error message.</returns>
         /// <response code="201">User successfully created.</response>
         /// <response code="400">Invalid registration data (e.g., password policy not met).</response>
         /// <response code="409">Username already exists.</response>
-        /// <response code="500">Unexpected server error occurred.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
         /// <code>
         /// POST /api/user/register
@@ -73,7 +58,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value); // todo: zmienić na created
+                return StatusCode(201, result.Value);
             }
 
             if (result.Error != null)
@@ -86,7 +71,7 @@ namespace ChatCommunicator.Application.Controllers
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
-                        detail: errorMessage // todo: zmienic
+                        detail: "A user with this username already exists."
                     );
                 }
 
@@ -105,17 +90,14 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Login.
+        /// Authenticates a user and returns access and refresh tokens.
         /// </summary>
         /// <remarks>
-        /// This endpoint validates the provided login credentials. If authentication is successful, it returns a JWT access token
-        /// and a refresh token for session management. If the user does not exist or the credentials are invalid, an appropriate error is returned.
+        /// This endpoint validates the provided login credentials. On success, it returns a JWT access token
+        /// and a refresh token. If authentication fails, a detailed error is returned.
         /// </remarks>
         /// <param name="loginDto">The login credentials, including username and password.</param>
-        /// <returns>
-        /// A <see cref="LoggedUserDto"/> object containing the authenticated user's ID, username, access token, and refresh token,
-        /// or a <see cref="ProblemDetails"/> response in case of failure.
-        /// </returns>
+        /// <returns>A token object if authentication is successful or an error response otherwise.</returns>
         /// <response code="200">User successfully authenticated. Tokens returned.</response>
         /// <response code="400">Invalid login request (e.g., malformed input).</response>
         /// <response code="401">Invalid username or password.</response>
@@ -170,25 +152,22 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Refresh access token
+        /// Refreshes the user's access token using a valid refresh token.
         /// </summary>
         /// <remarks>
-        /// This endpoint validates the provided refresh token and, if valid, issues a new access token.
-        /// It is typically used when the current access token has expired but the refresh token is still valid.
+        /// This endpoint checks the provided refresh token and issues a new access token if it's valid.
         /// </remarks>
-        /// <param name="refreshTokenDto">The object containing the refresh token string.</param>
-        /// <returns>
-        /// A new access token if the refresh token is valid; otherwise, a problem detail describing the failure.
-        /// </returns>
+        /// <param name="refreshTokenDto">The refresh token container.</param>
+        /// <returns>New access token or error response.</returns>
         /// <response code="200">Access token successfully refreshed.</response>
-        /// <response code="400">The refresh token is invalid or malformed (e.g., structurally incorrect).</response>
-        /// <response code="401">The refresh token is valid in format but unauthorized (e.g., expired, revoked, or forged).</response>
+        /// <response code="400">Invalid or malformed refresh token.</response>
+        /// <response code="401">Unauthorized or expired refresh token.</response>
         /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
         /// <code>
-        /// POST /api/refreshAccessToken
+        /// POST /api/user/refreshAccessToken
         /// {
-        ///     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        ///     "refreshToken": "your_refresh_token_here"
         /// }
         /// </code>
         /// </example>
@@ -239,24 +218,21 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Change username
+        /// Changes the current user's username.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows an authenticated user to update their username. It verifies whether the new username
-        /// is already taken and returns a conflict response if so. The user ID is extracted from the JWT token.
+        /// Authenticated users can change their username. The new username must be unique.
         /// </remarks>
-        /// <param name="newUsername">The new username to assign to the current user.</param>
-        /// <returns>
-        /// A response indicating whether the username was successfully updated or an appropriate error message.
-        /// </returns>
-        /// <response code="200">Username successfully updated. Returns the new username.</response>
-        /// <response code="400">The provided username is null, empty, or invalid.</response>
-        /// <response code="401">The access token is missing, invalid, or refers to a non-existent user.</response>
-        /// <response code="409">The desired username is already taken by another user.</response>
-        /// <response code="500">An unexpected server error occurred while updating the username.</response>
+        /// <param name="newUsername">The new username to assign.</param>
+        /// <returns>The new username or a detailed error response.</returns>
+        /// <response code="200">Username successfully updated.</response>
+        /// <response code="400">Invalid or missing username.</response>
+        /// <response code="401">User is not authenticated or token is invalid.</response>
+        /// <response code="409">The username is already taken.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
         /// <code>
-        /// PATCH /api/changeUsername?newUsername=new_name_123
+        /// PATCH /api/user/changeUsername?newUsername=new_name_123
         /// Authorization: Bearer {token}
         /// </code>
         /// </example>
@@ -313,9 +289,9 @@ namespace ChatCommunicator.Application.Controllers
                 }
 
                 return Problem(
-                statusCode: 500,
-                        title: "Unexpected server error.",
-                        detail: "Unexpected server error."
+                    statusCode: 500,
+                    title: "Unexpected server error.",
+                    detail: "Unexpected server error."
                     );
             }
 

@@ -62,7 +62,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         }
 
         [Fact]
-        public async Task RegisterAsync_ShouldReturnUnauthorized_WhenDataIsNotAutharized()
+        public async Task LoginAsync_ShouldReturnUnauthorized_WhenDataIsNotAutharized()
         {
             // Arrange
             A.CallTo(() => _userManager.FindByNameAsync(_sampleUser1.UserName!))
