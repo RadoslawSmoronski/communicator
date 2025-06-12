@@ -22,16 +22,16 @@ namespace ChatCommunicator.Application.Service
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    var tokenManager = scope.ServiceProvider.GetRequiredService<ITokenService>();
-                    var result = await tokenManager.RemoveExpiredRefreshTokensAsync();
+                    var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
+                    var result = await tokenService.RemoveExpiredRefreshTokensAsync();
 
                     if (result.IsSuccess)
                     {
                         Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {result.Value} expired tokens removed.");
                     }
-                    else if (result.Error!.ErrorType == ErrorType.NotFound)
+                    else if (result.Error!.ErrorType == ErrorType.Failure && result.Error!.Code == "NO_EXPIRED_REFRESH_TOKENS")
                     {
-                        Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
+                        Console.WriteLine("[RemoveExpiredRefreshTokensAsync] There are no expired tokens found.");
                     }
                     else
                     {

@@ -1,4 +1,4 @@
-# 💬 Chat Communicator
+# 💬 Chat Communicator - API
 
 **Chat Communicator** is a simple chat application built with .NET 8. It provides user registration, login, friend management, and real-time messaging using SignalR.
 
@@ -30,6 +30,7 @@ The documentation provides details on endpoints, models, responses, and authenti
 ## 📡 SignalR – `ChatHub`
 
 Real-time messaging is handled through a SignalR hub called `ChatHub`.
+
 ### Method available for clients
 
 #### `SendMessage(Guid recipientId, Guid conversationId, string content)`
@@ -55,41 +56,54 @@ Similarly, the frontend in `client` may be ahead of what is currently merged int
 
 ### Requirements
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 - PostgreSQL
 
 ### Example `appsettings.json`
 
-
-    {
-      "ConnectionStrings": {
-        "DefaultConnection": "Host=string;Database=string;Port=string;Username=string;Password=string"
-      },
-      "JWT": {
-        "Issuer": "string",
-        "Audience": "string",
-        "SigningKey": "your-signing-key-here"
-      },
-      "AllowedHosts": "*"
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
     }
-
-### CORS policy in program.cs
-
-    builder.Services.AddCors(options =>
-    {
-        options.AddPolicy("AllowSpecificOrigin",
-            builder =>
-            {
-                builder.WithOrigins("string")
-                       .AllowAnyMethod()
-                       .AllowAnyHeader()
-                       .AllowCredentials();
-            });
-    });
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=<INSERT_HOST_HERE>;Database=<INSERT_DATABASE_HERE>;Port=<INSERT_PORT_HERE>;Username=<INSERT_USERNAME_HERE>;Password=<INSERT_PASSWORD_HERE>"
+  },
+  "JWT": {
+    "Issuer": "<INSERT_ISSUER_HERE>",
+    "Audience": "<INSERT_AUDIENCE_HERE>",
+    "SigningKey": "<INSERT_SIGNING_KEY_HERE>"
+  },
+  "CORS": {
+    "AllowedOrigins": ["<INSERT_ALLOW_ORIGIN_HERE>"]
+  },
+  "Identity": {
+    "Password": {
+      "RequireDigit": false,
+      "RequiredLength": 6,
+      "RequireLowercase": false,
+      "RequireUppercase": false,
+      "RequireNonAlphanumeric": false
+    },
+    "Lockout": {
+      "AllowedForNewUsers": true,
+      "MaxFailedAccessAttempts": 5,
+      "DefaultLockoutTimeSpan": 5
+    },
+    "User": {
+      "RequireUniqueEmail": false
+    }
+  },
+  "AllowedHosts": "*"
+}
+```
 
 ## 🧪 Testing
 
-Unit tests are located in the `api.tests` project.
+Unit tests are located in the `ChatCommunicator.Tests` project.
 
 They cover key components such as:
 

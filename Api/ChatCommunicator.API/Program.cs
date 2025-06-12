@@ -23,56 +23,21 @@ namespace ChatCommunicator.Application
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Framework services
+            builder.Services.AddControllers();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
-            builder.Services.AddControllers();
-            builder.Services.AddSignalR();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSingleton<TokenCleanupService>();
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IChatService, ChatService>();
-            builder.Services.AddScoped<IFriendsService, FriendsService>();
-            builder.Services.AddScoped<IAccountManager, AccountManager>();
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
-            builder.Services.AddHostedService<TokenCleanupService>();
-            builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
-            builder.Services.AddSwaggerGen(option =>
+
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            if (connectionString == null || connectionString.Length == 0)
             {
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                option.IncludeXmlComments(xmlPath);
-                option.SwaggerDoc("v1", new OpenApiInfo { Title = "ChatCommunicator REST API docs", Version = "in dev" });
-                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "Please enter a valid token",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "Bearer"
-                });
-                option.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type=ReferenceType.SecurityScheme,
-                                Id="Bearer"
-                            }
-                        },
-                        new string[]{}
-                    }
-                });
-            });
-
+                Console.WriteLine("[Program settings] ConnectionString is not configured or empty. Please check your configuration.");
+                Environment.Exit(1);
+            }
             builder.Services.AddDbContext<ApplicationDbContext>
-                (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+                (options => options.UseNpgsql(connectionString));
+            
             builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -87,9 +52,14 @@ namespace ChatCommunicator.Application
 
                 options.User.RequireUniqueEmail = false;
             })
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
+                .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
+            var issuerSigningKey = builder.Configuration["JWT:SigningKey"];
+            if (issuerSigningKey == null || issuerSigningKey.Length == 0)
+            {
+                Console.WriteLine("[Program settings] JWT:SigningKey is not configured or empty. Please check your configuration.");
+                Environment.Exit(1);
+            }
             builder.Services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme =
                 options.DefaultChallengeScheme =
@@ -123,18 +93,71 @@ namespace ChatCommunicator.Application
                 };
             });
 
-            // Add CORS configuration
+            // Application services
+            builder.Services.AddSingleton<TokenCleanupService>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IChatService, ChatService>();
+            builder.Services.AddScoped<IFriendsService, FriendsService>();
+            builder.Services.AddScoped<IAccountManager, AccountManager>();
+            builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
+            builder.Services.AddHostedService<TokenCleanupService>();
+            builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
+
+            // Infrastructure
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Middleware
+            builder.Services.AddSignalR();
+            builder.Services.AddSwaggerGen(option =>
+            {
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                option.IncludeXmlComments(xmlPath);
+                option.SwaggerDoc("v1", new OpenApiInfo { Title = "ChatCommunicator REST API docs", Version = "in dev" });
+                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please enter a valid token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+                option.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type=ReferenceType.SecurityScheme,
+                                Id="Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
+            });
+
+            var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
+            if(allowedOrigins == null || allowedOrigins.Length == 0)
+            {
+                Console.WriteLine("[Program settings] CORS:AllowedOrigins is not configured or empty. Please check your configuration.");
+                Environment.Exit(1);
+            }
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin",
-                    builder =>
+                    policy =>
                     {
-                        builder.WithOrigins("http://localhost:3010")
-                               .AllowAnyMethod()
-                               .AllowAnyHeader()
-                               .AllowCredentials();
+                        policy.WithOrigins(allowedOrigins)
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials();
                     });
             });
+
 
             var app = builder.Build();
 
@@ -154,7 +177,6 @@ namespace ChatCommunicator.Application
                 }
             }
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -170,13 +192,9 @@ namespace ChatCommunicator.Application
 
             app.UseHttpsRedirection();
             app.UseCors("AllowSpecificOrigin");
-
             app.UseAuthorization();
-
             app.MapHub<ChatHub>("/ChatHub");
-
             app.MapControllers();
-
             app.Run();
         }
     }
