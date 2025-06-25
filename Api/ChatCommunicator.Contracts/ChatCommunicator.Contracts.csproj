@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Api.Utilities\ChatCommunicator.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Dtos\Controllers\NewFolder\" />
     <Folder Include="Friendship\" />
   </ItemGroup>

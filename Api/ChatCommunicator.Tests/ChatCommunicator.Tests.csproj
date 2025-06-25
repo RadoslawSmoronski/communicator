@@ -27,8 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Api.Models\ChatCommunicator.Contracts.csproj" />
-    <ProjectReference Include="..\Api\Api.csproj" />
     <ProjectReference Include="..\ChatCommunicator.API\ChatCommunicator.API.csproj" />
     <ProjectReference Include="..\ChatCommunicator.Contracts\ChatCommunicator.Contracts.csproj" />
     <ProjectReference Include="..\ChatCommunicator.Shared\ChatCommunicator.Shared.csproj" />
