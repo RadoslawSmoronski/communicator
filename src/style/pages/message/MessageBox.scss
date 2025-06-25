@@ -1,0 +1,49 @@
+@use './../../variables' as vars;
+
+// ------ MESSAGE BOX ---------
+
+.messageTileRight{
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.messageTileLeft{
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.messageTileWrapperRight{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.messageTileWrapperLeft{
+    display: flex;
+    flex-direction: row;
+}
+
+.messageCloud{
+    background-color: vars.$primary-color;
+    border-radius: 15px;
+    color: wheat;
+    font-size: 20px;
+    padding: 10px 30px 10px 30px;
+    margin: 10px;
+    width:fit-content;
+
+    overflow-wrap: break-word;
+    //word-break:break-all;
+}
+
+.messageCloudLeft{
+    background-color: rgba(66, 66, 66, 0.8);
+}
+
+.messageTileTime{
+    display: flex;
+    align-items: center;
+    text-align: center;
+    height: 100%; 
+}

@@ -1,0 +1,39 @@
+#mainEditProfilePage{
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: 75px 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    background-color: #1a1a1a;
+    color: #caa779;
+}
+
+.editPanelWrapper{
+    grid-row: 2;
+    grid-column: span 2;
+
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column-reverse;
+}
+
+.goBackBtn{
+    text-decoration: none;
+}
+
+.editPanel{
+    width: 70%;
+    height: 100%;
+    background-color: antiquewhite;
+    display: flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    background-color: #0e0e0e;
+
+    border-radius: 2px;
+}

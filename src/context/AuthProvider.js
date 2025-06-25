@@ -1,0 +1,91 @@
+import React, { createContext, useState, useCallback, useEffect } from 'react';
+import axios from '../api/axios';
+import APIs from '../api/ApiURL';
+
+export const AuthContext = createContext();
+
+const AuthProvider = ({ children }) => {
+    const [username, setUsername] = useState('');
+    const [userId, setUserID] = useState('');
+    const [role, setRole] = useState('');
+    const [accessToken, setAccessToken] = useState('');
+    const [loading, setLoading] = useState(true);
+
+    const setAuth = useCallback((_username, _userId, _role, _accessToken) => {
+        setUsername(_username);
+        setUserID(_userId);
+        setRole(_role);
+        setAccessToken(_accessToken);
+    }, []);
+
+    const refreshAccessToken = async () => {
+        const refreshToken = sessionStorage.getItem('refreshToken');
+        const userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
+        //fetch
+        try {
+            const data = await axios.post(APIs.REFRESH_TOKEN, {
+                refreshToken: refreshToken
+            }, // Pass as a plain object
+                {
+                    withCredentials: true, //pass a http only cookie
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            let res = data.data;
+
+            if (data.status === 200) {
+                console.log("SUKCES REFRESH TOKEN:");
+                console.log(res);
+                console.log(userInfo);
+                setAuth(userInfo.username, userInfo.userID, userInfo.role, res.accessToken);
+                sessionStorage.setItem('refreshToken', res.refreshToken);
+            }
+
+        } catch (err) {
+            console.log("Error: Can't refresh token: ", err);
+        }
+
+    }
+
+    const tokenIsExpired = (token) => {
+        if (!token) return true;
+    
+        try {
+            const decoded = JSON.parse(atob(token.split('.')[1]));
+            const expirationDate = decoded.exp * 1000; 
+            return expirationDate < Date.now();
+        } catch (error) {
+            console.error("Invalid token format", error);
+            return true;
+        }
+    };
+
+    useEffect(() => {
+        if (accessToken == "") {
+            refreshAccessToken();
+        }
+        setLoading(false);
+    }, [setAuth]);
+
+    return (
+        <AuthContext.Provider value={{
+            username,
+            userId,
+            role,
+            accessToken,
+            setAuth,
+            setAccessToken,
+            refreshAccessToken,
+            tokenIsExpired,
+            loading
+        }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export default AuthProvider;

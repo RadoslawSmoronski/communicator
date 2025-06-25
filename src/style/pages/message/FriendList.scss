@@ -1,0 +1,92 @@
+@use './../../variables' as vars;
+
+// -------- FRIEND LIST ---------
+
+.friendTile{
+    display: flex;
+    width: 300px;
+    height: 80px;
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 5px;
+    margin: 6px 5px 6px 5px;
+    text-align: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.friendTile:hover{
+    background-color: rgba(66, 66, 66, 0.8);
+}
+
+.friendTileIcon{
+    height: 50px;
+    width: 50px;
+    border-radius: 25px;
+    background-image: url("../../../../gfx/blank-profile-picture.png");
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0 10px 0 10px;
+}
+
+.friendTileWrapper{
+    position: relative;
+    //display: inline-block;
+    display: flex;
+    width: 230px;
+    flex-direction: column;
+    text-align:left;
+}
+
+.friendTileUserName{
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.btnPerson{
+    border: none ;
+    border-radius: 5px;
+    font-size: 15px;
+    padding: 4px 0 4px 0;
+    margin: 0 4px 0 4px;
+    font-weight: 500;
+    text-align: center;
+    color: vars.$btn-color;
+    background-color: vars.$btn-active-color;
+    transition: 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+
+    width: 40%;
+    cursor: pointer;
+}
+
+.btnDisabled{
+    background-color: rgba(66, 66, 66, 0.8);
+    cursor:not-allowed;
+}
+
+.btnPerson:hover{
+    filter: brightness(1.2);
+}
+
+.btnPerson:active{
+    filter: brightness(0.9);
+}
+
+.btnDisabled:hover, .btnDisabled:active{
+    filter: brightness(1);
+}
+
+
+.personBtnWrapper{
+    display: flex;
+    flex-direction: row;
+    text-align:left;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.selectedChat{
+    border: solid 2px vars.$primary-color;
+}

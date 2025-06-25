@@ -1,0 +1,131 @@
+@use './../variables' as vars;
+
+html, body, #root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    font-family: "Gill Sans", sans-serif;
+}
+
+
+#mainloginPage{
+    height: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    background-color: vars.$bk-color;
+    color: vars.$secondary-color;
+}
+
+#mainregisterPage{
+    height: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    flex-direction: column-reverse;
+    background-color: vars.$bk-color;
+    color: vars.$secondary-color;
+}
+
+.welcomeBlock{
+    margin-left: 5px;
+    width: 70%;
+    height: 100%;
+    background-color: vars.$panel-trans-color;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#logo{
+    background-image: url("../../../gfx/logo.png");
+    height: 300px;
+    width: 750px;
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.bottomText{
+    position: absolute;
+    top: 100%;
+    transform: translate(0, -300%);
+    margin: 30px;
+}
+
+.logoAndText{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 60%;
+    height: 60%;
+}
+.highlightText{
+    font-size: 25px;
+    color: vars.$primary-color;
+}
+
+@media (min-width: 200px) {
+    #mainloginPage{
+        flex-direction: column-reverse;
+    }
+    .welcomeBlock {
+        display: none;
+    }
+    #welcomeBlockSmall {
+        display: block;
+    }
+}
+
+@media (min-width: 1300px) {
+    #mainloginPage{
+        flex-direction: row;
+    }
+    .welcomeBlock{
+        margin-left: 5px;
+        width: 70%;
+        height: 100%;
+        background-color: vars.$panel-trans-color;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #welcomeBlockSmall {
+        display: none;
+    }
+}
+
+
+.loginPanel {
+    width: 500px;
+    height: 450px;
+    background-color: antiquewhite;
+    display: flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    background-color: #0e0e0e;
+
+    border-radius: 15px;
+}
+
+.panel404{
+    width: 800px;
+    height: 500px;
+    justify-content:center;
+    background-color: transparent;
+}
+
+.errorFont{
+    font-size: 150px;
+    margin: 10px;
+}
+
+.btn2.btn404{
+    margin-top: 30px;
+    text-decoration: none;
+    
+}
+

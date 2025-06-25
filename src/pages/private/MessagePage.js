@@ -1,0 +1,552 @@
+import React, { useState, useRef, useContext, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthProvider';
+import axios from '../../api/axios';
+import * as signalR from "@microsoft/signalr";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleInfo, faMagnifyingGlass, faMessage, faPaperPlane, faPhone, faBell } from "@fortawesome/free-solid-svg-icons";
+
+import FriendTile from '../../components/tiles/FriendTile';
+import MessageTile from '../../components/tiles/MessageTile';
+import PersonTile from '../../components/tiles/PersonTile';
+
+import APIs from '../../api/ApiURL';
+import SIGNALR_HUBS from '../../context/SignalRHubs';
+
+const MessagePage = () => {
+    const { userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
+    console.log("USER ID: ", userId);
+    const scrollMessageBoxRef = useRef(null);
+
+    const [searchBar, setSearchBar] = useState('');
+
+    const [user, setUser] = useState({
+        list: [],
+        findStatus: 'not typed'
+    });
+
+    const [friend, setFriend] = useState({
+        list: [],
+        list_filtered: [],
+        findStatus: 'not found',
+        activeFriend: '',
+    });
+
+    const [chat, setChat] = useState({
+        selectedId: null,
+        activeReciepientId: null,
+        messages: {},
+        pageNumbersForMessages: {}
+    });
+
+    const [messageInput, setMessageInput] = useState('');
+
+    const [display, setDisplay] = useState({
+        yourChatIsActive: true
+    });
+
+    const [blockScrollHandler, setBlockScrollHandler] = useState(false);
+    const [signalRConnection, setSignalRConnection] = useState(null);
+
+    // Message block
+    // It is resposible for correct function of scrollbar
+    const waitForDOMUpdate = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    // Search bar block
+    // Actions when you type on search bar 
+    const handleChangeTxt = async (event) => {
+        const { name, value } = event.target;
+
+        if (name === 'searchBar') {
+            setSearchBar(value)
+
+            if (!display.yourChatIsActive) {
+                // Find friends
+                setUser(prev => ({
+                    ...prev,
+                    findUsersStatus: 'searching...'
+                }));
+                searchPeople();
+            } else {
+                // Your chats
+                const filtered = returnFilteredFriends(user.listOfFriends, value);
+                setFriend(prev => ({ ...prev, listOfFriends_filtered: filtered }));
+            }
+        }
+
+        if (name === 'messageInput') {
+            setMessageInput(value);
+        }
+    }
+
+    // Friend list
+    // Returns filtered friends by searchValue from Search bar
+    const returnFilteredFriends = (friendList, searchValue) => {
+        if (friendList) {
+            return friendList.filter(user =>
+                user.friendUserName.toLowerCase().includes(searchValue.toLowerCase())
+            );
+        }
+        return [];
+    };
+
+    // Friend list
+    // Returns sorted friend list by last message send/received date
+    const returnSortedByLastMessDateFriendsList = (friendList) => {
+        const sortedList = [...friendList].sort(
+            (a, b) => new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp)
+        );
+        return sortedList;
+    };
+
+    // Search bar
+    // Handles switching search bar action
+    const handleSwitchBtn = async (event) => {
+        const { name } = event.target;
+        const flag = name === "yourChatsBtn";
+
+        if (display.yourChatIsActive !== flag) {
+            // clearing the states
+            setDisplay(prev => ({
+                ...prev,
+                yourChatIsActive: flag,
+            }));
+
+            setUser(prev => ({
+                ...prev,
+                findStatus: 'not typed',
+            }));
+
+            setFriend(prev => ({
+                ...prev,
+                list_filtered: friend.list,
+                findStatus: friend.findStatus,
+            }));
+
+            setSearchBar('');
+        }
+    };
+
+    // People list
+    // Searches people to invite
+    const searchPeople = async () => {
+        if (searchBar === '') return;
+
+        try {
+            const data = await axios.get(`${APIs.FIND_PEOPLE_TO_INVITE}/${searchBar}`, {
+                withCredentials: true,
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+
+            if (data.status === 200) {
+                setUser(prev => ({
+                    ...prev,
+                    findStatus: 'found',
+                    list: data.data.resultData,
+                }));
+            }
+        } catch (err) {
+            if (err.response?.status === 401) {
+                await refreshAccessToken();
+                await searchPeople();
+            } else if (err.response?.status === 400) {
+                setUser(prev => ({ ...prev, findStatus: 'not typed' }));
+            } else if (err.response?.status === 404) {
+                setUser(prev => ({ ...prev, findStatus: 'not found' }));
+            } else {
+                console.error(err);
+            }
+        }
+    };
+
+    // Friend list
+    // Fetches the user friend list
+    const getFriends = async () => {
+        try {
+            const data = await axios.get(APIs.GET_CHATS, {
+                withCredentials: true,
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+
+            if (data.status === 200) {
+                const result = data.data.resultData;
+
+                // add new value (newMessNotify - notification) to listOfFriends
+                const friendsWithNotify = result.map(friend => ({
+                    ...friend,
+                    newMessNotify: false,
+                }));
+
+                const sortedFriendList = returnSortedByLastMessDateFriendsList(friendsWithNotify);
+
+                setFriend(prev => ({
+                    ...prev,
+                    list: sortedFriendList,
+                    list_filtered: sortedFriendList,
+                }));
+
+                // add empty chats add pages to allMessages, pageNumbersForMessages
+                setChat(prev => {
+                    const messages = { ...prev.messages };
+                    const pageNumbers = { ...prev.pageNumbersForMessages };
+
+                    sortedFriendList.forEach(friend => {
+                        if (!(friend.conversationId in messages)) {
+                            messages[friend.conversationId] = [];
+                        }
+                        if (!(friend.conversationId in pageNumbers)) {
+                            pageNumbers[friend.conversationId] = 1;
+                        }
+                    });
+
+                    return {
+                        ...prev,
+                        messages,
+                        pageNumbersForMessages: pageNumbers,
+                    };
+                });
+            }
+        } catch (err) {
+            if (err.response?.status === 401) {
+                await refreshAccessToken();
+                await getFriends();
+            } else if (err.response?.status === 400) {
+                setFriend(prev => ({
+                    ...prev,
+                    findStatus: 'bad ID',
+                }));
+            } else if (err.response?.status === 404) {
+                setFriend(prev => ({
+                    ...prev,
+                    findStatus: 'not found',
+                }));
+            } else {
+                console.error(err);
+            }
+        }
+    };
+
+    // Send message box
+    // It sends message to friend if the chat is selected
+    const sendMessageToFriend = async () => {
+        if (scrollMessageBoxRef.current) {
+            scrollMessageBoxRef.current.scrollTop = 0;
+        }
+
+        if (
+            signalRConnection &&
+            signalRConnection.state === signalR.HubConnectionState.Connected &&
+            messageInput.trim() !== ""
+        ) {
+            try {
+                await signalRConnection.invoke(
+                    SIGNALR_HUBS.SEND_MESSAGE,
+                    chat.activeReciepientId,
+                    chat.selectedId,
+                    messageInput
+                );
+                setMessageInput("");
+            } catch (err) {
+                console.error("Error sending message: ", err);
+            }
+        } else {
+            console.error("Connection not established or message is empty.");
+        }
+    };
+
+    // Friend list
+    // Handles selecting chat
+    // newMessNotify - is for turning off new message notification from friend
+    const selectChat = async (conversationId, friendId, friendName) => {
+        setDisplay(prev => ({ ...prev, blockScrollHandler: true }));
+
+        scrollMessageBoxRef.current.scrollTop = 0;
+
+        const updatedFriends = friend.list.map(friend =>
+            friend.conversationId === conversationId
+                ? { ...friend, newMessNotify: false } // modify the friend
+                : friend
+        );
+
+        setFriend(prev => ({
+            ...prev,
+            activeFriend: friendName,
+            list: updatedFriends,
+            list_filtered: returnFilteredFriends(updatedFriends),
+        }));
+
+        setChat(prev => ({
+            ...prev,
+            selectedId: conversationId,
+            activeReciepientId: friendId,
+        }));
+
+        if (chat.pageNumbersForMessages[conversationId] === 1) {
+            await waitForDOMUpdate();
+
+            const box = scrollMessageBoxRef.current;
+            const isScrollBarNotVisible = box.clientHeight === box.scrollHeight;
+
+        }
+
+        setDisplay(prev => ({ ...prev, blockScrollHandler: false }));
+    };
+
+    // Message box
+    // It makes sure that new messages (fetch via pages)
+    // are fetched only once if scroll is at top
+    const handleScrollMessageBox = async () => {
+        if (display.blockScrollHandler) return;
+
+        const box = scrollMessageBoxRef.current;
+        const isAtTop = box.clientHeight - box.scrollTop >= box.scrollHeight;
+
+        if (isAtTop) {
+            console.log("Scrolled to top");
+            await waitForDOMUpdate();
+        }
+    };
+
+    // Message box
+    // It fetches messages by current page
+    const getMessagesForFriend = async (conversationId) => {
+        const pageNumber = chat.pageNumbersForMessages[conversationId];
+        try {
+            const data = await axios.get(
+                `${APIs.GET_MESSAGES}/?ConversationId=${conversationId}&PageNumber=${pageNumber}`,
+                {
+                    withCredentials: true,
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                }
+            );
+
+            if (data.status === 200) {
+                const messages = data.data.resultData;
+
+                // add new messeges for [conversationId]
+                // and update pageNumber
+                setChat(prev => ({
+                    ...prev,
+                    messages: {
+                        ...prev.messages,
+                        [conversationId]: [...(prev.messages[conversationId] || []), ...messages],
+                    },
+                    pageNumbersForMessages: {
+                        ...prev.pageNumbersForMessages,
+                        [conversationId]: pageNumber + 1,
+                    },
+                }));
+            }
+        } catch (err) {
+            if (err.response?.status === 401) {
+                await refreshAccessToken();
+                await getMessagesForFriend(conversationId);
+            } else if (err.response?.status === 404) {
+                console.log(`No messages for ${conversationId}`);
+                setChat(prev => ({
+                    ...prev,
+                    messages: {
+                        ...prev.messages,
+                        [conversationId]: [],
+                    },
+                }));
+            } else {
+                console.error(err);
+            }
+        }
+    };
+
+    // Message box and friend list
+    // It handles new message, creates notification, add to the list
+    const handleNewMessageFromFriend = async (messageDto) => {
+
+        const updatedList = friend.list.map(f => {
+            if (f.conversationId === messageDto.conversationId) {
+                senderId = f.friendId;
+                return {
+                    ...f, // modify the friend
+                    isFriendSenderMessage: true,
+                    lastMessageContent: messageDto.content,
+                    lastMessageTimestamp: messageDto.timestamp,
+                    newMessNotify: messageDto.conversationId !== chat.selectedId,
+                };
+            }
+            return f;
+        });
+
+        // add message to allMessages list
+        // add last message to FriendTile
+
+        const sortedFriends = returnSortedByLastMessDateFriendsList(updatedList);
+
+        setFriend(prev => ({
+            ...prev,
+            list: sortedFriends,
+            list_filtered: returnSortedByLastMessDateFriendsList(returnFilteredFriends(sortedFriends)),
+        }));
+
+        setChat(prev => ({
+            ...prev,
+            messages: {
+                ...prev.messages,
+                [messageDto.conversationId]: [
+                    messageDto,
+                    ...(prev.messages[messageDto.conversationId] || []),
+                ],
+            },
+        }));
+    };
+
+    // SignalR connection
+    useEffect(() => {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl(`http://localhost:5205${SIGNALR_HUBS.CHATHUB}`, {
+                accessTokenFactory: () => accessToken
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        connection.start()
+            .then(() => console.log("Connected to SignalR"))
+            .catch(err => console.error("Connection failed: ", err));
+
+        connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE, handleNewMessageFromFriend);
+        setSignalRConnection(connection);
+
+        return () => {
+            connection.stop();
+        };
+    }, []);
+
+
+
+    return (
+        <>
+            {/* SEARCH BAR */}
+            <div id='searchBar'>
+                <div className="inputWrapper">
+                    <FontAwesomeIcon icon={faMagnifyingGlass} className='inputIcon' />
+                    <input
+                        className='textInput2'
+                        placeholder=' Search for people'
+                        value={searchBar}
+                        onChange={handleChangeTxt}
+                        name='searchBar'
+                        type="text"
+                        autoComplete='off'
+                    />
+                </div>
+                <div id='buttonsSearchBar'>
+                    <button
+                        name='yourChatsBtn'
+                        className={display.yourChatIsActive ? 'btn2 btn2Active' : 'btn2'}
+                        onClick={handleSwitchBtn}
+                    >
+                        Your chats
+                    </button>
+                    <button
+                        name='findFriendsBtn'
+                        className={!display.yourChatIsActive ? 'btn2 btn2Active' : 'btn2'}
+                        onClick={handleSwitchBtn}
+                    >
+                        Find friends
+                    </button>
+                </div>
+            </div>
+
+            {/* FRIEND OR PEOPLE LIST */}
+            <div id='friendsList'>
+                {display.yourChatIsActive ? (
+                    friend.list.length > 0 ? (
+                        friend.list_filtered.length > 0 ? (
+                            friend.list_filtered.map(f => (
+                                <FriendTile
+                                    key={f.friendId}
+                                    username={f.friendUserName}
+                                    onClick={() => selectChat(f.conversationId, f.friendId, f.friendUserName)}
+                                    author={f.isFriendSenderMessage ? '' : 'You: '}
+                                    mess={f.lastMessageContent}
+                                    messTimestamp={f.lastMessageTimestamp}
+                                    selected={chat.selectedId === f.conversationId}
+                                    newMessageNotify={f.newMessNotify}
+                                />
+                            ))
+                        ) : (
+                            <div className='infoText'>There are no friends named {searchBar} ...</div>
+                        )
+                    ) : (
+                        <div className='infoText'>You have zero friends</div>
+                    )
+                ) : (
+                    user.findStatus === 'not typed' ? (
+                        <div className='infoText'>Please type 3 or more characters</div>
+                    ) : user.findStatus === 'not found' ? (
+                        <div className='infoText'>There are no users named {searchBar} ...</div>
+                    ) : (
+                        user.list.map(u => (
+                            <PersonTile
+                                key={u.id}
+                                username={u.userName}
+                                userId={u.id}
+                                isInvited={u.isInvited}
+                            />
+                        ))
+                    )
+                )}
+            </div>
+
+            {/* FRIEND BAR */}
+            <div id='friendBar'>
+                <div className='friendBarIconBox'>
+                    <div className='profileIcon' />
+                </div>
+                <div className='friendBarUserName'>{friend.activeFriend}</div>
+                <div className='friendBarRightBox'>
+                    <FontAwesomeIcon icon={faPhone} className='friendBarIcon' />
+                    <FontAwesomeIcon icon={faCircleInfo} className='friendBarIcon' />
+                </div>
+            </div>
+
+            {/* MESSAGE BOX */}
+            <div
+                id='messageBox'
+                ref={scrollMessageBoxRef}
+                onScroll={handleScrollMessageBox}
+            >
+                {Array.isArray(chat.messages[chat.selectedId]) &&
+                    chat.messages[chat.selectedId].map((message, index) => (
+                        <MessageTile
+                            key={index}
+                            mess={message.content}
+                            yours={message.senderId === userId}
+                            time={message.timestamp}
+                        />
+                    ))
+                }
+            </div>
+
+            {/* SEND MESSAGE BOX */}
+            <div id='sendMessageBox'>
+                <input
+                    className='textInput2 sendMessageInput'
+                    placeholder={chat.selectedId === null ? 'Select chat...' : 'Type a message...'}
+                    value={messageInput}
+                    onChange={handleChangeTxt}
+                    name='messageInput'
+                    type='text'
+                    autoComplete='off'
+                    disabled={chat.selectedId === null}
+                />
+                <FontAwesomeIcon
+                    icon={faPaperPlane}
+                    className={`friendBarIcon ${chat.selectedId === null ? 'disabledSendButton' : ''}`}
+                    onClick={chat.selectedId === null ? null : sendMessageToFriend}
+                />
+            </div>
+        </>
+    );
+
+}
+
+export default MessagePage

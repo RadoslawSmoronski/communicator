@@ -1,0 +1,107 @@
+@use './../../variables' as vars;
+
+@use './FriendBar.scss';
+@use './FriendList.scss';
+@use './InvitationBox.scss';
+@use './MessageBox.scss';
+@use './SearchBox.scss';
+@use './SendMessageBox.scss';
+
+#mainMessagePage{
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 320px repeat(5, 1fr);
+    grid-template-rows: repeat(3, 75px) repeat(5, 1fr) 0.5fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    background-color: vars.$bk-msg-page-color;
+    color: vars.$secondary-color;
+}
+
+
+#menuBar{
+    grid-area: 1 / 1 / 2 / 7;
+    display: flex;
+    justify-content: space-between;
+    background-color: vars.$bk-color;
+    border-bottom: solid 1px vars.$secondary-color;
+    color: azure;
+
+    z-index: 10;
+}
+
+#searchBar{
+    grid-area: 2 / 1 / 4 / 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+}
+
+#friendsList{
+    grid-area: 4 / 1 / 10 / 2;
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+}
+
+#friendBar{
+    grid-area: 2 / 2 / 3 / 7;
+    border-bottom: solid 1px vars.$secondary-color;
+    display: flex;
+    flex-direction: row;
+}
+
+#messageBox{
+    grid-area: 3 / 2 / 9 / 7;
+    padding: 0 30px 0 30px;
+    display: flex;
+    flex-direction: column-reverse;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#messageBox::-webkit-scrollbar,
+#friendsList::-webkit-scrollbar,
+#invitationsList::-webkit-scrollbar {
+    width: 10px; /* Szerokość paska przewijania */
+}
+
+#messageBox::-webkit-scrollbar-thumb,
+#friendsList::-webkit-scrollbar-thumb,
+#invitationsList::-webkit-scrollbar-thumb {
+    background: #999; /* Kolor uchwytu */
+    border-radius: 10px; /* Zaokrąglenie uchwytu */
+}
+
+
+#messageBox::-webkit-scrollbar-track,
+#friendsList::-webkit-scrollbar-track,
+#invitationsList::-webkit-scrollbar-track {
+    background: #333; /* Kolor tła paska przewijania */
+    border-radius: 10px; /* Zaokrąglenie tła (efekt może być ograniczony) */
+}
+
+/* Możliwe dodatkowe style */
+#messageBox::-webkit-scrollbar-thumb:hover,
+#friendsList::-webkit-scrollbar-thumb:hover,
+#invitationsList::-webkit-scrollbar-thumb:hover {
+    background: #666666; /* Kolor uchwytu podczas najechania */
+}
+
+
+#sendMessageBox{
+    grid-area: 9 / 2 / 10 / 7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: solid 1px vars.$secondary-color;
+}

@@ -1,0 +1,59 @@
+@use './../variables' as vars;
+
+@use './FormsButtons.scss';
+@use './MenuBar.scss';
+
+.popUp{
+    position: absolute;
+    //top:50%;
+    //left: 50%;
+    transform: translate(100%, -100%);
+    border-radius: 9px;
+    border-color: vars.$btn-color;
+    border-width: 2px;
+    border-style: solid;
+    font-size: 14px;
+    height: 80px;
+    width: 250px;
+    margin: 10px;
+    color: vars.$btn-color;
+    background-color: vars.$link-hover-color;
+}
+
+
+.closeBtn::after {
+    height: 20px;
+    width: 20px;
+    font-size: 25px;
+    display: inline-block;
+    content: "\00d7";
+}
+
+.closeBtn:hover{
+    color: vars.$bk-color;
+}
+
+.closeBtnBox{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+
+.validationBox{
+    width: 325px;
+    text-align: center;
+    color: vars.$btn-color;
+    background-color: vars.$link-hover-color;
+    margin: 10px;
+    border-radius: 9px;
+    font-size: 14px;
+    padding: 4px;
+}
+
+.correctValidation{
+    color: green;
+}
+
+.wrongValidation{
+    color: red;
+}
