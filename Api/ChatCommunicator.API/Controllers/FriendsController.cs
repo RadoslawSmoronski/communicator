@@ -243,7 +243,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
-                Ok(result.Value);
+                return Ok(result.Value);
             }
 
             if (result.Error != null)
