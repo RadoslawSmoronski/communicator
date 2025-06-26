@@ -13,6 +13,7 @@ const APIs = {
     ACCEPT_INVITE: "/api/friends/accept-invite",
 
     GET_CHATS: "/api/chat/get-chats",
+    GET_FRIENDS: "/api/friends/get-friends",
     GET_MESSAGES: "/api/chat/get-paged-messages"
 }
 

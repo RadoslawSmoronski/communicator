@@ -7,6 +7,7 @@ import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 import axios from "../api/axios";
 import APIs from "../api/ApiURL";
+import eventBus from "../utils/eventBus";
 
 import InvitationTile from './tiles/InvitationTile';
 import UserInfoPanel from './UserInfoPanel';
@@ -57,7 +58,7 @@ const Layout = () => {
             if (data.status === 200) {
                 setFriend(prev => ({
                     ...prev,
-                    invitations: data.data.resultData,
+                    invitations: data.data,
                 }));
             }
         } catch (err) {
@@ -103,7 +104,8 @@ const Layout = () => {
                     invitations: prev.invitations.filter(inv => inv.id !== recipientID),
                 }));
 
-                await getFriends();
+                // emit the 'refreshFriends'
+                eventBus.emit('refreshFriends');
             }
         } catch (err) {
             if (err.response?.status === 401) {
@@ -128,10 +130,10 @@ const Layout = () => {
     useEffect(() => {
         if (!accessToken) {
             refreshAccessToken();
-        }
-
-        if (currentPath == "/message") {
-            getInvitations();
+        } else {
+            if (currentPath == "/message") {
+                getInvitations();
+            }
         }
 
     }, [accessToken, username, currentPath]);
@@ -183,7 +185,7 @@ const Layout = () => {
                 </div>
             </div>
 
-            <Outlet />
+            <Outlet/>
         </div>
     );
 };

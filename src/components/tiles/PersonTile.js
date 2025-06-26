@@ -4,19 +4,19 @@ import { AuthContext } from '../../context/AuthProvider';
 import axios from '../../api/axios';
 import APIs from '../../api/ApiURL';
 
-const PersonTile = ({ userId, username, isInvited }) => {
-    const { userID, accessToken, refreshAccessToken } = useContext(AuthContext);
+const PersonTile = ({ recipientId, username, isInvited }) => {
+    const { userId, accessToken, refreshAccessToken } = useContext(AuthContext);
     const [sendBtnIsActive, setSendBtnIsActive] = useState(!isInvited);
 
     const sendInvitation = async () => {
-        console.log("My id: " + userID + " yours id: " + userId);
+        console.log("My id: " + userId + " yours id: " + recipientId);
 
         try {
             const data = await axios.post(
                 APIs.SEND_INVITE,
                 JSON.stringify({
-                    senderId: userID,
-                    recipientId: userId
+                    senderId: userId,
+                    recipientId: recipientId
                 }),
                 {
                     withCredentials: true,

@@ -15,7 +15,7 @@ const InvitationTile = ({ id, username, invitationAction }) => {
             <div className='friendTileIcon' />
             <div className='friendTileWrapper invitationWrapper'>
                 <div className='friendTileUserName invitationTileText'>
-                    <span style={{ color: '#bf7210' }}>{username}</span> sent you an invitation
+                    <span className='highlightColor'>{username}</span> sent you an invitation
                 </div>
                 <div className='personBtnWrapper'>
                     <div className='btnPerson btnInvitation' onClick={acceptInvitation}>Accept</div>

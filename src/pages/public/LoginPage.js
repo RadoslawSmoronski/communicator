@@ -114,7 +114,7 @@ const LoginPage = () => {
                 <button className="btn" onClick={submitLogin}>Login</button><br /><br />
                 <div>Don't have an account? Sign up below</div>
                 <Link to="/register">Create an account</Link>
-                <Link to="/comment">Comment Page</Link>
+                <Link to="/message">Message Page</Link>
             </form>
 
             <div className="welcomeBlock">

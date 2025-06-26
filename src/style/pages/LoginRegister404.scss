@@ -61,6 +61,10 @@ html, body, #root {
     width: 60%;
     height: 60%;
 }
+.highlightColor{
+    color: vars.$primary-color;
+}
+
 .highlightText{
     font-size: 25px;
     color: vars.$primary-color;

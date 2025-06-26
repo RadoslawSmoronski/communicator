@@ -13,11 +13,12 @@ import PersonTile from '../../components/tiles/PersonTile';
 
 import APIs from '../../api/ApiURL';
 import SIGNALR_HUBS from '../../context/SignalRHubs';
+import eventBus from '../../utils/eventBus';
 
 const MessagePage = () => {
     const { userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
-    console.log("USER ID: ", userId);
     const scrollMessageBoxRef = useRef(null);
+    const abortControllerRef = useRef(null);
 
     const [searchBar, setSearchBar] = useState('');
 
@@ -67,7 +68,7 @@ const MessagePage = () => {
                     ...prev,
                     findUsersStatus: 'searching...'
                 }));
-                searchPeople();
+                searchPeople(value);
             } else {
                 // Your chats
                 const filtered = returnFilteredFriends(user.listOfFriends, value);
@@ -130,26 +131,55 @@ const MessagePage = () => {
 
     // People list
     // Searches people to invite
-    const searchPeople = async () => {
-        if (searchBar === '') return;
+    const searchPeople = async (searchText) => {
+        // AbortController for canceling old requests
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        const abortCtr = new AbortController();
+        abortControllerRef.current = abortCtr;
+
+        if (searchText.trim() === '') {
+            setUser(prev => ({
+                ...prev,
+                findStatus: 'not typed',
+                list: [],
+            }));
+            return;
+        }
+
 
         try {
-            const data = await axios.get(`${APIs.FIND_PEOPLE_TO_INVITE}/${searchBar}`, {
+            const data = await axios.get(`${APIs.FIND_PEOPLE_TO_INVITE}/${searchText}`, {
                 withCredentials: true,
-                headers: { Authorization: `Bearer ${accessToken}` },
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                },
+                signal: abortCtr.signal
             });
 
             if (data.status === 200) {
-                setUser(prev => ({
-                    ...prev,
-                    findStatus: 'found',
-                    list: data.data.resultData,
-                }));
+                if (data.data?.length) {
+                    setUser(prev => ({
+                        ...prev,
+                        findStatus: 'found',
+                        list: data.data,
+                    }));
+                } else {
+                    setUser(prev => ({ ...prev, list: [], findStatus: 'not found' }));
+                }
+
+
             }
         } catch (err) {
+            if (err.name === 'CanceledError') { // cancel the request
+                return;
+            }
+
             if (err.response?.status === 401) {
                 await refreshAccessToken();
-                await searchPeople();
+                await searchPeople(searchText);
             } else if (err.response?.status === 400) {
                 setUser(prev => ({ ...prev, findStatus: 'not typed' }));
             } else if (err.response?.status === 404) {
@@ -164,13 +194,13 @@ const MessagePage = () => {
     // Fetches the user friend list
     const getFriends = async () => {
         try {
-            const data = await axios.get(APIs.GET_CHATS, {
+            const data = await axios.get(`${APIs.GET_FRIENDS}/${userId}`, {
                 withCredentials: true,
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
 
             if (data.status === 200) {
-                const result = data.data.resultData;
+                const result = data.data;
 
                 // add new value (newMessNotify - notification) to listOfFriends
                 const friendsWithNotify = result.map(friend => ({
@@ -400,6 +430,13 @@ const MessagePage = () => {
 
     // SignalR connection
     useEffect(() => {
+        if (accessToken != '') {
+            getFriends();
+
+            // listen for 'refreshFriends'
+            eventBus.on('refreshFriends', getFriends);
+        }
+
         const connection = new signalR.HubConnectionBuilder()
             .withUrl(`http://localhost:5205${SIGNALR_HUBS.CHATHUB}`, {
                 accessTokenFactory: () => accessToken
@@ -416,6 +453,7 @@ const MessagePage = () => {
 
         return () => {
             connection.stop();
+            eventBus.off('refreshFriends', getFriends);
         };
     }, []);
 
@@ -480,7 +518,7 @@ const MessagePage = () => {
                     )
                 ) : (
                     user.findStatus === 'not typed' ? (
-                        <div className='infoText'>Please type 3 or more characters</div>
+                        <div className='infoText'>Please type any character</div>
                     ) : user.findStatus === 'not found' ? (
                         <div className='infoText'>There are no users named {searchBar} ...</div>
                     ) : (
@@ -488,7 +526,7 @@ const MessagePage = () => {
                             <PersonTile
                                 key={u.id}
                                 username={u.userName}
-                                userId={u.id}
+                                recipientId={u.id}
                                 isInvited={u.isInvited}
                             />
                         ))
@@ -547,6 +585,6 @@ const MessagePage = () => {
         </>
     );
 
-}
+};
 
-export default MessagePage
+export default MessagePage;
