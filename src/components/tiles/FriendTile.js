@@ -30,8 +30,6 @@ const FriendTile = ({ messTimestamp, mess, username, author, selected, onClick, 
         truncatedMess = truncatedMess.slice(0, 17) + '...';
     }
 
-    console.log(`Nowa wiad dla ${username}: ${newMessageNotify}`);
-
     return (
         <div className={selected ? 'friendTile selectedChat' : 'friendTile'} onClick={onClick}>
             <div className="friendTileIcon" />

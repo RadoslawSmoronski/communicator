@@ -35,11 +35,16 @@ const MessagePage = () => {
     });
 
     const [chat, setChat] = useState({
-        selectedId: null,
-        activeReciepientId: null,
+        selectedId: '',
+        activeReciepientId: '',
         messages: {},
         pageNumbersForMessages: {}
     });
+    // chatRef - solve the problem of old data "chat"
+    const chatRef = useRef(chat);
+    useEffect(() => {
+        chatRef.current = chat;
+    }, [chat]);
 
     const [messageInput, setMessageInput] = useState('');
 
@@ -71,8 +76,8 @@ const MessagePage = () => {
                 searchPeople(value);
             } else {
                 // Your chats
-                const filtered = returnFilteredFriends(user.listOfFriends, value);
-                setFriend(prev => ({ ...prev, listOfFriends_filtered: filtered }));
+                const filtered = returnFilteredFriends(friend.list, value);
+                setFriend(prev => ({ ...prev, list_filtered: filtered }));
             }
         }
 
@@ -121,8 +126,7 @@ const MessagePage = () => {
 
             setFriend(prev => ({
                 ...prev,
-                list_filtered: friend.list,
-                findStatus: friend.findStatus,
+                list_filtered: friend.list
             }));
 
             setSearchBar('');
@@ -303,7 +307,7 @@ const MessagePage = () => {
             ...prev,
             activeFriend: friendName,
             list: updatedFriends,
-            list_filtered: returnFilteredFriends(updatedFriends),
+            list_filtered: returnFilteredFriends(updatedFriends, searchBar),
         }));
 
         setChat(prev => ({
@@ -312,12 +316,14 @@ const MessagePage = () => {
             activeReciepientId: friendId,
         }));
 
+        // fetch new messages if there are no fetched messages
         if (chat.pageNumbersForMessages[conversationId] === 1) {
             await waitForDOMUpdate();
 
             const box = scrollMessageBoxRef.current;
             const isScrollBarNotVisible = box.clientHeight === box.scrollHeight;
 
+            await getMessagesForFriend(conversationId);
         }
 
         setDisplay(prev => ({ ...prev, blockScrollHandler: false }));
@@ -352,7 +358,10 @@ const MessagePage = () => {
             );
 
             if (data.status === 200) {
-                const messages = data.data.resultData;
+                const messages = data.data;
+
+                console.log("getMessagesForFriend");
+                console.log(messages);
 
                 // add new messeges for [conversationId]
                 // and update pageNumber
@@ -390,31 +399,32 @@ const MessagePage = () => {
     // Message box and friend list
     // It handles new message, creates notification, add to the list
     const handleNewMessageFromFriend = async (messageDto) => {
-
-        const updatedList = friend.list.map(f => {
-            if (f.conversationId === messageDto.conversationId) {
-                senderId = f.friendId;
-                return {
-                    ...f, // modify the friend
-                    isFriendSenderMessage: true,
-                    lastMessageContent: messageDto.content,
-                    lastMessageTimestamp: messageDto.timestamp,
-                    newMessNotify: messageDto.conversationId !== chat.selectedId,
-                };
-            }
-            return f;
-        });
-
-        // add message to allMessages list
         // add last message to FriendTile
 
-        const sortedFriends = returnSortedByLastMessDateFriendsList(updatedList);
+        setFriend(prev => {
+            const newList = prev.list.map(f => {
+                if (f.conversationId === messageDto.conversationId) {
+                    return {
+                        ...f,
+                        isFriendSenderMessage: true,
+                        lastMessageContent: messageDto.content,
+                        lastMessageTimestamp: messageDto.timestamp,
+                        newMessNotify: messageDto.conversationId != chatRef.current.selectedId,
+                    };
+                }
+                return f;
+            });
 
-        setFriend(prev => ({
-            ...prev,
-            list: sortedFriends,
-            list_filtered: returnSortedByLastMessDateFriendsList(returnFilteredFriends(sortedFriends)),
-        }));
+            const sorted = returnSortedByLastMessDateFriendsList(newList);
+
+            return {
+                ...prev,
+                list: sorted,
+                list_filtered: returnSortedByLastMessDateFriendsList(returnFilteredFriends(sorted, searchBar)),
+            };
+        });
+
+        // add message to messages list
 
         setChat(prev => ({
             ...prev,
@@ -448,7 +458,9 @@ const MessagePage = () => {
             .then(() => console.log("Connected to SignalR"))
             .catch(err => console.error("Connection failed: ", err));
 
-        connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE, handleNewMessageFromFriend);
+        connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE,
+            (messageDto) => handleNewMessageFromFriend(messageDto)
+        );
         setSignalRConnection(connection);
 
         return () => {
