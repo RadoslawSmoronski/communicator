@@ -35,9 +35,13 @@ const FriendTile = ({ messTimestamp, mess, username, author, selected, onClick, 
             <div className="friendTileIcon" />
             <div className="friendTileWrapper">
                 <div className="friendTileUserName">{username}</div>
-                <div className="friendTileMess">
-                    {author} {truncatedMess} {dateOrTimeToDisplay}
-                </div>
+                {
+                    truncatedMess != null &&
+                    <div className="friendTileMess">
+                        {author} {truncatedMess} {dateOrTimeToDisplay}
+                    </div>
+                }
+
                 {newMessageNotify && <div className="newMessageNotification" />}
             </div>
         </div>

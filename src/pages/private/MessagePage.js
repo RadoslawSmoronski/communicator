@@ -38,13 +38,11 @@ const MessagePage = () => {
         selectedId: '',
         activeReciepientId: '',
         messages: {},
-        pageNumbersForMessages: {}
+        noNewMessagesFlag: {}
     });
     // chatRef - solve the problem of old data "chat"
     const chatRef = useRef(chat);
-    useEffect(() => {
-        chatRef.current = chat;
-    }, [chat]);
+
 
     const [messageInput, setMessageInput] = useState('');
 
@@ -52,12 +50,15 @@ const MessagePage = () => {
         yourChatIsActive: true
     });
 
-    const [blockScrollHandler, setBlockScrollHandler] = useState(false);
+    useEffect(() => {
+        chatRef.current = chat;
+    }, [chat]);
+
     const [signalRConnection, setSignalRConnection] = useState(null);
 
     // Message block
     // It is resposible for correct function of scrollbar
-    const waitForDOMUpdate = () => new Promise(resolve => setTimeout(resolve, 0));
+    const waitForDOMUpdate = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
     // Search bar block
     // Actions when you type on search bar 
@@ -220,24 +221,34 @@ const MessagePage = () => {
                     list_filtered: sortedFriendList,
                 }));
 
-                // add empty chats add pages to allMessages, pageNumbersForMessages
+                // add chats to allMessages, pageNumbersForMessages
                 setChat(prev => {
                     const messages = { ...prev.messages };
-                    const pageNumbers = { ...prev.pageNumbersForMessages };
 
                     sortedFriendList.forEach(friend => {
                         if (!(friend.conversationId in messages)) {
-                            messages[friend.conversationId] = [];
-                        }
-                        if (!(friend.conversationId in pageNumbers)) {
-                            pageNumbers[friend.conversationId] = 1;
+                            // last message as a last message in list
+                            let senderId = friend.isFriendSenderMessage ? friend.friendId : userId;
+                            if (friend.lastMessageId != null) {
+                                messages[friend.conversationId] = [{
+                                    messageId: friend.lastMessageId,
+                                    conversationId: friend.conversationId,
+                                    senderId: senderId,
+                                    content: friend.lastMessageContent,
+                                    timestamp: friend.lastMessageTimestamp,
+                                    isRead: false
+                                }];
+                            } else {
+                                messages[friend.conversationId] = [];
+                            }
+
+
                         }
                     });
 
                     return {
                         ...prev,
-                        messages,
-                        pageNumbersForMessages: pageNumbers,
+                        messages
                     };
                 });
             }
@@ -317,13 +328,21 @@ const MessagePage = () => {
         }));
 
         // fetch new messages if there are no fetched messages
-        if (chat.pageNumbersForMessages[conversationId] === 1) {
+        if (chat.messages[conversationId].length === 1) {
             await waitForDOMUpdate();
 
             const box = scrollMessageBoxRef.current;
-            const isScrollBarNotVisible = box.clientHeight === box.scrollHeight;
+            let isScrollable = box.clientHeight < box.scrollHeight;
 
-            await getMessagesForFriend(conversationId);
+            while (!isScrollable && !chatRef.current.noNewMessagesFlag[conversationId]) {
+                await getMessagesForFriend(conversationId);
+                await waitForDOMUpdate();
+
+                isScrollable = box.clientHeight < box.scrollHeight;
+            }
+
+            console.log(!isScrollable, !chatRef.current.noNewMessagesFlag[conversationId])
+
         }
 
         setDisplay(prev => ({ ...prev, blockScrollHandler: false }));
@@ -338,8 +357,9 @@ const MessagePage = () => {
         const box = scrollMessageBoxRef.current;
         const isAtTop = box.clientHeight - box.scrollTop >= box.scrollHeight;
 
-        if (isAtTop) {
-            console.log("Scrolled to top");
+        if (isAtTop && !chatRef?.current.noNewMessagesFlag[chatRef?.current.selectedId]) {
+            await getMessagesForFriend(chat.selectedId);
+
             await waitForDOMUpdate();
         }
     };
@@ -347,10 +367,15 @@ const MessagePage = () => {
     // Message box
     // It fetches messages by current page
     const getMessagesForFriend = async (conversationId) => {
-        const pageNumber = chat.pageNumbersForMessages[conversationId];
+        let chatLenght = chatRef.current.messages[conversationId].length;
+        let lastMessageId = null;
+        if (chatLenght > 0) {
+            lastMessageId = chatRef.current.messages[conversationId][chatLenght - 1].messageId;
+        }
+
         try {
             const data = await axios.get(
-                `${APIs.GET_MESSAGES}/?ConversationId=${conversationId}&PageNumber=${pageNumber}`,
+                `${APIs.GET_MESSAGES}/?ConversationId=${conversationId}&fromMessageId=${lastMessageId}`,
                 {
                     withCredentials: true,
                     headers: { Authorization: `Bearer ${accessToken}` },
@@ -358,23 +383,22 @@ const MessagePage = () => {
             );
 
             if (data.status === 200) {
-                const messages = data.data;
+                const newMessages = data.data;
 
-                console.log("getMessagesForFriend");
-                console.log(messages);
+                let newMessagesFlag = newMessages.length === 0;
 
                 // add new messeges for [conversationId]
-                // and update pageNumber
+                // noNewMessagesFlag for stopping fetching new messages
                 setChat(prev => ({
                     ...prev,
                     messages: {
                         ...prev.messages,
-                        [conversationId]: [...(prev.messages[conversationId] || []), ...messages],
+                        [conversationId]: [...(prev.messages[conversationId] || []), ...newMessages],
                     },
-                    pageNumbersForMessages: {
-                        ...prev.pageNumbersForMessages,
-                        [conversationId]: pageNumber + 1,
-                    },
+                    noNewMessagesFlag: {
+                        ...prev.noNewMessagesFlag,
+                        [conversationId]: newMessagesFlag
+                    }
                 }));
             }
         } catch (err) {
@@ -382,14 +406,13 @@ const MessagePage = () => {
                 await refreshAccessToken();
                 await getMessagesForFriend(conversationId);
             } else if (err.response?.status === 404) {
-                console.log(`No messages for ${conversationId}`);
-                setChat(prev => ({
-                    ...prev,
-                    messages: {
-                        ...prev.messages,
-                        [conversationId]: [],
-                    },
-                }));
+                // setChat(prev => ({
+                //     ...prev,
+                //     messages: {
+                //         ...prev.messages,
+                //         [conversationId]: [],
+                //     },
+                // }));
             } else {
                 console.error(err);
             }
@@ -574,6 +597,20 @@ const MessagePage = () => {
                         />
                     ))
                 }
+
+
+                {chat.messages[chat.selectedId]?.length > 0 ?
+                    chat.noNewMessagesFlag[chat.selectedId] &&
+                    (
+                        <span className='textCenter'>--- End of conversation ---</span>
+                    ) :
+                    chat.selectedId &&
+                    (
+                        <span className='textCenter'>--- Start a conversation ---</span>
+                    )
+                }
+
+
             </div>
 
             {/* SEND MESSAGE BOX */}
