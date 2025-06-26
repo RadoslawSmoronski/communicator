@@ -194,7 +194,7 @@ const MessagePage = () => {
     // Fetches the user friend list
     const getFriends = async () => {
         try {
-            const data = await axios.get(`${APIs.GET_FRIENDS}/${userId}`, {
+            const data = await axios.get(APIs.GET_CHATS, {
                 withCredentials: true,
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
