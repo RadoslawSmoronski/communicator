@@ -17,6 +17,8 @@
     grid-row-gap: 0px;
     background-color: vars.$bk-msg-page-color;
     color: vars.$secondary-color;
+
+    overflow-x: hidden;
 }
 
 
@@ -48,6 +50,7 @@
     justify-content: flex-start;
     align-items: stretch;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #friendBar{

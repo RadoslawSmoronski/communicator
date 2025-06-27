@@ -3,17 +3,19 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthProvider';
 import axios from '../../api/axios';
 import * as signalR from "@microsoft/signalr";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo, faMagnifyingGlass, faMessage, faPaperPlane, faPhone, faBell } from "@fortawesome/free-solid-svg-icons";
-
-import FriendTile from '../../components/tiles/FriendTile';
-import MessageTile from '../../components/tiles/MessageTile';
-import PersonTile from '../../components/tiles/PersonTile';
 
 import APIs from '../../api/ApiURL';
 import SIGNALR_HUBS from '../../context/SignalRHubs';
 import eventBus from '../../utils/eventBus';
+import listUtils from '../../utils/listUtils';
+import eventUtils from '../../utils/eventUtils';
+import cookieUtils from '../../utils/cookieUtils';
+
+import FriendTile from '../../components/tiles/FriendTile';
+import MessageTile from '../../components/tiles/MessageTile';
+import PersonTile from '../../components/tiles/PersonTile';
 
 const MessagePage = () => {
     const { userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
@@ -38,11 +40,14 @@ const MessagePage = () => {
         selectedId: '',
         activeReciepientId: '',
         messages: {},
-        noNewMessagesFlag: {}
+        noNewMessagesFlag: {},
+        lastOpenedChat: null
     });
     // chatRef - solve the problem of old data "chat"
     const chatRef = useRef(chat);
-
+    useEffect(() => {
+        chatRef.current = chat;
+    }, [chat]);
 
     const [messageInput, setMessageInput] = useState('');
 
@@ -50,15 +55,7 @@ const MessagePage = () => {
         yourChatIsActive: true
     });
 
-    useEffect(() => {
-        chatRef.current = chat;
-    }, [chat]);
-
     const [signalRConnection, setSignalRConnection] = useState(null);
-
-    // Message block
-    // It is resposible for correct function of scrollbar
-    const waitForDOMUpdate = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
     // Search bar block
     // Actions when you type on search bar 
@@ -77,7 +74,7 @@ const MessagePage = () => {
                 searchPeople(value);
             } else {
                 // Your chats
-                const filtered = returnFilteredFriends(friend.list, value);
+                const filtered = listUtils.returnFilteredFriends(friend.list, value);
                 setFriend(prev => ({ ...prev, list_filtered: filtered }));
             }
         }
@@ -86,26 +83,6 @@ const MessagePage = () => {
             setMessageInput(value);
         }
     }
-
-    // Friend list
-    // Returns filtered friends by searchValue from Search bar
-    const returnFilteredFriends = (friendList, searchValue) => {
-        if (friendList) {
-            return friendList.filter(user =>
-                user.friendUserName.toLowerCase().includes(searchValue.toLowerCase())
-            );
-        }
-        return [];
-    };
-
-    // Friend list
-    // Returns sorted friend list by last message send/received date
-    const returnSortedByLastMessDateFriendsList = (friendList) => {
-        const sortedList = [...friendList].sort(
-            (a, b) => new Date(b.lastMessageTimestamp) - new Date(a.lastMessageTimestamp)
-        );
-        return sortedList;
-    };
 
     // Search bar
     // Handles switching search bar action
@@ -188,7 +165,7 @@ const MessagePage = () => {
             } else if (err.response?.status === 400) {
                 setUser(prev => ({ ...prev, findStatus: 'not typed' }));
             } else if (err.response?.status === 404) {
-                setUser(prev => ({ ...prev, findStatus: 'not found' }));
+                // setUser(prev => ({ ...prev, findStatus: 'not found' }));
             } else {
                 console.error(err);
             }
@@ -213,7 +190,7 @@ const MessagePage = () => {
                     newMessNotify: false,
                 }));
 
-                const sortedFriendList = returnSortedByLastMessDateFriendsList(friendsWithNotify);
+                const sortedFriendList = listUtils.returnSortedByLastMessDateFriendsList(friendsWithNotify);
 
                 setFriend(prev => ({
                     ...prev,
@@ -301,11 +278,29 @@ const MessagePage = () => {
     };
 
     // Friend list
+    // Handles clicking on chat
+    // adds param (lastOpened) to userInfo localStorage
+    const handleClickingOnChat = async (conversationId, friendId, friendName) => {
+        // cookie override
+        let lastOpenedChatsSet = cookieUtils.get('lastOpenedChatSet') || {};
+
+        const lastOpenedChatObj = {
+            conversationId: conversationId,
+            friendId: friendId,
+            friendName: friendName
+        };
+
+        lastOpenedChatsSet[userId] = lastOpenedChatObj;
+
+        cookieUtils.set('lastOpenedChatSet', lastOpenedChatsSet);
+
+        selectChat(conversationId, friendId, friendName);
+    }
+
+    // Friend list
     // Handles selecting chat
     // newMessNotify - is for turning off new message notification from friend
     const selectChat = async (conversationId, friendId, friendName) => {
-        setDisplay(prev => ({ ...prev, blockScrollHandler: true }));
-
         scrollMessageBoxRef.current.scrollTop = 0;
 
         const updatedFriends = friend.list.map(friend =>
@@ -318,7 +313,7 @@ const MessagePage = () => {
             ...prev,
             activeFriend: friendName,
             list: updatedFriends,
-            list_filtered: returnFilteredFriends(updatedFriends, searchBar),
+            list_filtered: listUtils.returnFilteredFriends(updatedFriends, searchBar),
         }));
 
         setChat(prev => ({
@@ -329,14 +324,15 @@ const MessagePage = () => {
 
         // fetch new messages if there are no fetched messages
         if (chat.messages[conversationId].length === 1) {
-            await waitForDOMUpdate();
+            await eventUtils.waitForDOMUpdate();
 
             const box = scrollMessageBoxRef.current;
             let isScrollable = box.clientHeight < box.scrollHeight;
 
+            // fetch as many messages as long there will be a scroll bar
             while (!isScrollable && !chatRef.current.noNewMessagesFlag[conversationId]) {
                 await getMessagesForFriend(conversationId);
-                await waitForDOMUpdate();
+                await eventUtils.waitForDOMUpdate();
 
                 isScrollable = box.clientHeight < box.scrollHeight;
             }
@@ -344,23 +340,19 @@ const MessagePage = () => {
             console.log(!isScrollable, !chatRef.current.noNewMessagesFlag[conversationId])
 
         }
-
-        setDisplay(prev => ({ ...prev, blockScrollHandler: false }));
     };
 
     // Message box
     // It makes sure that new messages (fetch via pages)
     // are fetched only once if scroll is at top
     const handleScrollMessageBox = async () => {
-        if (display.blockScrollHandler) return;
-
         const box = scrollMessageBoxRef.current;
         const isAtTop = box.clientHeight - box.scrollTop >= box.scrollHeight;
 
         if (isAtTop && !chatRef?.current.noNewMessagesFlag[chatRef?.current.selectedId]) {
             await getMessagesForFriend(chat.selectedId);
 
-            await waitForDOMUpdate();
+            await eventUtils.waitForDOMUpdate();
         }
     };
 
@@ -438,12 +430,12 @@ const MessagePage = () => {
                 return f;
             });
 
-            const sorted = returnSortedByLastMessDateFriendsList(newList);
+            const sorted = listUtils.returnSortedByLastMessDateFriendsList(newList);
 
             return {
                 ...prev,
                 list: sorted,
-                list_filtered: returnSortedByLastMessDateFriendsList(returnFilteredFriends(sorted, searchBar)),
+                list_filtered: listUtils.returnSortedByLastMessDateFriendsList(listUtils.returnFilteredFriends(sorted, searchBar)),
             };
         });
 
@@ -466,8 +458,16 @@ const MessagePage = () => {
         if (accessToken != '') {
             getFriends();
 
-            // listen for 'refreshFriends'
-            eventBus.on('refreshFriends', getFriends);
+            // get your last chat info
+            const userChat = cookieUtils.get('lastOpenedChatSet');
+            if (userChat) {
+                if (userChat[userId]) {
+                    setChat(prev => ({
+                        ...prev,
+                        lastOpenedChat: userChat[userId]
+                    }))
+                }
+            }
         }
 
         const connection = new signalR.HubConnectionBuilder()
@@ -486,12 +486,27 @@ const MessagePage = () => {
         );
         setSignalRConnection(connection);
 
+        // listen for 'refreshFriends'
+        eventBus.on('refreshFriends', getFriends);
+
         return () => {
             connection.stop();
             eventBus.off('refreshFriends', getFriends);
         };
     }, []);
 
+    // load last openned chat
+    useEffect(() => {
+        if (chat.lastOpenedChat && friend.list.length > 0) {
+            const { conversationId, friendId, friendName } = chat.lastOpenedChat;
+            selectChat(conversationId, friendId, friendName);
+
+            setChat(prev => ({
+                ...prev,
+                lastOpenedChat: null
+            }));
+        }
+    }, [chat.lastOpenedChat, friend.list]);
 
 
     return (
@@ -537,7 +552,7 @@ const MessagePage = () => {
                                 <FriendTile
                                     key={f.friendId}
                                     username={f.friendUserName}
-                                    onClick={() => selectChat(f.conversationId, f.friendId, f.friendUserName)}
+                                    onClick={() => handleClickingOnChat(f.conversationId, f.friendId, f.friendUserName)}
                                     author={f.isFriendSenderMessage ? '' : 'You: '}
                                     mess={f.lastMessageContent}
                                     messTimestamp={f.lastMessageTimestamp}
@@ -598,16 +613,19 @@ const MessagePage = () => {
                     ))
                 }
 
-
+                {/* info inside chat */}
                 {chat.messages[chat.selectedId]?.length > 0 ?
                     chat.noNewMessagesFlag[chat.selectedId] &&
-                    (
+                    ( // there're some messages
                         <span className='textCenter'>--- End of conversation ---</span>
                     ) :
-                    chat.selectedId &&
-                    (
-                        <span className='textCenter'>--- Start a conversation ---</span>
-                    )
+                    chat.selectedId ?
+                        ( // there aren't any messages
+                            <span className='textCenter'>--- Start a conversation ---</span>
+                        ) :
+                        ( // chat isn't selected
+                            <span className='textCenter'>--- Select chat ---</span>
+                        )
                 }
 
 
