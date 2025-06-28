@@ -14,14 +14,17 @@ namespace ChatCommunicator.Application.Controllers
     public class FriendsController : Controller
     {
         private readonly IFriendsService _friendsManager;
+        private readonly IChatService _chatService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public FriendsController(IFriendsService friendsManager,
+            IChatService chatService,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor)
         {
             _friendsManager = friendsManager;
+            _chatService = chatService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -396,17 +399,19 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AcceptInviteAsync(InviteDto acceptInviteDto)
         {
-            var result = await _friendsManager.AddFriendsAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+            var addFriendsResult = await _friendsManager.AddFriendsAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+            var createConversationResult = await _chatService.GetOrCreateConversationAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
 
-            if (result.IsSuccess)
+            if (addFriendsResult.IsSuccess && createConversationResult.IsSuccess)
             {
                 Ok();
             }
 
-            if (result.Error != null)
+            // addFriendsResult Error vaidation
+            if (addFriendsResult.Error != null)
             {
-                var errorCode = result.Error.ErrorType;
-                var errorMessage = result.Error.Description;
+                var errorCode = addFriendsResult.Error.ErrorType;
+                var errorMessage = addFriendsResult.Error.Description;
 
                 if (errorCode == ErrorType.Validation)
                 {
@@ -433,6 +438,34 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                return Problem(
+                    statusCode: 500,
+                    title: "InternalServerError",
+                    detail: "An unexpected error occurred."
+                );
+            }
+
+            // createConversationResult Error vaidation
+            if (createConversationResult.Error != null)
+            {
+                var errorCode = createConversationResult.Error.ErrorType;
+                var errorMessage = createConversationResult.Error.Description;
+                if (errorCode == ErrorType.Validation)
+                {
+                    return Problem(
+                        statusCode: 400,
+                        title: "Bad Request",
+                        detail: errorMessage
+                    );
+                }
+                else if (errorCode == ErrorType.NotFound)
+                {
+                    return Problem(
+                        statusCode: 404,
+                        title: "Not Found",
+                        detail: errorMessage
+                    );
+                }
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
