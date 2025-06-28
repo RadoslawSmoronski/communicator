@@ -26,7 +26,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Registers a new user.
+        /// Register
         /// </summary>
         /// <remarks>
         /// This endpoint creates a new user using a username and password. If the username already exists,
@@ -90,7 +90,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Authenticates a user and returns access and refresh tokens.
+        /// Login
         /// </summary>
         /// <remarks>
         /// This endpoint validates the provided login credentials. On success, it returns a JWT access token
@@ -152,7 +152,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Refreshes the user's access token using a valid refresh token.
+        /// Refresh Access Token
         /// </summary>
         /// <remarks>
         /// This endpoint checks the provided refresh token and issues a new access token if it's valid.
@@ -218,7 +218,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Changes the current user's username.
+        /// Change Username
         /// </summary>
         /// <remarks>
         /// Authenticated users can change their username. The new username must be unique.

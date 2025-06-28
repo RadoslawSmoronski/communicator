@@ -26,7 +26,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Retrieves a user by their unique identifier.
+        /// Get User By Id
         /// </summary>
         /// <remarks>
         /// Requires authorization. This endpoint returns a simplified user DTO corresponding to the given GUID.
@@ -61,7 +61,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Searches for users whose usernames contain the specified text.
+        /// Get Users By Text
         /// </summary>
         /// <remarks>
         /// Optionally excludes the currently authenticated user from the results.
