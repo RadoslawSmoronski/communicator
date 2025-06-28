@@ -27,7 +27,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Retrieves all chat conversations for the authenticated user.
+        /// Get Chats
         /// </summary>
         /// <remarks>
         /// This endpoint returns all chat conversations associated with the currently authenticated user.
@@ -113,7 +113,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Retrieves paginated messages from a specific conversation.
+        /// Get Paged Messages
         /// </summary>
         /// <remarks>
         /// This endpoint returns a paginated list of messages from a conversation.  

@@ -30,7 +30,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Sends a friend invitation from one user to another.
+        /// Send Invite
         /// </summary>
         /// <remarks>
         /// This endpoint allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.
@@ -117,7 +117,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Retrieves all friend invitations sent to a specific user.
+        /// Get Invitations
         /// </summary>
         /// <remarks>
         /// Returns all pending friend invitations for the specified user GUID.
@@ -191,7 +191,7 @@ namespace ChatCommunicator.Application.Controllers
 
 
         /// <summary>
-        /// Searches for users to invite based on a text query.
+        /// Get Users to Invite by Text
         /// </summary>
         /// <remarks>
         /// Authenticated users can search for other users by username or display name.
@@ -286,7 +286,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Declines a friend invitation.
+        /// Deceline Invite
         /// </summary>
         /// <remarks>
         /// Allows an authenticated user to decline a friend invitation by providing sender and recipient GUIDs.
@@ -363,7 +363,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Accepts a friend invitation.
+        /// Accept Invite
         /// </summary>
         /// <remarks>
         /// Allows an authenticated user to accept a friend invitation by sender and recipient GUIDs.
@@ -481,7 +481,7 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Retrieves a list of friends for a specified user.
+        /// Get Friends
         /// </summary>
         /// <remarks>
         /// Fetches all users marked as friends of the specified user GUID.
