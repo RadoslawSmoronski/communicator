@@ -116,31 +116,23 @@ namespace ChatCommunicator.Application.Controllers
         /// Retrieves paginated messages from a specific conversation.
         /// </summary>
         /// <remarks>
-        /// This endpoint returns a paginated list of messages from a specific conversation,
-        /// starting after a given message ID. It requires a valid JWT token in the Authorization header.
-        ///
-        /// Only messages from conversations the user has access to will be returned.
-        /// If the conversation ID or message ID is invalid, or the user is unauthorized to access the conversation,
-        /// appropriate error responses are returned.
+        /// This endpoint returns a paginated list of messages from a conversation.  
+        /// If <c>fromMessageId</c> is provided, it returns messages after that ID;  
+        /// if <c>fromMessageId</c> is null, it returns an empty list (with 200 OK).  
+        /// A valid JWT token must be included in the Authorization header.  
+        /// If <c>conversationId</c> is missing, empty, or invalid, an error response is returned.
         /// </remarks>
-        /// <param name="getMessagesDto">
-        /// DTO containing the conversation ID and the starting message ID for pagination.
-        /// </param>
-        /// <returns>
-        /// A paginated list of messages, or an appropriate error response.
-        /// </returns>
-        /// <response code="200">Successfully retrieved the list of messages.</response>
-        /// <response code="400">Invalid input or validation error (e.g., malformed GUID).</response>
+        /// <param name="conversationId">The ID of the conversation (GUID). Required.</param>
+        /// <param name="fromMessageId">The ID of the message after which to start fetching (GUID). Optional.</param>
+        /// <returns>A list of messages (possibly empty) or an error response.</returns>
+        /// <response code="200">Successfully retrieved the list of messages (can be empty if fromMessageId is null).</response>
+        /// <response code="400">Invalid input or validation error.</response>
         /// <response code="401">Unauthorized – missing or invalid JWT token.</response>
         /// <response code="404">Conversation not found or access denied.</response>
         /// <response code="500">Internal server error.</response>
         /// <example>
-        /// POST /api/chat/get-paged-messages
+        /// GET /api/chat/get-paged-messages?conversationId=123e4567-e89b-12d3-a456-426614174000
         /// Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
-        /// {
-        ///   "conversationId": "123e4567-e89b-12d3-a456-426614174000",
-        ///   "fromMessageId": "789e4567-e89b-12d3-a456-426614174999"
-        /// }
         /// </example>
         [Authorize]
         [HttpGet("get-paged-messages")]
@@ -149,9 +141,9 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetPagedMessagesAsync([FromBody] GetPagedMessagesDto getMessagesDto)
+        public async Task<IActionResult> GetPagedMessagesAsync(Guid? conversationId, Guid? fromMessageId)
         {
-            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(getMessagesDto.ConversationId, getMessagesDto.FromMessageId);
+            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, fromMessageId);
 
             if (result.IsSuccess)
             {

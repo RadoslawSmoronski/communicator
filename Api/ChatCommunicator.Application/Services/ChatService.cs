@@ -138,21 +138,29 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<ResultT<List<MessageDto>>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId)
+        public async Task<ResultT<List<MessageDto>>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId)
         {
-            if (conversationId == Guid.Empty || fromMessageId == Guid.Empty)
+            if (conversationId == null || conversationId == Guid.Empty)
             {
-                return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId and fromMessageId cannot be empty.");
+                return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
             }
+
+            if( fromMessageId == null || fromMessageId == Guid.Empty)
+            {
+                return new List<MessageDto>();
+            }
+
+            var convId = conversationId.Value;
+            var msgId = fromMessageId.Value;
 
             try
             {
-                if (await GetConversationByIdAsync(conversationId) == null)
+                if (await GetConversationByIdAsync(convId) == null)
                 {
                     return Error.NotFound("CONVERSATION_ID_NOT_FOUND", "ConversationId was not found.");
                 }
 
-                var messages = await _GetPagedMessagesFromMessageIdAsync(conversationId, fromMessageId);
+                var messages = await _GetPagedMessagesFromMessageIdAsync(convId, msgId);
 
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
