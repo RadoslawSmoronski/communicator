@@ -28,7 +28,7 @@ namespace ChatCommunicator.Infrastructure.Repository
                 throw new Exception();
 
             return _dbSet
-                .Where(x => x.ConversationId == conversationId && x.Timestamp <= fromMessage.Timestamp)
+                .Where(x => x.ConversationId == conversationId && x.Timestamp < fromMessage.Timestamp)
                 .OrderByDescending(x => x.Timestamp)
                 .Take(pageSize);
         }
