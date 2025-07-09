@@ -1,12 +1,12 @@
 ﻿using ChatCommunicator.Application.Hubs;
 using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Application.Managers.Interfaces;
-using ChatCommunicator.Application.Service;
 using ChatCommunicator.Application.Services;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Infrastructure;
 using ChatCommunicator.Infrastructure.Repository;
+using ChatCommunicator.Infrastructure.Service;
 using ChatCommunicator.Infrastructure.Services;
 using ChatCommunicator.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -55,7 +55,6 @@ namespace ChatCommunicator.Application
             builder.Services.AddControllers();
             builder.Services.AddSignalR();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSingleton<TokenCleanupService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IChatService, ChatService>();
@@ -63,6 +62,7 @@ namespace ChatCommunicator.Application
             builder.Services.AddScoped<IAccountManager, AccountManager>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
+            builder.Services.AddSingleton<TokenCleanupService>();
             builder.Services.AddHostedService<TokenCleanupService>();
             builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
             builder.Services.AddSwaggerGen(option =>

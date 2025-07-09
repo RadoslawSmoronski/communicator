@@ -143,28 +143,6 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<ResultT<int>> RemoveExpiredRefreshTokensAsync()
-        {
-            try
-            {
-                var removedExpiredTokens = await RemoveFromDbExpiredRefreshTokensAsync();
-
-                if (removedExpiredTokens > 0)
-                {
-                    //Console.WriteLine($"[RemoveExpiredRefreshTokensAsync] {removedExpiredTokens} expired tokens removed.");
-                    return removedExpiredTokens;
-                }
-
-                //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] No expired tokens found.");
-                return Error.Failure("NO_EXPIRED_REFRESH_TOKENS", "There are no expired refresh tokens to remove.");
-            }
-            catch (Exception)
-            {
-                //Console.WriteLine("[RemoveExpiredRefreshTokensAsync] An internal server error occurred.");
-                return Error.Unknown("REFRESH_TOKEN_CLEANUP_FAILED", "An unexpected error occurred while removing expired refresh tokens.");
-            }
-        }
-
         private async Task<bool> IsRefreshTokenValidAsync(Guid refreshToken)
         {
             return await _unitOfWork.RefreshTokens
@@ -182,21 +160,6 @@ namespace ChatCommunicator.Application.Services
             return await _unitOfWork.RefreshTokens
                 .FirstOrDefaultAsync(x => x.UserId == userId);
 
-        }
-
-        private async Task<int> RemoveFromDbExpiredRefreshTokensAsync()
-        {
-            var result = await _unitOfWork.RefreshTokens.WhereAsync(x => x.Expiration < DateTime.UtcNow);
-
-            if (result.Any())
-            {
-                foreach (var refreshToken in result)
-                {
-                    _unitOfWork.RefreshTokens.Delete(refreshToken);
-                }
-            }
-
-            return result.Count();
         }
 
         private string CreateJwtToken(UserAccount user)
