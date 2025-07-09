@@ -1,19 +1,23 @@
-﻿using ChatCommunicator.Infrastructure;
-using ChatCommunicator.Infrastructure.Repository;
-using ChatCommunicator.Infrastructure.UnitOfWork;
+﻿using ChatCommunicator.Application.Hubs;
+using ChatCommunicator.Application.Managers;
+using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Service;
+using ChatCommunicator.Application.Services;
+using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
+using ChatCommunicator.Infrastructure;
+using ChatCommunicator.Infrastructure.Repository;
+using ChatCommunicator.Infrastructure.Services;
+using ChatCommunicator.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NpgsqlTypes;
+using Serilog;
+using Serilog.Sinks.PostgreSQL;
 using System.Reflection;
-using ChatCommunicator.Application.Services;
-using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Application.Managers;
-using ChatCommunicator.Application.Managers.Interfaces;
-using ChatCommunicator.Application.Hubs;
-using ChatCommunicator.Application.Service;
 
 namespace ChatCommunicator.Application
 {
@@ -22,6 +26,28 @@ namespace ChatCommunicator.Application
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            IDictionary<string, ColumnWriterBase> columnWriters = new Dictionary<string, ColumnWriterBase>
+            {
+                {"message", new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
+                {"message_template", new MessageTemplateColumnWriter(NpgsqlDbType.Text) },
+                {"level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
+                {"raise_date", new TimestampColumnWriter(NpgsqlDbType.Timestamp) },
+                {"exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
+                {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb) },
+                {"props_test", new PropertiesColumnWriter(NpgsqlDbType.Jsonb) },
+                {"machine_name", new SinglePropertyColumnWriter("MachineName", PropertyWriteMethod.ToString, NpgsqlDbType.Text, "l") }
+            };
+
+            Log.Logger = new LoggerConfiguration()
+                            .WriteTo.Console()
+                            .WriteTo.PostgreSQL(builder.Configuration.GetConnectionString("DefaultConnection"), "Logs", columnWriters, needAutoCreateTable: true)
+                            .CreateLogger();
+
+            builder.Host.UseSerilog();
+
+            builder.Services.AddSingleton<LogCleanupService>();
+            builder.Services.AddHostedService<LogCleanupService>();
 
             // Add services to the container.
             builder.Services.AddHttpContextAccessor();

@@ -13,6 +13,7 @@
 - JWT (authentication)
 - PostgreSQL
 - AutoMapper
+- Serilog
 - xUnit, FluentAssertions, FakeItEasy (unit testing)
 - Redoc (API documentation)
 
@@ -30,6 +31,7 @@ The documentation provides details on endpoints, models, responses, and authenti
 ## 📡 SignalR – `ChatHub`
 
 Real-time messaging is handled through a SignalR hub called `ChatHub`.
+
 ### Method available for clients
 
 #### `SendMessage(Guid recipientId, Guid conversationId, string content)`
@@ -60,7 +62,6 @@ Similarly, the frontend in `client` may be ahead of what is currently merged int
 
 ### Example `appsettings.json`
 
-
     {
       "ConnectionStrings": {
         "DefaultConnection": "Host=string;Database=string;Port=string;Username=string;Password=string"
@@ -86,6 +87,14 @@ Similarly, the frontend in `client` may be ahead of what is currently merged int
                        .AllowCredentials();
             });
     });
+
+## 💬 Logging with Serilog
+
+The project uses Serilog for structured logging. Logs are saved to the console and to a PostgreSQL database (table Logs).
+
+Additionally, an automatic cleanup service runs periodically to delete log entries older than 30 days.
+
+The table is created automatically if it does not exist.
 
 ## 🧪 Testing
 
