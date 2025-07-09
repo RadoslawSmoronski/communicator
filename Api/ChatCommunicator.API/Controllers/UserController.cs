@@ -18,11 +18,13 @@ namespace ChatCommunicator.Application.Controllers
     {
         private readonly ITokenService _tokenManager;
         private readonly IAccountManager _accountManager;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(ITokenService tokenManager, IAccountManager accountManager)
+        public UserController(ITokenService tokenManager, IAccountManager accountManager, ILogger<UserController> logger)
         {
             _tokenManager = tokenManager;
             _accountManager = accountManager;
+            _logger = logger;
         }
 
         /// <summary>
@@ -58,6 +60,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[RegisterAsync] User registered successfully. Username: {Username}", registerDto.UserName);
                 return StatusCode(201, result.Value);
             }
 
@@ -68,6 +71,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Conflict)
                 {
+                    _logger.LogWarning("[RegisterAsync] Registration conflict. Username: {Username}. Message: {ErrorMessage}",
+                        registerDto.UserName, errorMessage);
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
@@ -75,6 +80,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[RegisterAsync] Unexpected error during registration. Username: {Username}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    registerDto.UserName, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -82,12 +89,14 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[RegisterAsync] Unexpected error with null error object. Username: {Username}", registerDto.UserName);
             return Problem(
                 statusCode: 500,
                 title: "Unexpected server error",
                 detail: "An unexpected error occurred during user registration."
             );
         }
+
 
         /// <summary>
         /// Login
@@ -120,6 +129,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[LoginAsync] User logged in successfully. Username: {Username}", loginDto.UserName);
                 return Ok(result.Value);
             }
 
@@ -130,6 +140,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Unauthorized)
                 {
+                    _logger.LogWarning("[LoginAsync] Unauthorized login attempt. Username: {Username}. Message: {ErrorMessage}",
+                        loginDto.UserName, errorMessage);
                     return Problem(
                         statusCode: 401,
                         title: "Unauthorized",
@@ -137,6 +149,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[LoginAsync] Unexpected error during login. Username: {Username}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    loginDto.UserName, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -144,12 +158,14 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[LoginAsync] Unexpected error with null error object. Username: {Username}", loginDto.UserName);
             return Problem(
                 statusCode: 500,
                 title: "Unexpected server error",
                 detail: "An unexpected error occurred during user registration."
             );
         }
+
 
         /// <summary>
         /// Refresh Access Token
@@ -181,21 +197,24 @@ namespace ChatCommunicator.Application.Controllers
             var newToken = await _tokenManager.RefreshAccessTokenAsync(refreshTokenDto.RefreshToken);
 
             if (newToken.IsSuccess)
-            {       
+            {
+                _logger.LogInformation("[RefreshAccessTokenAsync] Access token refreshed successfully.");
                 return Ok(newToken.Value);
             }
-            else if(newToken.Error != null)
+            else if (newToken.Error != null)
             {
-                if(newToken.Error.ErrorType == ErrorType.Validation)
+                if (newToken.Error.ErrorType == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[RefreshAccessTokenAsync] Invalid refresh token provided.");
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
                         detail: "The provided refresh token is invalid or malformed."
                     );
                 }
-                else if(newToken.Error.ErrorType == ErrorType.Unauthorized)
+                else if (newToken.Error.ErrorType == ErrorType.Unauthorized)
                 {
+                    _logger.LogWarning("[RefreshAccessTokenAsync] Unauthorized attempt to refresh token.");
                     return Problem(
                         statusCode: 401,
                         title: "Unauthorized",
@@ -203,6 +222,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[RefreshAccessTokenAsync] Unexpected error during token refresh. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    newToken.Error.ErrorType, newToken.Error.Description);
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected refreshing access token failure",
@@ -210,12 +231,14 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[RefreshAccessTokenAsync] Unexpected error with null error object.");
             return Problem(
                 statusCode: 500,
                 title: "Unexpected server error",
                 detail: "An unexpected error occurred during refreshing access token."
             );
         }
+
 
         /// <summary>
         /// Change Username
@@ -247,16 +270,20 @@ namespace ChatCommunicator.Application.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            _logger.LogInformation("[ChangeUsernameAsync] Attempting to change username. UserId: {UserId}, NewUsername: {NewUsername}", userId, newUsername);
+
             var result = await _accountManager.ChangeUsernameAsync(userId, newUsername);
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[ChangeUsernameAsync] Username changed successfully. UserId: {UserId}, NewUsername: {NewUsername}", userId, newUsername);
                 return Ok(result.Value);
             }
             else if (result.Error != null)
             {
                 if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "VALIDATION")
                 {
+                    _logger.LogWarning("[ChangeUsernameAsync] Validation error: username is empty or null. UserId: {UserId}", userId);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -265,6 +292,7 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "VALIDATION_USERID")
                 {
+                    _logger.LogWarning("[ChangeUsernameAsync] Validation error: unable to extract user ID from token.");
                     return Problem(
                         statusCode: 401,
                         title: "Unauthorized",
@@ -273,6 +301,7 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (result.Error.ErrorType == ErrorType.Unauthorized)
                 {
+                    _logger.LogWarning("[ChangeUsernameAsync] Unauthorized: user not found. UserId: {UserId}", userId);
                     return Problem(
                         statusCode: 401,
                         title: "Unauthorized",
@@ -281,6 +310,7 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (result.Error.ErrorType == ErrorType.Conflict)
                 {
+                    _logger.LogWarning("[ChangeUsernameAsync] Username conflict. UserId: {UserId}, NewUsername: {NewUsername}", userId, newUsername);
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
@@ -288,18 +318,22 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[ChangeUsernameAsync] Unexpected error. UserId: {UserId}. ErrorType: {ErrorType}, Message: {ErrorMessage}",
+                    userId, result.Error.ErrorType, result.Error.Description);
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected server error.",
                     detail: "Unexpected server error."
-                    );
+                );
             }
 
+            _logger.LogError("[ChangeUsernameAsync] Unexpected error with null error object. UserId: {UserId}", userId);
             return Problem(
                 statusCode: 500,
                 title: "Unexpected server error",
                 detail: "An unexpected error occurred."
             );
         }
+
     }
 }

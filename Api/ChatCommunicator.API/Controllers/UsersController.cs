@@ -17,12 +17,17 @@ namespace ChatCommunicator.Application.Controllers
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<UsersController> _logger;
 
-        public UsersController(UserManager<UserAccount> userManager, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public UsersController(UserManager<UserAccount> userManager,
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<UsersController> logger)
         {
             _userManager = userManager;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         /// <summary>
@@ -45,13 +50,28 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUserByIdAsync([FromRoute] Guid id)
         {
+            _logger.LogInformation("[GetUserByIdAsync] Attempting to get user by id: {UserId}", id);
+
             try
             {
                 var user = await _userManager.FindByIdAsync(id.ToString());
+
+                if (user == null)
+                {
+                    _logger.LogWarning("[GetUserByIdAsync] User not found. UserId: {UserId}", id);
+                    return Problem(
+                        statusCode: 404,
+                        title: "Not Found",
+                        detail: "User not found."
+                    );
+                }
+
+                _logger.LogInformation("[GetUserByIdAsync] User retrieved successfully. UserId: {UserId}", id);
                 return Ok(_mapper.Map<SimpleUserDto>(user));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[GetUserByIdAsync] Unexpected error occurred while retrieving user. UserId: {UserId}", id);
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected server error",
@@ -59,6 +79,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
         }
+
 
         /// <summary>
         /// Get Users By Text
@@ -85,8 +106,11 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUsersByTextAsync([FromRoute] string text, bool excludeCurrentUser = false)
         {
+            _logger.LogInformation("[GetUsersByTextAsync] Searching users by text: {Text}, excludeCurrentUser: {ExcludeCurrentUser}", text, excludeCurrentUser);
+
             if (string.IsNullOrWhiteSpace(text))
             {
+                _logger.LogWarning("[GetUsersByTextAsync] Input text is empty.");
                 return Problem(
                     statusCode: 400,
                     title: "Bad Request",
@@ -96,6 +120,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (text.Length < 3 || text.Length > 25)
             {
+                _logger.LogWarning("[GetUsersByTextAsync] Text length out of range. Length: {Length}", text.Length);
                 return Problem(
                     statusCode: 400,
                     title: "Bad Request",
@@ -113,6 +138,7 @@ namespace ChatCommunicator.Application.Controllers
 
                     if (!Guid.TryParse(userIdClaim, out var userId))
                     {
+                        _logger.LogWarning("[GetUsersByTextAsync] Invalid user ID in access token.");
                         return Problem(
                             statusCode: 401,
                             title: "Unauthorized",
@@ -121,15 +147,20 @@ namespace ChatCommunicator.Application.Controllers
                     }
 
                     if (userId != Guid.Empty)
+                    {
+                        _logger.LogInformation("[GetUsersByTextAsync] Excluding current user from results. UserId: {UserId}", userId);
                         usersQuery = usersQuery.Where(x => x.Id != userId);
+                    }
                 }
 
                 var users = await usersQuery.ToListAsync();
 
+                _logger.LogInformation("[GetUsersByTextAsync] Found {Count} users matching text: {Text}", users.Count, text);
                 return Ok(_mapper.Map<List<SimpleUserDto>>(users));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "[GetUsersByTextAsync] Unexpected error occurred while retrieving users.");
                 return Problem(
                     statusCode: 500,
                     title: "Unexpected server error",
@@ -137,5 +168,6 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
         }
+
     }
 }

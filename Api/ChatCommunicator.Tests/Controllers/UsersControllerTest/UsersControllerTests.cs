@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using FakeItEasy;
 using ChatCommunicator.Application.Controllers;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Controllers.UsersControllerTest
 {
@@ -12,6 +14,7 @@ namespace ChatCommunicator.Tests.Controllers.UsersControllerTest
         protected readonly UserManager<UserAccount> _userManager;
         protected readonly IMapper _mapper;
         protected readonly IHttpContextAccessor _httpContextAccessor;
+        protected readonly ILogger<UsersController> _logger;
 
         protected readonly UsersController _usersController;
         protected readonly UserAccount _sampleUserAccount;
@@ -21,6 +24,7 @@ namespace ChatCommunicator.Tests.Controllers.UsersControllerTest
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _httpContextAccessor = A.Fake<IHttpContextAccessor>();
+            _logger = A.Fake<ILogger<UsersController>>();
 
             var configuration = new MapperConfiguration(cfg =>
             {
@@ -28,7 +32,7 @@ namespace ChatCommunicator.Tests.Controllers.UsersControllerTest
             });
             _mapper = configuration.CreateMapper();
 
-            _usersController = new UsersController(_userManager, _mapper, _httpContextAccessor);
+            _usersController = new UsersController(_userManager, _mapper, _httpContextAccessor, _logger);
 
             _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = Guid.NewGuid(), Email = "user4@example.com" };
 
