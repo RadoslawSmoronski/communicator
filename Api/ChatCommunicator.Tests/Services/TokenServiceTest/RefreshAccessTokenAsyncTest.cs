@@ -1,8 +1,6 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos.Service;
-using ChatCommunicator.Application.Service;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;

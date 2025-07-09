@@ -15,15 +15,18 @@ namespace ChatCommunicator.Application.Controllers
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IChatService _chatService;
+        private readonly ILogger<ChatController> _logger;   
 
         public ChatController(
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            IChatService chatManager)
+            IChatService chatManager,
+            ILogger<ChatController> logger)
         {
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _chatService = chatManager;
+            _logger = logger;
         }
 
         /// <summary>
@@ -61,6 +64,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (userClaimId == null)
             {
+                _logger.LogWarning("[GetChatsAsync] Unauthorized access attempt: JWT Token is missing.");
                 return Problem(
                     statusCode: 401,
                     title: "Unauthorized",
@@ -70,6 +74,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (!Guid.TryParse(userClaimId, out Guid userId))
             {
+                _logger.LogWarning("[GetChatsAsync] Unauthorized access attempt: UserId from JWT Token is not a GUID. Value: {UserClaimId}", userClaimId);
                 return Problem(
                     statusCode: 401,
                     title: "Unauthorized",
@@ -81,6 +86,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[GetChatsAsync] Successfully retrieved chats for UserId: {UserId}. Count: {Count}", userId, result.Value?.Count() ?? 0);
                 return Ok(result.Value);
             }
 
@@ -91,6 +97,7 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[GetChatsAsync] Validation error for UserId: {UserId}. Message: {ErrorMessage}", userId, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -98,6 +105,7 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[GetChatsAsync] Unexpected error for UserId: {UserId}. ErrorType: {ErrorType}. Message: {ErrorMessage}", userId, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -105,12 +113,14 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[GetChatsAsync] Unexpected null error for UserId: {UserId}", userId);
             return Problem(
                 statusCode: 500,
                 title: "InternalServerError",
                 detail: "An unexpected error occurred."
             );
         }
+
 
         /// <summary>
         /// Get Paged Messages
@@ -147,6 +157,8 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[GetPagedMessagesAsync] Successfully retrieved paged messages. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}, Count: {Count}",
+                    conversationId, fromMessageId, result.Value?.Count() ?? 0);
                 return Ok(result.Value);
             }
 
@@ -157,6 +169,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[GetPagedMessagesAsync] Validation error. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}. Message: {ErrorMessage}",
+                        conversationId, fromMessageId, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -165,6 +179,8 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.NotFound)
                 {
+                    _logger.LogWarning("[GetPagedMessagesAsync] Not found error. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}. Message: {ErrorMessage}",
+                        conversationId, fromMessageId, errorMessage);
                     return Problem(
                         statusCode: 404,
                         title: "Not Found",
@@ -172,6 +188,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[GetPagedMessagesAsync] Unexpected error. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    conversationId, fromMessageId, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -179,11 +197,14 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[GetPagedMessagesAsync] Unexpected null error. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}",
+                conversationId, fromMessageId);
             return Problem(
                 statusCode: 500,
                 title: "InternalServerError",
                 detail: "An unexpected error occurred."
             );
         }
+
     }
 }
