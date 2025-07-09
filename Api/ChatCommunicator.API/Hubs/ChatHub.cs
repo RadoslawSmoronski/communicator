@@ -18,50 +18,74 @@ namespace ChatCommunicator.Application.Hubs
         private readonly IChatService _chatService;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
+        private readonly ILogger<ChatHub> _logger;
 
         public ChatHub(IUsersConnectionService usersConnectionManager,
             IChatService chatService,
             UserManager<UserAccount> userManager,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<ChatHub> logger)
         {
             _usersConnectionManager = usersConnectionManager;
             _chatService = chatService;
             _userManager = userManager;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public override async Task OnConnectedAsync()
         {
-            var userName = Context.User!.Identity.Name;
-            var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userName = Context.User?.Identity?.Name;
+            var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            await _usersConnectionManager.AddUpdateAsync(Context.ConnectionId, Guid.Parse(userId));
+            if (Guid.TryParse(userIdString, out var userId))
+            {
+                _logger.LogInformation("User connected. UserId: {UserId}, UserName: {UserName}, ConnectionId: {ConnectionId}", userId, userName, Context.ConnectionId);
+
+                await _usersConnectionManager.AddUpdateAsync(Context.ConnectionId, userId);
+            }
+            else
+            {
+                _logger.LogWarning("User connected with invalid or missing UserId. ConnectionId: {ConnectionId}", Context.ConnectionId);
+            }
 
             await base.OnConnectedAsync();
         }
 
         public async Task SendMessage(Guid recipientId, Guid conversationId, string content) // Needs tests
         {
-            var userName = Context.User!.Identity.Name;
-            var userIdString = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userName = Context.User?.Identity?.Name;
+            var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var userId = Guid.Parse(userIdString);
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                _logger.LogWarning("SendMessage called with invalid user ID. ConnectionId: {ConnectionId}", Context.ConnectionId);
+                return;
+            }
+
+            _logger.LogInformation("User {UserId} sending message to {RecipientId} in conversation {ConversationId}", userId, recipientId, conversationId);
 
             var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
             var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
 
-            var conversation = await _chatService.GetOrCreateConversationAsync(userId, recipientId);
-            var sender = await _userManager.FindByIdAsync(userIdString);
+            var conversationResult = await _chatService.GetOrCreateConversationAsync(userId, recipientId);
+            if (conversationResult.Error != null)
+            {
+                _logger.LogError("Failed to get or create conversation between {UserId} and {RecipientId}: {Error}", userId, recipientId, conversationResult.Error.Description);
+                return;
+            }
 
+            var sender = await _userManager.FindByIdAsync(userIdString);
             if (sender == null)
             {
+                _logger.LogWarning("SendMessage failed: sender user not found. UserId: {UserId}", userId);
                 return;
             }
 
             var message = new Message()
             {
                 ConversationId = conversationId,
-                Conversation = conversation.Value,
+                Conversation = conversationResult.Value,
                 SenderId = userId,
                 Sender = sender,
                 Content = content,
@@ -69,28 +93,47 @@ namespace ChatCommunicator.Application.Hubs
 
             var messageDto = _mapper.Map<MessageDto>(message);
 
-            if (recipientConnectionsId != null)
+            try
             {
-                await Clients.Clients(recipientConnectionsId).ReceiveMessage(messageDto);
-            }
+                if (recipientConnectionsId != null)
+                {
+                    await Clients.Clients(recipientConnectionsId).ReceiveMessage(messageDto);
+                    _logger.LogDebug("Message sent to recipient connections: {RecipientConnectionsCount}", recipientConnectionsId.Count);
+                }
 
-            if (senderConnectionsId != null)
+                if (senderConnectionsId != null)
+                {
+                    await Clients.Clients(senderConnectionsId).ReceiveMessage(messageDto);
+                    _logger.LogDebug("Message sent to sender connections: {SenderConnectionsCount}", senderConnectionsId.Count);
+                }
+
+                await _chatService.SaveMessageAsync(message);
+                _logger.LogInformation("Message saved to database. ConversationId: {ConversationId}, SenderId: {SenderId}", conversationId, userId);
+            }
+            catch (Exception ex)
             {
-                await Clients.Clients(senderConnectionsId).ReceiveMessage(messageDto);
+                _logger.LogError(ex, "Error occurred while sending or saving message. UserId: {UserId}, RecipientId: {RecipientId}", userId, recipientId);
             }
-
-            await _chatService.SaveMessageAsync(message);
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userName = Context.User?.Identity?.Name;
-            var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            await _usersConnectionManager.RemoveAsync(Context.ConnectionId, Guid.Parse(userId));
+            if (Guid.TryParse(userIdString, out var userId))
+            {
+                _logger.LogInformation("User disconnected. UserId: {UserId}, UserName: {UserName}, ConnectionId: {ConnectionId}, Exception: {Exception}",
+                    userId, userName, Context.ConnectionId, exception?.Message);
+
+                await _usersConnectionManager.RemoveAsync(Context.ConnectionId, userId);
+            }
+            else
+            {
+                _logger.LogWarning("User disconnected with invalid or missing UserId. ConnectionId: {ConnectionId}, Exception: {Exception}", Context.ConnectionId, exception?.Message);
+            }
 
             await base.OnDisconnectedAsync(exception);
         }
-
     }
 }

@@ -6,6 +6,8 @@ using ChatCommunicator.Contracts.Chat;
 using AutoMapper;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Application.Services;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 {
@@ -15,6 +17,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IChatService _chatManager;
         protected readonly IMapper _mapper;
+        protected readonly ILogger<ChatService> _logger;
 
         protected readonly UserAccount _sampleUser1;
         protected readonly UserAccount _sampleUser2;
@@ -33,6 +36,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _unitOfWork = A.Fake<IUnitOfWork>();
+            _logger = A.Fake<ILogger<ChatService>>();
 
             var configuration = new MapperConfiguration(cfg =>
             {
@@ -41,7 +45,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 
             _mapper = configuration.CreateMapper();
 
-            _chatManager = new ChatService(_unitOfWork, _userManager, _mapper);
+            _chatManager = new ChatService(_unitOfWork, _userManager, _mapper, _logger);
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };
             _sampleUser3 = new UserAccount { UserName = "User3Login", Id = Guid.NewGuid() };

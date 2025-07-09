@@ -6,6 +6,7 @@ using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Application.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Application.Services
 {
@@ -14,57 +15,74 @@ namespace ChatCommunicator.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
+        private readonly ILogger<ChatService> _logger;
 
         private readonly int _messagesPageSize = 10;
 
         public ChatService(IUnitOfWork unitOfWork,
             UserManager<UserAccount> userManager,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<ChatService> logger)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<ResultT<Conversation>> GetOrCreateConversationAsync(Guid userId, Guid friendId)
         {
             if (userId == Guid.Empty || friendId == Guid.Empty)
             {
+                _logger.LogWarning("GetOrCreateConversationAsync called with empty userId or friendId. userId: {UserId}, friendId: {FriendId}", userId, friendId);
                 return Error.Validation("USERID_IS_EMPTY", "UserId or FriendId cannot be empty.");
             }
 
             if (userId == friendId)
             {
+                _logger.LogWarning("GetOrCreateConversationAsync called with same userId and friendId: {UserId}", userId);
                 return Error.Validation("USERID_AND_FRIENDID_ARE_THE_SAME", "UserId and FriendId must be different.");
             }
 
             try
             {
+                _logger.LogInformation("Retrieving user with id {UserId}", userId);
                 var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (user == null || user.UserName == null)
                 {
+                    _logger.LogWarning("User with id {UserId} not found", userId);
                     return Error.NotFound("USER_NOT_FOUND", "User was not found.");
                 }
 
+                _logger.LogInformation("Retrieving friend user with id {FriendId}", friendId);
                 var friendUser = await _userManager.FindByIdAsync(friendId.ToString());
 
                 if (friendUser == null || friendUser.UserName == null)
                 {
+                    _logger.LogWarning("Friend user with id {FriendId} not found", friendId);
                     return Error.NotFound("FRIENDUSER_NOT_FOUND", "Friend was not found.");
                 }
 
+                _logger.LogInformation("Looking for existing conversation between user {UserId} and friend {FriendId}", userId, friendId);
                 var conversation = await GetConversationAsync(userId, friendId);
 
                 if (conversation == null)
                 {
+                    _logger.LogInformation("No existing conversation found. Creating new conversation.");
                     conversation = await CreateConversationAsync(user, friendUser);
+                    _logger.LogInformation("New conversation created with id {ConversationId}", conversation.Id);
+                }
+                else
+                {
+                    _logger.LogInformation("Found existing conversation with id {ConversationId}", conversation.Id);
                 }
 
                 return conversation;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "An exception occurred in GetOrCreateConversationAsync for userId: {UserId}, friendId: {FriendId}", userId, friendId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
@@ -73,23 +91,28 @@ namespace ChatCommunicator.Application.Services
         {
             if (conversationId == Guid.Empty)
             {
+                _logger.LogWarning("DeleteConversationAsync called with empty conversationId");
                 return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
             }
 
             try
             {
+                _logger.LogInformation("Retrieving conversation with id {ConversationId} for deletion", conversationId);
                 var conversation = await GetConversationByIdAsync(conversationId);
 
                 if (conversation != null)
                 {
+                    _logger.LogInformation("Deleting conversation with id {ConversationId}", conversationId);
                     await _DeleteConversationAsync(conversation);
                     return Result.Success();
                 }
 
+                _logger.LogWarning("Conversation with id {ConversationId} not found for deletion", conversationId);
                 return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "An exception occurred in DeleteConversationAsync for conversationId: {ConversationId}", conversationId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
@@ -98,11 +121,13 @@ namespace ChatCommunicator.Application.Services
         {
             if (userId == Guid.Empty)
             {
+                _logger.LogWarning("GetChatsAsync called with empty userId");
                 return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
             }
 
             try
             {
+                _logger.LogInformation("Getting chats for user id {UserId}", userId);
                 var conversations = await _unitOfWork.Conversations.WhereAsync(
                     x => x.User1Id == userId || x.User2Id == userId,
                     x => x.User1,
@@ -130,10 +155,12 @@ namespace ChatCommunicator.Application.Services
                     };
                 }).ToList();
 
+                _logger.LogInformation("Returning {Count} chats for user id {UserId}", chatDtos.Count, userId);
                 return chatDtos;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "An exception occurred in GetChatsAsync for userId: {UserId}", userId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
@@ -142,11 +169,13 @@ namespace ChatCommunicator.Application.Services
         {
             if (conversationId == null || conversationId == Guid.Empty)
             {
+                _logger.LogWarning("GetPagedMessagesFromMessageIdAsync called with empty conversationId");
                 return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
             }
 
-            if( fromMessageId == null || fromMessageId == Guid.Empty)
+            if (fromMessageId == null || fromMessageId == Guid.Empty)
             {
+                _logger.LogInformation("GetPagedMessagesFromMessageIdAsync called with empty fromMessageId, returning empty list");
                 return new List<MessageDto>();
             }
 
@@ -155,19 +184,24 @@ namespace ChatCommunicator.Application.Services
 
             try
             {
+                _logger.LogInformation("Checking existence of conversation with id {ConversationId}", convId);
                 if (await GetConversationByIdAsync(convId) == null)
                 {
+                    _logger.LogWarning("Conversation with id {ConversationId} not found", convId);
                     return Error.NotFound("CONVERSATION_ID_NOT_FOUND", "ConversationId was not found.");
                 }
 
+                _logger.LogInformation("Getting paged messages from messageId {MessageId} for conversationId {ConversationId}", msgId, convId);
                 var messages = await _GetPagedMessagesFromMessageIdAsync(convId, msgId);
 
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
+                _logger.LogInformation("Returning {Count} messages", messageDtos.Count);
                 return messageDtos;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "An exception occurred in GetPagedMessagesFromMessageIdAsync for conversationId: {ConversationId}, fromMessageId: {FromMessageId}", convId, msgId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
@@ -176,12 +210,15 @@ namespace ChatCommunicator.Application.Services
         {
             try
             {
+                _logger.LogInformation("Saving message with id {MessageId} in conversation {ConversationId}", message.Id, message.ConversationId);
                 await _SaveMessageAsync(message);
                 await UpdateLastMessageInConversationAsync(message);
+                _logger.LogInformation("Message saved and conversation last message updated");
                 return Result.Success();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "An exception occurred in SaveMessageAsync for messageId: {MessageId}", message.Id);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
@@ -247,6 +284,5 @@ namespace ChatCommunicator.Application.Services
             _unitOfWork.Conversations.Delete(conversation);
             await _unitOfWork.SaveAsync();
         }
-
     }
 }

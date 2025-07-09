@@ -8,34 +8,13 @@ using ChatCommunicator.Infrastructure.UnitOfWork;
 using System.Linq.Expressions;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Application.Services;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Services.TokenServiceTest
 {
-    public class CreateRefreshTokenAsyncTest
+    public class CreateRefreshTokenAsyncTest : TokenServiceTest
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IConfiguration _configuration;
-        private readonly IUnitOfWork _unitOfWork;
-
-        private readonly ITokenService _tokenService;
-        private readonly Guid _sampleUserId;
-
-        public CreateRefreshTokenAsyncTest()
-        {
-            _userManager = A.Fake<UserManager<UserAccount>>();
-
-            _configuration = A.Fake<IConfiguration>();
-            A.CallTo(() => _configuration["JWT:SigningKey"]).Returns("sgdfgfdgdrt45345klopdgdfge543532fdgdbfdisjdhdgdfgfdvgfdgdggpdvbl3gr4t");
-            A.CallTo(() => _configuration["JWT:Issuer"]).Returns("your-issuer");
-            A.CallTo(() => _configuration["JWT:Audience"]).Returns("your-audience");
-
-            _unitOfWork = A.Fake<IUnitOfWork>();
-
-            _tokenService = new TokenService(_configuration, _userManager, _unitOfWork);
-            _sampleUserId = Guid.NewGuid();
-        }
-
-
         [Fact]
         public async Task CreateRefreshTokenAsync_ShouldReturnSuccess()
         {
