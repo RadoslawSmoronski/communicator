@@ -6,6 +6,8 @@ using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Application.Managers;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 {
@@ -15,6 +17,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         protected readonly UserManager<UserAccount> _userManager;
         protected readonly SignInManager<UserAccount> _signInManager;
         protected readonly IMapper _mapper;
+        protected readonly ILogger<AccountManager> _logger;
 
         protected readonly IAccountManager _accountManager;
 
@@ -29,6 +32,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             _userManager = A.Fake<UserManager<UserAccount>>();
             _tokenService = A.Fake<ITokenService>();
             _signInManager = A.Fake<SignInManager<UserAccount>>();
+            _logger = A.Fake<ILogger<AccountManager>>();
 
             var configuration = new MapperConfiguration(cfg =>
             {
@@ -37,7 +41,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
             _mapper = configuration.CreateMapper();
 
-            _accountManager = new AccountManager(_userManager, _mapper, _signInManager, _tokenService);    
+            _accountManager = new AccountManager(_userManager, _mapper, _signInManager, _tokenService, _logger);    
 
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };

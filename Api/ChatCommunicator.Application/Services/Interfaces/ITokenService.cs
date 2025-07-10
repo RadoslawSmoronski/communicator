@@ -14,6 +14,5 @@ namespace ChatCommunicator.Application.Services.Interfaces
 
         //RefreshToken
         Task<ResultT<Guid>> CreateRefreshTokenAsync(Guid userId);
-        Task<ResultT<int>> RemoveExpiredRefreshTokensAsync();
     }
 }

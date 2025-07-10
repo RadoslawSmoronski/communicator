@@ -1,19 +1,23 @@
-﻿using ChatCommunicator.Infrastructure;
-using ChatCommunicator.Infrastructure.Repository;
-using ChatCommunicator.Infrastructure.UnitOfWork;
+﻿using ChatCommunicator.Application.Hubs;
+using ChatCommunicator.Application.Managers;
+using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services;
+using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
+using ChatCommunicator.Infrastructure;
+using ChatCommunicator.Infrastructure.Repository;
+using ChatCommunicator.Infrastructure.Service;
+using ChatCommunicator.Infrastructure.Services;
+using ChatCommunicator.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NpgsqlTypes;
+using Serilog;
+using Serilog.Sinks.PostgreSQL;
 using System.Reflection;
-using ChatCommunicator.Application.Services;
-using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Application.Managers;
-using ChatCommunicator.Application.Managers.Interfaces;
-using ChatCommunicator.Application.Hubs;
-using ChatCommunicator.Application.Service;
 
 namespace ChatCommunicator.Application
 {
@@ -21,6 +25,7 @@ namespace ChatCommunicator.Application
     {
         public static void Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Framework services
@@ -32,12 +37,12 @@ namespace ChatCommunicator.Application
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             if (connectionString == null || connectionString.Length == 0)
             {
-                Console.WriteLine("[Program settings] ConnectionString is not configured or empty. Please check your configuration.");
+                Log.Fatal("[Program settings] ConnectionString is not configured or empty. Please check your configuration.");
                 Environment.Exit(1);
             }
             builder.Services.AddDbContext<ApplicationDbContext>
                 (options => options.UseNpgsql(connectionString));
-            
+
             builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -57,16 +62,18 @@ namespace ChatCommunicator.Application
             var issuerSigningKey = builder.Configuration["JWT:SigningKey"];
             if (issuerSigningKey == null || issuerSigningKey.Length == 0)
             {
-                Console.WriteLine("[Program settings] JWT:SigningKey is not configured or empty. Please check your configuration.");
+                Log.Fatal("[Program settings] JWT:SigningKey is not configured or empty. Please check your configuration.");
                 Environment.Exit(1);
             }
-            builder.Services.AddAuthentication(options => {
+            builder.Services.AddAuthentication(options =>
+            {
                 options.DefaultAuthenticateScheme =
                 options.DefaultChallengeScheme =
                 options.DefaultForbidScheme =
                 options.DefaultScheme =
                 options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options => {
+            }).AddJwtBearer(options =>
+            {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -80,7 +87,8 @@ namespace ChatCommunicator.Application
                 };
                 options.Events = new JwtBearerEvents
                 {
-                    OnMessageReceived = context => {
+                    OnMessageReceived = context =>
+                    {
                         var accessToken = context.Request.Query["access_token"];
                         var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(accessToken)
@@ -93,7 +101,29 @@ namespace ChatCommunicator.Application
                 };
             });
 
-            // Application services
+            IDictionary<string, ColumnWriterBase> columnWriters = new Dictionary<string, ColumnWriterBase>
+            {
+                {"message", new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
+                {"message_template", new MessageTemplateColumnWriter(NpgsqlDbType.Text) },
+                {"level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
+                {"raise_date", new TimestampColumnWriter(NpgsqlDbType.Timestamp) },
+                {"exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
+                {"properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb) },
+                {"props_test", new PropertiesColumnWriter(NpgsqlDbType.Jsonb) },
+                {"machine_name", new SinglePropertyColumnWriter("MachineName", PropertyWriteMethod.ToString, NpgsqlDbType.Text, "l") }
+            };
+
+            Log.Logger = new LoggerConfiguration()
+                            .WriteTo.Console()
+                            .WriteTo.PostgreSQL(builder.Configuration.GetConnectionString("DefaultConnection"), "Logs", columnWriters, needAutoCreateTable: true)
+                            .CreateLogger();
+
+            builder.Host.UseSerilog();
+
+            builder.Services.AddSingleton<LogCleanupService>();
+            builder.Services.AddHostedService<LogCleanupService>();
+
+            // Application services 
             builder.Services.AddSingleton<TokenCleanupService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<IChatService, ChatService>();
@@ -103,7 +133,7 @@ namespace ChatCommunicator.Application
             builder.Services.AddHostedService<TokenCleanupService>();
             builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
 
-            // Infrastructure
+            // Infrastructure 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -141,9 +171,9 @@ namespace ChatCommunicator.Application
             });
 
             var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
-            if(allowedOrigins == null || allowedOrigins.Length == 0)
+            if (allowedOrigins == null || allowedOrigins.Length == 0)
             {
-                Console.WriteLine("[Program settings] CORS:AllowedOrigins is not configured or empty. Please check your configuration.");
+                Log.Fatal("[Program settings] CORS:AllowedOrigins is not configured or empty. Please check your configuration.");
                 Environment.Exit(1);
             }
             builder.Services.AddCors(options =>
@@ -168,11 +198,11 @@ namespace ChatCommunicator.Application
                 {
                     dbContext.Database.OpenConnection();
                     dbContext.Database.CloseConnection();
-                    Console.WriteLine("The application successfully connected to the database.");
+                    Log.Information("The application successfully connected to the database.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Database error: {ex.Message}");
+                    Log.Fatal(ex, "Database error");
                     Environment.Exit(1);
                 }
             }

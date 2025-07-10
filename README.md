@@ -13,6 +13,7 @@
 - JWT (authentication)
 - PostgreSQL
 - AutoMapper
+- Serilog
 - xUnit, FluentAssertions, FakeItEasy (unit testing)
 - Redoc (API documentation)
 
@@ -61,12 +62,25 @@ Similarly, the frontend in `client` may be ahead of what is currently merged int
 
 ### Example `appsettings.json`
 
+<<<<<<< HEAD
 ```json
 {
   "Logging": {
     "LogLevel": {
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning"
+=======
+    {
+      "ConnectionStrings": {
+        "DefaultConnection": "Host=string;Database=string;Port=string;Username=string;Password=string"
+      },
+      "JWT": {
+        "Issuer": "string",
+        "Audience": "string",
+        "SigningKey": "your-signing-key-here"
+      },
+      "AllowedHosts": "*"
+>>>>>>> api/feature/development
     }
   },
   "ConnectionStrings": {
@@ -100,6 +114,14 @@ Similarly, the frontend in `client` may be ahead of what is currently merged int
   "AllowedHosts": "*"
 }
 ```
+
+## 💬 Logging with Serilog
+
+The project uses Serilog for structured logging. Logs are saved to the console and to a PostgreSQL database (table Logs).
+
+Additionally, an automatic cleanup service runs periodically to delete log entries older than 30 days.
+
+The table is created automatically if it does not exist.
 
 ## 🧪 Testing
 

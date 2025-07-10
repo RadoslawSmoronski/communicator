@@ -17,16 +17,19 @@ namespace ChatCommunicator.Application.Controllers
         private readonly IChatService _chatService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<FriendsController> _logger;
 
         public FriendsController(IFriendsService friendsManager,
             IChatService chatService,
             IMapper mapper,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<FriendsController> logger)
         {
             _friendsManager = friendsManager;
             _chatService = chatService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         /// <summary>
@@ -69,7 +72,9 @@ namespace ChatCommunicator.Application.Controllers
 
             if (inviteResult.IsSuccess)
             {
-                Ok();
+                _logger.LogInformation("[SendInviteAsync] Invite sent successfully. SenderId: {SenderId}, RecipientId: {RecipientId}",
+                    inviteDto.SenderId, inviteDto.RecipientId);
+                return Ok();
             }
 
             if (inviteResult.Error != null)
@@ -79,6 +84,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[SendInviteAsync] Validation error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        inviteDto.SenderId, inviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -87,6 +94,8 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.NotFound)
                 {
+                    _logger.LogWarning("[SendInviteAsync] Not found error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        inviteDto.SenderId, inviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 404,
                         title: "Not Found",
@@ -95,6 +104,8 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.Conflict)
                 {
+                    _logger.LogWarning("[SendInviteAsync] Conflict error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        inviteDto.SenderId, inviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
@@ -102,6 +113,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[SendInviteAsync] Unexpected error. SenderId: {SenderId}, RecipientId: {RecipientId}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    inviteDto.SenderId, inviteDto.RecipientId, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -109,12 +122,15 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[SendInviteAsync] Unexpected null error. SenderId: {SenderId}, RecipientId: {RecipientId}",
+                inviteDto.SenderId, inviteDto.RecipientId);
             return Problem(
                 statusCode: 500,
                 title: "InternalServerError",
                 detail: "An unexpected error occurred."
             );
         }
+
 
         /// <summary>
         /// Get Invitations
@@ -150,6 +166,8 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[GetInvitationsAsync] Successfully retrieved invitations for UserId: {UserId}. Count: {Count}",
+                    userId, result.Value?.Count() ?? 0);
                 return Ok(result.Value);
             }
 
@@ -160,6 +178,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[GetInvitationsAsync] Validation error for UserId: {UserId}. Message: {ErrorMessage}",
+                        userId, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -168,6 +188,8 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.NotFound)
                 {
+                    _logger.LogWarning("[GetInvitationsAsync] Not found error for UserId: {UserId}. Message: {ErrorMessage}",
+                        userId, errorMessage);
                     return Problem(
                         statusCode: 404,
                         title: "Not Found",
@@ -175,6 +197,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[GetInvitationsAsync] Unexpected error for UserId: {UserId}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    userId, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -182,12 +206,14 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[GetInvitationsAsync] Unexpected null error for UserId: {UserId}", userId);
             return Problem(
                 statusCode: 500,
                 title: "InternalServerError",
                 detail: "An unexpected error occurred."
             );
         }
+
 
 
         /// <summary>
@@ -225,6 +251,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (userClaimId == null)
             {
+                _logger.LogWarning("[GetUsersToInviteByTextAsync] Unauthorized access attempt: JWT Token is missing.");
                 return Problem(
                     statusCode: 401,
                     title: "Unauthorized",
@@ -232,9 +259,9 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-
             if (!Guid.TryParse(userClaimId, out Guid userId))
             {
+                _logger.LogWarning("[GetUsersToInviteByTextAsync] Unauthorized access attempt: UserId from JWT Token is not a GUID. Value: {UserClaimId}", userClaimId);
                 return Problem(
                     statusCode: 401,
                     title: "Unauthorized",
@@ -246,6 +273,8 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[GetUsersToInviteByTextAsync] Successfully retrieved users to invite for UserId: {UserId}, SearchText: {Text}. Count: {Count}",
+                    userId, text, result.Value?.Count() ?? 0);
                 return Ok(result.Value);
             }
 
@@ -256,6 +285,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[GetUsersToInviteByTextAsync] Validation error for UserId: {UserId}, SearchText: {Text}. Message: {ErrorMessage}",
+                        userId, text, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -264,6 +295,8 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.NotFound)
                 {
+                    _logger.LogWarning("[GetUsersToInviteByTextAsync] Not found error for UserId: {UserId}, SearchText: {Text}. Message: {ErrorMessage}",
+                        userId, text, errorMessage);
                     return Problem(
                         statusCode: 404,
                         title: "Not Found",
@@ -271,6 +304,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[GetUsersToInviteByTextAsync] Unexpected error for UserId: {UserId}, SearchText: {Text}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    userId, text, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -278,12 +313,14 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[GetUsersToInviteByTextAsync] Unexpected null error for UserId: {UserId}, SearchText: {Text}", userId, text);
             return Problem(
                 statusCode: 500,
                 title: "InternalServerError",
                 detail: "An unexpected error occurred."
             );
         }
+
 
         /// <summary>
         /// Deceline Invite
@@ -323,6 +360,8 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[DecelineInviteAsync] Invite declined successfully. SenderId: {SenderId}, RecipientId: {RecipientId}",
+                    inviteDto.SenderId, inviteDto.RecipientId);
                 return Ok();
             }
 
@@ -333,6 +372,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[DecelineInviteAsync] Validation error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        inviteDto.SenderId, inviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -341,6 +382,8 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.NotFound)
                 {
+                    _logger.LogWarning("[DecelineInviteAsync] Not found error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        inviteDto.SenderId, inviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 404,
                         title: "Not Found",
@@ -348,6 +391,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[DecelineInviteAsync] Unexpected error. SenderId: {SenderId}, RecipientId: {RecipientId}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    inviteDto.SenderId, inviteDto.RecipientId, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -355,12 +400,15 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[DecelineInviteAsync] Unexpected null error. SenderId: {SenderId}, RecipientId: {RecipientId}",
+                inviteDto.SenderId, inviteDto.RecipientId);
             return Problem(
                 statusCode: 500,
                 title: "InternalServerError",
                 detail: "An unexpected error occurred."
             );
         }
+
 
         /// <summary>
         /// Accept Invite
@@ -404,10 +452,11 @@ namespace ChatCommunicator.Application.Controllers
 
             if (addFriendsResult.IsSuccess && createConversationResult.IsSuccess)
             {
-                Ok();
+                _logger.LogInformation("[AcceptInviteAsync] Friends added and conversation created successfully. SenderId: {SenderId}, RecipientId: {RecipientId}",
+                    acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+                return Ok();
             }
 
-            // addFriendsResult Error vaidation
             if (addFriendsResult.Error != null)
             {
                 var errorCode = addFriendsResult.Error.ErrorType;
@@ -415,6 +464,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[AcceptInviteAsync] AddFriends validation error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        acceptInviteDto.SenderId, acceptInviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -423,6 +474,8 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.NotFound)
                 {
+                    _logger.LogWarning("[AcceptInviteAsync] AddFriends not found error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        acceptInviteDto.SenderId, acceptInviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 404,
                         title: "Not Found",
@@ -431,6 +484,8 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.Conflict)
                 {
+                    _logger.LogWarning("[AcceptInviteAsync] AddFriends conflict error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        acceptInviteDto.SenderId, acceptInviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
@@ -438,6 +493,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[AcceptInviteAsync] AddFriends unexpected error. SenderId: {SenderId}, RecipientId: {RecipientId}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    acceptInviteDto.SenderId, acceptInviteDto.RecipientId, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -445,13 +502,14 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            // createConversationResult Error vaidation
             if (createConversationResult.Error != null)
             {
                 var errorCode = createConversationResult.Error.ErrorType;
                 var errorMessage = createConversationResult.Error.Description;
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[AcceptInviteAsync] CreateConversation validation error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        acceptInviteDto.SenderId, acceptInviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -460,12 +518,16 @@ namespace ChatCommunicator.Application.Controllers
                 }
                 else if (errorCode == ErrorType.NotFound)
                 {
+                    _logger.LogWarning("[AcceptInviteAsync] CreateConversation not found error. SenderId: {SenderId}, RecipientId: {RecipientId}. Message: {ErrorMessage}",
+                        acceptInviteDto.SenderId, acceptInviteDto.RecipientId, errorMessage);
                     return Problem(
                         statusCode: 404,
                         title: "Not Found",
                         detail: errorMessage
                     );
                 }
+                _logger.LogError("[AcceptInviteAsync] CreateConversation unexpected error. SenderId: {SenderId}, RecipientId: {RecipientId}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    acceptInviteDto.SenderId, acceptInviteDto.RecipientId, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -473,12 +535,15 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[AcceptInviteAsync] Unexpected error occurred without specific error info. SenderId: {SenderId}, RecipientId: {RecipientId}",
+                acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
             return Problem(
                 statusCode: 500,
                 title: "InternalServerError",
                 detail: "An unexpected error occurred."
             );
         }
+
 
         /// <summary>
         /// Get Friends
@@ -512,6 +577,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("[GetFriendsAsync] Friends list fetched successfully. UserId: {UserId}", userId);
                 return Ok(result.Value);
             }
 
@@ -522,6 +588,8 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Validation)
                 {
+                    _logger.LogWarning("[GetFriendsAsync] Validation error while fetching friends. UserId: {UserId}. Message: {ErrorMessage}",
+                        userId, errorMessage);
                     return Problem(
                         statusCode: 400,
                         title: "Bad Request",
@@ -529,6 +597,8 @@ namespace ChatCommunicator.Application.Controllers
                     );
                 }
 
+                _logger.LogError("[GetFriendsAsync] Unexpected error while fetching friends. UserId: {UserId}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    userId, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -536,11 +606,13 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
+            _logger.LogError("[GetFriendsAsync] Unexpected error with null error object. UserId: {UserId}", userId);
             return Problem(
                 statusCode: 500,
                 title: "InternalServerError",
                 detail: "An unexpected error occurred."
             );
         }
+
     }
 }

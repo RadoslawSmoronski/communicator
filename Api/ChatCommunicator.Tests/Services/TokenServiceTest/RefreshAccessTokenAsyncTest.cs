@@ -1,8 +1,6 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos.Service;
-using ChatCommunicator.Application.Service;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;
@@ -15,31 +13,8 @@ using ChatCommunicator.Application.Services;
 
 namespace ChatCommunicator.Tests.Services.TokenServiceTest
 {
-    public class RefreshAccessTokenAsyncTest
+    public class RefreshAccessTokenAsyncTest : TokenServiceTest
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IConfiguration _configuration;
-        private readonly IUnitOfWork _unitOfWork;
-
-        private readonly ITokenService _tokenService;
-        private readonly Guid _sampleRefreshToken;
-        private readonly UserAccount _sampleUserAccount;
-
-        public RefreshAccessTokenAsyncTest()
-        {
-            _userManager = A.Fake<UserManager<UserAccount>>();
-
-            _configuration = A.Fake<IConfiguration>();
-            A.CallTo(() => _configuration["JWT:SigningKey"]).Returns("sgdfgfdgdrt45345klopdgdfge543532fdgdbfdisjdhdgdfgfdvgfdgdggpdvbl3gr4t");
-            A.CallTo(() => _configuration["JWT:Issuer"]).Returns("your-issuer");
-            A.CallTo(() => _configuration["JWT:Audience"]).Returns("your-audience");
-
-            _unitOfWork = A.Fake<IUnitOfWork>();
-
-            _tokenService = new TokenService(_configuration, _userManager, _unitOfWork);
-            _sampleRefreshToken = Guid.NewGuid();
-            _sampleUserAccount = new UserAccount { UserName = "TestLogin123", Id = Guid.NewGuid() };
-        }
 
         [Fact]
         public async Task RefreshAccessTokenAsync_ShouldReturnSuccess()
