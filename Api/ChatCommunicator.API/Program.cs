@@ -132,6 +132,7 @@ namespace ChatCommunicator.Application
             builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
             builder.Services.AddHostedService<TokenCleanupService>();
             builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
+            builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
 
             // Infrastructure 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

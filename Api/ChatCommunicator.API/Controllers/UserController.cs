@@ -335,5 +335,13 @@ namespace ChatCommunicator.Application.Controllers
             );
         }
 
+        [HttpPost("avatar")]
+        public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            return Ok();
+        }
+
     }
 }

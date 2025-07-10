@@ -5,7 +5,6 @@ using ChatCommunicator.Infrastructure.UnitOfWork;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using System;
 using Microsoft.Extensions.Configuration;
 
 namespace ChatCommunicator.Tests.Services.TokenServiceTest
