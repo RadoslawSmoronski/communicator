@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Api"
   ],
-  "SelectedNode": "\\README.md",
+  "SelectedNode": "\\Api\\ChatCommunicator.sln",
   "PreviewInSolutionExplorer": false
 }
