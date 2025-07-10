@@ -25,7 +25,81 @@ namespace ChatCommunicator.Application
     {
         public static void Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
+
+            // Framework services
+            builder.Services.AddControllers();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddEndpointsApiExplorer();
+
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            if (connectionString == null || connectionString.Length == 0)
+            {
+                Log.Fatal("[Program settings] ConnectionString is not configured or empty. Please check your configuration.");
+                Environment.Exit(1);
+            }
+            builder.Services.AddDbContext<ApplicationDbContext>
+                (options => options.UseNpgsql(connectionString));
+
+            builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+
+                options.User.RequireUniqueEmail = false;
+            })
+                .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
+            var issuerSigningKey = builder.Configuration["JWT:SigningKey"];
+            if (issuerSigningKey == null || issuerSigningKey.Length == 0)
+            {
+                Log.Fatal("[Program settings] JWT:SigningKey is not configured or empty. Please check your configuration.");
+                Environment.Exit(1);
+            }
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme =
+                options.DefaultChallengeScheme =
+                options.DefaultForbidScheme =
+                options.DefaultScheme =
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JWT:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JWT:Audience"],
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
+                    )
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken)
+                            && path.StartsWithSegments("/ChatHub"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+            });
 
             IDictionary<string, ColumnWriterBase> columnWriters = new Dictionary<string, ColumnWriterBase>
             {
@@ -49,22 +123,22 @@ namespace ChatCommunicator.Application
             builder.Services.AddSingleton<LogCleanupService>();
             builder.Services.AddHostedService<LogCleanupService>();
 
-            // Add services to the container.
-            builder.Services.AddHttpContextAccessor();
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
-            builder.Services.AddControllers();
-            builder.Services.AddSignalR();
-            builder.Services.AddEndpointsApiExplorer();
+            // Application services 
+            builder.Services.AddSingleton<TokenCleanupService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IFriendsService, FriendsService>();
             builder.Services.AddScoped<IAccountManager, AccountManager>();
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
-            builder.Services.AddSingleton<TokenCleanupService>();
             builder.Services.AddHostedService<TokenCleanupService>();
             builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
+
+            // Infrastructure 
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Middleware
+            builder.Services.AddSignalR();
             builder.Services.AddSwaggerGen(option =>
             {
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -96,71 +170,24 @@ namespace ChatCommunicator.Application
                 });
             });
 
-            builder.Services.AddDbContext<ApplicationDbContext>
-                (options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-            builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
+            var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
+            if (allowedOrigins == null || allowedOrigins.Length == 0)
             {
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 6;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-
-                options.Lockout.AllowedForNewUsers = true;
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-
-                options.User.RequireUniqueEmail = false;
-            })
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
-
-            builder.Services.AddAuthentication(options => {
-                options.DefaultAuthenticateScheme =
-                options.DefaultChallengeScheme =
-                options.DefaultForbidScheme =
-                options.DefaultScheme =
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options => {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = builder.Configuration["JWT:Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = builder.Configuration["JWT:Audience"],
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
-                    )
-                };
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context => {
-                        var accessToken = context.Request.Query["access_token"];
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken)
-                            && path.StartsWithSegments("/ChatHub"))
-                        {
-                            context.Token = accessToken;
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-            });
-
-            // Add CORS configuration
+                Log.Fatal("[Program settings] CORS:AllowedOrigins is not configured or empty. Please check your configuration.");
+                Environment.Exit(1);
+            }
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin",
-                    builder =>
+                    policy =>
                     {
-                        builder.WithOrigins("http://localhost:3010")
-                               .AllowAnyMethod()
-                               .AllowAnyHeader()
-                               .AllowCredentials();
+                        policy.WithOrigins(allowedOrigins)
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials();
                     });
             });
+
 
             var app = builder.Build();
 
@@ -171,16 +198,15 @@ namespace ChatCommunicator.Application
                 {
                     dbContext.Database.OpenConnection();
                     dbContext.Database.CloseConnection();
-                    Console.WriteLine("The application successfully connected to the database.");
+                    Log.Information("The application successfully connected to the database.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Database error: {ex.Message}");
+                    Log.Fatal(ex, "Database error");
                     Environment.Exit(1);
                 }
             }
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -196,13 +222,9 @@ namespace ChatCommunicator.Application
 
             app.UseHttpsRedirection();
             app.UseCors("AllowSpecificOrigin");
-
             app.UseAuthorization();
-
             app.MapHub<ChatHub>("/ChatHub");
-
             app.MapControllers();
-
             app.Run();
         }
     }
