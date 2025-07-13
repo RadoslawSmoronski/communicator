@@ -8,6 +8,7 @@ using ChatCommunicator.Infrastructure;
 using ChatCommunicator.Infrastructure.Repository;
 using ChatCommunicator.Infrastructure.Service;
 using ChatCommunicator.Infrastructure.Services;
+using ChatCommunicator.Infrastructure.Services.Interfaces;
 using ChatCommunicator.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -137,6 +138,7 @@ namespace ChatCommunicator.Application
             // Infrastructure 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
             // Middleware
             builder.Services.AddSignalR();

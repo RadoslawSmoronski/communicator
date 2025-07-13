@@ -1,4 +1,5 @@
 ﻿using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Infrastructure.Services.Interfaces;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Http;
 using System.Drawing;
@@ -15,6 +16,12 @@ namespace ChatCommunicator.Application.Services
         private const int MIN_IMAGE_HEIGHT = 100; // 100 pixels
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
 
+        private readonly IFileStorageService _fileStorageService;
+
+        public UserAvatarService(IFileStorageService fileStorageService)
+        {
+            _fileStorageService = fileStorageService;
+        }
 
         public async Task<ResultT<string>> UploadAvatarAsync(IFormFile? file)
         {
@@ -48,6 +55,14 @@ namespace ChatCommunicator.Application.Services
             }
 
             var filename = "avatar_" + Guid.NewGuid().ToString() + extension;
+
+            var saveFile = await _fileStorageService.SaveFileAsync(file, "avatars", filename);
+
+            if (!saveFile.IsSuccess)
+            {
+                return Error.Failure("FILE_UPLOAD_FAILED", "Failed to upload the avatar file.");
+            }
+
             return filename;
         }
     }
