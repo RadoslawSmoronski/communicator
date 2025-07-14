@@ -6,7 +6,7 @@ using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Shared.Result;
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +17,7 @@ namespace ChatCommunicator.Application.Managers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly IUserAvatarService _userAvatarService;
         private readonly IMapper _mapper;
         private readonly ILogger<AccountManager> _logger;
 
@@ -24,12 +25,14 @@ namespace ChatCommunicator.Application.Managers
             IMapper mapper,
             SignInManager<UserAccount> signInManager,
             ITokenService tokenService,
+            IUserAvatarService userAvatarService,
             ILogger<AccountManager> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
             _tokenService = tokenService;
+            _userAvatarService = userAvatarService;
             _logger = logger;
         }
 
@@ -138,8 +141,7 @@ namespace ChatCommunicator.Application.Managers
                 {
                     _logger.LogWarning("Username change failed: user not found - {UserId}", userId);
                     return Error.Unauthorized("UNAUTHORIZED", "The user associated with the access token does not exist. Please log in again.");
-                }
-                ;
+                };
 
                 var isUsernameExists = await _userManager.FindByNameAsync(newUsername);
 
@@ -167,9 +169,47 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public async Task<ResultT<string>> UploadAvatarAsync(string userId, FormFile file)
+        public async Task<ResultT<string>> UploadAvatarAsync(string userId, IFormFile file)
         {
-            return "test";
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                _logger.LogWarning("UploadAvatarAsync failed: user with ID {UserId} not found.", userId);
+                return Error.Unauthorized("USER_NOT_FOUND", "User associated with the id does not exist. Please log in again.");
+            }
+            else if(String.IsNullOrEmpty(user.AvatarUrl) == false)
+            {
+                _logger.LogWarning("User {UserId} attempted to set avatar via POST but avatar is already set: {AvatarUrl}", userId, user.AvatarUrl);
+                return Error.Conflict("AVATAR_ALREADY_SET", "Avatar is already set.");
+            }
+
+            var uploadFileResult = await _userAvatarService.UploadAvatarAsync(file);
+
+            if (uploadFileResult.IsSuccess)
+            {
+                user.AvatarUrl = uploadFileResult.Value;
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User {UserId} avatar updated successfully.", userId);
+                    return uploadFileResult.Value;
+                }
+
+                _logger.LogError("Failed to update avatar URL for user {UserId}. Errors: {Errors}", userId, string.Join(", ", result.Errors));
+                return Error.Unknown("USER_UPDATE_FAILED", "Failed to update user avatar URL in database.");
+            }
+            else if (uploadFileResult.Error != null)
+            {
+                _logger.LogError("Avatar upload failed for user {UserId}. Error: {ErrorCode} - {ErrorMessage}",
+                    userId, uploadFileResult.Error.Code, uploadFileResult.Error.Description);
+                return uploadFileResult.Error;
+            }
+
+            _logger.LogError("UploadAvatarAsync ended with unknown error for user {UserId}.", userId);
+            return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
         }
 
     }

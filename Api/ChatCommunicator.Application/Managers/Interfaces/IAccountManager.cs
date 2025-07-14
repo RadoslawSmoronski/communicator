@@ -4,7 +4,7 @@ using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
-using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Http;
 
 namespace ChatCommunicator.Application.Managers.Interfaces
 {
@@ -12,7 +12,7 @@ namespace ChatCommunicator.Application.Managers.Interfaces
     {
         Task<ResultT<SimpleUserDto>> RegisterAsync(RegisterDto registerDto);
         Task<ResultT<LoggedUserDto>> LoginAsync(LoginDto loginDto);
-        Task<ResultT<string>> ChangeUsernameAsync(string userId, string newUsername);
-        Task<ResultT<string>> UploadAvatarAsync(string userId, FormFile file);
+        Task<ResultT<string>> ChangeUsernameAsync(string? userId, string newUsername);
+        Task<ResultT<string>> UploadAvatarAsync(string? userId, IFormFile? file);
     }
 }
