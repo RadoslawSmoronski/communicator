@@ -98,6 +98,7 @@ namespace ChatCommunicator.Application.Managers
                         {
                             UserName = loginDto.UserName,
                             Id = user.Id,
+                            AvatarUrl = _userAvatarService.GetPublicAvatarUrl(user.AvatarUrl),
                             AccessToken = accessToken.Value,
                             RefreshToken = refreshToken.Value
                         };

@@ -10,6 +10,7 @@ namespace ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync
     {
         public string UserName { get; set; } = string.Empty;
         public Guid Id { get; set; } = Guid.Empty;
+        public string AvatarUrl { get; set; } = string.Empty;
         public string AccessToken { get; set; } = string.Empty;
         public Guid RefreshToken { get; set; } = Guid.Empty;
     }

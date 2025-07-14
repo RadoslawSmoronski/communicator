@@ -17,10 +17,12 @@ namespace ChatCommunicator.Application.Services
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
 
         private readonly IFileStorageService _fileStorageService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserAvatarService(IFileStorageService fileStorageService)
+        public UserAvatarService(IFileStorageService fileStorageService, IHttpContextAccessor httpContextAccessor)
         {
             _fileStorageService = fileStorageService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ResultT<string>> UploadAvatarAsync(IFormFile? file)
@@ -64,6 +66,12 @@ namespace ChatCommunicator.Application.Services
             }
 
             return filename;
+        }
+
+        public string GetPublicAvatarUrl(string fileName)
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}/avatars/{fileName}";
         }
     }
 }

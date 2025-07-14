@@ -17,13 +17,14 @@ namespace ChatCommunicator.Tests.Services.UserAvatarServiceTest
     {
         protected readonly IFileStorageService _fileStorageService;
         protected readonly IUserAvatarService _userAvatarService;
+        protected readonly IHttpContextAccessor _httpContextAccessor;
 
         protected UserAvatarServiceTest()
         {
             _fileStorageService = A.Fake<IFileStorageService>();
+            _httpContextAccessor = A.Fake<IHttpContextAccessor>();
 
-
-            _userAvatarService = new UserAvatarService(_fileStorageService);
+            _userAvatarService = new UserAvatarService(_fileStorageService, _httpContextAccessor);
         }
 
         protected IFormFile CreateFakeImage(int width, int height, ImageFormat imageFormat, string imagepath)

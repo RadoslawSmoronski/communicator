@@ -223,6 +223,7 @@ namespace ChatCommunicator.Application
                 c.DocumentTitle = "ChatCommunicator REST API Docs";
             });
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseCors("AllowSpecificOrigin");
             app.UseAuthorization();
