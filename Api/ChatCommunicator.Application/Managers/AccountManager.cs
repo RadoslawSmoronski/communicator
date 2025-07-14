@@ -6,6 +6,7 @@ using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Shared.Result;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
@@ -164,6 +165,11 @@ namespace ChatCommunicator.Application.Managers
                 _logger.LogError(ex, "Exception occurred during username change for user {UserId}", userId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
             }
+        }
+
+        public async Task<ResultT<string>> UploadAvatarAsync(string userId, FormFile file)
+        {
+            return "test";
         }
 
     }

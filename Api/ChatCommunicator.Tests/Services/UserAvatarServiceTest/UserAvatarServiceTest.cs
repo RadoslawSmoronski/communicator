@@ -1,5 +1,7 @@
 ﻿using ChatCommunicator.Application.Services;
 using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Infrastructure.Services.Interfaces;
+using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -13,16 +15,20 @@ namespace ChatCommunicator.Tests.Services.UserAvatarServiceTest
 {
     public abstract class UserAvatarServiceTest
     {
+        protected readonly IFileStorageService _fileStorageService;
         protected readonly IUserAvatarService _userAvatarService;
 
         protected UserAvatarServiceTest()
         {
-            _userAvatarService = new UserAvatarService();
+            _fileStorageService = A.Fake<IFileStorageService>();
+
+
+            _userAvatarService = new UserAvatarService(_fileStorageService);
         }
 
         protected IFormFile CreateFakeImage(int width, int height, ImageFormat imageFormat, string imagepath)
         {
-            var ms = new MemoryStream(); // bez using!
+            var ms = new MemoryStream();
 
             using (Bitmap image = new Bitmap(width, height))
             using (Graphics graphics = Graphics.FromImage(image))

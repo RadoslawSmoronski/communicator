@@ -18,12 +18,17 @@ namespace ChatCommunicator.Application.Controllers
     {
         private readonly ITokenService _tokenManager;
         private readonly IAccountManager _accountManager;
+        private readonly IUserAvatarService _userAvatarService;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(ITokenService tokenManager, IAccountManager accountManager, ILogger<UserController> logger)
+        public UserController(ITokenService tokenManager,
+            IAccountManager accountManager,
+            IUserAvatarService userAvatarService,
+            ILogger<UserController> logger)
         {
             _tokenManager = tokenManager;
             _accountManager = accountManager;
+            _userAvatarService = userAvatarService;
             _logger = logger;
         }
 
@@ -335,13 +340,92 @@ namespace ChatCommunicator.Application.Controllers
             );
         }
 
+        [Authorize]
         [HttpPost("avatar")]
-        public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadAvatar([FromForm] UploadAvatarDto uploadAvatarDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return Ok();
+            var result = await _userAvatarService.UploadAvatarAsync(uploadAvatarDto.File);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            else if (result.Error != null)
+            {
+                if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "FILE_IS_EMPTY")
+                {
+                    _logger.LogWarning("User {UserId} tried to upload an empty file.", userId);
+                    return Problem(
+                        statusCode: 400,
+                        title: "Bad Request",
+                        detail: "The uploaded file is empty."
+                    );
+                }
+                else if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "INVALID_FORMAT")
+                {
+                    _logger.LogWarning("User {UserId} uploaded a file with invalid format.", userId);
+                    return Problem(
+                        statusCode: 400,
+                        title: "Bad Request",
+                        detail: "The uploaded file format is not supported."
+                    );
+                }
+                else if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "FILE_IS_TOO_BIG")
+                {
+                    _logger.LogWarning("User {UserId} uploaded a file that is too big.", userId);
+                    return Problem(
+                        statusCode: 400,
+                        title: "Bad Request",
+                        detail: "The uploaded file is too large."
+                    );
+                }
+                else if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "FILE_IS_TOO_LARGE")
+                {
+                    _logger.LogWarning("User {UserId} uploaded a file that exceeds the maximum allowed size.", userId);
+                    return Problem(
+                        statusCode: 400,
+                        title: "Bad Request",
+                        detail: "The uploaded file exceeds the allowed size limit."
+                    );
+                }
+                else if (result.Error.ErrorType == ErrorType.Validation && result.Error.Code == "FILE_IS_TOO_SMALL")
+                {
+                    _logger.LogWarning("User {UserId} uploaded a file that is too small.", userId);
+                    return Problem(
+                        statusCode: 400,
+                        title: "Bad Request",
+                        detail: "The uploaded file is too small."
+                    );
+                }
+                else if (result.Error.ErrorType == ErrorType.Failure)
+                {
+                    _logger.LogError("Failed to upload avatar for user {UserId}: {ErrorMessage}", userId, result.Error.Description);
+                    return Problem(
+                        statusCode: 500,
+                        title: "Internal Server Error",
+                        detail: "Failed to upload the avatar file."
+                    );
+                }
+
+                _logger.LogError("Unexpected error during avatar upload for user {UserId}: {ErrorCode}", userId, result.Error.Code);
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected error",
+                    detail: "An unexpected error occurred. Please try again later or contact support."
+                );
+            }
+
+            _logger.LogError("Unexpected null error object during avatar upload for user {UserId}", userId);
+            return Problem(
+                statusCode: 500,
+                title: "Unexpected server error",
+                detail: "An unexpected error occurred during avatar upload."
+            );
         }
+
 
     }
 }
