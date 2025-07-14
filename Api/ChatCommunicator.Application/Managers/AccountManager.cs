@@ -116,7 +116,7 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public async Task<ResultT<string>> ChangeUsernameAsync(string userId, string newUsername)
+        public async Task<ResultT<string>> ChangeUsernameAsync(Guid userId, string newUsername)
         {
             _logger.LogInformation("User {UserId} requested username change to: {NewUsername}", userId, newUsername);
 
@@ -127,7 +127,7 @@ namespace ChatCommunicator.Application.Managers
             }
             ;
 
-            if (string.IsNullOrWhiteSpace(userId))
+            if (Guid.Empty == userId)
             {
                 _logger.LogWarning("Username change failed: userId is empty or null");
                 return Error.Validation("VALIDATION_USERID", "UserId cannot be empty or null.");
@@ -135,7 +135,7 @@ namespace ChatCommunicator.Application.Managers
 
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (user == null)
                 {
@@ -169,9 +169,15 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public async Task<ResultT<string>> UploadAvatarAsync(string userId, IFormFile file)
+        public async Task<ResultT<string>> UploadAvatarAsync(Guid userId, IFormFile? file)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            if(Guid.Empty == userId)
+            {
+                _logger.LogWarning("UploadAvatarAsync failed: userId is empty or null.");
+                return Error.Validation("VALIDATION_USERID", "UserId cannot be empty or null.");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId.ToString());
 
             if (user == null)
             {

@@ -5,6 +5,6 @@ namespace ChatCommunicator.Application.Services.Interfaces
 {
     public interface IUserAvatarService
     {
-        Task<ResultT<string>> UploadAvatarAsync(IFormFile file);
+        Task<ResultT<string>> UploadAvatarAsync(IFormFile? file);
     }
 }

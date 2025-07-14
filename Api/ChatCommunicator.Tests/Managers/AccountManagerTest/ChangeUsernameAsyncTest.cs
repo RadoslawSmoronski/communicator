@@ -30,7 +30,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
                 .Returns(Task.FromResult(IdentityResult.Success));
 
             //Act
-            var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id.ToString(), _newUsername) as ResultT<string>;
+            var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id, _newUsername) as ResultT<string>;
 
             // Assert
             result.Should().NotBeNull();
@@ -40,12 +40,12 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         }
 
         [Theory]
-        [InlineData("test", null)]
-        [InlineData(null, "test")]
+        [InlineData(SAMPLE_STRING_EMPTY_GUID, "test")]
+        [InlineData(SAMPLE_STRING_GUID, null)]
         public async Task ChangeUsernameAsync_ShouldReturnValidationError_WhenUserIdOrNewUsernameAreNullOrEmpty(string userId, string newUsername)
         {
             //Act
-            var result = await _accountManager.ChangeUsernameAsync(userId, newUsername) as ResultT<string>;
+            var result = await _accountManager.ChangeUsernameAsync(Guid.Parse(userId), newUsername) as ResultT<string>;
 
             // Assert
             result.Should().NotBeNull();
@@ -63,7 +63,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
                 .Returns(Task.FromResult<UserAccount?>(null));
 
             //Act
-            var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id.ToString(), _newUsername) as ResultT<string>;
+            var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id, _newUsername) as ResultT<string>;
 
             // Assert
             result.Should().NotBeNull();
@@ -84,7 +84,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
                 .Returns(Task.FromResult<UserAccount?>(_sampleUser1));
 
             //Act
-            var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id.ToString(), _newUsername) as ResultT<string>;
+            var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id, _newUsername) as ResultT<string>;
 
             // Assert
             result.Should().NotBeNull();
@@ -102,7 +102,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
                 .Throws(new Exception());
 
             //Act
-            var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id.ToString(), _newUsername) as ResultT<string>;
+            var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id, _newUsername) as ResultT<string>;
 
             // Assert
             result.Should().NotBeNull();

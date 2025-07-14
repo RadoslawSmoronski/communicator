@@ -274,7 +274,7 @@ namespace ChatCommunicator.Application.Controllers
 
             _logger.LogInformation("[ChangeUsernameAsync] Attempting to change username. UserId: {UserId}, NewUsername: {NewUsername}", userId, newUsername);
 
-            var result = await _accountManager.ChangeUsernameAsync(userId, newUsername);
+            var result = await _accountManager.ChangeUsernameAsync(Guid.Parse(userId), newUsername);
 
             if (result.IsSuccess)
             {
@@ -378,7 +378,7 @@ namespace ChatCommunicator.Application.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var result = await _accountManager.UploadAvatarAsync(userId, uploadAvatarDto.File);
+            var result = await _accountManager.UploadAvatarAsync(Guid.Parse(userId), uploadAvatarDto.File);
 
             if (result.IsSuccess)
             {
