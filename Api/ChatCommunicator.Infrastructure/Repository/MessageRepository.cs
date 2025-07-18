@@ -1,11 +1,6 @@
 ﻿using ChatCommunicator.Infrastructure.Repository.Interfaces;
 using ChatCommunicator.Contracts.Chat;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChatCommunicator.Infrastructure.Repository
 {

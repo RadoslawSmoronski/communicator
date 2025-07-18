@@ -9,11 +9,11 @@ namespace ChatCommunicator.Infrastructure.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        private IRepository<RefreshToken> _refreshTokens;
-        private IRepository<Friendship> _friendships;
-        private IRepository<FriendshipInvitation> _friendshipInvitations;
-        private IRepository<Conversation> _conversations;
-        private IMessageRepository _messages;
+        private IRepository<RefreshToken>? _refreshTokens;
+        private IRepository<Friendship>? _friendships;
+        private IRepository<FriendshipInvitation>? _friendshipInvitations;
+        private IRepository<Conversation>? _conversations;
+        private IMessageRepository? _messages;
 
         public UnitOfWork(ApplicationDbContext context)
         {
