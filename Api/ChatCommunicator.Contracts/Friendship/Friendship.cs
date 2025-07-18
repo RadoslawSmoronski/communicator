@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChatCommunicator.Contracts.Friendship
+﻿namespace ChatCommunicator.Contracts.Friendship
 {
     public class Friendship
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public Guid User1Id { get; set; } = Guid.Empty;
-        public Guid User2Id { get; set; } = Guid.Empty;
+        public required Guid User1Id { get; set; }
+        public required Guid User2Id { get; set; }
 
-        public UserAccount User1 { get; set; } = new UserAccount();
-        public UserAccount User2 { get; set; } = new UserAccount();
+        public required UserAccount User1 { get; set; }
+        public required UserAccount User2 { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

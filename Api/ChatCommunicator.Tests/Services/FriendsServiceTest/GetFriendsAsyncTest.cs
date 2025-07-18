@@ -19,8 +19,8 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
 
             IEnumerable<Friendship> friendships = new List<Friendship>
             {
-                new Friendship { Id = Guid.NewGuid(), User1Id = _sampleUser.Id, User2Id = _sampleSenderUser.Id, User2 = _sampleSenderUser },
-                new Friendship { Id = Guid.NewGuid(), User1Id = _sampleUser.Id, User2Id = _sampleRecipientUser.Id, User2 = _sampleRecipientUser },
+                new Friendship { Id = Guid.NewGuid(), User1Id = _sampleUser.Id, User2Id = _sampleSenderUser.Id, User1 = _sampleUser, User2 = _sampleSenderUser},
+                new Friendship { Id = Guid.NewGuid(), User1Id = _sampleUser.Id, User2Id = _sampleRecipientUser.Id, User1 = _sampleUser, User2 = _sampleRecipientUser },
             };
 
 

@@ -29,7 +29,7 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
                 .Returns(Task.FromResult(false));
 
             A.CallTo(() => _unitOfWork.FriendshipInvitations.FirstOrDefaultAsync(A<Expression<Func<FriendshipInvitation, bool>>>._))
-                .Returns(Task.FromResult<FriendshipInvitation?>(new FriendshipInvitation()));
+                .Returns(Task.FromResult<FriendshipInvitation?>(_sampleFriendshipInvitation));
 
             // Act
             var result = await _friendsManager.AddFriendsAsync(_sampleSenderUser.Id, _sampleRecipientUser.Id) as Result;

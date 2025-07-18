@@ -24,7 +24,7 @@ namespace ChatCommunicator.Tests.Services.TokenServiceTest
                            .Returns(Task.FromResult(true));
 
             A.CallTo(() => _unitOfWork.RefreshTokens.FirstOrDefaultAsync(A<Expression<Func<RefreshToken, bool>>>._))
-                           .Returns(Task.FromResult<RefreshToken?>(new RefreshToken() {UserId = _sampleUserAccount.Id }));
+                           .Returns(Task.FromResult<RefreshToken?>(new RefreshToken() {Token = Guid.NewGuid(), UserId = _sampleUserAccount.Id }));
 
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserAccount.Id.ToString()))
                            .Returns(Task.FromResult<UserAccount?>(_sampleUserAccount));

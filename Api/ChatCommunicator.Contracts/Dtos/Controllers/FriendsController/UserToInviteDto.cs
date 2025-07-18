@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChatCommunicator.Contracts.Dtos.Controllers.FriendsController
+﻿namespace ChatCommunicator.Contracts.Dtos.Controllers.FriendsController
 {
     public class UserToInviteDto
     {
-        public Guid Id { get; set; } = Guid.Empty;
-        public string UserName { get; set; } = String.Empty;
+        public required Guid Id { get; set; }
+        public required string UserName { get; set; } 
         public bool IsInvited { get; set; } = false;
     }
 }

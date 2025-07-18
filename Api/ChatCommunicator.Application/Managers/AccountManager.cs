@@ -94,11 +94,13 @@ namespace ChatCommunicator.Application.Managers
 
                     if (refreshToken.IsSuccess && accessToken.IsSuccess)
                     {
+                        var avatarUrl = user.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(user.AvatarUrl) : null;
+                        
                         var resultObj = new LoggedUserDto()
                         {
                             UserName = loginDto.UserName,
                             Id = user.Id,
-                            AvatarUrl = _userAvatarService.GetPublicAvatarUrl(user.AvatarUrl),
+                            AvatarUrl = avatarUrl,
                             AccessToken = accessToken.Value,
                             RefreshToken = refreshToken.Value
                         };

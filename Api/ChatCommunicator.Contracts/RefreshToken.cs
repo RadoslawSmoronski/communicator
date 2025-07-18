@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChatCommunicator.Contracts
+﻿namespace ChatCommunicator.Contracts
 {
     public class RefreshToken
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public Guid Token { get; set; } = Guid.Empty;
-        public Guid UserId { get; set; } = Guid.Empty;
+        public required Guid Token { get; set; }
+        public required Guid UserId { get; set; }
         public DateTime Expiration {  get; set; } = DateTime.MinValue;
     }
 }

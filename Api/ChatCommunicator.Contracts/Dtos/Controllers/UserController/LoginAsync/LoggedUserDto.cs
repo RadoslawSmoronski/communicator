@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync
+﻿namespace ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync
 {
     public class LoggedUserDto
     {
-        public string UserName { get; set; } = string.Empty;
-        public Guid Id { get; set; } = Guid.Empty;
-        public string AvatarUrl { get; set; } = string.Empty;
-        public string AccessToken { get; set; } = string.Empty;
-        public Guid RefreshToken { get; set; } = Guid.Empty;
+        public required string UserName { get; set; }
+        public required Guid Id { get; set; }
+        public string? AvatarUrl { get; set; }
+        public required string AccessToken { get; set; }
+        public required Guid RefreshToken { get; set; }
     }
 }

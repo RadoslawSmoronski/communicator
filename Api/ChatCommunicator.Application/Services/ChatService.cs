@@ -135,25 +135,27 @@ namespace ChatCommunicator.Application.Services
                     x => x.LastMessage
                 );
 
-                var chatDtos = conversations.Select(x =>
-                {
-                    var isUser1 = x.User1Id == userId;
-                    var friend = isUser1 ? x.User2 : x.User1;
+                var chatDtos = conversations
+                    .Where(x => {
+                        var isUser1 = x.User1Id == userId;
+                        var friend = isUser1 ? x.User2 : x.User1;
+                        return friend?.UserName != null;
+                    })
+                    .Select(x => {
+                        var isUser1 = x.User1Id == userId;
+                        var friend = isUser1 ? x.User2 : x.User1;
 
-                    if (friend?.UserName == null)
-                        return new ChatDto();
-
-                    return new ChatDto
-                    {
-                        FriendId = friend.Id,
-                        FriendUserName = friend.UserName,
-                        ConversationId = x.Id,
-                        LastMessageId = x.LastMessageId,
-                        LastMessageContent = x.LastMessage?.Content,
-                        IsFriendSenderMessage = x.LastMessage?.SenderId == friend.Id,
-                        LastMessageTimestamp = x.LastMessage?.Timestamp
-                    };
-                }).ToList();
+                        return new ChatDto
+                        {
+                            FriendId = friend.Id,
+                            FriendUserName = friend.UserName,
+                            ConversationId = x.Id,
+                            LastMessageId = x.LastMessageId,
+                            LastMessageContent = x.LastMessage?.Content,
+                            IsFriendSenderMessage = x.LastMessage?.SenderId == friend.Id,
+                            LastMessageTimestamp = x.LastMessage?.Timestamp
+                        };
+                    }).ToList();
 
                 _logger.LogInformation("Returning {Count} chats for user id {UserId}", chatDtos.Count, userId);
                 return chatDtos;

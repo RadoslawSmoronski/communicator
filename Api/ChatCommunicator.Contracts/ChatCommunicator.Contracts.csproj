@@ -7,13 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dtos\Controllers\NewFolder\**" />
+    <EmbeddedResource Remove="Dtos\Controllers\NewFolder\**" />
+    <None Remove="Dtos\Controllers\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\Controllers\NewFolder\" />
     <Folder Include="Friendship\" />
   </ItemGroup>
 

@@ -6,7 +6,6 @@ using ChatCommunicator.Contracts.Chat;
 using AutoMapper;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Application.Services;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Managers.ChatManagerTest

@@ -8,6 +8,6 @@ namespace ChatCommunicator.Contracts.Dtos.Controllers.UserController
     {
         [Required]
         [FromForm(Name = "file")]
-        public IFormFile? File { get; set; }
+        public required IFormFile File { get; set; }
     }
 }
