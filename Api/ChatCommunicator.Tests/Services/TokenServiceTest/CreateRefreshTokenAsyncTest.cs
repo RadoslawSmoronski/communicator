@@ -1,15 +1,8 @@
 ﻿using ChatCommunicator.Contracts;
 using FakeItEasy;
-using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Shared.Result;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
-using ChatCommunicator.Infrastructure.UnitOfWork;
 using System.Linq.Expressions;
-using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Application.Services;
-using Castle.Core.Logging;
-using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Services.TokenServiceTest
 {

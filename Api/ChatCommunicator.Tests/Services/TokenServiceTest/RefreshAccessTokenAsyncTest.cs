@@ -1,14 +1,9 @@
-﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Contracts;
+﻿using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos.Service;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using System.Linq.Expressions;
-using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Application.Services;
 
 
 namespace ChatCommunicator.Tests.Services.TokenServiceTest

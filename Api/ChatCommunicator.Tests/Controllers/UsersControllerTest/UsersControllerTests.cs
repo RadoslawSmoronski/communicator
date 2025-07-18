@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using FakeItEasy;
 using ChatCommunicator.Application.Controllers;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Controllers.UsersControllerTest

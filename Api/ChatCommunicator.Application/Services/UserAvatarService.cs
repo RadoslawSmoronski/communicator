@@ -2,8 +2,8 @@
 using ChatCommunicator.Infrastructure.Services.Interfaces;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Http;
-using System.Drawing;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace ChatCommunicator.Application.Services
 {
@@ -44,15 +44,24 @@ namespace ChatCommunicator.Application.Services
             }
 
             using (var stream = file.OpenReadStream())
-            using (var image = Image.FromStream(stream))
             {
-                if (image.Width > MAX_IMAGE_WIDTH || image.Height > MAX_IMAGE_HEIGHT)
+                try
                 {
-                    return Error.Validation("FILE_IS_TOO_LARGE", "Image resolution exceeds the maximum allowed 500x500 pixels.");
+                    using (var image = await Image.LoadAsync<Rgba32>(stream))
+                    {
+                        if (image.Width > MAX_IMAGE_WIDTH || image.Height > MAX_IMAGE_HEIGHT)
+                        {
+                            return Error.Validation("FILE_IS_TOO_LARGE", "Image resolution exceeds the maximum allowed 500x500 pixels.");
+                        }
+                        else if (image.Width < MIN_IMAGE_WIDTH || image.Height < MIN_IMAGE_HEIGHT)
+                        {
+                            return Error.Validation("FILE_IS_TOO_SMALL", "Image resolution is too small. Minimum allowed is 100x100 pixels.");
+                        }
+                    }
                 }
-                else if (image.Width < MIN_IMAGE_WIDTH || image.Height < MIN_IMAGE_HEIGHT)
+                catch
                 {
-                    return Error.Validation("FILE_IS_TOO_SMALL", "Image resolution is too small. Minimum allowed is 50x50 pixels.");
+                    return Error.Validation("INVALID_IMAGE", "File is not a valid image.");
                 }
             }
 

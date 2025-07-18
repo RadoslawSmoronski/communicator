@@ -6,7 +6,6 @@ using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Application.Managers;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Managers.AccountManagerTest

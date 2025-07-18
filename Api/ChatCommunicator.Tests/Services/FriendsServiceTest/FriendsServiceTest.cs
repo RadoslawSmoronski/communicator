@@ -2,11 +2,6 @@
 using ChatCommunicator.Contracts;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ChatCommunicator.Application.Managers;
 using Microsoft.Extensions.Logging;
 using ChatCommunicator.Contracts.Friendship;
