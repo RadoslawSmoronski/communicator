@@ -1,10 +1,5 @@
-﻿using ChatCommunicator.Application.Services;
-using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Shared.Result;
-using FakeItEasy;
+﻿using ChatCommunicator.Shared.Result;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
-using System.Drawing.Imaging;
 
 namespace ChatCommunicator.Tests.Services.UserAvatarServiceTest
 {
@@ -14,7 +9,7 @@ namespace ChatCommunicator.Tests.Services.UserAvatarServiceTest
         public async Task UploadAvatarAsync_ShouldReturnSuccess_WhenFileIsValid()
         {
             // Arrange
-            var image = CreateFakeImage(450, 450, ImageFormat.Png, "fakeImage.png");
+            var image = CreateFakeImageFormFile(450, 450, "fakeImage.png");
 
             // Act
             var result = await _userAvatarService.UploadAvatarAsync(image) as ResultT<string>;
@@ -28,8 +23,8 @@ namespace ChatCommunicator.Tests.Services.UserAvatarServiceTest
         public async Task UploadAvatarAsync_ShouldReturnValidationError_WhenFileIsTooBig()
         {
             // Arrange
-            var image = CreateFakeImage(2000, 2000, ImageFormat.Bmp, "fakeimage.bmp"); // ~ 11MB, which is larger than the 5MB limit
-
+            var image = CreateFakeImageFormFile(2000, 2000, "fakeImage.bmp"); // ~ 11MB, which is larger than the 5MB limit
+                
             // Act
             var result = await _userAvatarService.UploadAvatarAsync(image) as ResultT<string>;
 
@@ -46,7 +41,7 @@ namespace ChatCommunicator.Tests.Services.UserAvatarServiceTest
         public async Task UploadAvatarAsync_ShouldReturnValidationError_WhenFileIsTooLarge()
         {
             // Arrange
-            var image = CreateFakeImage(503, 450, ImageFormat.Png, "fakeimage.png");
+            var image = CreateFakeImageFormFile(503, 450, "fakeimage.png");
 
             // Act
             var result = await _userAvatarService.UploadAvatarAsync(image) as ResultT<string>;
@@ -64,7 +59,7 @@ namespace ChatCommunicator.Tests.Services.UserAvatarServiceTest
         public async Task UploadAvatarAsync_ShouldReturnValidationError_WhenFileIsTooSmall()
         {
             // Arrange
-            var image = CreateFakeImage(90, 90, ImageFormat.Png, "fakeimage.png");
+            var image = CreateFakeImageFormFile(90, 90, "fakeimage.png");
 
             // Act
             var result = await _userAvatarService.UploadAvatarAsync(image) as ResultT<string>;
@@ -82,7 +77,7 @@ namespace ChatCommunicator.Tests.Services.UserAvatarServiceTest
         public async Task UploadAvatarAsync_ShouldReturnValidationError_WhenFileIsNotValidFormat()
         {
             // Arrange
-            var image = CreateFakeImage(450, 450, ImageFormat.Tiff, "fakeimage.tiff");
+            var image = CreateFakeImageFormFile(450, 450, "fakeimage.tiff");
 
             // Act
             var result = await _userAvatarService.UploadAvatarAsync(image) as ResultT<string>;
