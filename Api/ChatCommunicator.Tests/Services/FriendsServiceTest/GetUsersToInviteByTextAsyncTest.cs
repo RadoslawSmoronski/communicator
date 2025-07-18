@@ -1,15 +1,10 @@
-﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Application.Managers;
-using ChatCommunicator.Contracts;
-using ChatCommunicator.Contracts.Dtos;
+﻿using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Contracts.Friendship;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
-using static System.Net.Mime.MediaTypeNames;
 using MockQueryable;
 
 namespace ChatCommunicator.Tests.Services.FriendsManagerTest

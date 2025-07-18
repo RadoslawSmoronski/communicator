@@ -1,5 +1,4 @@
 ﻿using ChatCommunicator.Contracts;
-using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;

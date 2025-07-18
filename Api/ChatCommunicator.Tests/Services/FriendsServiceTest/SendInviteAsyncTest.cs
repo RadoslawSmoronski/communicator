@@ -1,12 +1,8 @@
-﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Application.Managers;
-using ChatCommunicator.Application.Managers.Interfaces;
-using ChatCommunicator.Contracts;
+﻿using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Friendship;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using System.Linq.Expressions;
 
 namespace ChatCommunicator.Tests.Services.FriendsManagerTest

@@ -41,7 +41,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
         [Theory]
         [InlineData(SAMPLE_STRING_EMPTY_GUID, "test")]
-        [InlineData(SAMPLE_STRING_GUID, null)]
+        [InlineData(SAMPLE_STRING_GUID, "")]
         public async Task ChangeUsernameAsync_ShouldReturnValidationError_WhenUserIdOrNewUsernameAreNullOrEmpty(string userId, string newUsername)
         {
             //Act

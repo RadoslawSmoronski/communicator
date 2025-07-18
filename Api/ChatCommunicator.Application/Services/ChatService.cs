@@ -128,12 +128,14 @@ namespace ChatCommunicator.Application.Services
             try
             {
                 _logger.LogInformation("Getting chats for user id {UserId}", userId);
+                #pragma warning disable CS8602 // Dereference of a possibly null reference
                 var conversations = await _unitOfWork.Conversations.WhereAsync(
                     x => x.User1Id == userId || x.User2Id == userId,
                     x => x.User1,
                     x => x.User2,
                     x => x.LastMessage
                 );
+                #pragma warning restore CS8602
 
                 var chatDtos = conversations
                     .Where(x => {
@@ -148,7 +150,7 @@ namespace ChatCommunicator.Application.Services
                         return new ChatDto
                         {
                             FriendId = friend.Id,
-                            FriendUserName = friend.UserName,
+                            FriendUserName = friend.UserName == null ? throw new Exception("Friend UserName is null.") : friend.UserName,
                             ConversationId = x.Id,
                             LastMessageId = x.LastMessageId,
                             LastMessageContent = x.LastMessage?.Content,
