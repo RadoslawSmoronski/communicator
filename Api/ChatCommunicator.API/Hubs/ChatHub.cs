@@ -1,6 +1,4 @@
-﻿using ChatCommunicator.Contracts;
-using ChatCommunicator.Contracts.Chat;
-using ChatCommunicator.Contracts.Dtos.Chat;
+﻿using ChatCommunicator.Contracts.Dtos.Chat;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +6,8 @@ using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using ChatCommunicator.Application.Hubs.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Chat;
 
 namespace ChatCommunicator.Application.Hubs
 {

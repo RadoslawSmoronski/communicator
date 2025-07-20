@@ -1,4 +1,4 @@
-﻿namespace ChatCommunicator.Contracts.Friendship
+﻿namespace ChatCommunicator.Infrastructure.Models.Friendship
 {
     public class Friendship
     {

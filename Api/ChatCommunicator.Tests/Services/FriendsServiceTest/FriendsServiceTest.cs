@@ -1,10 +1,10 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Contracts;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Application.Managers;
 using Microsoft.Extensions.Logging;
-using ChatCommunicator.Contracts.Friendship;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Friendship;
 
 namespace ChatCommunicator.Tests.Services.FriendsManagerTest
 {

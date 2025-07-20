@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Application.Controllers
 {

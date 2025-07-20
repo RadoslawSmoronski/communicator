@@ -1,5 +1,5 @@
-﻿using ChatCommunicator.Infrastructure.Repository.Interfaces;
-using ChatCommunicator.Contracts.Chat;
+﻿using ChatCommunicator.Infrastructure.Models.Chat;
+using ChatCommunicator.Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatCommunicator.Infrastructure.Repository

@@ -5,6 +5,7 @@ using ChatCommunicator.Application.Services;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Infrastructure;
+using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Repository;
 using ChatCommunicator.Infrastructure.Service;
 using ChatCommunicator.Infrastructure.Services;

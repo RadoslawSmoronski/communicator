@@ -1,5 +1,5 @@
-﻿using ChatCommunicator.Contracts.Chat;
-using ChatCommunicator.Contracts.Dtos.Chat;
+﻿using ChatCommunicator.Contracts.Dtos.Chat;
+using ChatCommunicator.Infrastructure.Models.Chat;
 using ChatCommunicator.Shared.Result;
 
 namespace ChatCommunicator.Application.Services.Interfaces

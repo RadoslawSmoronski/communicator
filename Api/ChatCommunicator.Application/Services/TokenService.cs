@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using ChatCommunicator.Application.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Application.Services
 {

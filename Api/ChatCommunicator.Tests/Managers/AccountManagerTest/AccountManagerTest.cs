@@ -7,6 +7,7 @@ using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Application.Managers;
 using Microsoft.Extensions.Logging;
+using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 {
@@ -24,6 +25,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         protected readonly UserAccount _sampleUser1;
         protected readonly UserAccount _sampleUser2;
         protected readonly UserAccount _sampleUser3;
+        protected readonly UserAccount _sampleUserWithAvatar;
 
         protected readonly RegisterDto _sampleUser1RegisterDto;
 
@@ -50,6 +52,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };
             _sampleUser3 = new UserAccount { UserName = "User3Login", Id = Guid.NewGuid() };
+            _sampleUserWithAvatar = new UserAccount { UserName = "UserWithAvatar", Id = Guid.NewGuid(), AvatarUrl = "avatar.png"};
 
             _sampleUser1RegisterDto = _mapper.Map<RegisterDto>(_sampleUser1);
             _sampleUser1RegisterDto.Password = "test";

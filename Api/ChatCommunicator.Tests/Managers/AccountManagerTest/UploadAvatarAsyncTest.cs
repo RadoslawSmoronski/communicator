@@ -1,4 +1,4 @@
-﻿using ChatCommunicator.Contracts;
+﻿using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;
@@ -115,23 +115,23 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             result.Error!.ErrorType.Should().Be(ErrorType.Validation);
         }
 
-        //[Fact]
-        //public async Task ChangeUsernameAsync_ShouldReturnUnknown_WhenThereIsException()
-        //{
-        //    // Arrange
-        //    A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id.ToString()))
-        //        .Throws(new Exception());
+        [Fact]
+        public async Task UploadAvatarAsync_ShouldReturnUnknown_WhenThereIsException()
+        {
+            // Arrange
+            A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id.ToString()))
+                .Throws(new Exception("test"));
 
-        //    //Act
-        //    var result = await _accountManager.ChangeUsernameAsync(_sampleUser1.Id.ToString(), _newUsername) as ResultT<string>;
+            //Act
+            var result = await _accountManager.UploadAvatarAsync(_sampleUser1.Id, _fakeFile) as ResultT<string>;
 
-        //    // Assert
-        //    result.Should().NotBeNull();
-        //    result.IsSuccess.Should().BeFalse();
+            // Assert
+            result.Should().NotBeNull();
+            result.IsSuccess.Should().BeFalse();
 
-        //    result.Error.Should().NotBeNull();
-        //    result.Error!.ErrorType.Should().Be(ErrorType.Unknown);
-        //}
+            result.Error.Should().NotBeNull();
+            result.Error!.ErrorType.Should().Be(ErrorType.Unknown);
+        }
 
     }
 }

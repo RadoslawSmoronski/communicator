@@ -1,11 +1,11 @@
 ﻿using ChatCommunicator.Application.Services;
 using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Contracts;
 using ChatCommunicator.Infrastructure.UnitOfWork;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Tests.Services.TokenServiceTest
 {

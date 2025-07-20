@@ -1,11 +1,11 @@
-﻿using ChatCommunicator.Contracts;
-using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
-using ChatCommunicator.Contracts.Friendship;
+﻿using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;
 using System.Linq.Expressions;
 using MockQueryable;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Friendship;
 
 namespace ChatCommunicator.Tests.Services.FriendsManagerTest
 {

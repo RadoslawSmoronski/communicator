@@ -77,6 +77,11 @@ namespace ChatCommunicator.Application.Services
             return filename;
         }
 
+        public async Task<Result> DeleteAvatarAsync(string filename)
+        {
+            return await _fileStorageService.DeleteFileAsync("avatars", filename);
+        }
+
         public string GetPublicAvatarUrl(string fileName)
         {
             var request = _httpContextAccessor.HttpContext.Request;

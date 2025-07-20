@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ChatCommunicator.Contracts;
-using Microsoft.AspNetCore.Identity;
-using System.Reflection.Emit;
-using ChatCommunicator.Contracts.Friendship;
-using ChatCommunicator.Contracts.Chat;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Friendship;
+using ChatCommunicator.Infrastructure.Models.Chat;
 
 namespace ChatCommunicator.Infrastructure
 {

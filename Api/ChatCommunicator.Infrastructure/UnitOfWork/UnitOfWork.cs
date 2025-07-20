@@ -1,8 +1,8 @@
 ﻿using ChatCommunicator.Infrastructure.Repository;
 using ChatCommunicator.Infrastructure.Repository.Interfaces;
 using ChatCommunicator.Contracts;
-using ChatCommunicator.Contracts.Chat;
-using ChatCommunicator.Contracts.Friendship;
+using ChatCommunicator.Infrastructure.Models.Friendship;
+using ChatCommunicator.Infrastructure.Models.Chat;
 
 namespace ChatCommunicator.Infrastructure.UnitOfWork
 {

@@ -384,17 +384,17 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UploadAvatar([FromForm] UploadAvatarDto uploadAvatarDto)
+        public async Task<IActionResult> UploadAvatarAsync([FromForm] UploadAvatarDto uploadAvatarDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId == null)
             {
-                _logger.LogWarning("[ChangeUsernameAsync] Validation error: userId from claims is empty.");
+                _logger.LogWarning("[UploadAvatarAsync] Validation error: userId from claims is empty.");
                 return Problem(
                     statusCode: 400,
                     title: "Bad Request",
-                    detail: "UserId cannot be empty or null."
+                    detail: "The user ID extracted from the claims is null or empty. Please ensure you are authenticated."
                 );
             }
 
@@ -467,7 +467,104 @@ namespace ChatCommunicator.Application.Controllers
             return Problem(statusCode: 500, title: "Unexpected server error", detail: "An unexpected error occurred during avatar upload.");
         }
 
+        /// <summary>
+        /// Delete Avatar
+        /// </summary>
+        /// <remarks>
+        /// Authenticated users can delete their avatar. 
+        /// This action removes the avatar associated with the user account.
+        /// </remarks>
+        /// <returns>A success response or a detailed error response.</returns>
+        /// <response code="200">Avatar successfully deleted.</response>
+        /// <response code="400">Invalid or missing user ID.</response>
+        /// <response code="404">User not found in the system.</response>
+        /// <response code="409">No avatar is set for this user, so there is nothing to delete.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
+        /// <example>
+        /// <code>
+        /// DELETE /api/user/avatar
+        /// Authorization: Bearer {token}
+        /// </code>
+        /// </example>
+        [Authorize]
+        [HttpDelete("avatar")]
+        [ProducesResponseType<string>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteAvatarAsync()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (userId == null)
+            {
+                _logger.LogWarning("[DeleteAvatarAsync] Validation error: userId from claims is empty.");
+                return Problem(
+                    statusCode: 400,
+                    title: "Bad Request",
+                    detail: "UserId cannot be empty or null."
+                );
+            }
+
+            var result = await _accountManager.DeleteAvatarAsync(Guid.Parse(userId));
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[DeleteAvatarAsync] Avatar deleted successfully for user {UserId}.", userId);
+                return Ok();
+            }
+
+            if (result.Error != null)
+            {
+                var errorCode = result.Error.ErrorType;
+                var errorMessage = result.Error.Description;
+
+                if (errorCode == ErrorType.NotFound)
+                {
+                    _logger.LogWarning("[DeleteAvatarAsync] User not found. UserId: {UserId}", userId);
+                    return Problem(
+                        statusCode: 404,
+                        title: "Not Found",
+                        detail: "The user was not found."
+                    );
+                }
+                else if (errorCode == ErrorType.Conflict)
+                {
+                    _logger.LogWarning("[DeleteAvatarAsync] Conflict: No avatar to delete for user {UserId}.", userId);
+                    return Problem(
+                        statusCode: 409,
+                        title: "Conflict",
+                        detail: "No avatar is set for this user, so there is nothing to delete."
+                    );
+                }
+                else if (errorCode == ErrorType.Failure)
+                {
+                    _logger.LogError("[DeleteAvatarAsync] Failed to delete avatar for user {UserId}. Error: {ErrorMessage}", userId, errorMessage);
+                    return Problem(
+                        statusCode: 500,
+                        title: "Internal Server Error",
+                        detail: "Failed to delete the avatar."
+                    );
+                }
+
+                _logger.LogError("[DeleteAvatarAsync] Unexpected error during avatar deletion for user {UserId}. ErrorType: {ErrorType}, Message: {ErrorMessage}",
+                    userId, errorCode, errorMessage);
+                return Problem(
+                    statusCode: 500,
+                    title: "Unexpected server error",
+                    detail: "An unexpected error occurred during avatar deletion."
+                );
+            }
+
+            _logger.LogError("[DeleteAvatarAsync] Unexpected null error object during avatar deletion for user {UserId}", userId);
+            return Problem(
+                statusCode: 500,
+                title: "Unexpected server error",
+                detail: "An unexpected error occurred during avatar deletion."
+            );
+        }
 
     }
 }
