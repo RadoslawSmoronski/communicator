@@ -13,7 +13,7 @@ namespace ChatCommunicator.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20250718132017_initial")]
-    partial class initial
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
