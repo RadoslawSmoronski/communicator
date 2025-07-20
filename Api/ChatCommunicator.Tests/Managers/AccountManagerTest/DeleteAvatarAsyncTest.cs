@@ -4,6 +4,7 @@ using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json;
 
 namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 {
@@ -20,18 +21,23 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         public async Task DeleteAvatarAsync_ShouldReturnOk_WhenDataIsValid()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByIdAsync(_sampleUserWithAvatar.Id.ToString()))
-                .Returns(Task.FromResult<UserAccount?>(_sampleUserWithAvatar));
+            var json = JsonSerializer.Serialize(_sampleUser1);
+            var localSampleUser1WithAvatar = JsonSerializer.Deserialize<UserAccount>(json);
+            localSampleUser1WithAvatar!.AvatarUrl = "test";
 
-            A.CallTo(() => _userManager.UpdateAsync(_sampleUserWithAvatar))
+            A.CallTo(() => _userManager.FindByIdAsync(localSampleUser1WithAvatar.Id.ToString()))
+                .Returns(Task.FromResult<UserAccount?>(localSampleUser1WithAvatar));
+
+            A.CallTo(() => _userManager.UpdateAsync(localSampleUser1WithAvatar))
                 .Returns(Task.FromResult(IdentityResult.Success));
 
             //Act
-            var result = await _accountManager.DeleteAvatarAsync(_sampleUserWithAvatar.Id) as Result;
+            var result = await _accountManager.DeleteAvatarAsync(localSampleUser1WithAvatar.Id) as Result;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
+            localSampleUser1WithAvatar.AvatarUrl.Should().Be(null);
         }
 
         [Fact]

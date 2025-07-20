@@ -259,7 +259,7 @@ namespace ChatCommunicator.Application.Managers
 
                 if (deleteAvatarResult.IsSuccess)
                 {
-                    user.AvatarUrl = string.Empty;
+                    user.AvatarUrl = null;
 
                     var result = await _userManager.UpdateAsync(user);
 

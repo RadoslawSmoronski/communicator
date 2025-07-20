@@ -508,7 +508,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            var result = await _accountManager.DeleteAvatarAsync(Guid.Parse(userId)); // TODO: fix avatar url after deleted
+            var result = await _accountManager.DeleteAvatarAsync(Guid.Parse(userId));
 
             if (result.IsSuccess)
             {
