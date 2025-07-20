@@ -182,45 +182,54 @@ namespace ChatCommunicator.Application.Managers
                 return Error.Validation("VALIDATION_USERID", "UserId cannot be empty or null.");
             }
 
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-
-            if (user == null)
+            try
             {
-                _logger.LogWarning("UploadAvatarAsync failed: user with ID {UserId} not found.", userId);
-                return Error.Unauthorized("USER_NOT_FOUND", "User associated with the id does not exist. Please log in again.");
-            }
-            else if(String.IsNullOrEmpty(user.AvatarUrl) == false)
-            {
-                _logger.LogWarning("User {UserId} attempted to set avatar via POST but avatar is already set: {AvatarUrl}", userId, user.AvatarUrl);
-                return Error.Conflict("AVATAR_ALREADY_SET", "Avatar is already set.");
-            }
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
-            var uploadFileResult = await _userAvatarService.UploadAvatarAsync(file);
-
-            if (uploadFileResult.IsSuccess)
-            {
-                user.AvatarUrl = uploadFileResult.Value;
-
-                var result = await _userManager.UpdateAsync(user);
-
-                if (result.Succeeded)
+                if (user == null)
                 {
-                    _logger.LogInformation("User {UserId} avatar updated successfully.", userId);
-                    return uploadFileResult.Value;
+                    _logger.LogWarning("UploadAvatarAsync failed: user with ID {UserId} not found.", userId);
+                    return Error.Unauthorized("USER_NOT_FOUND", "User associated with the id does not exist. Please log in again.");
+                }
+                else if (String.IsNullOrEmpty(user.AvatarUrl) == false)
+                {
+                    _logger.LogWarning("User {UserId} attempted to set avatar via POST but avatar is already set: {AvatarUrl}", userId, user.AvatarUrl);
+                    return Error.Conflict("AVATAR_ALREADY_SET", "Avatar is already set.");
                 }
 
-                _logger.LogError("Failed to update avatar URL for user {UserId}. Errors: {Errors}", userId, string.Join(", ", result.Errors));
-                return Error.Unknown("USER_UPDATE_FAILED", "Failed to update user avatar URL in database.");
+                var uploadFileResult = await _userAvatarService.UploadAvatarAsync(file);
+
+                if (uploadFileResult.IsSuccess)
+                {
+                    user.AvatarUrl = uploadFileResult.Value;
+
+                    var result = await _userManager.UpdateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User {UserId} avatar updated successfully.", userId);
+                        return uploadFileResult.Value;
+                    }
+
+                    _logger.LogError("Failed to update avatar URL for user {UserId}. Errors: {Errors}", userId, string.Join(", ", result.Errors));
+                    return Error.Unknown("USER_UPDATE_FAILED", "Failed to update user avatar URL in database.");
+                }
+                else if (uploadFileResult.Error != null)
+                {
+                    _logger.LogError("Avatar upload failed for user {UserId}. Error: {ErrorCode} - {ErrorMessage}",
+                        userId, uploadFileResult.Error.Code, uploadFileResult.Error.Description);
+                    return uploadFileResult.Error;
+                }
+
+                _logger.LogError("UploadAvatarAsync ended with unknown error for user {UserId}.", userId);
+                return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
             }
-            else if (uploadFileResult.Error != null)
+            catch (Exception ex)
             {
-                _logger.LogError("Avatar upload failed for user {UserId}. Error: {ErrorCode} - {ErrorMessage}",
-                    userId, uploadFileResult.Error.Code, uploadFileResult.Error.Description);
-                return uploadFileResult.Error;
+                _logger.LogError(ex, "Exception occurred during avatar upload for user {UserId}", userId);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
             }
 
-            _logger.LogError("UploadAvatarAsync ended with unknown error for user {UserId}.", userId);
-            return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
         }
 
         public async Task<Result> DeleteAvatarAsync(Guid userId)
