@@ -1600,6 +1600,133 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": ["User"],
+        "summary": "Delete Avatar",
+        "description": "Authenticated users can delete their avatar. \r\nThis action removes the avatar associated with the user account.",
+        "responses": {
+          "200": {
+            "description": "Avatar successfully deleted.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or missing user ID.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found in the system.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "No avatar is set for this user, so there is nothing to delete.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/users/get-user-by-id/{id}": {
@@ -1785,6 +1912,7 @@
   "components": {
     "schemas": {
       "ChatDto": {
+        "required": ["conversationId", "friendId", "friendUserName"],
         "type": "object",
         "properties": {
           "friendId": {
@@ -1835,6 +1963,7 @@
         "additionalProperties": false
       },
       "LoggedUserDto": {
+        "required": ["accessToken", "id", "refreshToken", "userName"],
         "type": "object",
         "properties": {
           "userName": {
@@ -1878,19 +2007,20 @@
         "additionalProperties": false
       },
       "MessageDto": {
+        "required": ["content", "conversationId", "messageId", "senderId"],
         "type": "object",
         "properties": {
           "messageId": {
             "type": "string",
-            "nullable": true
+            "format": "uuid"
           },
           "conversationId": {
             "type": "string",
-            "nullable": true
+            "format": "uuid"
           },
           "senderId": {
             "type": "string",
-            "nullable": true
+            "format": "uuid"
           },
           "content": {
             "type": "string",
@@ -1934,6 +2064,7 @@
         "additionalProperties": {}
       },
       "RefreshAccessTokenDto": {
+        "required": ["accessToken", "refreshToken"],
         "type": "object",
         "properties": {
           "accessToken": {
@@ -1976,6 +2107,7 @@
         "additionalProperties": false
       },
       "SimpleUserDto": {
+        "required": ["id", "userName"],
         "type": "object",
         "properties": {
           "id": {
@@ -1990,6 +2122,7 @@
         "additionalProperties": false
       },
       "UserToInviteDto": {
+        "required": ["id", "userName"],
         "type": "object",
         "properties": {
           "id": {
