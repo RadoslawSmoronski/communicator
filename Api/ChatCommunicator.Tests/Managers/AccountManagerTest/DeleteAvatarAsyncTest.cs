@@ -4,7 +4,6 @@ using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using System.Text.Json;
 
 namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 {
@@ -23,6 +22,9 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             // Arrange
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserWithAvatar.Id.ToString()))
                 .Returns(Task.FromResult<UserAccount?>(_sampleUserWithAvatar));
+
+            A.CallTo(() => _userManager.UpdateAsync(_sampleUserWithAvatar))
+                .Returns(Task.FromResult(IdentityResult.Success));
 
             //Act
             var result = await _accountManager.DeleteAvatarAsync(_sampleUserWithAvatar.Id) as Result;

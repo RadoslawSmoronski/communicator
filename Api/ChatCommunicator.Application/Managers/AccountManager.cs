@@ -225,9 +225,10 @@ namespace ChatCommunicator.Application.Managers
 
         public async Task<Result> DeleteAvatarAsync(Guid userId)
         {
-            if(userId == Guid.Empty)
+            if (userId == Guid.Empty)
             {
-                return Error.Validation("code", "description");
+                _logger.LogWarning("DeleteAvatarAsync failed: userId is empty or null.");
+                return Error.Validation("VALIDATION_USERID", "UserId cannot be empty or null.");
             }
 
             try
@@ -236,17 +237,39 @@ namespace ChatCommunicator.Application.Managers
 
                 if (user == null)
                 {
+                    _logger.LogWarning("DeleteAvatarAsync failed: user with ID {UserId} not found.", userId);
                     return Error.Unauthorized("USER_NOT_FOUND", "User associated with the id does not exist. Please log in again.");
                 }
-                else if (String.IsNullOrEmpty(user.AvatarUrl) == true)
+                else if (string.IsNullOrEmpty(user.AvatarUrl))
                 {
-                    return Error.Conflict("code", "description");
+                    _logger.LogWarning("DeleteAvatarAsync failed: user {UserId} does not have an avatar set.", userId);
+                    return Error.Conflict("AVATAR_NOT_SET", "User does not have an avatar set.");
                 }
 
-                return Result.Success();
+                var deleteAvatarResult = _userAvatarService.DeleteAvatar(user.AvatarUrl);
+
+                if (deleteAvatarResult.IsSuccess)
+                {
+                    user.AvatarUrl = string.Empty;
+
+                    var result = await _userManager.UpdateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("DeleteAvatarAsync succeeded: avatar for user {UserId} was successfully removed.", userId);
+                        return Result.Success();
+                    }
+
+                    _logger.LogError("DeleteAvatarAsync failed: unable to update user {UserId} after avatar deletion. Errors: {Errors}", userId, string.Join(", ", result.Errors));
+                    return Error.Unknown("USER_UPDATE_FAILED", "Failed to update user avatar URL in database.");
+                }
+
+                _logger.LogError("DeleteAvatarAsync failed: unable to delete avatar for user {UserId}.", userId);
+                return Error.Unknown("AVATAR_DELETE_FAILED", "Failed to delete avatar file.");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "DeleteAvatarAsync failed: exception occurred for user {UserId}.", userId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
             }
         }
