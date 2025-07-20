@@ -1,7 +1,7 @@
-﻿using ChatCommunicator.Contracts;
-using FakeItEasy;
+﻿using FakeItEasy;
 using ChatCommunicator.Shared.Result;
 using FluentAssertions;
+using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Tests.Services.TokenServiceTest
 {

@@ -1,8 +1,9 @@
-﻿using ChatCommunicator.Contracts.Chat;
-using ChatCommunicator.Contracts.Dtos;
+﻿using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using AutoMapper;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Chat;
 
 namespace ChatCommunicator.Contracts
 {

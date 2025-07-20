@@ -5,6 +5,7 @@ using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
+using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

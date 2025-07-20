@@ -1,8 +1,8 @@
-﻿using ChatCommunicator.Contracts;
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 using FluentAssertions;
 using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Tests.Controllers.UsersControllerTest
 {

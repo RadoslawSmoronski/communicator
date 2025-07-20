@@ -1,4 +1,4 @@
-﻿using ChatCommunicator.Contracts;
+﻿using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
 using FluentAssertions;

@@ -2,12 +2,13 @@
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
-using ChatCommunicator.Contracts.Friendship;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ChatCommunicator.Application.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Friendship;
 
 namespace ChatCommunicator.Application.Managers
 {

@@ -1,4 +1,4 @@
-﻿namespace ChatCommunicator.Contracts.Chat
+﻿namespace ChatCommunicator.Infrastructure.Models.Chat
 {
     public class Conversation
     {

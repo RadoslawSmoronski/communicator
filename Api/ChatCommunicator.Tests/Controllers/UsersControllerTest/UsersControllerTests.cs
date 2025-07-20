@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using FakeItEasy;
 using ChatCommunicator.Application.Controllers;
 using Microsoft.Extensions.Logging;
+using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Tests.Controllers.UsersControllerTest
 {

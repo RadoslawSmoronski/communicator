@@ -1,9 +1,4 @@
-﻿using ChatCommunicator.Contracts.Chat;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ChatCommunicator.Infrastructure.Models.Chat;
 
 namespace ChatCommunicator.Infrastructure.Repository.Interfaces
 {

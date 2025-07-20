@@ -1,8 +1,6 @@
-﻿using ChatCommunicator.Contracts;
-using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
-using ChatCommunicator.Contracts.Dtos.Service;
+﻿using ChatCommunicator.Contracts.Dtos.Service;
+using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Shared.Result;
-using System.Security.Claims;
 
 namespace ChatCommunicator.Application.Services.Interfaces
 {

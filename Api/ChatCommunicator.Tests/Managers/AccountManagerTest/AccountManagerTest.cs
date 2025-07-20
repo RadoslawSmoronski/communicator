@@ -7,6 +7,7 @@ using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Application.Managers;
 using Microsoft.Extensions.Logging;
+using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 {

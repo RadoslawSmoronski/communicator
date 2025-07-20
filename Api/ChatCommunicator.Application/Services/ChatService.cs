@@ -1,12 +1,12 @@
 ﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Contracts;
-using ChatCommunicator.Contracts.Chat;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using ChatCommunicator.Application.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Chat;
 
 namespace ChatCommunicator.Application.Services
 {
