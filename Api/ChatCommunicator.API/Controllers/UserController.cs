@@ -272,6 +272,16 @@ namespace ChatCommunicator.Application.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if(userId == null)
+            {
+                _logger.LogWarning("[ChangeUsernameAsync] Validation error: userId from claims is empty.");
+                return Problem(
+                    statusCode: 400,
+                    title: "Bad Request",
+                    detail: "UserId cannot be empty or null."
+                );
+            }
+
             _logger.LogInformation("[ChangeUsernameAsync] Attempting to change username. UserId: {UserId}, NewUsername: {NewUsername}", userId, newUsername);
 
             var result = await _accountManager.ChangeUsernameAsync(Guid.Parse(userId), newUsername);
@@ -377,6 +387,16 @@ namespace ChatCommunicator.Application.Controllers
         public async Task<IActionResult> UploadAvatar([FromForm] UploadAvatarDto uploadAvatarDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                _logger.LogWarning("[ChangeUsernameAsync] Validation error: userId from claims is empty.");
+                return Problem(
+                    statusCode: 400,
+                    title: "Bad Request",
+                    detail: "UserId cannot be empty or null."
+                );
+            }
 
             var result = await _accountManager.UploadAvatarAsync(Guid.Parse(userId), uploadAvatarDto.File);
 

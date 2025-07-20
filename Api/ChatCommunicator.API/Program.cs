@@ -83,7 +83,7 @@ namespace ChatCommunicator.Application
                     ValidAudience = builder.Configuration["JWT:Audience"],
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
+                        System.Text.Encoding.UTF8.GetBytes(issuerSigningKey)
                     )
                 };
                 options.Events = new JwtBearerEvents
