@@ -6,6 +6,7 @@ using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Services.Interfaces;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -220,6 +221,34 @@ namespace ChatCommunicator.Application.Managers
 
             _logger.LogError("UploadAvatarAsync ended with unknown error for user {UserId}.", userId);
             return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
+        }
+
+        public async Task<Result> DeleteAvatarAsync(Guid userId)
+        {
+            if(userId == Guid.Empty)
+            {
+                return Error.Validation("code", "description");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user == null)
+                {
+                    return Error.Unauthorized("USER_NOT_FOUND", "User associated with the id does not exist. Please log in again.");
+                }
+                else if (String.IsNullOrEmpty(user.AvatarUrl) == true)
+                {
+                    return Error.Conflict("code", "description");
+                }
+
+                return Result.Success();
+            }
+            catch(Exception ex)
+            {
+                return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
+            }
         }
 
     }
