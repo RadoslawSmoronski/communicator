@@ -7,7 +7,7 @@ namespace ChatCommunicator.Application.Services.Interfaces
     {
         Task<ResultT<string>> UploadAvatarAsync(IFormFile? file);
 
-        Result DeleteAvatar(string filename);
+        Task<Result> DeleteAvatarAsync(string filename);
         string GetPublicAvatarUrl(string fileName);
     }
 }

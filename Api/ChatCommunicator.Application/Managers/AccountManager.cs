@@ -246,7 +246,7 @@ namespace ChatCommunicator.Application.Managers
                     return Error.Conflict("AVATAR_NOT_SET", "User does not have an avatar set.");
                 }
 
-                var deleteAvatarResult = _userAvatarService.DeleteAvatar(user.AvatarUrl);
+                var deleteAvatarResult = await _userAvatarService.DeleteAvatarAsync(user.AvatarUrl);
 
                 if (deleteAvatarResult.IsSuccess)
                 {
