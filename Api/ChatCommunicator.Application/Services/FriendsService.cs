@@ -79,7 +79,7 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public async Task<ResultT<List<SimpleUserDto>>> GetInvitationsAsync(Guid userId)
+        public async Task<ResultT<List<SimpleUserWithAvatarDto>>> GetInvitationsAsync(Guid userId)
         {
             _logger.LogInformation("GetInvitationsAsync called with userId: {UserId}", userId);
 
@@ -328,7 +328,7 @@ namespace ChatCommunicator.Application.Managers
             _logger.LogInformation("SendFriendshipInviteAsync: Invitation saved successfully");
         }
 
-        private async Task<List<SimpleUserDto>> GetUserInvitationsAsync(UserAccount user)
+        private async Task<List<SimpleUserWithAvatarDto>> GetUserInvitationsAsync(UserAccount user)
         {
             _logger.LogInformation("GetUserInvitationsAsync called for userId: {UserId}", user.Id);
 
@@ -338,10 +338,11 @@ namespace ChatCommunicator.Application.Managers
                     x => x.RecipientUser
                 );
 
-            return result.Select(x => new SimpleUserDto()
+            return result.Select(x => new SimpleUserWithAvatarDto()
             {
                 Id = x.SenderId,
-                userName = x.SenderUser.UserName ?? throw new Exception()
+                userName = x.SenderUser.UserName ?? throw new Exception(),
+                AvatarUrl = x.SenderUser.AvatarUrl
             }).ToList();
         }
 
@@ -377,6 +378,7 @@ namespace ChatCommunicator.Application.Managers
                 {
                     Id = u.Id,
                     UserName = u.UserName!,
+                    AvatarUrl = u.AvatarUrl,
                     IsInvited = alreadyInvited
                 });
             }

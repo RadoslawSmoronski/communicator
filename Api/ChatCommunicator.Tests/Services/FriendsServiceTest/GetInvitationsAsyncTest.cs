@@ -40,7 +40,7 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
                     .Returns(Task.FromResult(friendshipInvitations));
 
             // Act
-            var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<SimpleUserDto>>;
+            var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<SimpleUserWithAvatarDto>>;
 
             // Assert
             result.Should().NotBeNull();

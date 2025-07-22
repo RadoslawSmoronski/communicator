@@ -155,7 +155,7 @@ namespace ChatCommunicator.Application.Controllers
         /// </example>
         [Authorize]
         [HttpGet("get-invitations/{userId}")]
-        [ProducesResponseType(typeof(List<SimpleUserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<SimpleUserWithAvatarDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
