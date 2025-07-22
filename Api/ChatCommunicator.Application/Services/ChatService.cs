@@ -149,6 +149,7 @@ namespace ChatCommunicator.Application.Services
                         {
                             FriendId = friend.Id,
                             FriendUserName = friend.UserName == null ? throw new Exception("Friend UserName is null.") : friend.UserName,
+                            FriendAvatarUrl = friend.AvatarUrl,
                             ConversationId = x.Id,
                             LastMessageId = x.LastMessageId,
                             LastMessageContent = x.LastMessage?.Content,

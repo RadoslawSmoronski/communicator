@@ -4,6 +4,7 @@
     {
         public required Guid FriendId { get; set; }
         public required string FriendUserName {  get; set; }
+        public string? FriendAvatarUrl { get; set; }
         public required Guid ConversationId { get; set; }
         public Guid? LastMessageId { get; set; }
         public string? LastMessageContent { get; set; }
