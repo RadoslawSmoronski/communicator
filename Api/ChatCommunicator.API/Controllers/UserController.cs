@@ -566,5 +566,147 @@ namespace ChatCommunicator.Application.Controllers
             );
         }
 
+        /// <summary>
+        /// Change Avatar
+        /// </summary>
+        /// <remarks>
+        /// Authenticated users can change their avatar by uploading a new image. 
+        /// The uploaded file must meet specific requirements:
+        /// <br/>- Maximum file size: 5 MB.
+        /// <br/>- Maximum dimensions: 500x500 pixels.
+        /// <br/>- Supported formats: JPEG, PNG, etc.
+        /// </remarks>
+        /// <param name="uploadAvatarDto">Form data containing the new avatar file.</param>
+        /// <returns>URL of the updated avatar or a detailed error response.</returns>
+        /// <response code="200">Avatar successfully updated and URL returned.</response>
+        /// <response code="400">Invalid file (e.g., empty, too big, wrong format, too large, too small).</response>
+        /// <response code="401">User is not authenticated or token is invalid.</response>
+        /// <response code="404">User not found in the system.</response>
+        /// <response code="409">User does not have an avatar set to change.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
+        /// <example>
+        /// <code>
+        /// PUT /api/user/avatar
+        /// Authorization: Bearer {token}
+        /// Content-Type: multipart/form-data
+        /// 
+        /// Form Data:
+        /// file: new_avatar_image.png
+        /// </code>
+        /// </example>
+        [Authorize]
+        [HttpPut("avatar")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType<string>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ChangeAvatarAsync([FromForm] UploadAvatarDto uploadAvatarDto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                _logger.LogWarning("[ChangeAvatarAsync] Validation error: userId from claims is empty.");
+                return Problem(
+                    statusCode: 400,
+                    title: "Bad Request",
+                    detail: "The user ID extracted from the claims is null or empty. Please ensure you are authenticated."
+                );
+            }
+
+            var result = await _accountManager.ChangeAvatarAsync(Guid.Parse(userId), uploadAvatarDto.File);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            else if (result.Error != null)
+            {
+                var error = result.Error;
+
+                if (error.ErrorType == ErrorType.Validation)
+                {
+                    switch (error.Code)
+                    {
+                        case "FILE_IS_EMPTY":
+                            _logger.LogWarning("User {UserId} tried to upload an empty file.", userId);
+                            return Problem(statusCode: 400, title: "Bad Request", detail: "The uploaded file is empty.");
+
+                        case "INVALID_FORMAT":
+                            _logger.LogWarning("User {UserId} uploaded a file with invalid format.", userId);
+                            return Problem(statusCode: 400, title: "Bad Request", detail: "The uploaded file format is not supported.");
+
+                        case "FILE_IS_TOO_BIG":
+                            _logger.LogWarning("User {UserId} uploaded a file that exceeds the maximum allowed size (weight).", userId);
+                            return Problem(statusCode: 400, title: "Bad Request", detail: "The uploaded file exceeds the allowed size limit (5 MB).");
+
+                        case "FILE_IS_TOO_LARGE":
+                            _logger.LogWarning("User {UserId} uploaded a file with dimensions larger than allowed.", userId);
+                            return Problem(statusCode: 400, title: "Bad Request", detail: "The uploaded file dimensions exceed the allowed limit (500x500 px).");
+
+
+                        case "FILE_IS_TOO_SMALL":
+                            _logger.LogWarning("User {UserId} uploaded a file that is too small.", userId);
+                            return Problem(statusCode: 400, title: "Bad Request", detail: "The uploaded file is too small.");
+
+                        default:
+                            _logger.LogWarning("User {UserId} upload failed due to validation error: {ErrorCode}", userId, error.Code);
+                            return Problem(statusCode: 400, title: "Bad Request", detail: "Invalid file upload.");
+                    }
+                }
+                else if (error.ErrorType == ErrorType.NotFound)
+                {
+                    _logger.LogWarning("User {UserId} not found during avatar change.", userId);
+                    return Problem(statusCode: 404, title: "Not Found", detail: "The user was not found.");
+                }
+                else if (error.ErrorType == ErrorType.Conflict)
+                {
+                    _logger.LogWarning("User {UserId} does not have an avatar set.", userId);
+                    return Problem(
+                        statusCode: 409,
+                        title: "Conflict",
+                        detail: "User does not have an avatar set."
+                    );
+                }
+                else if (error.ErrorType == ErrorType.Unknown && error.Code == "AVATAR_DELETE_FAILED")
+                {
+                    _logger.LogError("ChangeAvatarAsync failed: unable to delete existing avatar for user {UserId}.", userId);
+                    return Problem(
+                        statusCode: 500,
+                        title: "Internal Server Error",
+                        detail: "Failed to delete the existing avatar file."
+                    );
+                }
+                else if (error.ErrorType == ErrorType.Unknown && error.Code == "AVATAR_UPLOAD_FAILED")
+                {
+                    _logger.LogError("[ChangeAvatarAsync] failed: unable to upload new avatar for user {UserId}.", userId);
+                    return Problem(
+                        statusCode: 500,
+                        title: "Internal Server Error",
+                        detail: "Failed to upload avatar file."
+                    );
+                }
+                else if (error.ErrorType == ErrorType.Unknown && error.Code == "USER_UPDATE_FAILED")
+                {
+                    _logger.LogError("[ChangeAvatarAsync] Failed to update user {UserId} after avatar upload.", userId);
+                    return Problem(
+                        statusCode: 500,
+                        title: "Internal Server Error",
+                        detail: "Failed to update user avatar URL in database."
+                    );
+                }
+                ;
+
+                _logger.LogError("Unexpected error during avatar change for user {UserId}: {ErrorCode}", userId, error.Code);
+                return Problem(statusCode: 500, title: "Unexpected error", detail: "An unexpected error occurred. Please try again later or contact support.");
+            }
+
+            _logger.LogError("Unexpected null error object during avatar change for user {UserId}", userId);
+            return Problem(statusCode: 500, title: "Unexpected server error", detail: "An unexpected error occurred during avatar change.");
+        }
+
     }
 }

@@ -274,6 +274,12 @@ namespace ChatCommunicator.Application.Managers
                         _logger.LogError("ChangeAvatarAsync failed: unable to update user {UserId} after avatar upload. Errors: {Errors}", userId, string.Join(", ", result.Errors));
                         return Error.Unknown("USER_UPDATE_FAILED", "Failed to update user avatar URL in database.");
                     }
+                    else if (uploadFileResult.Error != null)
+                    {
+                        _logger.LogError("Avatar upload failed for user {UserId}. Error: {ErrorCode} - {ErrorMessage}",
+                            userId, uploadFileResult.Error.Code, uploadFileResult.Error.Description);
+                        return uploadFileResult.Error;
+                    }
 
                     _logger.LogError("ChangeAvatarAsync failed: unable to upload new avatar for user {UserId}.", userId);
                     return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
