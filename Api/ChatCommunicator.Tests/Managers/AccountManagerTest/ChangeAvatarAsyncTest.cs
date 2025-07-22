@@ -107,7 +107,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
                 .Returns(Task.FromResult<UserAccount?>(_sampleUserWithAvatar));
 
             A.CallTo(() => _userAvatarService.DeleteAvatarAsync(_sampleUserWithAvatar.AvatarUrl!))
-                        .Returns(ResultT<string>.Failure(Error.Unknown("test", "test")));
+                        .Returns(ResultT<string>.Failure(Error.Unknown("AVATAR_DELETE_FAILED", "test")));
 
             //Act
             var result = await _accountManager.ChangeAvatarAsync(_sampleUserWithAvatar.Id, _fakeFile) as ResultT<string>;
@@ -129,7 +129,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
                 .Returns(Task.FromResult<UserAccount?>(_sampleUserWithAvatar));
 
             A.CallTo(() => _userAvatarService.UploadAvatarAsync(_fakeFile))
-                        .Returns(ResultT<string>.Failure(Error.Unknown("test", "test")));
+                        .Returns(ResultT<string>.Failure(Error.Unknown("AVATAR_UPLOAD_FAILED", "test")));
 
             A.CallTo(() => _userAvatarService.DeleteAvatarAsync(_sampleUserWithAvatar.AvatarUrl!))
                         .Returns(Result.Success());
