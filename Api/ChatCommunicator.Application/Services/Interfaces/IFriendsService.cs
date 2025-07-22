@@ -11,7 +11,7 @@ namespace ChatCommunicator.Application.Services.Interfaces
         Task<ResultT<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(Guid userId, string text);
         Task<Result> DecelineInviteAsync(Guid senderId, Guid recipientId);
         Task<Result> AddFriendsAsync(Guid senderId, Guid recipientId);
-        Task<ResultT<List<SimpleUserDto>>> GetFriendsAsync(Guid userId);
+        Task<ResultT<List<SimpleUserWithAvatarDto>>> GetFriendsAsync(Guid userId);
         Task<bool> IsFriendsExistAsync(Guid userId1, Guid userId2);
     }
 }

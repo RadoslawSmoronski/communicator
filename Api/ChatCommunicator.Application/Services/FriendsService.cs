@@ -260,7 +260,7 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public async Task<ResultT<List<SimpleUserDto>>> GetFriendsAsync(Guid userId)
+        public async Task<ResultT<List<SimpleUserWithAvatarDto>>> GetFriendsAsync(Guid userId)
         {
             _logger.LogInformation("GetFriendsAsync called with userId: {UserId}", userId);
 
@@ -425,7 +425,7 @@ namespace ChatCommunicator.Application.Managers
             _logger.LogInformation("AddFriendsAsync: Friendship added successfully");
         }
 
-        private async Task<List<SimpleUserDto>> GetFriendsFromDbAsync(Guid userId)
+        private async Task<List<SimpleUserWithAvatarDto>> GetFriendsFromDbAsync(Guid userId)
         {
             _logger.LogInformation("GetFriendsFromDbAsync called for userId: {UserId}", userId);
 
@@ -438,16 +438,18 @@ namespace ChatCommunicator.Application.Managers
             var friends = result.Select(x =>
             {
                 if (x.User1Id == userId)
-                    return new SimpleUserDto
+                    return new SimpleUserWithAvatarDto
                     {
                         Id = x.User2Id,
-                        userName = x.User2?.UserName ?? string.Empty
+                        userName = x.User2?.UserName ?? string.Empty,
+                        AvatarUrl = x.User2?.AvatarUrl
                     };
                 else
-                    return new SimpleUserDto
+                    return new SimpleUserWithAvatarDto
                     {
                         Id = x.User1Id,
-                        userName = x.User1?.UserName ?? string.Empty
+                        userName = x.User1?.UserName ?? string.Empty,
+                        AvatarUrl = x.User1?.AvatarUrl
                     };
             }).ToList();
 
