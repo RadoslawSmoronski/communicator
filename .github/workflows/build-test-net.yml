@@ -7,22 +7,40 @@ on:
     branches: [ "api/development" ]
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
 
-    - name: Restore dependencies
-      run: dotnet restore ./Api
+      - name: Restore dependencies
+        run: dotnet restore ./Api
 
-    - name: Build
-      run: dotnet build ./Api --no-restore
+      - name: Build
+        run: dotnet build ./Api --no-restore
 
-    - name: Test
-      run: dotnet test ./Api --no-build --verbosity normal
+      - name: Test
+        run: dotnet test ./Api --no-build --verbosity normal
+
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ./Api
+
+      - name: Build
+        run: dotnet build ./Api --no-restore
+
+      - name: Test
+        run: dotnet test ./Api --no-build --verbosity normal
