@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Infrastructure.Models;
-using ChatCommunicator.Infrastructure.Services.Interfaces;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -230,6 +228,65 @@ namespace ChatCommunicator.Application.Managers
                 return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
             }
 
+        }
+
+        public async Task<ResultT<string>> ChangeAvatarAsync(Guid userId, IFormFile? file)
+        {
+            if (userId == Guid.Empty)
+            {
+                _logger.LogWarning("ChangeAvatarAsync failed: userId is empty or null.");
+                return Error.Validation("VALIDATION_USERID", "UserId cannot be empty or null.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user == null)
+                {
+                    _logger.LogWarning("ChangeAvatarAsync failed: user with ID {UserId} not found.", userId);
+                    return Error.Unauthorized("USER_NOT_FOUND", "User associated with the id does not exist. Please log in again.");
+                }
+                else if (string.IsNullOrEmpty(user.AvatarUrl))
+                {
+                    _logger.LogWarning("ChangeAvatarAsync failed: user {UserId} does not have an avatar set.", userId);
+                    return Error.Conflict("AVATAR_NOT_SET", "User does not have an avatar set.");
+                }
+
+                var deleteAvatarResult = await _userAvatarService.DeleteAvatarAsync(user.AvatarUrl);
+
+                if (deleteAvatarResult.IsSuccess)
+                {
+                    var uploadFileResult = await _userAvatarService.UploadAvatarAsync(file);
+
+                    if (uploadFileResult.IsSuccess)
+                    {
+                        user.AvatarUrl = uploadFileResult.Value;
+
+                        var result = await _userManager.UpdateAsync(user);
+
+                        if (result.Succeeded)
+                        {
+                            _logger.LogInformation("ChangeAvatarAsync succeeded: avatar for user {UserId} was successfully updated.", userId);
+                            return user.AvatarUrl;
+                        }
+
+                        _logger.LogError("ChangeAvatarAsync failed: unable to update user {UserId} after avatar upload. Errors: {Errors}", userId, string.Join(", ", result.Errors));
+                        return Error.Unknown("USER_UPDATE_FAILED", "Failed to update user avatar URL in database.");
+                    }
+
+                    _logger.LogError("ChangeAvatarAsync failed: unable to upload new avatar for user {UserId}.", userId);
+                    return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
+                }
+
+                _logger.LogError("ChangeAvatarAsync failed: unable to delete existing avatar for user {UserId}.", userId);
+                return Error.Unknown("AVATAR_DELETE_FAILED", "Failed to delete avatar file.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ChangeAvatarAsync failed: exception occurred for user {UserId}.", userId);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
+            }
         }
 
         public async Task<Result> DeleteAvatarAsync(Guid userId)
