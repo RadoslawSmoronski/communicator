@@ -11,6 +11,7 @@ namespace ChatCommunicator.Application.Managers.Interfaces
         Task<ResultT<SimpleUserDto>> RegisterAsync(RegisterDto registerDto);
         Task<ResultT<LoggedUserDto>> LoginAsync(LoginDto loginDto);
         Task<ResultT<string>> ChangeUsernameAsync(Guid userId, string newUsername);
+        Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
         Task<ResultT<string>> UploadAvatarAsync(Guid userId, IFormFile? file);
         Task<ResultT<string>> ChangeAvatarAsync(Guid userId, IFormFile? file);
         Task<Result> DeleteAvatarAsync(Guid userId);

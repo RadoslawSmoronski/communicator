@@ -172,6 +172,76 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
+        public async Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword)
+        {
+            if (Guid.Empty == userId)
+            {
+                _logger.LogWarning("ChangePasswordAsync failed: userId is empty or null.");
+                return Error.Validation("VALIDATION_USERID", "UserId cannot be empty or null.");
+            }
+            else if (string.IsNullOrEmpty(oldPassword))
+            {
+                _logger.LogWarning("ChangePasswordAsync failed: old password is empty or null.");
+                return Error.Validation("VALIDATION_OLDPASSWORD", "Old password cannot be empty or null.");
+            }
+            else if (string.IsNullOrEmpty(newPassword))
+            {
+                _logger.LogWarning("ChangePasswordAsync failed: new password is empty or null.");
+                return Error.Validation("VALIDATION_NEWPASSWORD", "New password cannot be empty or null.");
+            }
+            else if (oldPassword == newPassword)
+            {
+                _logger.LogWarning("ChangePasswordAsync failed: old password and new password are the same.");
+                return Error.Validation("VALIDATION_PASSWORDS_SAME", "New password cannot be the same as the old password.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user == null)
+                {
+                    _logger.LogWarning("ChangePasswordAsync failed: user with ID {UserId} not found.", userId);
+                    return Error.Unauthorized("USER_NOT_FOUND", "User associated with the ID does not exist. Please log in again.");
+                }
+
+                var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("ChangePasswordAsync succeeded: password changed successfully for user {UserId}.", userId);
+                    return Result.Success();
+                }
+                else
+                {
+                    var errorPasswordMismatch = result.Errors.FirstOrDefault(e => e.Code == "PasswordMismatch");
+                    if (errorPasswordMismatch != null)
+                    {
+                        _logger.LogWarning("ChangePasswordAsync failed: old password is incorrect for user {UserId}.", userId);
+                        return Error.Unauthorized("OLDPASSWORD_IS_INCORRECT", "The old password is incorrect.");
+                    }
+
+                    var passwordErrorCodes = new List<string> { "PasswordRequireDigit", "PasswordRequireLower",
+                        "PasswordRequireNonLetterOrDigit", "PasswordRequireUpper", "PasswordTooShort" };
+
+                    bool hasAnyPasswordError = result.Errors.Any(e => passwordErrorCodes.Contains(e.Code));
+                    if (hasAnyPasswordError)
+                    {
+                        _logger.LogWarning("ChangePasswordAsync failed: new password does not meet the required criteria for user {UserId}.", userId);
+                        return Error.Validation("NEWPASSWORD_IS_NOT_VALID", "The new password does not meet the required criteria.");
+                    }
+                }
+
+                _logger.LogError("ChangePasswordAsync failed: unexpected error occurred while changing password for user {UserId}.", userId);
+                return Error.Unknown("CHANGE_PASSWORD_FAILED", "Failed to change password. Please try again later.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ChangePasswordAsync failed: exception occurred for user {UserId}.", userId);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An unexpected error occurred. Please try again later.");
+            }
+        }
+
         public async Task<ResultT<string>> UploadAvatarAsync(Guid userId, IFormFile? file)
         {
             if(Guid.Empty == userId)
