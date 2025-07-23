@@ -348,6 +348,153 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
+        /// Change Password
+        /// </summary>
+        /// <remarks>
+        /// Authenticated users can change their password by providing the old password and a new password.
+        /// The new password must meet the required criteria.
+        /// </remarks>
+        /// <param name="changePasswordDto">The DTO containing the old and new passwords.</param>
+        /// <returns>A success response or a detailed error response.</returns>
+        /// <response code="200">Password successfully changed.</response>
+        /// <response code="400">Invalid input (e.g., missing user ID, invalid old or new password).</response>
+        /// <response code="401">User is not authenticated or token is invalid.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
+        /// <example>
+        /// <code>
+        /// PATCH /api/user/change-password
+        /// Authorization: Bearer {token}
+        /// {
+        ///     "oldPassword": "OldPassword123!",
+        ///     "newPassword": "NewPassword456!"
+        /// }
+        /// </code>
+        /// </example>
+        [Authorize]
+        [HttpPatch("change-password")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ChangePasswordAsync([FromQuery] ChangePasswordDto changePasswordDto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                _logger.LogWarning("[ChangePasswordAsync] Validation error: userId from claims is empty.");
+                return Problem(
+                    statusCode: 400,
+                    title: "Bad Request",
+                    detail: "UserId cannot be empty or null."
+                );
+            }
+
+            var result = await _accountManager.ChangePasswordAsync(Guid.Parse(userId), changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[ChangePasswordAsync] Password changed successfully for user {UserId}.", userId);
+                return Ok();
+            }
+            else if (result.Error != null)
+            {
+                var errorType = result.Error.ErrorType;
+                var errorCode = result.Error.Code;
+
+                if (errorType == ErrorType.Validation)
+                {
+                    switch (errorCode)
+                    {
+                        case "VALIDATION_USERID":
+                            _logger.LogWarning("[ChangePasswordAsync] Validation error: invalid user ID.");
+                            return Problem(
+                                statusCode: 400,
+                                title: "Bad Request",
+                                detail: "Invalid user ID."
+                            );
+
+                        case "VALIDATION_OLDPASSWORD":
+                            _logger.LogWarning("[ChangePasswordAsync] Validation error: old password is invalid.");
+                            return Problem(
+                                statusCode: 400,
+                                title: "Bad Request",
+                                detail: "Old password is invalid."
+                            );
+
+                        case "VALIDATION_NEWPASSWORD":
+                            _logger.LogWarning("[ChangePasswordAsync] Validation error: new password is invalid.");
+                            return Problem(
+                                statusCode: 400,
+                                title: "Bad Request",
+                                detail: "New password is invalid."
+                            );
+
+                        case "VALIDATION_PASSWORDS_SAME":
+                            _logger.LogWarning("[ChangePasswordAsync] Validation error: new password cannot be the same as the old password.");
+                            return Problem(
+                                statusCode: 400,
+                                title: "Bad Request",
+                                detail: "New password cannot be the same as the old password."
+                            );
+
+                        case "NEWPASSWORD_IS_NOT_VALID":
+                            _logger.LogWarning("[ChangePasswordAsync] Validation error: new password does not meet the required criteria.");
+                            return Problem(
+                                statusCode: 400,
+                                title: "Bad Request",
+                                detail: "New password does not meet the required criteria."
+                            );
+                    }
+                }
+                else if (errorType == ErrorType.Unauthorized)
+                {
+                    switch (errorCode)
+                    {
+                        case "USER_NOT_FOUND":
+                            _logger.LogWarning("[ChangePasswordAsync] Unauthorized error: user not found.");
+                            return Problem(
+                                statusCode: 401,
+                                title: "Unauthorized",
+                                detail: "User not found."
+                            );
+
+                        case "OLDPASSWORD_IS_INCORRECT":
+                            _logger.LogWarning("[ChangePasswordAsync] Unauthorized error: old password is incorrect.");
+                            return Problem(
+                                statusCode: 401,
+                                title: "Unauthorized",
+                                detail: "Old password is incorrect."
+                            );
+                    }
+                }
+                else if (errorType == ErrorType.Unknown)
+                {
+                    _logger.LogError("[ChangePasswordAsync] Unknown error occurred while changing password for user {UserId}.", userId);
+                    return Problem(
+                        statusCode: 500,
+                        title: "Internal Server Error",
+                        detail: "An unknown error occurred while changing the password."
+                    );
+                }
+
+                _logger.LogError("[ChangePasswordAsync] Unexpected error occurred for user {UserId}. ErrorType: {ErrorType}, ErrorCode: {ErrorCode}", userId, errorType, errorCode);
+                return Problem(
+                    statusCode: 500,
+                    title: "Internal Server Error",
+                    detail: "An unexpected error occurred while changing the password."
+                );
+            }
+
+            _logger.LogError("[ChangePasswordAsync] Unexpected null error object for user {UserId}.", userId);
+            return Problem(
+                statusCode: 500,
+                title: "Internal Server Error",
+                detail: "An unexpected error occurred while changing the password."
+            );
+        }
+
+        /// <summary>
         /// Upload Avatar
         /// </summary>
         /// <remarks>
