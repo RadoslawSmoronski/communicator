@@ -31,9 +31,4 @@
     <ProjectReference Include="..\ChatCommunicator.Shared\ChatCommunicator.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-    <Folder Include="wwwroot\avatars\" />
-  </ItemGroup>
-
 </Project>
