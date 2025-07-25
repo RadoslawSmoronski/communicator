@@ -30,15 +30,41 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         }
 
         [Fact]
-        public async Task RegisterAsync_ShouldReturnConflict_WhenDataIsAlreadyExist()
+        public async Task RegisterAsync_ShouldReturnConflict_WhenEmailIsAlreadyExist()
         {
             // Arrange
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
                 .Returns(Task.FromResult(
                     IdentityResult.Failed(new IdentityError
                     {
-                        Code = "DuplicateUserName",
-                        Description = "User name already exists."
+                        Code = "DuplicateEmail",
+                        Description = "A user with this email already exists."
+                    })
+                ));
+
+            var expectedResult = _mapper.Map<SimpleUserDto>(_sampleUser1);
+
+            //Act
+            var result = await _accountManager.RegisterAsync(_sampleUser1RegisterDto);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.IsSuccess.Should().BeFalse();
+
+            result.Error.Should().NotBeNull();
+            result.Error!.ErrorType.Should().Be(ErrorType.Conflict);
+        }
+
+        [Fact]
+        public async Task RegisterAsync_ShouldReturnConflict_WhenUsernameIsAlreadyExist()
+        {
+            // Arrange
+            A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
+                .Returns(Task.FromResult(
+                    IdentityResult.Failed(new IdentityError
+                    {
+                        Code = "DuplicateUsername",
+                        Description = "A user with this username already exists."
                     })
                 ));
 

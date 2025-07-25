@@ -40,31 +40,38 @@ namespace ChatCommunicator.Application.Managers
         {
             try
             {
-                _logger.LogInformation("Attempting to register user with username: {UserName}", registerDto.UserName);
+                _logger.LogInformation("Attempting to register user with email: {email}", registerDto.Email);
 
-                var user = new UserAccount { UserName = registerDto.UserName };
+                var user = new UserAccount { Email = registerDto.Email, UserName = registerDto.Username};
                 var result = await _userManager.CreateAsync(user, registerDto.Password);
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User registered successfully: {UserName}", registerDto.UserName);
+                    _logger.LogInformation("User registered successfully: {Email}", registerDto.Email);
                     var dto = _mapper.Map<SimpleUserDto>(user);
                     return dto;
                 }
 
-                var conflictError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
-                if (conflictError != null)
+                var conflictEmailError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateEmail");
+                if (conflictEmailError != null)
                 {
-                    _logger.LogWarning("Registration conflict: username already exists - {UserName}", registerDto.UserName);
+                    _logger.LogWarning("Registration conflict: email already exists - {Email}", registerDto.Email);
+                    return Error.Conflict("CONFLICT", "A user with this email already exists.");
+                }
+
+                var conflictUsernameError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUsername");
+                if (conflictUsernameError != null)
+                {
+                    _logger.LogWarning("Registration conflict: username already exists - {Username}", registerDto.Username);
                     return Error.Conflict("CONFLICT", "A user with this username already exists.");
                 }
 
-                _logger.LogError("User registration failed unexpectedly for username: {UserName}", registerDto.UserName);
+                _logger.LogError("User registration failed unexpectedly for email: {Email}", registerDto.Email);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "User registration failed unexpectedly. Please try again later or contact support.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Exception occurred during registration of user: {UserName}", registerDto.UserName);
+                _logger.LogError(ex, "Exception occurred during registration of user: {Email}", registerDto.Email);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
             }
         }

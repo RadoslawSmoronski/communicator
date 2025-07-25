@@ -33,20 +33,21 @@ namespace ChatCommunicator.Application.Controllers
         /// Register
         /// </summary>
         /// <remarks>
-        /// This endpoint creates a new user using a username and password. If the username already exists,
+        /// This endpoint creates a new user using an email, username, and password. If the email already exists,
         /// a conflict response is returned. On success, basic user data is returned.
         /// </remarks>
-        /// <param name="registerDto">The registration data including username and password.</param>
+        /// <param name="registerDto">The registration data including email, username, and password.</param>
         /// <returns>A response containing the created user's ID and username, or an error message.</returns>
         /// <response code="201">User successfully created.</response>
         /// <response code="400">Invalid registration data (e.g., password policy not met).</response>
-        /// <response code="409">Username already exists.</response>
+        /// <response code="409">Email already exists.</response>
         /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
         /// <code>
         /// POST /api/user/register
         /// {
-        ///     "userName": "newuser123",
+        ///     "email": "email@email.com",
+        ///     "username": "usernameTest",
         ///     "password": "StrongPassword123!"
         /// }
         /// </code>
@@ -62,7 +63,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("[RegisterAsync] User registered successfully. Username: {Username}", registerDto.UserName);
+                _logger.LogInformation("[RegisterAsync] User registered successfully. Email: {Email}", registerDto.Email);
                 return StatusCode(201, result.Value);
             }
 
@@ -73,17 +74,17 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Conflict)
                 {
-                    _logger.LogWarning("[RegisterAsync] Registration conflict. Username: {Username}. Message: {ErrorMessage}",
-                        registerDto.UserName, errorMessage);
+                    _logger.LogWarning("[RegisterAsync] Registration conflict. Email: {Email}. Message: {ErrorMessage}",
+                        registerDto.Email, errorMessage);
                     return Problem(
                         statusCode: 409,
                         title: "Conflict",
-                        detail: "A user with this username already exists."
+                        detail: "A user with this email already exists."
                     );
                 }
 
-                _logger.LogError("[RegisterAsync] Unexpected error during registration. Username: {Username}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
-                    registerDto.UserName, errorCode, errorMessage);
+                _logger.LogError("[RegisterAsync] Unexpected error during registration. Email: {Email}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    registerDto.Email, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -91,7 +92,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            _logger.LogError("[RegisterAsync] Unexpected error with null error object. Username: {Username}", registerDto.UserName);
+            _logger.LogError("[RegisterAsync] Unexpected error with null error object. Email: {Email}", registerDto.Email);
             return Problem(
                 statusCode: 500,
                 title: "Unexpected server error",
