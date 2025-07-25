@@ -80,21 +80,20 @@ namespace ChatCommunicator.Application.Managers
         {
             try
             {
-                _logger.LogInformation("Attempting login for username: {UserName}", loginDto.UserName);
-                var user = await _userManager.FindByNameAsync(loginDto.UserName);
+                _logger.LogInformation("Attempting login for Email: {Email}", loginDto.Email);
+                var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
                 if (user == null)
                 {
-                    _logger.LogWarning("Login failed: user not found - {UserName}", loginDto.UserName);
-                    return Error.Unauthorized("UNAUTHORIZED", "Username or password is incorrect.");
-                }
-                ;
+                    _logger.LogWarning("Login failed: user not found - {Email}", loginDto.Email);
+                    return Error.Unauthorized("UNAUTHORIZED", "Email or password is incorrect.");
+                };
 
                 var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in successfully: {UserName}", loginDto.UserName);
+                    _logger.LogInformation("User logged in successfully: {Email}", loginDto.Email);
 
                     var refreshToken = await _tokenService.CreateRefreshTokenAsync(user.Id);
                     var accessToken = await _tokenService.CreateAccessTokenAsync(user);
@@ -105,7 +104,7 @@ namespace ChatCommunicator.Application.Managers
                         
                         var resultObj = new LoggedUserDto()
                         {
-                            UserName = loginDto.UserName,
+                            UserName = user.UserName!,
                             Id = user.Id,
                             AvatarUrl = avatarUrl,
                             AccessToken = accessToken.Value,
@@ -116,12 +115,12 @@ namespace ChatCommunicator.Application.Managers
                     }
                 }
 
-                _logger.LogWarning("Login failed for username: {UserName}", loginDto.UserName);
+                _logger.LogWarning("Login failed for email: {Email}", loginDto.Email);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "User logging failed unexpectedly. Please try again later or contact support.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Exception occurred during login of user: {UserName}", loginDto.UserName);
+                _logger.LogError(ex, "Exception occurred during login of user: {UserName}", loginDto.Email);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
             }
         }

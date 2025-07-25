@@ -132,7 +132,7 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("[LoginAsync] User logged in successfully. Username: {Username}", loginDto.UserName);
+                _logger.LogInformation("[LoginAsync] User logged in successfully. Email: {Email}", loginDto.Email);
                 return Ok(result.Value);
             }
 
@@ -143,17 +143,17 @@ namespace ChatCommunicator.Application.Controllers
 
                 if (errorCode == ErrorType.Unauthorized)
                 {
-                    _logger.LogWarning("[LoginAsync] Unauthorized login attempt. Username: {Username}. Message: {ErrorMessage}",
-                        loginDto.UserName, errorMessage);
+                    _logger.LogWarning("[LoginAsync] Unauthorized login attempt. Email: {Email}. Message: {ErrorMessage}",
+                        loginDto.Email, errorMessage);
                     return Problem(
                         statusCode: 401,
                         title: "Unauthorized",
-                        detail: "Username or password is incorrect."
+                        detail: "Email or password is incorrect."
                     );
                 }
 
-                _logger.LogError("[LoginAsync] Unexpected error during login. Username: {Username}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
-                    loginDto.UserName, errorCode, errorMessage);
+                _logger.LogError("[LoginAsync] Unexpected error during login. Email: {Email}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
+                    loginDto.Email, errorCode, errorMessage);
                 return Problem(
                     statusCode: 500,
                     title: "InternalServerError",
@@ -161,7 +161,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            _logger.LogError("[LoginAsync] Unexpected error with null error object. Username: {Username}", loginDto.UserName);
+            _logger.LogError("[LoginAsync] Unexpected error with null error object. Email: {Email}", loginDto.Email);
             return Problem(
                 statusCode: 500,
                 title: "Unexpected server error",

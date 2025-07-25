@@ -49,7 +49,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
             _accountManager = new AccountManager(_userManager, _mapper, _signInManager, _tokenService, _userAvatarService, _logger);    
 
-            _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
+            _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid(), Email = "test@test.com"};
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };
             _sampleUser3 = new UserAccount { UserName = "User3Login", Id = Guid.NewGuid() };
             _sampleUserWithAvatar = new UserAccount { UserName = "UserWithAvatar", Id = Guid.NewGuid(), AvatarUrl = "avatar.png"};

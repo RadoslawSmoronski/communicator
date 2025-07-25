@@ -15,7 +15,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         {
             _sampleUser1LoginDto = new LoginDto()
             {
-                UserName = _sampleUser1.UserName!,
+                Email = _sampleUser1.Email!,
                 Password = "test"
             };
         }
@@ -24,11 +24,11 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         public async Task LoginAsync_ShouldReturnOk_WhenDataIsValid()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByNameAsync(_sampleUser1.UserName!))
+            A.CallTo(() => _userManager.FindByEmailAsync(_sampleUser1.Email!))
                 .Returns(Task.FromResult<UserAccount?>(_sampleUser1));
 
             A.CallTo(() => _signInManager.PasswordSignInAsync(_sampleUser1, "test", false, false))
-                    .Returns(Task.FromResult(SignInResult.Success));
+                   .Returns(Task.FromResult(SignInResult.Success));
 
             var fakeRefreshToken = Guid.NewGuid();
 
@@ -65,7 +65,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         public async Task LoginAsync_ShouldReturnUnauthorized_WhenDataIsNotAutharized()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByNameAsync(_sampleUser1.UserName!))
+            A.CallTo(() => _userManager.FindByEmailAsync(_sampleUser1.Email!))
                 .Returns(Task.FromResult<UserAccount?>(null));
 
             //Act
@@ -83,7 +83,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         public async Task LoginAsync_ShouldReturnUnknown_WhenThereIsException()
         {
             // Arrange
-            A.CallTo(() => _userManager.FindByNameAsync(_sampleUser1.UserName!))
+            A.CallTo(() => _userManager.FindByEmailAsync(_sampleUser1.Email!))
                 .Throws(new Exception());
 
             //Act
