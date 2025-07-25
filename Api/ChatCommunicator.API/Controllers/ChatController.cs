@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using AutoMapper;
-using System.Security.Claims;
+﻿using AutoMapper;
+using ChatCommunicator.API.Controllers;
+using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
-using ChatCommunicator.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ChatCommunicator.Application.Controllers
 {
     [Route("api/chat")]
     [ApiController]
-    public class ChatController : Controller
+    public class ChatController : BaseController
     {
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -60,25 +61,15 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetChatsAsync()
         {
-            var userClaimId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = GetUserIdByClaims();
 
-            if (userClaimId == null)
+            if (userId == Guid.Empty)
             {
                 _logger.LogWarning("[GetChatsAsync] Unauthorized access attempt: JWT Token is missing.");
                 return Problem(
                     statusCode: 401,
                     title: "Unauthorized",
                     detail: "JWT Token is not valid."
-                );
-            }
-
-            if (!Guid.TryParse(userClaimId, out Guid userId))
-            {
-                _logger.LogWarning("[GetChatsAsync] Unauthorized access attempt: UserId from JWT Token is not a GUID. Value: {UserClaimId}", userClaimId);
-                return Problem(
-                    statusCode: 401,
-                    title: "Unauthorized",
-                    detail: "UserId from JWT Token is not a guid."
                 );
             }
 

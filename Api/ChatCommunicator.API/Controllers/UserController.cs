@@ -9,12 +9,13 @@ using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
 using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.API.Controllers;
 
 namespace ChatCommunicator.Application.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly ITokenService _tokenManager;
         private readonly IAccountManager _accountManager;
@@ -271,9 +272,9 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangeUsernameAsync([FromQuery] string newUsername)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetUserIdByClaims();
 
-            if(userId == null)
+            if (userId == Guid.Empty)
             {
                 _logger.LogWarning("[ChangeUsernameAsync] Validation error: userId from claims is empty.");
                 return Problem(
@@ -285,7 +286,7 @@ namespace ChatCommunicator.Application.Controllers
 
             _logger.LogInformation("[ChangeUsernameAsync] Attempting to change username. UserId: {UserId}, NewUsername: {NewUsername}", userId, newUsername);
 
-            var result = await _accountManager.ChangeUsernameAsync(Guid.Parse(userId), newUsername);
+            var result = await _accountManager.ChangeUsernameAsync(userId, newUsername);
 
             if (result.IsSuccess)
             {
@@ -379,9 +380,9 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangePasswordAsync([FromQuery] ChangePasswordDto changePasswordDto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetUserIdByClaims();
 
-            if (userId == null)
+            if (userId == Guid.Empty)
             {
                 _logger.LogWarning("[ChangePasswordAsync] Validation error: userId from claims is empty.");
                 return Problem(
@@ -391,7 +392,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            var result = await _accountManager.ChangePasswordAsync(Guid.Parse(userId), changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+            var result = await _accountManager.ChangePasswordAsync(userId, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
 
             if (result.IsSuccess)
             {
@@ -534,9 +535,9 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UploadAvatarAsync([FromForm] UploadAvatarDto uploadAvatarDto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetUserIdByClaims();
 
-            if (userId == null)
+            if (userId == Guid.Empty)
             {
                 _logger.LogWarning("[UploadAvatarAsync] Validation error: userId from claims is empty.");
                 return Problem(
@@ -546,7 +547,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            var result = await _accountManager.UploadAvatarAsync(Guid.Parse(userId), uploadAvatarDto.File);
+            var result = await _accountManager.UploadAvatarAsync(userId, uploadAvatarDto.File);
 
             if (result.IsSuccess)
             {
@@ -644,9 +645,9 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAvatarAsync()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetUserIdByClaims();
 
-            if (userId == null)
+            if (userId == Guid.Empty)
             {
                 _logger.LogWarning("[DeleteAvatarAsync] Validation error: userId from claims is empty.");
                 return Problem(
@@ -656,7 +657,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            var result = await _accountManager.DeleteAvatarAsync(Guid.Parse(userId));
+            var result = await _accountManager.DeleteAvatarAsync(userId);
 
             if (result.IsSuccess)
             {
@@ -753,9 +754,9 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangeAvatarAsync([FromForm] UploadAvatarDto uploadAvatarDto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetUserIdByClaims();
 
-            if (userId == null)
+            if (userId == Guid.Empty)
             {
                 _logger.LogWarning("[ChangeAvatarAsync] Validation error: userId from claims is empty.");
                 return Problem(
@@ -765,7 +766,7 @@ namespace ChatCommunicator.Application.Controllers
                 );
             }
 
-            var result = await _accountManager.ChangeAvatarAsync(Guid.Parse(userId), uploadAvatarDto.File);
+            var result = await _accountManager.ChangeAvatarAsync(userId, uploadAvatarDto.File);
 
             if (result.IsSuccess)
             {

@@ -6,12 +6,13 @@ using ChatCommunicator.Contracts.Dtos;
 using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
 using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.API.Controllers;
 
 namespace ChatCommunicator.Application.Controllers
 {
     [Route("api/friends")]
     [ApiController]
-    public class FriendsController : Controller
+    public class FriendsController : BaseController
     {
         private readonly IFriendsService _friendsManager;
         private readonly IChatService _chatService;
@@ -247,25 +248,15 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUsersToInviteByTextAsync(string text)
         {
-            var userClaimId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = GetUserIdByClaims();
 
-            if (userClaimId == null)
+            if (userId == Guid.Empty)
             {
                 _logger.LogWarning("[GetUsersToInviteByTextAsync] Unauthorized access attempt: JWT Token is missing.");
                 return Problem(
                     statusCode: 401,
                     title: "Unauthorized",
                     detail: "JWT Token is not valid."
-                );
-            }
-
-            if (!Guid.TryParse(userClaimId, out Guid userId))
-            {
-                _logger.LogWarning("[GetUsersToInviteByTextAsync] Unauthorized access attempt: UserId from JWT Token is not a GUID. Value: {UserClaimId}", userClaimId);
-                return Problem(
-                    statusCode: 401,
-                    title: "Unauthorized",
-                    detail: "UserId from JWT Token is not a guid."
                 );
             }
 
