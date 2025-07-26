@@ -81,35 +81,7 @@ namespace ChatCommunicator.Application.Controllers
                 return Ok(result.Value);
             }
 
-            if (result.Error != null)
-            {
-                var errorCode = result.Error.ErrorType;
-                var errorMessage = result.Error.Description;
-
-                if (errorCode == ErrorType.Validation)
-                {
-                    _logger.LogWarning("[GetChatsAsync] Validation error for UserId: {UserId}. Message: {ErrorMessage}", userId, errorMessage);
-                    return Problem(
-                        statusCode: 400,
-                        title: "Bad Request",
-                        detail: errorMessage
-                    );
-                }
-
-                _logger.LogError("[GetChatsAsync] Unexpected error for UserId: {UserId}. ErrorType: {ErrorType}. Message: {ErrorMessage}", userId, errorCode, errorMessage);
-                return Problem(
-                    statusCode: 500,
-                    title: "InternalServerError",
-                    detail: "An unexpected error occurred."
-                );
-            }
-
-            _logger.LogError("[GetChatsAsync] Unexpected null error for UserId: {UserId}", userId);
-            return Problem(
-                statusCode: 500,
-                title: "InternalServerError",
-                detail: "An unexpected error occurred."
-            );
+            return HandleError(result, "GetChatsAsync", _logger);
         }
 
 
@@ -153,48 +125,7 @@ namespace ChatCommunicator.Application.Controllers
                 return Ok(result.Value);
             }
 
-            if (result.Error != null)
-            {
-                var errorCode = result.Error.ErrorType;
-                var errorMessage = result.Error.Description;
-
-                if (errorCode == ErrorType.Validation)
-                {
-                    _logger.LogWarning("[GetPagedMessagesAsync] Validation error. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}. Message: {ErrorMessage}",
-                        conversationId, fromMessageId, errorMessage);
-                    return Problem(
-                        statusCode: 400,
-                        title: "Bad Request",
-                        detail: errorMessage
-                    );
-                }
-                else if (errorCode == ErrorType.NotFound)
-                {
-                    _logger.LogWarning("[GetPagedMessagesAsync] Not found error. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}. Message: {ErrorMessage}",
-                        conversationId, fromMessageId, errorMessage);
-                    return Problem(
-                        statusCode: 404,
-                        title: "Not Found",
-                        detail: errorMessage
-                    );
-                }
-
-                _logger.LogError("[GetPagedMessagesAsync] Unexpected error. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}. ErrorType: {ErrorType}. Message: {ErrorMessage}",
-                    conversationId, fromMessageId, errorCode, errorMessage);
-                return Problem(
-                    statusCode: 500,
-                    title: "InternalServerError",
-                    detail: "An unexpected error occurred."
-                );
-            }
-
-            _logger.LogError("[GetPagedMessagesAsync] Unexpected null error. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}",
-                conversationId, fromMessageId);
-            return Problem(
-                statusCode: 500,
-                title: "InternalServerError",
-                detail: "An unexpected error occurred."
-            );
+            return HandleError(result, "GetPagedMessagesAsync", _logger);
         }
 
     }
