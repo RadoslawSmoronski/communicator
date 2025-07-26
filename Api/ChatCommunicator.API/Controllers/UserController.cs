@@ -176,16 +176,11 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangeUsernameAsync([FromQuery] string newUsername)
         {
-            var userId = GetUserIdByClaims();
+            var validate = ValidateAndGetUserId("ChangeUsernameAsync", _logger, out Guid userId);
 
-            if (userId == Guid.Empty)
+            if (validate != null)
             {
-                _logger.LogWarning("[ChangeUsernameAsync] Validation error: userId from claims is empty.");
-                return Problem(
-                    statusCode: 400,
-                    title: "Bad Request",
-                    detail: "UserId cannot be empty or null."
-                );
+                return validate;
             }
 
             _logger.LogInformation("[ChangeUsernameAsync] Attempting to change username. UserId: {UserId}, NewUsername: {NewUsername}", userId, newUsername);
@@ -232,16 +227,11 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangePasswordAsync([FromQuery] ChangePasswordDto changePasswordDto)
         {
-            var userId = GetUserIdByClaims();
+            var validate = ValidateAndGetUserId("ChangePasswordAsync", _logger, out Guid userId);
 
-            if (userId == Guid.Empty)
+            if (validate != null)
             {
-                _logger.LogWarning("[ChangePasswordAsync] Validation error: userId from claims is empty.");
-                return Problem(
-                    statusCode: 400,
-                    title: "Bad Request",
-                    detail: "UserId cannot be empty or null."
-                );
+                return validate;
             }
 
             var result = await _accountManager.ChangePasswordAsync(userId, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
@@ -294,16 +284,11 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UploadAvatarAsync([FromForm] UploadAvatarDto uploadAvatarDto)
         {
-            var userId = GetUserIdByClaims();
+            var validate = ValidateAndGetUserId("UploadAvatarAsync", _logger, out Guid userId);
 
-            if (userId == Guid.Empty)
+            if (validate != null)
             {
-                _logger.LogWarning("[UploadAvatarAsync] Validation error: userId from claims is empty.");
-                return Problem(
-                    statusCode: 400,
-                    title: "Bad Request",
-                    detail: "The user ID extracted from the claims is null or empty. Please ensure you are authenticated."
-                );
+                return validate;
             }
 
             var result = await _accountManager.UploadAvatarAsync(userId, uploadAvatarDto.File);
@@ -345,16 +330,11 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAvatarAsync()
         {
-            var userId = GetUserIdByClaims();
+            var validate = ValidateAndGetUserId("DeleteAvatarAsync", _logger, out Guid userId);
 
-            if (userId == Guid.Empty)
+            if (validate != null)
             {
-                _logger.LogWarning("[DeleteAvatarAsync] Validation error: userId from claims is empty.");
-                return Problem(
-                    statusCode: 400,
-                    title: "Bad Request",
-                    detail: "UserId cannot be empty or null."
-                );
+                return validate;
             }
 
             var result = await _accountManager.DeleteAvatarAsync(userId);
@@ -407,16 +387,11 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ChangeAvatarAsync([FromForm] UploadAvatarDto uploadAvatarDto)
         {
-            var userId = GetUserIdByClaims();
+            var validate = ValidateAndGetUserId("ChangeAvatarAsync", _logger, out Guid userId);
 
-            if (userId == Guid.Empty)
+            if (validate != null)
             {
-                _logger.LogWarning("[ChangeAvatarAsync] Validation error: userId from claims is empty.");
-                return Problem(
-                    statusCode: 400,
-                    title: "Bad Request",
-                    detail: "The user ID extracted from the claims is null or empty. Please ensure you are authenticated."
-                );
+                return validate;
             }
 
             var result = await _accountManager.ChangeAvatarAsync(userId, uploadAvatarDto.File);

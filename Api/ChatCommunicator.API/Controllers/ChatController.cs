@@ -61,16 +61,11 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetChatsAsync()
         {
-            var userId = GetUserIdByClaims();
+            var validate = ValidateAndGetUserId("GetChatsAsync", _logger, out Guid userId);
 
-            if (userId == Guid.Empty)
+            if (validate != null)
             {
-                _logger.LogWarning("[GetChatsAsync] Unauthorized access attempt: JWT Token is missing.");
-                return Problem(
-                    statusCode: 401,
-                    title: "Unauthorized",
-                    detail: "JWT Token is not valid."
-                );
+                return validate;
             }
 
             var result = await _chatService.GetChatsAsync(userId);

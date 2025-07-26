@@ -157,16 +157,11 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUsersToInviteByTextAsync(string text)
         {
-            var userId = GetUserIdByClaims();
+            var validate = ValidateAndGetUserId("GetUsersToInviteByTextAsync", _logger, out Guid userId);
 
-            if (userId == Guid.Empty)
+            if (validate != null)
             {
-                _logger.LogWarning("[GetUsersToInviteByTextAsync] Unauthorized access attempt: JWT Token is missing.");
-                return Problem(
-                    statusCode: 401,
-                    title: "Unauthorized",
-                    detail: "JWT Token is not valid."
-                );
+                return validate;
             }
 
             var result = await _friendsManager.GetUsersToInviteByTextAsync(userId, text);

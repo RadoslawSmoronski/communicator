@@ -7,6 +7,25 @@ namespace ChatCommunicator.API.Controllers
 {
     public abstract class BaseController : Controller
     {
+
+        protected IActionResult ValidateAndGetUserId(string logContext, ILogger logger, out Guid userId)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out userId))
+            {
+                userId = Guid.Empty;
+                logger.LogWarning("[{LogContext}] UserId is null or empty.", logContext);
+                return Problem(
+                    statusCode: 400,
+                    title: "Bad Request",
+                    detail: "UserId cannot be null or empty."
+                );
+            }
+
+            return null!;
+        }
+
         protected IActionResult HandleError(Result result, string logContext, ILogger logger, Guid? userId = null)
         {
             if (result.Error != null)
@@ -77,5 +96,6 @@ namespace ChatCommunicator.API.Controllers
 
             return userId;
         }
+
     }
 }
