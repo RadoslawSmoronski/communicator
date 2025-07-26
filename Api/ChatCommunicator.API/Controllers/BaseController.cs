@@ -85,17 +85,5 @@ namespace ChatCommunicator.API.Controllers
             );
         }
 
-        protected Guid GetUserIdByClaims()
-        {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-            {
-                return Guid.Empty;
-            }
-
-            return userId;
-        }
-
     }
 }

@@ -45,7 +45,7 @@ namespace ChatCommunicator.Infrastructure.Services
             }
         }
 
-        public async Task<Result> DeleteFileAsync(string directory, string filename)
+        public Result DeleteFile(string directory, string filename)
         {
             try
             {
@@ -58,17 +58,9 @@ namespace ChatCommunicator.Infrastructure.Services
                     return Error.Validation("FILE_NOT_FOUND", "File not found.");
                 }
 
-                await Task.Run(() =>
-                {
-                    using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Delete))
-                    {
-                        stream.Close();
-                        File.Delete(fullPath);
-                    }
-                });
+                File.Delete(fullPath);
 
                 _logger.LogInformation("File deleted successfully at {FullPath}", fullPath);
-
                 return Result.Success();
             }
             catch (Exception ex)
