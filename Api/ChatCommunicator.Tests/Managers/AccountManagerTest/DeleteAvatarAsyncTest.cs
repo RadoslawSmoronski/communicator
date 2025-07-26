@@ -79,9 +79,9 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
 
         [Fact]
-        public async Task ChangeUsernameAsync_ShouldReturnUnknown_WhenThereIsException()
+        public async Task DeleteAvatarAsync_ShouldReturnUnknown_WhenThereIsException()
         {
-            // Arrange
+            // Arrange  
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUser1.Id.ToString()))
                 .Throws(new Exception());
 

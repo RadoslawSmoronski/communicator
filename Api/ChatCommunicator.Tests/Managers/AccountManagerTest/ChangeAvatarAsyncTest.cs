@@ -31,7 +31,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             A.CallTo(() => _userAvatarService.UploadAvatarAsync(_fakeFile))
                         .Returns("testChanged");
 
-            A.CallTo(() => _userAvatarService.DeleteAvatarAsync(localSampleUser1WithAvatar.AvatarUrl!))
+            A.CallTo(() => _userAvatarService.DeleteAvatar(localSampleUser1WithAvatar.AvatarUrl!))
                         .Returns(Result.Success());
 
             A.CallTo(() => _userManager.UpdateAsync(localSampleUser1WithAvatar))
@@ -106,7 +106,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserWithAvatar.Id.ToString()))
                 .Returns(Task.FromResult<UserAccount?>(_sampleUserWithAvatar));
 
-            A.CallTo(() => _userAvatarService.DeleteAvatarAsync(_sampleUserWithAvatar.AvatarUrl!))
+            A.CallTo(() => _userAvatarService.DeleteAvatar(_sampleUserWithAvatar.AvatarUrl!))
                         .Returns(ResultT<string>.Failure(Error.Unknown("AVATAR_DELETE_FAILED", "test")));
 
             //Act
@@ -131,7 +131,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             A.CallTo(() => _userAvatarService.UploadAvatarAsync(_fakeFile))
                         .Returns(ResultT<string>.Failure(Error.Unknown("AVATAR_UPLOAD_FAILED", "test")));
 
-            A.CallTo(() => _userAvatarService.DeleteAvatarAsync(_sampleUserWithAvatar.AvatarUrl!))
+            A.CallTo(() => _userAvatarService.DeleteAvatar(_sampleUserWithAvatar.AvatarUrl!))
                         .Returns(Result.Success());
 
             //Act
@@ -150,7 +150,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         public async Task ChangeAvatarAsync_ShouldReturnUnknown_WhenUserUpdateFailed()
         {
             // Arrange
-            A.CallTo(() => _userAvatarService.DeleteAvatarAsync(_sampleUserWithAvatar.AvatarUrl!))
+            A.CallTo(() => _userAvatarService.DeleteAvatar(_sampleUserWithAvatar.AvatarUrl!))
                         .Returns(Result.Success());
 
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserWithAvatar.Id.ToString()))
@@ -159,7 +159,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             A.CallTo(() => _userAvatarService.UploadAvatarAsync(_fakeFile))
                         .Returns("testChanged");
 
-            A.CallTo(() => _userAvatarService.DeleteAvatarAsync(_sampleUserWithAvatar.AvatarUrl!))
+            A.CallTo(() => _userAvatarService.DeleteAvatar(_sampleUserWithAvatar.AvatarUrl!))
                         .Returns(Result.Success());
 
             //Act
