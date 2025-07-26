@@ -6,11 +6,9 @@ using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Infrastructure;
 using ChatCommunicator.Infrastructure.Models;
-using ChatCommunicator.Infrastructure.Repository;
-using ChatCommunicator.Infrastructure.Service;
 using ChatCommunicator.Infrastructure.Services;
-using ChatCommunicator.Infrastructure.Services.Interfaces;
-using ChatCommunicator.Infrastructure.UnitOfWork;
+using ChatCommunicator.Infrastructure.Extensions;
+using ChatCommunicator.Application.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -122,24 +120,11 @@ namespace ChatCommunicator.Application
 
             builder.Host.UseSerilog();
 
-            builder.Services.AddSingleton<LogCleanupService>();
-            builder.Services.AddHostedService<LogCleanupService>();
-
             // Application services 
-            builder.Services.AddSingleton<TokenCleanupService>();
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<IChatService, ChatService>();
-            builder.Services.AddScoped<IFriendsService, FriendsService>();
-            builder.Services.AddScoped<IAccountManager, AccountManager>();
-            builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
-            builder.Services.AddHostedService<TokenCleanupService>();
-            builder.Services.AddScoped<IChatFriendsService, ChatFriendsService>();
-            builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
+            builder.Services.AddChatCommunicatorApplicationLayer();
 
             // Infrastructure 
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+            builder.Services.AddChatCommunicatorInfrastructureLayer();
 
             // Middleware
             builder.Services.AddSignalR();
