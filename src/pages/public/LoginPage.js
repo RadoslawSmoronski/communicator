@@ -11,9 +11,9 @@ import APIs from "../../api/ApiURL";
 const LoginPage = () => {
     const navigate = useNavigate();
     const popUpRef = useRef();
-    const { username, userId, role, setAuth } = useContext(AuthContext);
+    const { setAuth } = useContext(AuthContext);
     const [formState, setFormState] = useState({
-        username: "",
+        email: "",
         password: ""
     });
 
@@ -31,7 +31,7 @@ const LoginPage = () => {
     const submitLogin = async (event) => {
         event.preventDefault();
 
-        if (formState.username === "" || formState.password === "") {
+        if (formState.email === "" || formState.password === "") {
             popUpRef.current?.show("Nazwa użytkownika lub hasło nie może być puste");
             return;
         }
@@ -39,7 +39,7 @@ const LoginPage = () => {
         try {
             const response = await axios.post(APIs.LOGIN,
                 JSON.stringify({
-                    UserName: formState.username,
+                    Email: formState.email,
                     Password: formState.password
                 }),
                 {
@@ -59,13 +59,14 @@ const LoginPage = () => {
                 console.log("userData: ", userData);
                 let role = 'user';
 
-                setAuth(userData.userName, userData.id, role, userData.accessToken);
+                setAuth(formState.email, userData.userName, userData.id, role, userData.accessToken);
 
                 // refreshToken
                 sessionStorage.setItem('refreshToken', userData.refreshToken);
 
                 // user info
                 let userInfo = {
+                    email: formState.email,
                     username: userData.userName,
                     userID: userData.id,
                     role: role,
@@ -78,25 +79,25 @@ const LoginPage = () => {
 
         } catch (err) {
             console.log(err);
-            let mess = err.response?.data.detail || "Invalid login request";
+            let mess = err.response?.data.title || "Invalid login request";
             popUpRef.current?.show(mess);
         }
 
-        setFormState({ username: "", password: "" });
+        setFormState({ email: "", password: "" });
     };
 
 
     return (
         <div id="mainloginPage">
             <form className="loginPanel">
-                <label htmlFor="username">Login: </label>
+                <label htmlFor="email">Email: </label>
                 <input
-                    value={formState.username}
+                    value={formState.email}
                     onChange={handleChange}
-                    name="username"
-                    id="username"
+                    name="email"
+                    id="email"
                     autoComplete="off"
-                    type="text"
+                    type="email"
                     className="textInput"
                 /><br /><br />
                 <label htmlFor="password">Password: </label>

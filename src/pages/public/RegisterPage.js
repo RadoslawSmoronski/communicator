@@ -9,24 +9,28 @@ import APIs from "../../api/ApiURL";
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_#]{4,24}$/;
 const PASS_REGEX = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,64}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const RegisterPage = () => {
   const popUpRef = useRef();
 
   const [formData, setFormData] = useState({
-    login: "",
+    email: "",
+    username: "",
     password: "",
     password2: "",
   });
 
   const [regexStatus, setRegexStatus] = useState({
-    login: false,
+    email: false,
+    username: false,
     password: false,
     password2: false,
   });
 
   const [formFocus, setFormFocus] = useState({
-    login: false,
+    email: false,
+    username: false,
     password: false,
     password2: false,
   });
@@ -41,8 +45,10 @@ const RegisterPage = () => {
       [name]: value
     }));
 
-    if (name === "login") {
-      setRegexStatus((prev) => ({ ...prev, login: USER_REGEX.test(value) }));
+    if (name === "username") {
+      setRegexStatus((prev) => ({ ...prev, username: USER_REGEX.test(value) }));
+    } else if (name === "email") {
+      setRegexStatus((prev) => ({ ...prev, email: EMAIL_REGEX.test(value) }));
     } else if (name === "password") {
       setRegexStatus((prev) => ({
         ...prev,
@@ -59,7 +65,7 @@ const RegisterPage = () => {
 
   const handleFocusOn = (e) => {
     const { name } = e.target;
-    setFormFocus({ login: false, password: false, password2: false });
+    setFormFocus({ email: false, username: false, password: false, password2: false });
     setFormFocus((prev) => ({ ...prev, [name]: true }));
   };
 
@@ -67,16 +73,16 @@ const RegisterPage = () => {
   const submitRegister = async (e) => {
     e.preventDefault();
 
-    const { login, password, password2 } = formData;
-    const { login: loginRegex, password: passRegex, password2: pass2Regex } = regexStatus;
+    const { email, username, password, password2 } = formData;
+    const { email: emailRegex, username: usernameRegex, password: passRegex, password2: pass2Regex } = regexStatus;
 
-    if (!login || !password || !password2) {
-      popUpRef.current?.show("Nazwa użytkownika lub hasło nie może być puste");
+    if (!username || !password || !password2 || !email) {
+      popUpRef.current?.show("Nazwa użytkownika, email lub hasło nie może być puste");
       return;
     }
 
-    if (!loginRegex || !passRegex) {
-      popUpRef.current?.show("Nazwa użytkownika lub hasło nie spełniają kryteriów");
+    if (!usernameRegex || !passRegex || !emailRegex) {
+      popUpRef.current?.show("Nazwa użytkownika, email lub hasło nie spełniają kryteriów");
       return;
     }
 
@@ -89,8 +95,9 @@ const RegisterPage = () => {
     try {
       const data = await axios.post(APIs.REGISTER,
         JSON.stringify({
-          UserName: login,
-          Password: password
+          email: email,
+          username: username,
+          password: password
         }),
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -102,8 +109,8 @@ const RegisterPage = () => {
       popUpRef.current?.show(err.response?.data.detail || err.message);
     }
 
-    setFormData({ login: "", password: "", password2: "" });
-    setRegexStatus({ login: false, password: false, password2: false });
+    setFormData({ email: "", username: "", password: "", password2: "" });
+    setRegexStatus({ email: false, username: false, password: false, password2: false });
   };
 
 
@@ -111,11 +118,11 @@ const RegisterPage = () => {
     <div id="mainregisterPage">
       <form className="loginPanel">
         <ValidatedInput
-          htmlName="login"
-          labelText="Login"
-          formData={formData.login}
-          regexStatus={regexStatus.login}
-          formFocus={formFocus.login}
+          htmlName="username"
+          labelText="Username"
+          formData={formData.username}
+          regexStatus={regexStatus.username}
+          formFocus={formFocus.username}
           handleChange={handleChange}
           handleFocusOn={handleFocusOn}
           inputType="text"
@@ -124,6 +131,24 @@ const RegisterPage = () => {
               Has 5 - 24 characters in length<br />
               Has to start with English letter<br />
               Can contain English letters, digits and -_#
+            </>
+          }
+        />
+
+        <ValidatedInput
+          htmlName="email"
+          labelText="Email"
+          formData={formData.email}
+          regexStatus={regexStatus.email}
+          formFocus={formFocus.email}
+          handleChange={handleChange}
+          handleFocusOn={handleFocusOn}
+          inputType="email"
+          validationText={
+            <>
+              Must be a valid email format<br />
+              Must contain "@" and a domain name<br />
+              No spaces or special characters outside local part
             </>
           }
         />
@@ -164,7 +189,7 @@ const RegisterPage = () => {
         <div>Already have an account? Log in below</div>
         <Link to="/login">Log in</Link>
       </form>
-      <div id="logo"/>
+      <div id="logo" />
     </div>
   );
 };

@@ -13,7 +13,7 @@ import InvitationTile from './tiles/InvitationTile';
 import UserInfoPanel from './UserInfoPanel';
 
 const Layout = () => {
-    const { username, userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
+    const { email, username, userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
     const location = useLocation();
     const currentPath = location.pathname;
 
@@ -160,7 +160,7 @@ const Layout = () => {
 
             {/* USER INFO PANEL */}
             {display.userInfoPanel && (
-                <UserInfoPanel username={username} fullname={null} email={null} />
+                <UserInfoPanel username={username} fullname={null} email={email} />
             )}
 
             {/* MENU BAR */}
