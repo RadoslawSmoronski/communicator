@@ -363,4 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Ignore appsettings.development with secrets
-ChatCommunicator.API/appsettings.Development.json
+**/appsettings.Development.json
+**/appsettings.development.json
+appsettings.Development.json
+appsettings.development.json 
