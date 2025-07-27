@@ -59,13 +59,14 @@ const LoginPage = () => {
                 console.log("userData: ", userData);
                 let role = 'user';
 
-                setAuth(formState.email, userData.userName, userData.id, role, userData.accessToken);
+                setAuth(userData.avatarUrl, formState.email, userData.userName, userData.id, role, userData.accessToken);
 
                 // refreshToken
                 sessionStorage.setItem('refreshToken', userData.refreshToken);
 
                 // user info
                 let userInfo = {
+                    avatarUrl: userData.avatarUrl,
                     email: formState.email,
                     username: userData.userName,
                     userID: userData.id,

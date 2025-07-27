@@ -5,6 +5,7 @@ import APIs from '../api/ApiURL';
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
+    const [avatarUrl, setAvatarUrl] = useState(null);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [userId, setUserID] = useState('');
@@ -12,13 +13,30 @@ const AuthProvider = ({ children }) => {
     const [accessToken, setAccessToken] = useState('');
     const [loading, setLoading] = useState(true);
 
-    const setAuth = useCallback((_email,_username, _userId, _role, _accessToken) => {
+    const setAuth = useCallback((_avatarUrl, _email, _username, _userId, _role, _accessToken) => {
+        setAvatarUrl(_avatarUrl);
         setEmail(_email);
         setUsername(_username);
         setUserID(_userId);
         setRole(_role);
         setAccessToken(_accessToken);
     }, []);
+
+    const saveToCookie = () => {
+        // user info
+        console.log("saveToCookie");
+
+        let userInfo = {
+            avatarUrl: avatarUrl,
+            email: email,
+            username: username,
+            userID: userId,
+            role: role
+        };
+
+        console.log(userInfo);
+        sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
+    }
 
     const refreshAccessToken = async () => {
         const refreshToken = sessionStorage.getItem('refreshToken');
@@ -43,7 +61,7 @@ const AuthProvider = ({ children }) => {
                 console.log("SUKCES REFRESH TOKEN:");
                 console.log(res);
                 console.log(userInfo);
-                setAuth(userInfo.email ,userInfo.username, userInfo.userID, userInfo.role, res.accessToken);
+                setAuth(userInfo.avatarUrl, userInfo.email, userInfo.username, userInfo.userID, userInfo.role, res.accessToken);
                 sessionStorage.setItem('refreshToken', res.refreshToken);
             }
 
@@ -55,10 +73,10 @@ const AuthProvider = ({ children }) => {
 
     const tokenIsExpired = (token) => {
         if (!token) return true;
-    
+
         try {
             const decoded = JSON.parse(atob(token.split('.')[1]));
-            const expirationDate = decoded.exp * 1000; 
+            const expirationDate = decoded.exp * 1000;
             return expirationDate < Date.now();
         } catch (error) {
             console.error("Invalid token format", error);
@@ -75,12 +93,15 @@ const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{
+            avatarUrl,
             email,
             username,
             userId,
             role,
             accessToken,
             setAuth,
+            setAvatarUrl,
+            saveToCookie,
             setAccessToken,
             refreshAccessToken,
             tokenIsExpired,

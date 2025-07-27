@@ -1,5 +1,7 @@
 
 const APIs = {
+    SERVER_URL: "http://localhost:5205",
+
     LOGIN : "/api/user/login",
     REGISTER : "/api/user/register",
     FIND_PEOPLE : "/api/users/get-users-by-text",
@@ -14,7 +16,9 @@ const APIs = {
 
     GET_CHATS: "/api/chat/get-chats",
     GET_FRIENDS: "/api/friends/get-friends",
-    GET_MESSAGES: "/api/chat/get-paged-messages"
+    GET_MESSAGES: "/api/chat/get-paged-messages",
+
+    AVATAR: "api/user/avatar"
 }
 
 export default APIs;

@@ -11,9 +11,11 @@ import eventBus from "../utils/eventBus";
 
 import InvitationTile from './tiles/InvitationTile';
 import UserInfoPanel from './UserInfoPanel';
+import EditProfilePanel from "./EditProfilePanel";
+import Avatar from "./Avatar";
 
 const Layout = () => {
-    const { email, username, userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
+    const { avatarUrl,email, username, userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
     const location = useLocation();
     const currentPath = location.pathname;
 
@@ -24,27 +26,24 @@ const Layout = () => {
     const [display, setDisplay] = useState({
         invitationList: false,
         userInfoPanel: false,
+        editProfilePanel: false
     });
 
     // Invitation list
-    // Displays / hides invitation list
-    const displayInvitationList = () => {
-        setDisplay(prev => ({
-            ...prev,
-            invitationList: !prev.invitationList,
-            userInfoPanel: false,
-        }));
+    // Displays / hides given panel
+    const togglePanel = (panelName) => {
+        setDisplay(prev => {
+            const panelsState = {
+                invitationList: false,
+                userInfoPanel: false,
+                editProfilePanel: false,
+            };
+
+            panelsState[panelName] = !prev[panelName];
+            return panelsState;
+        });
     };
 
-    // User info panel
-    // Displays / hides user info panel
-    const displayUserInfoPanel = () => {
-        setDisplay(prev => ({
-            ...prev,
-            invitationList: false,
-            userInfoPanel: !prev.userInfoPanel,
-        }));
-    };
 
     // Invitation list
     // Fetches all invitations
@@ -160,8 +159,14 @@ const Layout = () => {
 
             {/* USER INFO PANEL */}
             {display.userInfoPanel && (
-                <UserInfoPanel username={username} fullname={null} email={email} />
+                <UserInfoPanel avatarUrl={avatarUrl} username={username} fullname={null} email={email} togglePanel={togglePanel}/>
             )}
+
+            {/* EDIT PROFILE PANEL */}
+            {display.editProfilePanel && (
+                <EditProfilePanel togglePanel={togglePanel}/>
+            )
+            }
 
             {/* MENU BAR */}
             <div id='menuBar'>
@@ -169,7 +174,7 @@ const Layout = () => {
                 <div id='profileBox'>
                     {
                         currentPath === "/message" &&
-                        <div className='bellWrapper' onClick={displayInvitationList}>
+                        <div className='bellWrapper' onClick={() => togglePanel('invitationList')}>
                             <FontAwesomeIcon icon={faBell} className='friendBarIcon' />
                             {friend.invitations && friend.invitations.length > 0 && (
                                 <div className='notificationBadge'>{friend.invitations.length}</div>
@@ -178,14 +183,14 @@ const Layout = () => {
                     }
 
                     <button className='btn2' onClick={signOut}>Sign out</button>
-                    <div className='profileInfoWrapper' onClick={displayUserInfoPanel}>
+                    <div className='profileInfoWrapper' onClick={() => togglePanel('userInfoPanel')}>
                         {username}
-                        <div className='profileIcon' />
+                        <Avatar url={avatarUrl}/>
                     </div>
                 </div>
             </div>
 
-            <Outlet/>
+            <Outlet />
         </div>
     );
 };

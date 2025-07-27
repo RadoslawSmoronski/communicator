@@ -1,14 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const UserInfoPanel = ({ username, fullname, email }) => {
+import Avatar from './Avatar';
+
+const UserInfoPanel = ({ avatarUrl ,username, fullname, email, togglePanel }) => {
     return (
         <div className='userInfoPanel'>
             <div className='imageAndNameWrapperIP'>
-                <div
-                    className='friendTileIcon'
-                    style={{ width: '60px', height: '60px' }}
-                />
+                <Avatar url={avatarUrl} size={60} />
                 <div
                     className='friendTileUserName'
                     style={{
@@ -28,15 +27,9 @@ const UserInfoPanel = ({ username, fullname, email }) => {
                 Email: {email == null ? 'not given' : email}
             </div>
 
-            <Link
-                to="/editprofile"
-                style={{
-                    textAlign: 'center',
-                    marginTop: '5px'
-                }}
-            >
+            <button className='btn2' onClick={() => togglePanel('editProfilePanel')}>
                 Edit the profile
-            </Link>
+            </button>
         </div>
     );
 };

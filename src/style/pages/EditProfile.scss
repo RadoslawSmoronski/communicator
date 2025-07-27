@@ -1,39 +1,60 @@
-#mainEditProfilePage{
-    height: 100%;
+@use './../variables' as vars;
+
+.offFocusBK {
+    position: fixed;
     width: 100%;
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    grid-template-rows: 75px 1fr;
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
-    background-color: #1a1a1a;
-    color: #caa779;
-}
-
-.editPanelWrapper{
-    grid-row: 2;
-    grid-column: span 2;
-
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column-reverse;
+
+    background-color: vars.$bk-off-focus-color;
+
+    z-index: 1000;
 }
 
-.goBackBtn{
-    text-decoration: none;
+.editProfilePanel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 800px;
+    border: solid 2px vars.$secondary-color;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+
+    background-color: vars.$bk-msg-page-color;
+
+    padding: 5px;
+    border-radius: 2%;
+    z-index: 1001;
 }
 
-.editPanel{
-    width: 70%;
-    height: 100%;
-    background-color: antiquewhite;
+.editProfileElement {
+    justify-content: space-between; 
     display: flex;
-    flex-direction:column;
-    justify-content: center;
-    align-items: center;
-    background-color: #0e0e0e;
+    flex-direction: row;
+    margin-top: 15px;
+}
 
-    border-radius: 2px;
+.editProfileTitle {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid vars.$secondary-color;
+    width: 100%;
+    padding-bottom: 8px;
+
+}
+
+.friendTileIcon.editProfileAvatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 75px;
+}
+
+.editProfileBtnWrapper{
+    flex-direction: row-reverse;
 }
