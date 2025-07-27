@@ -12,6 +12,7 @@ import eventBus from '../../utils/eventBus';
 import listUtils from '../../utils/listUtils';
 import eventUtils from '../../utils/eventUtils';
 import cookieUtils from '../../utils/cookieUtils';
+import Avatar from '../../components/Avatar';
 
 import FriendTile from '../../components/tiles/FriendTile';
 import MessageTile from '../../components/tiles/MessageTile';
@@ -33,7 +34,8 @@ const MessagePage = () => {
         list: [],
         list_filtered: [],
         findStatus: 'not found',
-        activeFriend: '',
+        activeFriendName: '',
+        activeFriendAvatarUrl: null
     });
 
     const [chat, setChat] = useState({
@@ -142,6 +144,7 @@ const MessagePage = () => {
             });
 
             if (data.status === 200) {
+
                 if (data.data?.length) {
                     setUser(prev => ({
                         ...prev,
@@ -167,7 +170,7 @@ const MessagePage = () => {
             } else if (err.response?.status === 404) {
                 // setUser(prev => ({ ...prev, findStatus: 'not found' }));
             } else {
-                console.error(err);
+                // console.error(err);
             }
         }
     };
@@ -183,6 +186,8 @@ const MessagePage = () => {
 
             if (data.status === 200) {
                 const result = data.data;
+                console.log("GetFriends");
+                console.log(result);
 
                 // add new value (newMessNotify - notification) to listOfFriends
                 const friendsWithNotify = result.map(friend => ({
@@ -280,27 +285,28 @@ const MessagePage = () => {
     // Friend list
     // Handles clicking on chat
     // adds param (lastOpened) to userInfo localStorage
-    const handleClickingOnChat = async (conversationId, friendId, friendName) => {
+    const handleClickingOnChat = async (conversationId, friendId, friendName, friendAvatarUrl) => {
         // cookie override
         let lastOpenedChatsSet = cookieUtils.get('lastOpenedChatSet') || {};
 
         const lastOpenedChatObj = {
-            conversationId: conversationId,
-            friendId: friendId,
-            friendName: friendName
+            conversationId,
+            friendId,
+            friendName,
+            friendAvatarUrl
         };
 
         lastOpenedChatsSet[userId] = lastOpenedChatObj;
 
         cookieUtils.set('lastOpenedChatSet', lastOpenedChatsSet);
 
-        selectChat(conversationId, friendId, friendName);
+        selectChat(conversationId, friendId, friendName, friendAvatarUrl);
     }
 
     // Friend list
     // Handles selecting chat
     // newMessNotify - is for turning off new message notification from friend
-    const selectChat = async (conversationId, friendId, friendName) => {
+    const selectChat = async (conversationId, friendId, friendName, friendAvatarUrl) => {
         scrollMessageBoxRef.current.scrollTop = 0;
 
         const updatedFriends = friend.list.map(friend =>
@@ -311,7 +317,8 @@ const MessagePage = () => {
 
         setFriend(prev => ({
             ...prev,
-            activeFriend: friendName,
+            activeFriendName: friendName,
+            activeFriendAvatarUrl: friendAvatarUrl,
             list: updatedFriends,
             list_filtered: listUtils.returnFilteredFriends(updatedFriends, searchBar),
         }));
@@ -337,7 +344,7 @@ const MessagePage = () => {
                 isScrollable = box.clientHeight < box.scrollHeight;
             }
 
-            console.log(!isScrollable, !chatRef.current.noNewMessagesFlag[conversationId])
+            // console.log(!isScrollable, !chatRef.current.noNewMessagesFlag[conversationId])
 
         }
     };
@@ -498,8 +505,8 @@ const MessagePage = () => {
     // load last openned chat
     useEffect(() => {
         if (chat.lastOpenedChat && friend.list.length > 0) {
-            const { conversationId, friendId, friendName } = chat.lastOpenedChat;
-            selectChat(conversationId, friendId, friendName);
+            const { conversationId, friendId, friendName, friendAvatarUrl } = chat.lastOpenedChat;
+            selectChat(conversationId, friendId, friendName, friendAvatarUrl);
 
             setChat(prev => ({
                 ...prev,
@@ -552,12 +559,13 @@ const MessagePage = () => {
                                 <FriendTile
                                     key={f.friendId}
                                     username={f.friendUserName}
-                                    onClick={() => handleClickingOnChat(f.conversationId, f.friendId, f.friendUserName)}
+                                    onClick={() => handleClickingOnChat(f.conversationId, f.friendId, f.friendUserName, f.friendAvatarUrl)}
                                     author={f.isFriendSenderMessage ? '' : 'You: '}
                                     mess={f.lastMessageContent}
                                     messTimestamp={f.lastMessageTimestamp}
                                     selected={chat.selectedId === f.conversationId}
                                     newMessageNotify={f.newMessNotify}
+                                    avatarUrl={APIs.SERVER_URL+ "/avatars/" + f.friendAvatarUrl}
                                 />
                             ))
                         ) : (
@@ -578,6 +586,7 @@ const MessagePage = () => {
                                 username={u.userName}
                                 recipientId={u.id}
                                 isInvited={u.isInvited}
+                                avatarUrl={APIs.SERVER_URL+ "/avatars/" + u.avatarUrl}
                             />
                         ))
                     )
@@ -586,14 +595,18 @@ const MessagePage = () => {
 
             {/* FRIEND BAR */}
             <div id='friendBar'>
-                <div className='friendBarIconBox'>
-                    <div className='profileIcon' />
-                </div>
-                <div className='friendBarUserName'>{friend.activeFriend}</div>
-                <div className='friendBarRightBox'>
-                    <FontAwesomeIcon icon={faPhone} className='friendBarIcon' />
-                    <FontAwesomeIcon icon={faCircleInfo} className='friendBarIcon' />
-                </div>
+                {friend.activeFriendName &&
+                    <>
+                        <div className='friendBarIconBox'>
+                            <Avatar url={APIs.SERVER_URL+ "/avatars/" + friend.activeFriendAvatarUrl} />
+                        </div>
+                        <div className='friendBarUserName'>{friend.activeFriendName}</div>
+                        <div className='friendBarRightBox'>
+                            <FontAwesomeIcon icon={faPhone} className='friendBarIcon' />
+                            <FontAwesomeIcon icon={faCircleInfo} className='friendBarIcon' />
+                        </div>
+                    </>
+                }
             </div>
 
             {/* MESSAGE BOX */}

@@ -3,8 +3,9 @@ import React, { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthProvider';
 import axios from '../../api/axios';
 import APIs from '../../api/ApiURL';
+import Avatar from '../Avatar';
 
-const PersonTile = ({ recipientId, username, isInvited }) => {
+const PersonTile = ({ recipientId, username, isInvited, avatarUrl }) => {
     const { userId, accessToken, refreshAccessToken } = useContext(AuthContext);
     const [sendBtnIsActive, setSendBtnIsActive] = useState(!isInvited);
 
@@ -54,7 +55,7 @@ const PersonTile = ({ recipientId, username, isInvited }) => {
 
     return (
         <div className='friendTile'>
-            <div className='friendTileIcon' />
+            <Avatar url={avatarUrl} />
             <div className='friendTileWrapper'>
                 <div className='friendTileUserName'>{username}</div>
                 <div className='personBtnWrapper'>

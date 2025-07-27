@@ -1,6 +1,8 @@
 import React from 'react';
 
-const FriendTile = ({ messTimestamp, mess, username, author, selected, onClick, newMessageNotify }) => {
+import Avatar from '../Avatar';
+
+const FriendTile = ({ messTimestamp, mess, username, author, selected, onClick, newMessageNotify, avatarUrl }) => {
     const dateNow = new Date();
     const dateOfMessage = new Date(messTimestamp);
     const hours = dateOfMessage.getHours().toString().padStart(2, '0');
@@ -32,7 +34,7 @@ const FriendTile = ({ messTimestamp, mess, username, author, selected, onClick, 
 
     return (
         <div className={selected ? 'friendTile selectedChat' : 'friendTile'} onClick={onClick}>
-            <div className="friendTileIcon" />
+            <Avatar  url={avatarUrl}/>
             <div className="friendTileWrapper">
                 <div className="friendTileUserName">{username}</div>
                 {

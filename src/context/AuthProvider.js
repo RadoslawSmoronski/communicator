@@ -22,19 +22,17 @@ const AuthProvider = ({ children }) => {
         setAccessToken(_accessToken);
     }, []);
 
-    const saveToCookie = () => {
+    const saveToCookie = ({_avatarUrl = avatarUrl, _email = email, _username = username, _userId = userId, _role = role} = {}) => {
         // user info
-        console.log("saveToCookie");
 
         let userInfo = {
-            avatarUrl: avatarUrl,
-            email: email,
-            username: username,
-            userID: userId,
-            role: role
+            avatarUrl: _avatarUrl,
+            email: _email,
+            username: _username,
+            userID: _userId,
+            role: _role
         };
 
-        console.log(userInfo);
         sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
     }
 
@@ -58,15 +56,13 @@ const AuthProvider = ({ children }) => {
             let res = data.data;
 
             if (data.status === 200) {
-                console.log("SUKCES REFRESH TOKEN:");
-                console.log(res);
-                console.log(userInfo);
+                // console.log("SUKCES REFRESH TOKEN:");
                 setAuth(userInfo.avatarUrl, userInfo.email, userInfo.username, userInfo.userID, userInfo.role, res.accessToken);
                 sessionStorage.setItem('refreshToken', res.refreshToken);
             }
 
         } catch (err) {
-            console.log("Error: Can't refresh token: ", err);
+            console.error("Error: Can't refresh token: ", err);
         }
 
     }

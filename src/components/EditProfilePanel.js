@@ -2,24 +2,54 @@ import React, { useState, useEffect, useContext } from "react";
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthProvider';
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleInfo } from "@fortawesome/free-solid-svg-icons";
+
 import axios from "../api/axios";
 import APIs from "../api/ApiURL";
 import Avatar from "./Avatar";
 
 const EditProfilePanel = ({ togglePanel }) => {
     const { avatarUrl, setAvatarUrl, email, username, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
+    const [previewAvatarUrl, setPreviewAvatarUrl] = useState(null);
     const [file, setFile] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditingAvatar, setIsEditingAvatar] = useState(false);
+    const [feedbackAvatar, setFeedbackAvatar] = useState(null);
+    const [errorFeedbackAvatar, setErrorFeedbackAvatar] = useState(null);
 
     const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+        const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
+
+        setFile(selectedFile);
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewAvatarUrl(reader.result);
+        };
+        reader.readAsDataURL(selectedFile);
     };
 
-    const afterAvatarAction = (avatarPath) => {
+    const afterAvatarAction = (avatarPath, feedback) => {
         setAvatarUrl(avatarPath);
-        setIsEditing(false);
+        setIsEditingAvatar(false);
         setFile(null);
-        saveToCookie();
+        setErrorFeedbackAvatar(null);
+        setFeedbackAvatar(feedback);
+        saveToCookie({ _avatarUrl: avatarPath });
+    }
+
+    const cancelAvatarAction = () => {
+        setPreviewAvatarUrl(null);
+        setErrorFeedbackAvatar(null);
+        setFeedbackAvatar(null);
+        setIsEditingAvatar(false);
+    }
+
+    const editAvatar = () => {
+        setIsEditingAvatar(true);
+        setErrorFeedbackAvatar(null);
+        setFeedbackAvatar(null);
     }
 
     const uploadAvatar = async () => {
@@ -40,15 +70,18 @@ const EditProfilePanel = ({ togglePanel }) => {
                 });
 
             if (res.status === 200) {
-                console.log(res);
                 let returnedUrl = APIs.SERVER_URL + "/avatars/" + res.data;
-                afterAvatarAction(returnedUrl);
+                afterAvatarAction(returnedUrl, "Avatar added successively!");
             }
         } catch (err) {
-            console.error(err);
             if (err.response?.status === 401) {
                 await refreshAccessToken();
                 await uploadAvatar();
+            } else {
+                let errorFeedback = err.response?.data.detail;
+                if (errorFeedback) {
+                    setErrorFeedbackAvatar(errorFeedback);
+                }
             }
         }
     };
@@ -71,15 +104,18 @@ const EditProfilePanel = ({ togglePanel }) => {
                 });
 
             if (res.status === 200) {
-                console.log(res);
                 let returnedUrl = APIs.SERVER_URL + "/avatars/" + res.data;
-                afterAvatarAction(returnedUrl);
+                afterAvatarAction(returnedUrl, "Avatar updated successively!");
             }
         } catch (err) {
-            console.error(err);
             if (err.response?.status === 401) {
                 await refreshAccessToken();
                 await uploadAvatar();
+            } else {
+                let errorFeedback = err.response?.data.detail;
+                if (errorFeedback) {
+                    setErrorFeedbackAvatar(errorFeedback);
+                }
             }
         }
     };
@@ -95,11 +131,9 @@ const EditProfilePanel = ({ togglePanel }) => {
                 });
 
             if (res.status === 200) {
-                console.log(res);
-                afterAvatarAction(null);
+                afterAvatarAction(null, "Avatar deleted successively!");
             }
         } catch (err) {
-            console.error(err);
             if (err.response?.status === 401) {
                 await refreshAccessToken();
                 await uploadAvatar();
@@ -120,29 +154,43 @@ const EditProfilePanel = ({ togglePanel }) => {
                 <div className="editProfileTitle">Avatar</div>
                 <div className="editProfileElement">
                     <div>
-                        <Avatar url={avatarUrl} size={150} />
-                        {isEditing &&
+                        <Avatar url={(previewAvatarUrl && file) ? previewAvatarUrl : avatarUrl} size={150} />
+                        {isEditingAvatar &&
                             <input type="file" onChange={handleFileChange} />
                         }
                     </div>
                     <div className="editProfileBtnWrapper">
-                        {isEditing ? (
+                        {isEditingAvatar ? (
                             <>
-                                <button className='btn2' onClick={avatarUrl == null ? uploadAvatar : updateAvatar}>Save</button>
+                                <button className='editPanelBtn save' onClick={avatarUrl == null ? uploadAvatar : updateAvatar}>Save</button>
 
                                 {avatarUrl != null && (
-                                    <button className='btn2' onClick={deleteAvatar}>Delete</button>
+                                    <button className='editPanelBtn delete' onClick={deleteAvatar}>Delete</button>
                                 )}
 
-                                <button className='btn2' onClick={() => setIsEditing(false)}>Cancel</button>
+                                <button className='editPanelBtn default' onClick={cancelAvatarAction}>Cancel</button>
                             </>
                         ) : (
-                            <button className='btn2' onClick={() => setIsEditing(true)}>
+                            <button className='editPanelBtn default' onClick={editAvatar}>
                                 {avatarUrl == null ? <>Add</> : <>Edit</>}
                             </button>
                         )}
                     </div>
                 </div>
+
+
+                {
+                feedbackAvatar ?
+                    <div className="editProfileBtnInfo success">
+                        <FontAwesomeIcon icon={faCircleInfo} /> {feedbackAvatar}
+                    </div>
+                    :
+                    errorFeedbackAvatar &&
+                    <div className="editProfileBtnInfo fail">
+                        <FontAwesomeIcon icon={faCircleInfo} /> {errorFeedbackAvatar}
+                    </div>
+                }
+
 
             </div>
         </div>
