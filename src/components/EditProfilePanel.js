@@ -9,10 +9,18 @@ import Avatar from "./Avatar";
 const EditProfilePanel = ({ togglePanel }) => {
     const { avatarUrl, setAvatarUrl, email, username, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
     const [file, setFile] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
+
+    const afterAvatarAction = (avatarPath) => {
+        setAvatarUrl(avatarPath);
+        setIsEditing(false);
+        setFile(null);
+        saveToCookie();
+    }
 
     const uploadAvatar = async () => {
         if (!file) return;
@@ -33,8 +41,8 @@ const EditProfilePanel = ({ togglePanel }) => {
 
             if (res.status === 200) {
                 console.log(res);
-                let returnedUrl = APIs.SERVER_URL + "/avatars/" +res.data;
-                setAvatarUrl(returnedUrl);
+                let returnedUrl = APIs.SERVER_URL + "/avatars/" + res.data;
+                afterAvatarAction(returnedUrl);
             }
         } catch (err) {
             console.error(err);
@@ -64,9 +72,8 @@ const EditProfilePanel = ({ togglePanel }) => {
 
             if (res.status === 200) {
                 console.log(res);
-                let returnedUrl = APIs.SERVER_URL + "/avatars/" +res.data;
-                setAvatarUrl(returnedUrl);
-                saveToCookie();
+                let returnedUrl = APIs.SERVER_URL + "/avatars/" + res.data;
+                afterAvatarAction(returnedUrl);
             }
         } catch (err) {
             console.error(err);
@@ -89,8 +96,7 @@ const EditProfilePanel = ({ togglePanel }) => {
 
             if (res.status === 200) {
                 console.log(res);
-                setAvatarUrl(null);
-                saveToCookie();
+                afterAvatarAction(null);
             }
         } catch (err) {
             console.error(err);
@@ -113,25 +119,28 @@ const EditProfilePanel = ({ togglePanel }) => {
 
                 <div className="editProfileTitle">Avatar</div>
                 <div className="editProfileElement">
-                    <Avatar url={avatarUrl} size={150} />
-
-                    <div className="editProfileBtnWrapper">
-                        <input type="file" onChange={handleFileChange} />
-                        {avatarUrl == null ?
-                            (
-                                <>
-                                    
-                                    <button className='btn2' onClick={uploadAvatar}>Save</button>
-                                </>
-                            ) :
-                            (
-                                <>
-                                    <button className='btn2' onClick={updateAvatar}>Edit</button>
-                                    <button className='btn2' onClick={deleteAvatar}>Delete</button>
-                                </>
-                            )
+                    <div>
+                        <Avatar url={avatarUrl} size={150} />
+                        {isEditing &&
+                            <input type="file" onChange={handleFileChange} />
                         }
+                    </div>
+                    <div className="editProfileBtnWrapper">
+                        {isEditing ? (
+                            <>
+                                <button className='btn2' onClick={avatarUrl == null ? uploadAvatar : updateAvatar}>Save</button>
 
+                                {avatarUrl != null && (
+                                    <button className='btn2' onClick={deleteAvatar}>Delete</button>
+                                )}
+
+                                <button className='btn2' onClick={() => setIsEditing(false)}>Cancel</button>
+                            </>
+                        ) : (
+                            <button className='btn2' onClick={() => setIsEditing(true)}>
+                                {avatarUrl == null ? <>Add</> : <>Edit</>}
+                            </button>
+                        )}
                     </div>
                 </div>
 
