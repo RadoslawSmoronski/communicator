@@ -6,10 +6,7 @@ import PopUp from "../../components/PopUp";
 import ValidatedInput from "../../components/form/ValidatedInput";
 import axios from "../../api/axios";
 import APIs from "../../api/ApiURL";
-
-const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_#]{4,24}$/;
-const PASS_REGEX = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,64}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import regexUtils from "../../utils/regexUtils";
 
 const RegisterPage = () => {
   const popUpRef = useRef();
@@ -46,13 +43,13 @@ const RegisterPage = () => {
     }));
 
     if (name === "username") {
-      setRegexStatus((prev) => ({ ...prev, username: USER_REGEX.test(value) }));
+      setRegexStatus((prev) => ({ ...prev, username: regexUtils.USERNAME.test(value) }));
     } else if (name === "email") {
-      setRegexStatus((prev) => ({ ...prev, email: EMAIL_REGEX.test(value) }));
+      setRegexStatus((prev) => ({ ...prev, email: regexUtils.EMAIL.test(value) }));
     } else if (name === "password") {
       setRegexStatus((prev) => ({
         ...prev,
-        password: PASS_REGEX.test(value),
+        password: regexUtils.PASSWORD.test(value),
         password2: formData.password2 === value,
       }));
     } else if (name === "password2") {

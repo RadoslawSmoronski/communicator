@@ -97,6 +97,7 @@ const AuthProvider = ({ children }) => {
             accessToken,
             setAuth,
             setAvatarUrl,
+            setUsername,
             saveToCookie,
             setAccessToken,
             refreshAccessToken,

@@ -11,7 +11,7 @@ import eventBus from "../utils/eventBus";
 
 import InvitationTile from './tiles/InvitationTile';
 import UserInfoPanel from './UserInfoPanel';
-import EditProfilePanel from "./EditProfilePanel";
+import EditProfilePanel from "./editProfile/EditProfilePanel"
 import Avatar from "./Avatar";
 
 const Layout = () => {

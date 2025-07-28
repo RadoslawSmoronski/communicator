@@ -17,6 +17,15 @@
     border: solid 2px vars.$primary-color;
 }
 
+.textInput:disabled {
+    user-select: none;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.textInput.editProfile {
+    border: solid 2px vars.$input-border-color;
+}
 
 
 a{

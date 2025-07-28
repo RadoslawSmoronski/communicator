@@ -10,21 +10,24 @@ const ValidatedInput = ({
   validationText,
   handleChange,
   handleFocusOn,
-  inputType
+  inputType,
+  isDisabled,
+  addClassName = ""
 }) => {
   return (<>
-    <label htmlFor={htmlName} className={formData ? (regexStatus ? "correctValidation" : "wrongValidation") : ""}>
+    <label htmlFor={htmlName} className={formData && !isDisabled ? (regexStatus ? "correctValidation" : "wrongValidation") : ""}>
       {labelText}:
     </label>
     <input
       name={htmlName}
       id={htmlName}
-      className="textInput"
+      className={"textInput" + " " + addClassName}
       autoComplete="off"
       type={inputType}
       value={formData}
       onChange={handleChange}
       onFocus={handleFocusOn}
+      disabled={isDisabled}
     /><br />
     <ValidationBox
       regex={regexStatus}

@@ -18,7 +18,9 @@ const APIs = {
     GET_FRIENDS: "/api/friends/get-friends",
     GET_MESSAGES: "/api/chat/get-paged-messages",
 
-    AVATAR: "api/user/avatar"
+    AVATAR: "api/user/avatar",
+    CHANGE_USERNAME: "api/user/change-username",
+    CHANGE_PASSWORD: "api/user/change-password",
 }
 
 export default APIs;
