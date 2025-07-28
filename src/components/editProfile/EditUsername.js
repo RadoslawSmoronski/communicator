@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Outlet, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthProvider';
 
 import axios from "../../api/axios";

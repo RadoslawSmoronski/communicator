@@ -27,6 +27,10 @@
     border: solid 2px vars.$input-border-color;
 }
 
+.textInput.editProfile:focus, .textInput.editProfile:hover {
+    border: solid 2px vars.$primary-color;
+}
+
 
 a{
     color: vars.$link-color;
