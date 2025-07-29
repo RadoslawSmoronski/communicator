@@ -225,7 +225,7 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ChangePasswordAsync([FromQuery] ChangePasswordDto changePasswordDto)
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordDto changePasswordDto)
         {
             var validate = ValidateAndGetUserId("ChangePasswordAsync", _logger, out Guid userId);
 
@@ -241,6 +241,16 @@ namespace ChatCommunicator.Application.Controllers
                 _logger.LogInformation("[ChangePasswordAsync] Password changed successfully for user {UserId}.", userId);
                 return Ok();
             }
+            else if (result.Error != null && result.Error.Code == "OLDPASSWORD_IS_INCORRECT")
+            {
+                _logger.LogWarning("[ChangePasswordAsync] Old password is incorrect for user {UserId}.", userId);
+                        return Problem(
+                        statusCode: 401,
+                        title: "OLDPASSWORD_IS_INCORRECT",
+                        detail: "Old password is incorrect for user " + userId
+                    );
+            }
+
 
             return HandleError(result, "ChangePasswordAsync", _logger);
         }

@@ -220,13 +220,6 @@ namespace ChatCommunicator.Application.Managers
                 }
                 else
                 {
-                    var errorPasswordMismatch = result.Errors.FirstOrDefault(e => e.Code == "PasswordMismatch");
-                    if (errorPasswordMismatch != null)
-                    {
-                        _logger.LogWarning("ChangePasswordAsync failed: old password is incorrect for user {UserId}.", userId);
-                        return Error.Unauthorized("OLDPASSWORD_IS_INCORRECT", "The old password is incorrect.");
-                    }
-
                     var passwordErrorCodes = new List<string> { "PasswordRequireDigit", "PasswordRequireLower",
                         "PasswordRequireNonLetterOrDigit", "PasswordRequireUpper", "PasswordTooShort" };
 
@@ -236,10 +229,10 @@ namespace ChatCommunicator.Application.Managers
                         _logger.LogWarning("ChangePasswordAsync failed: new password does not meet the required criteria for user {UserId}.", userId);
                         return Error.Validation("NEWPASSWORD_IS_NOT_VALID", "The new password does not meet the required criteria.");
                     }
-                }
-
-                _logger.LogError("ChangePasswordAsync failed: unexpected error occurred while changing password for user {UserId}.", userId);
-                return Error.Unknown("CHANGE_PASSWORD_FAILED", "Failed to change password. Please try again later.");
+                    
+                    _logger.LogWarning("ChangePasswordAsync failed: old password is incorrect for user {UserId}.", userId);
+                    return Error.Unauthorized("OLDPASSWORD_IS_INCORRECT", "The old password is incorrect.");
+                }     
             }
             catch (Exception ex)
             {
