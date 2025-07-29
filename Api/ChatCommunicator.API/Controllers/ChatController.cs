@@ -92,8 +92,8 @@ namespace ChatCommunicator.Application.Controllers
         /// </remarks>
         /// <param name="conversationId">The ID of the conversation (GUID). Required.</param>
         /// <param name="fromMessageId">The ID of the message after which to start fetching (GUID). Optional.</param>
-        /// <returns>A list of messages (possibly empty) or an error response.</returns>
-        /// <response code="200">Successfully retrieved the list of messages (can be empty if fromMessageId is null).</response>
+        /// <returns>A paged result of messages (<see cref="PagedMessagesDto"/>) or an error response.</returns>
+        /// <response code="200">Successfully retrieved the paged messages (can be empty if fromMessageId is null).</response>
         /// <response code="400">Invalid input or validation error.</response>
         /// <response code="401">Unauthorized – missing or invalid JWT token.</response>
         /// <response code="404">Conversation not found or access denied.</response>
@@ -104,7 +104,7 @@ namespace ChatCommunicator.Application.Controllers
         /// </example>
         [Authorize]
         [HttpGet("get-paged-messages")]
-        [ProducesResponseType(typeof(List<MessageDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedMessagesDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -115,8 +115,8 @@ namespace ChatCommunicator.Application.Controllers
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("[GetPagedMessagesAsync] Successfully retrieved paged messages. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}, Count: {Count}",
-                    conversationId, fromMessageId, result.Value?.Count() ?? 0);
+                _logger.LogInformation("[GetPagedMessagesAsync] Successfully retrieved paged messages. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}",
+                    conversationId, fromMessageId);
                 return Ok(result.Value);
             }
 

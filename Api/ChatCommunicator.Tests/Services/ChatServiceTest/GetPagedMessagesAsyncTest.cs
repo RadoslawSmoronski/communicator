@@ -22,17 +22,21 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 10))
                 .Returns(Task.FromResult<IEnumerable<Message>>(_extraSampleMessageList));
 
-            var expectedMessageDtos = _mapper.Map<List<MessageDto>>(_extraSampleMessageList);
+            var expectedPagedMessagesDto = new PagedMessagesDto
+            {
+                Messages = _mapper.Map<List<MessageDto>>(_extraSampleMessageList),
+                LastMessageReadId = null
+            };
 
             // Act
-                var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
+                var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
 
             result.Value.Should().NotBeNull();
-            result.Value.Should().BeEquivalentTo(expectedMessageDtos);
+            result.Value.Should().BeEquivalentTo(expectedPagedMessagesDto);
         }
 
         [Fact]
@@ -45,17 +49,21 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 10))
                 .Returns(Task.FromResult<IEnumerable<Message>>(new List<Message>()));
 
-            var expectedMessageDtos = new List<MessageDto>();
+            var expectedPagedMessagesDto = new PagedMessagesDto
+            {
+                Messages = new List<MessageDto>(),
+                LastMessageReadId = null
+            };
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
 
             result.Value.Should().NotBeNull();
-            result.Value.Should().BeEquivalentTo(expectedMessageDtos);
+            result.Value.Should().BeEquivalentTo(expectedPagedMessagesDto );
         }
 
         [Fact]
@@ -66,7 +74,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<Conversation?>(null));
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -81,7 +89,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         public async Task GetPagedMessagesFromMessageIdAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
         {
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(Guid.Empty, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(Guid.Empty, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -103,7 +111,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
             .Throws(new Exception());
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<List<MessageDto>>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();

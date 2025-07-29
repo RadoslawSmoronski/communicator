@@ -168,7 +168,7 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<ResultT<List<MessageDto>>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId)
+        public async Task<ResultT<PagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId)
         {
             if (conversationId == null || conversationId == Guid.Empty)
             {
@@ -179,7 +179,11 @@ namespace ChatCommunicator.Application.Services
             if (fromMessageId == null || fromMessageId == Guid.Empty)
             {
                 _logger.LogInformation("GetPagedMessagesFromMessageIdAsync called with empty fromMessageId, returning empty list");
-                return new List<MessageDto>();
+                return new PagedMessagesDto
+                {
+                    Messages = Enumerable.Empty<MessageDto>(),
+                    LastMessageReadId = null
+                };
             }
 
             var convId = conversationId.Value;
@@ -200,7 +204,11 @@ namespace ChatCommunicator.Application.Services
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
                 _logger.LogInformation("Returning {Count} messages", messageDtos.Count);
-                return messageDtos;
+                return new PagedMessagesDto
+                {
+                    Messages = messageDtos,
+                    LastMessageReadId = null
+                };
             }
             catch (Exception ex)
             {

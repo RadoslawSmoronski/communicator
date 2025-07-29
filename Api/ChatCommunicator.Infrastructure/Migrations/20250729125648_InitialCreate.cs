@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChatCommunicator.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class BaseMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -232,6 +232,8 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     User1Id = table.Column<Guid>(type: "uuid", nullable: false),
                     User2Id = table.Column<Guid>(type: "uuid", nullable: false),
                     LastMessageId = table.Column<Guid>(type: "uuid", nullable: true),
+                    User1LastReadMessageId = table.Column<Guid>(type: "uuid", nullable: true),
+                    User2LastReadMessageId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastMessageTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },

@@ -11,6 +11,8 @@
 
         public Guid? LastMessageId { get; set; }
         public Message? LastMessage { get; set; }
+        public Guid? User1LastReadMessageId { get; set; }
+        public Guid? User2LastReadMessageId { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastMessageTime { get; set; }

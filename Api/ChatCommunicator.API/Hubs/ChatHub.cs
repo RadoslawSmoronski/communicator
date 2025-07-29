@@ -52,7 +52,7 @@ namespace ChatCommunicator.Application.Hubs
             await base.OnConnectedAsync();
         }
 
-        public async Task SendMessage(Guid recipientId, Guid conversationId, string content) // Needs tests
+        public async Task SendMessage(Guid recipientId, Guid conversationId, string content) // TODO: Needs tests
         {
             var userName = Context.User?.Identity?.Name;
             var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

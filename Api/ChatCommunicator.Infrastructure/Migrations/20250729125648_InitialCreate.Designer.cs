@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChatCommunicator.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250725155609_BaseMigration")]
-    partial class BaseMigration
+    [Migration("20250729125648_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,7 +90,13 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.Property<Guid>("User1Id")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("User1LastReadMessageId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("User2Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("User2LastReadMessageId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");

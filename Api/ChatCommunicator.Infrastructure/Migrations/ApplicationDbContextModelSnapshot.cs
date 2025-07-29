@@ -87,7 +87,13 @@ namespace ChatCommunicator.Infrastructure.Migrations
                     b.Property<Guid>("User1Id")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("User1LastReadMessageId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("User2Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("User2LastReadMessageId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
