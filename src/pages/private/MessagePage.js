@@ -422,13 +422,14 @@ const MessagePage = () => {
     // It handles new message, creates notification, add to the list
     const handleNewMessageFromFriend = async (messageDto) => {
         // add last message to FriendTile
+        console.log(messageDto);
 
         setFriend(prev => {
             const newList = prev.list.map(f => {
                 if (f.conversationId === messageDto.conversationId) {
                     return {
                         ...f,
-                        isFriendSenderMessage: true,
+                        isFriendSenderMessage: messageDto.senderId != userId,
                         lastMessageContent: messageDto.content,
                         lastMessageTimestamp: messageDto.timestamp,
                         newMessNotify: messageDto.conversationId != chatRef.current.selectedId,
@@ -565,7 +566,7 @@ const MessagePage = () => {
                                     messTimestamp={f.lastMessageTimestamp}
                                     selected={chat.selectedId === f.conversationId}
                                     newMessageNotify={f.newMessNotify}
-                                    avatarUrl={APIs.SERVER_URL+ "/avatars/" + f.friendAvatarUrl}
+                                    avatarUrl={f.friendAvatarUrl}
                                 />
                             ))
                         ) : (
@@ -586,7 +587,7 @@ const MessagePage = () => {
                                 username={u.userName}
                                 recipientId={u.id}
                                 isInvited={u.isInvited}
-                                avatarUrl={APIs.SERVER_URL+ "/avatars/" + u.avatarUrl}
+                                avatarUrl={u.avatarUrl}
                             />
                         ))
                     )
@@ -598,7 +599,7 @@ const MessagePage = () => {
                 {friend.activeFriendName &&
                     <>
                         <div className='friendBarIconBox'>
-                            <Avatar url={APIs.SERVER_URL+ "/avatars/" + friend.activeFriendAvatarUrl} />
+                            <Avatar url={friend.activeFriendAvatarUrl} />
                         </div>
                         <div className='friendBarUserName'>{friend.activeFriendName}</div>
                         <div className='friendBarRightBox'>

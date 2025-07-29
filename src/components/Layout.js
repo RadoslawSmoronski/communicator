@@ -148,6 +148,7 @@ const Layout = () => {
                                 key={user.id}
                                 id={user.id}
                                 username={user.userName}
+                                avatarUrl={user.avatarUrl}
                                 invitationAction={invitationActions}
                             />
                         ))

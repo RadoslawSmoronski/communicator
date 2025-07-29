@@ -57,15 +57,19 @@ const EditUsername = () => {
 
     const saveChanges = async () => {
         if (formData == "") {
-            setErrorFeedback("Field cann't be null!")
+            setErrorFeedback("Field cann't be null!");
+            return;
         }
         else if (!regexStatus) {
             setErrorFeedback("Username does not meet the criteria!");
+            return;
+        } else if(formData === username){
+            return;
         }
 
         try {
             const res = await axios.patch(`${APIs.CHANGE_USERNAME}?newUsername=${formData}`,
-                null,
+                formData,
                 {
                     withCredentials: true,
                     headers: {

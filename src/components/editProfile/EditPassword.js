@@ -110,8 +110,11 @@ const EditPassword = () => {
         }
 
         try {
-            const res = await axios.patch(`${APIs.CHANGE_PASSWORD}?OldPassword=${oldpass}&NewPassword=${newpass}`,
-                null,
+            const res = await axios.patch(APIs.CHANGE_PASSWORD,
+                JSON.stringify({
+                    oldPassword: oldpass,
+                    newPassword: newpass
+                }),
                 {
                     withCredentials: true,
                     headers: {
@@ -125,7 +128,7 @@ const EditPassword = () => {
                 afterSaveAction("Password successfully changed.");
             }
         } catch (err) {
-            if (err.response?.status === 401) {
+            if (err.response?.status === 401 && err.response?.data.title != "OLDPASSWORD_IS_INCORRECT") {
                 await refreshAccessToken();
                 await saveChanges();
             } else {
