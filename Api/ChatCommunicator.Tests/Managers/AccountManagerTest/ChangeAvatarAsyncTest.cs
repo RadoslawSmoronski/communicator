@@ -106,6 +106,9 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             A.CallTo(() => _userManager.FindByIdAsync(_sampleUserWithAvatar.Id.ToString()))
                 .Returns(Task.FromResult<UserAccount?>(_sampleUserWithAvatar));
 
+            A.CallTo(() => _userAvatarService.UploadAvatarAsync(_fakeFile))
+                        .Returns("testChanged");
+
             A.CallTo(() => _userAvatarService.DeleteAvatar(_sampleUserWithAvatar.AvatarUrl!))
                         .Returns(ResultT<string>.Failure(Error.Unknown("AVATAR_DELETE_FAILED", "test")));
 

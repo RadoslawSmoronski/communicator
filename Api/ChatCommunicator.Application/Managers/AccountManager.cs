@@ -329,13 +329,13 @@ namespace ChatCommunicator.Application.Managers
                     return Error.Conflict("AVATAR_NOT_SET", "User does not have an avatar set.");
                 }
 
-                var deleteAvatarResult = _userAvatarService.DeleteAvatar(user.AvatarUrl);
+                var uploadFileResult = await _userAvatarService.UploadAvatarAsync(file);
 
-                if (deleteAvatarResult.IsSuccess)
+                if (uploadFileResult.IsSuccess)
                 {
-                    var uploadFileResult = await _userAvatarService.UploadAvatarAsync(file);
+                    var deleteAvatarResult = _userAvatarService.DeleteAvatar(user.AvatarUrl);
 
-                    if (uploadFileResult.IsSuccess)
+                    if (deleteAvatarResult.IsSuccess)
                     {
                         user.AvatarUrl = uploadFileResult.Value;
 
@@ -350,19 +350,19 @@ namespace ChatCommunicator.Application.Managers
                         _logger.LogError("ChangeAvatarAsync failed: unable to update user {UserId} after avatar upload. Errors: {Errors}", userId, string.Join(", ", result.Errors));
                         return Error.Unknown("USER_UPDATE_FAILED", "Failed to update user avatar URL in database.");
                     }
-                    else if (uploadFileResult.Error != null)
-                    {
-                        _logger.LogError("Avatar upload failed for user {UserId}. Error: {ErrorCode} - {ErrorMessage}",
-                            userId, uploadFileResult.Error.Code, uploadFileResult.Error.Description);
-                        return uploadFileResult.Error;
-                    }
 
-                    _logger.LogError("ChangeAvatarAsync failed: unable to upload new avatar for user {UserId}.", userId);
-                    return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
+                    _logger.LogError("ChangeAvatarAsync failed: unable to delete existing avatar for user {UserId}.", userId);
+                    return Error.Unknown("AVATAR_DELETE_FAILED", "Failed to delete avatar file.");
                 }
-
-                _logger.LogError("ChangeAvatarAsync failed: unable to delete existing avatar for user {UserId}.", userId);
-                return Error.Unknown("AVATAR_DELETE_FAILED", "Failed to delete avatar file.");
+                else if (uploadFileResult.Error != null)
+                {
+                    _logger.LogError("Avatar upload failed for user {UserId}. Error: {ErrorCode} - {ErrorMessage}",
+                        userId, uploadFileResult.Error.Code, uploadFileResult.Error.Description);
+                    return uploadFileResult.Error;
+                }
+                
+                _logger.LogError("ChangeAvatarAsync failed: unable to upload new avatar for user {UserId}.", userId);
+                return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
             }
             catch (Exception ex)
             {
