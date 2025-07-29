@@ -116,7 +116,7 @@ namespace ChatCommunicator.Application.Managers
                 }
 
                 _logger.LogWarning("Login failed for email: {Email}", loginDto.Email);
-                return Error.Unknown("INTERNAL_SERVER_ERROR", "User logging failed unexpectedly. Please try again later or contact support.");
+                return Error.Unauthorized("INVALID_CREDENTIALS", "Email or password is incorrect.");
             }
             catch (Exception ex)
             {

@@ -163,8 +163,11 @@ namespace ChatCommunicator.Application.Controllers
         /// <response code="500">An unexpected server error occurred.</response>
         /// <example>
         /// <code>
-        /// PATCH /api/user/change-username?newUsername=new_name_123
+        /// PATCH /api/user/change-username
         /// Authorization: Bearer {token}
+        /// {
+        ///     "newUsername": "new_name_123"
+        /// }
         /// </code>
         /// </example>
         [Authorize]
@@ -174,7 +177,7 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ChangeUsernameAsync([FromQuery] string newUsername)
+        public async Task<IActionResult> ChangeUsernameAsync([FromBody] string newUsername)
         {
             var validate = ValidateAndGetUserId("ChangeUsernameAsync", _logger, out Guid userId);
 
