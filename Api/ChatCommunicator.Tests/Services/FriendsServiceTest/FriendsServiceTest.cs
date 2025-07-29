@@ -5,6 +5,7 @@ using ChatCommunicator.Application.Managers;
 using Microsoft.Extensions.Logging;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Models.Friendship;
+using ChatCommunicator.Application.Services.Interfaces;
 
 namespace ChatCommunicator.Tests.Services.FriendsManagerTest
 {
@@ -13,6 +14,7 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
         protected readonly UserManager<UserAccount> _userManager;
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ILogger<FriendsService> _logger;
+        protected readonly IUserAvatarService _userAvatarService;
 
         protected readonly FriendsService _friendsManager;
 
@@ -30,8 +32,9 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
             _userManager = A.Fake<UserManager<UserAccount>>();
             _unitOfWork = A.Fake<IUnitOfWork>();
             _logger = A.Fake<ILogger<FriendsService>>();
+            _userAvatarService = A.Fake<IUserAvatarService>();
 
-            _friendsManager = new FriendsService(_userManager, _unitOfWork, _logger);
+            _friendsManager = new FriendsService(_userManager, _unitOfWork, _logger, _userAvatarService);
             _sampleSenderUser = new UserAccount { UserName = "senderUserLogin", Id = Guid.NewGuid() };
             _sampleRecipientUser = new UserAccount { UserName = "recipientUserLogin", Id = Guid.NewGuid() };
             _sampleUser = new UserAccount { UserName = "sampleUserLogin", Id = Guid.NewGuid() };

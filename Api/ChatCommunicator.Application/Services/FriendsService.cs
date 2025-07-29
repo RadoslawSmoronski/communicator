@@ -17,14 +17,17 @@ namespace ChatCommunicator.Application.Managers
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<FriendsService> _logger;
+        private readonly IUserAvatarService _userAvatarService;
 
         public FriendsService(UserManager<UserAccount> userManager,
             IUnitOfWork unitOfWork,
-            ILogger<FriendsService> logger)
+            ILogger<FriendsService> logger,
+            IUserAvatarService userAvatarService)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _userAvatarService = userAvatarService;
         }
 
         public async Task<Result> SendInviteAsync(Guid senderId, Guid recipientId)
@@ -342,7 +345,7 @@ namespace ChatCommunicator.Application.Managers
             {
                 Id = x.SenderId,
                 userName = x.SenderUser.UserName ?? throw new Exception(),
-                AvatarUrl = x.SenderUser.AvatarUrl
+                AvatarUrl = x.SenderUser.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(x.SenderUser.AvatarUrl) : null
             }).ToList();
         }
 
@@ -378,7 +381,7 @@ namespace ChatCommunicator.Application.Managers
                 {
                     Id = u.Id,
                     UserName = u.UserName!,
-                    AvatarUrl = u.AvatarUrl,
+                    AvatarUrl = u.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(u.AvatarUrl) : null,
                     IsInvited = alreadyInvited
                 });
             }
@@ -444,14 +447,14 @@ namespace ChatCommunicator.Application.Managers
                     {
                         Id = x.User2Id,
                         userName = x.User2?.UserName ?? string.Empty,
-                        AvatarUrl = x.User2?.AvatarUrl
+                        AvatarUrl = x.User2?.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(x.User2.AvatarUrl) : null
                     };
                 else
                     return new SimpleUserWithAvatarDto
                     {
                         Id = x.User1Id,
                         userName = x.User1?.UserName ?? string.Empty,
-                        AvatarUrl = x.User1?.AvatarUrl
+                        AvatarUrl = x.User1?.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(x.User1.AvatarUrl) : null
                     };
             }).ToList();
 
