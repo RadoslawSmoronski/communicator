@@ -245,6 +245,21 @@ namespace ChatCommunicator.Application.Services
             return messages.ToList();
         }
 
+        //TO DO: finish getlastmessageidasync and connect to getPagedMessagesFromMessageIdAsync
+
+        private async Task<Guid> _GetLastMessageIdAsync(Guid conversationId, Guid recepientUserId)
+        {
+            var conversation = await _unitOfWork.Conversations.FirstOrDefaultAsync(x => x.Id == conversationId);
+
+            if (conversation == null)
+            {
+                return Guid.Empty;
+            }
+
+
+            return Guid.Empty;
+        }
+
         private async Task _SaveMessageAsync(Message message)
         {
             await _unitOfWork.Messages.AddAsync(message);
