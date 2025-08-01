@@ -6,7 +6,7 @@ namespace ChatCommunicator.Application.Services.Interfaces
 {
     public interface IFriendsService
     {
-        Task<Result> SendInviteAsync(Guid senderId, Guid recipientId);
+        Task<ResultT<Guid>> SendInviteAsync(Guid senderId, Guid recipientId);
         Task<ResultT<List<SimpleUserWithAvatarDto>>> GetInvitationsAsync(Guid userId);
         Task<ResultT<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(Guid userId, string text);
         Task<Result> DecelineInviteAsync(Guid senderId, Guid recipientId);

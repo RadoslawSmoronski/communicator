@@ -118,7 +118,7 @@ namespace ChatCommunicator.Application.Controllers
                 return validate;
             }
 
-            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, fromMessageId, userId);
+            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, fromMessageId);
 
             if (result.IsSuccess)
             {

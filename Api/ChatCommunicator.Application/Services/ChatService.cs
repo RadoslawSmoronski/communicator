@@ -168,7 +168,7 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<ResultT<PagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId, Guid? userId)
+        public async Task<ResultT<PagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId)
         {
             if (conversationId == null || conversationId == Guid.Empty)
             {
@@ -176,12 +176,12 @@ namespace ChatCommunicator.Application.Services
                 return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
             }
 
-            // TESTS
-            if (userId == null || userId == Guid.Empty)
-            {
-                _logger.LogWarning("GetPagedMessagesFromMessageIdAsync called with empty userId");
-                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
-            }
+            // // TESTS
+            // if (userId == null || userId == Guid.Empty)
+            // {
+            //     _logger.LogWarning("GetPagedMessagesFromMessageIdAsync called with empty userId");
+            //     return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
+            // }
 
             if (fromMessageId == null || fromMessageId == Guid.Empty)
             {
@@ -195,7 +195,7 @@ namespace ChatCommunicator.Application.Services
 
             var convId = conversationId.Value;
             var msgId = fromMessageId.Value;
-            var userIdValue = userId.Value;
+            // var userIdValue = userId.Value;
 
             try
             {
@@ -213,19 +213,19 @@ namespace ChatCommunicator.Application.Services
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
                 //TESTS
-                var lastReadMessageId = await GetLastReadMessageIdAsync(convId, userIdValue);
+                // var lastReadMessageId = await GetLastReadMessageIdAsync(convId, userIdValue);
 
-                if (lastReadMessageId.IsSuccess != true || lastReadMessageId.Value == null)
-                {
-                    _logger.LogError("Error retrieving last read message id for conversation {ConversationId}: {ErrorMessage}", convId, lastReadMessageId.Error?.Description);
-                    return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
-                }
+                // if (lastReadMessageId.IsSuccess != true || lastReadMessageId.Value == null)
+                // {
+                //     _logger.LogError("Error retrieving last read message id for conversation {ConversationId}: {ErrorMessage}", convId, lastReadMessageId.Error?.Description);
+                //     return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                // }
 
                 _logger.LogInformation("Returning {Count} messages", messageDtos.Count);
                 return new PagedMessagesDto
                 {
                     Messages = messageDtos,
-                    LastMessageReadId = lastReadMessageId.Value.Value
+                    LastMessageReadId = null
                 };
             }
             catch (Exception ex)
@@ -263,21 +263,19 @@ namespace ChatCommunicator.Application.Services
             return messages.ToList();
         }
 
-        //TO DO: finish getlastmessageidasync and connect to getPagedMessagesFromMessageIdAsync
+        // private async Task<ResultT<Guid?>> GetLastReadMessageIdAsync(Guid conversationId, Guid recipientUserId)
+        // {
+        //     var conversation = await _unitOfWork.Conversations.FirstOrDefaultAsync(x => x.Id == conversationId);
 
-        private async Task<ResultT<Guid?>> GetLastReadMessageIdAsync(Guid conversationId, Guid recipientUserId)
-        {
-            var conversation = await _unitOfWork.Conversations.FirstOrDefaultAsync(x => x.Id == conversationId);
+        //     if (conversation != null)
+        //     {
+        //         return conversation.User1Id == recipientUserId
+        //             ? conversation.User2LastReadMessageId
+        //             : conversation.User1LastReadMessageId;
+        //     }
 
-            if (conversation != null)
-            {
-                return conversation.User1Id == recipientUserId
-                    ? conversation.User2LastReadMessageId
-                    : conversation.User1LastReadMessageId;
-            }
-
-            return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
-        }
+        //     return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
+        // }
 
         private async Task _SaveMessageAsync(Message message)
         {

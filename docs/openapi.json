@@ -150,30 +150,21 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved the list of messages (can be empty if fromMessageId is null).",
+            "description": "Successfully retrieved the paged messages (can be empty if fromMessageId is null).",
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MessageDto"
-                  }
+                  "$ref": "#/components/schemas/PagedMessagesDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MessageDto"
-                  }
+                  "$ref": "#/components/schemas/PagedMessagesDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MessageDto"
-                  }
+                  "$ref": "#/components/schemas/PagedMessagesDto"
                 }
               }
             }
@@ -265,7 +256,7 @@
       "post": {
         "tags": ["Friends"],
         "summary": "Send Invite",
-        "description": "This endpoint allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.\r\nReturns appropriate HTTP responses based on validation, conflicts, or if the recipient is not found.",
+        "description": "This endpoint allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.\r\nReturns a ChatCommunicator.Contracts.Dtos.Friendships.SendInviteDto object containing the invitation ID on success, or an error response on failure.",
         "requestBody": {
           "description": "Invitation data including sender and recipient GUIDs.",
           "content": {
@@ -287,8 +278,25 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Invitation sent successfully."
+          "201": {
+            "description": "Invitation sent successfully. Returns ChatCommunicator.Contracts.Dtos.Friendships.SendInviteDto.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendInviteDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendInviteDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendInviteDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid invitation data (e.g., malformed or missing GUIDs).",
@@ -1338,16 +1346,26 @@
         "tags": ["User"],
         "summary": "Change Username",
         "description": "Authenticated users can change their username. The new username must be unique.",
-        "parameters": [
-          {
-            "name": "newUsername",
-            "in": "query",
-            "description": "The new username to assign.",
-            "schema": {
-              "type": "string"
+        "requestBody": {
+          "description": "The new username to assign.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Username successfully updated.",
@@ -1457,24 +1475,26 @@
         "tags": ["User"],
         "summary": "Change Password",
         "description": "Authenticated users can change their password by providing the old password and a new password.\r\nThe new password must meet the required criteria.",
-        "parameters": [
-          {
-            "name": "OldPassword",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "NewPassword",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "requestBody": {
+          "description": "The DTO containing the old and new passwords.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Password successfully changed."
@@ -1970,6 +1990,21 @@
   },
   "components": {
     "schemas": {
+      "ChangePasswordDto": {
+        "required": ["newPassword", "oldPassword"],
+        "type": "object",
+        "properties": {
+          "oldPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "newPassword": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ChatDto": {
         "required": ["conversationId", "friendId", "friendUserName"],
         "type": "object",
@@ -2099,6 +2134,25 @@
         },
         "additionalProperties": false
       },
+      "PagedMessagesDto": {
+        "required": ["messages"],
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageDto"
+            },
+            "nullable": true
+          },
+          "lastMessageReadId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -2170,6 +2224,17 @@
             "maxLength": 25,
             "minLength": 3,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendInviteDto": {
+        "required": ["friendshipInvitationId"],
+        "type": "object",
+        "properties": {
+          "friendshipInvitationId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "additionalProperties": false

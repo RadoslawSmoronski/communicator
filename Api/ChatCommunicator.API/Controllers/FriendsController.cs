@@ -7,6 +7,7 @@ using System.Security.Claims;
 using ChatCommunicator.Shared.Result;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.API.Controllers;
+using ChatCommunicator.Contracts.Dtos.Friendships;
 
 namespace ChatCommunicator.Application.Controllers
 {
@@ -38,13 +39,13 @@ namespace ChatCommunicator.Application.Controllers
         /// </summary>
         /// <remarks>
         /// This endpoint allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.
-        /// Returns appropriate HTTP responses based on validation, conflicts, or if the recipient is not found.
+        /// Returns a <see cref="SendInviteDto"/> object containing the invitation ID on success, or an error response on failure.
         /// </remarks>
         /// <param name="inviteDto">Invitation data including sender and recipient GUIDs.</param>
         /// <returns>
-        /// HTTP 200 on success, or an error response detailing the failure.
+        /// <see cref="SendInviteDto"/> with the created invitation ID, or an error response detailing the failure.
         /// </returns>
-        /// <response code="200">Invitation sent successfully.</response>
+        /// <response code="201">Invitation sent successfully. Returns <see cref="SendInviteDto"/>.</response>
         /// <response code="400">Invalid invitation data (e.g., malformed or missing GUIDs).</response>
         /// <response code="401">Unauthorized - JWT token required.</response>
         /// <response code="404">Recipient user not found.</response>
@@ -57,11 +58,16 @@ namespace ChatCommunicator.Application.Controllers
         ///     "senderId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         ///     "recipientId": "d2719f9d-8f8c-4b5a-80c4-07afcf1c5b90"
         /// }
+        /// 
+        /// Response:
+        /// {
+        ///     "friendshipInvitationId": "e2b1c7e2-4b7a-4f5e-9c2a-1a2b3c4d5e6f"
+        /// }
         /// </code>
         /// </example>
         [Authorize]
         [HttpPost("send-invite")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SendInviteDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -73,9 +79,12 @@ namespace ChatCommunicator.Application.Controllers
 
             if (inviteResult.IsSuccess)
             {
-                _logger.LogInformation("[SendInviteAsync] Invite sent successfully. SenderId: {SenderId}, RecipientId: {RecipientId}",
-                    inviteDto.SenderId, inviteDto.RecipientId);
-                return Ok();
+            _logger.LogInformation("[SendInviteAsync] Invite sent successfully. SenderId: {SenderId}, RecipientId: {RecipientId}",
+                inviteDto.SenderId, inviteDto.RecipientId);
+            return StatusCode(StatusCodes.Status201Created, new SendInviteDto
+            {
+                FriendshipInvitationId = inviteResult.Value
+            });
             }
 
             return HandleError(inviteResult, "SendInviteAsync", _logger);

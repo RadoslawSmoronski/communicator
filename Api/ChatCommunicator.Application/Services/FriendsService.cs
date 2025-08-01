@@ -30,7 +30,7 @@ namespace ChatCommunicator.Application.Managers
             _userAvatarService = userAvatarService;
         }
 
-        public async Task<Result> SendInviteAsync(Guid senderId, Guid recipientId)
+        public async Task<ResultT<Guid>> SendInviteAsync(Guid senderId, Guid recipientId)
         {
             _logger.LogInformation("SendInviteAsync called with senderId: {SenderId}, recipientId: {RecipientId}", senderId, recipientId);
 
@@ -70,10 +70,17 @@ namespace ChatCommunicator.Application.Managers
                     return Error.Conflict("FRIENDS_INVITATION_EXISTS", "An invitation has already exist.");
                 }
 
-                await SendFriendshipInviteAsync(senderUser, recipientUser);
-                _logger.LogInformation("SendInviteAsync: Invitation sent from {SenderId} to {RecipientId}", senderId, recipientId);
-
-                return Result.Success();
+                var friendshipInvitationId = await SendFriendshipInviteAsync(senderUser, recipientUser);
+                if (friendshipInvitationId.IsSuccess)
+                {
+                    _logger.LogInformation("SendInviteAsync: Invitation sent from {SenderId} to {RecipientId}", senderId, recipientId);
+                    return friendshipInvitationId;
+                }
+                else
+                {
+                    _logger.LogError("SendInviteAsync: Failed to send invitation from {SenderId} to {RecipientId}. Error: {Error}", senderId, recipientId, friendshipInvitationId.Error?.Description);
+                    return friendshipInvitationId;
+                }
             }
             catch (Exception ex)
             {
@@ -313,22 +320,32 @@ namespace ChatCommunicator.Application.Managers
             x.SenderId == user2Id && x.RecipientId == user1Id);
         }
 
-        private async Task SendFriendshipInviteAsync(UserAccount senderUser, UserAccount recipientUser)
+        private async Task<ResultT<Guid>> SendFriendshipInviteAsync(UserAccount senderUser, UserAccount recipientUser)
         {
-            _logger.LogInformation("SendFriendshipInviteAsync called: sending invite from {SenderId} to {RecipientId}", senderUser.Id, recipientUser.Id);
-
-            var friendshipInvitation = new FriendshipInvitation
+            try
             {
-                SenderId = senderUser.Id,
-                RecipientId = recipientUser.Id,
-                SenderUser = senderUser,
-                RecipientUser = recipientUser
-            };
+                _logger.LogInformation("SendFriendshipInviteAsync: Creating invitation from {SenderId} to {RecipientId}", senderUser.Id, recipientUser.Id);
 
-            await _unitOfWork.FriendshipInvitations.AddAsync(friendshipInvitation);
-            await _unitOfWork.SaveAsync();
+                var friendshipInvitation = new FriendshipInvitation
+                {
+                    SenderId = senderUser.Id,
+                    RecipientId = recipientUser.Id,
+                    SenderUser = senderUser,
+                    RecipientUser = recipientUser
+                };
 
-            _logger.LogInformation("SendFriendshipInviteAsync: Invitation saved successfully");
+                await _unitOfWork.FriendshipInvitations.AddAsync(friendshipInvitation);
+                await _unitOfWork.SaveAsync();
+
+                _logger.LogInformation("SendFriendshipInviteAsync: Invitation created successfully with Id {InvitationId}", friendshipInvitation.Id);
+
+                return friendshipInvitation.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SendFriendshipInviteAsync: Internal server error for senderId {SenderId} and recipientId {RecipientId}", senderUser.Id, recipientUser.Id);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
         }
 
         private async Task<List<SimpleUserWithAvatarDto>> GetUserInvitationsAsync(UserAccount user)

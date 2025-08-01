@@ -14,6 +14,6 @@ namespace ChatCommunicator.Application.Services.Interfaces
 
         //Message
         Task<Result> SaveMessageAsync(Message message);
-        Task<ResultT<PagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId, Guid? userId);
+        Task<ResultT<PagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId);
     }
 }
