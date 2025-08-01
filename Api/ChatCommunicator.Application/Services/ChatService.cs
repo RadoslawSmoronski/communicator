@@ -168,12 +168,19 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<ResultT<PagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId)
+        public async Task<ResultT<PagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid? conversationId, Guid? fromMessageId, Guid? userId)
         {
             if (conversationId == null || conversationId == Guid.Empty)
             {
                 _logger.LogWarning("GetPagedMessagesFromMessageIdAsync called with empty conversationId");
                 return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
+            }
+
+            // TESTS
+            if (userId == null || userId == Guid.Empty)
+            {
+                _logger.LogWarning("GetPagedMessagesFromMessageIdAsync called with empty userId");
+                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
             }
 
             if (fromMessageId == null || fromMessageId == Guid.Empty)
@@ -188,11 +195,13 @@ namespace ChatCommunicator.Application.Services
 
             var convId = conversationId.Value;
             var msgId = fromMessageId.Value;
+            var userIdValue = userId.Value;
 
             try
             {
                 _logger.LogInformation("Checking existence of conversation with id {ConversationId}", convId);
-                if (await GetConversationByIdAsync(convId) == null)
+                var conversation = await GetConversationByIdAsync(convId);
+                if (conversation == null)
                 {
                     _logger.LogWarning("Conversation with id {ConversationId} not found", convId);
                     return Error.NotFound("CONVERSATION_ID_NOT_FOUND", "ConversationId was not found.");
@@ -203,11 +212,20 @@ namespace ChatCommunicator.Application.Services
 
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
+                //TESTS
+                var lastReadMessageId = await GetLastReadMessageIdAsync(convId, userIdValue);
+
+                if (lastReadMessageId.IsSuccess != true || lastReadMessageId.Value == null)
+                {
+                    _logger.LogError("Error retrieving last read message id for conversation {ConversationId}: {ErrorMessage}", convId, lastReadMessageId.Error?.Description);
+                    return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                }
+
                 _logger.LogInformation("Returning {Count} messages", messageDtos.Count);
                 return new PagedMessagesDto
                 {
                     Messages = messageDtos,
-                    LastMessageReadId = null
+                    LastMessageReadId = lastReadMessageId.Value.Value
                 };
             }
             catch (Exception ex)
@@ -247,17 +265,18 @@ namespace ChatCommunicator.Application.Services
 
         //TO DO: finish getlastmessageidasync and connect to getPagedMessagesFromMessageIdAsync
 
-        private async Task<Guid> _GetLastMessageIdAsync(Guid conversationId, Guid recepientUserId)
+        private async Task<ResultT<Guid?>> GetLastReadMessageIdAsync(Guid conversationId, Guid recipientUserId)
         {
             var conversation = await _unitOfWork.Conversations.FirstOrDefaultAsync(x => x.Id == conversationId);
 
-            if (conversation == null)
+            if (conversation != null)
             {
-                return Guid.Empty;
+                return conversation.User1Id == recipientUserId
+                    ? conversation.User2LastReadMessageId
+                    : conversation.User1LastReadMessageId;
             }
 
-
-            return Guid.Empty;
+            return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
         }
 
         private async Task _SaveMessageAsync(Message message)

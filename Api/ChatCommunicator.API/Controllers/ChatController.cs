@@ -111,7 +111,14 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPagedMessagesAsync(Guid? conversationId, Guid? fromMessageId)
         {
-            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, fromMessageId);
+            var validate = ValidateAndGetUserId("GetPagedMessagesAsync", _logger, out Guid userId);
+
+            if (validate != null)
+            {
+                return validate;
+            }
+
+            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, fromMessageId, userId);
 
             if (result.IsSuccess)
             {
