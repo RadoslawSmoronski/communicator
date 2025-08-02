@@ -1,4 +1,5 @@
 ﻿using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Contracts.Dtos.Friendships;
 using ChatCommunicator.Shared.Result;
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +18,7 @@ namespace ChatCommunicator.Application.Services
             _logger = logger;
         }
 
-        public async Task<Result> AddFriendAndCreateConversationAsync(Guid user1Id, Guid user2Id)
+        public async Task<ResultT<AcceptFriendshipInviteDto>> AddFriendAndCreateConversationAsync(Guid user1Id, Guid user2Id)
         {
             if (user1Id == Guid.Empty || user2Id == Guid.Empty)
             {
@@ -48,7 +49,11 @@ namespace ChatCommunicator.Application.Services
             if(resultConversation.IsSuccess && resultFriends.IsSuccess)
             {
                 _logger.LogInformation("Conversation created successfully between user1Id: {User1Id} and user2Id: {User2Id}", user1Id, user2Id);
-                return Result.Success();
+                return new AcceptFriendshipInviteDto()
+                {
+                    FriendshipId = resultFriends.Value,
+                    ConversationId = resultConversation.Value.Id
+                };
             }
 
             _logger.LogError("Unknown error occurred in AddFriendAndCreateConversationAsync for user1Id: {User1Id}, user2Id: {User2Id}", user1Id, user2Id);

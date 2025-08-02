@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using ChatCommunicator.Contracts.Dtos;
-using System.Security.Claims;
-using ChatCommunicator.Shared.Result;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.API.Controllers;
 using ChatCommunicator.Contracts.Dtos.Friendships;
@@ -17,18 +15,21 @@ namespace ChatCommunicator.Application.Controllers
     {
         private readonly IFriendsService _friendsManager;
         private readonly IChatService _chatService;
+        private readonly IChatFriendsService _chatFriendsService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<FriendsController> _logger;
 
         public FriendsController(IFriendsService friendsManager,
             IChatService chatService,
+            IChatFriendsService chatFriendsService,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
             ILogger<FriendsController> logger)
         {
             _friendsManager = friendsManager;
             _chatService = chatService;
+            _chatFriendsService = chatFriendsService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
@@ -237,15 +238,16 @@ namespace ChatCommunicator.Application.Controllers
         /// Accept Invite
         /// </summary>
         /// <remarks>
-        /// Allows an authenticated user to accept a friend invitation by sender and recipient GUIDs.
-        /// On success, users are added to each other's friend lists.
+        /// Allows an authenticated user to accept a friend invitation by providing sender and recipient GUIDs.
+        /// On success, users are added to each other's friend lists and an <see cref="AcceptFriendshipInviteDto"/> object is returned.
+        /// The returned object includes the friendship ID and the conversation ID.
         /// Returns errors for invalid input, not found invitations, or conflicts.
         /// </remarks>
         /// <param name="acceptInviteDto">Invitation data with sender and recipient GUIDs.</param>
         /// <returns>
-        /// HTTP 200 on success or an error describing the issue.
+        /// <see cref="AcceptFriendshipInviteDto"/> containing the friendship ID and conversation ID on success, or an error response.
         /// </returns>
-        /// <response code="200">Invitation accepted; users are now friends.</response>
+        /// <response code="201">Invitation accepted; users are now friends. Returns <see cref="AcceptFriendshipInviteDto"/>.</response>
         /// <response code="400">Invalid data provided.</response>
         /// <response code="401">Unauthorized - JWT token required.</response>
         /// <response code="404">Invitation not found.</response>
@@ -253,16 +255,22 @@ namespace ChatCommunicator.Application.Controllers
         /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
-        /// POST /api/user/acceptInvite
+        /// POST /api/user/accept-invite
         /// {
         ///     "senderId": "b0f4e7d2-115a-4dcf-b9f5-5b08f6bcb034",
         ///     "recipientId": "a54ff5c4-6f67-4c10-b4a7-b6d3f0d8c9cb"
+        /// }
+        /// 
+        /// Response:
+        /// {
+        ///     "friendshipId": "e2b1c7e2-4b7a-4f5e-9c2a-1a2b3c4d5e6f",
+        ///     "conversationId": "f3c2d1e4-5b6a-7c8d-9e0f-1a2b3c4d5e6f"
         /// }
         /// </code>
         /// </example>
         [Authorize]
         [HttpPost("accept-invite")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AcceptFriendshipInviteDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -270,20 +278,16 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AcceptInviteAsync(InviteDto acceptInviteDto)
         {
-            var addFriendsResult = await _friendsManager.AddFriendsAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
-            var createConversationResult = await _chatService.GetOrCreateConversationAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+            var result = await _chatFriendsService.AddFriendAndCreateConversationAsync(acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
 
-            if (addFriendsResult.IsSuccess && createConversationResult.IsSuccess)
+            if (result.IsSuccess)
             {
                 _logger.LogInformation("[AcceptInviteAsync] Friends added and conversation created successfully. SenderId: {SenderId}, RecipientId: {RecipientId}",
-                    acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
-                return Ok();
+                acceptInviteDto.SenderId, acceptInviteDto.RecipientId);
+                return StatusCode(StatusCodes.Status201Created, result.Value);
             }
 
-            if (!addFriendsResult.IsSuccess)
-                return HandleError(addFriendsResult, "AcceptInviteAsync", _logger);
-
-            return HandleError(createConversationResult, "AcceptInviteAsync", _logger);
+            return HandleError(result, "AcceptInviteAsync", _logger);
         }
 
 

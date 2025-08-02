@@ -211,7 +211,7 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public async Task<Result> AddFriendsAsync(Guid senderId, Guid recipientId)
+        public async Task<ResultT<Guid>> AddFriendsAsync(Guid senderId, Guid recipientId)
         {
             _logger.LogInformation("AddFriendsAsync called with senderId: {SenderId}, recipientId: {RecipientId}", senderId, recipientId);
 
@@ -258,10 +258,10 @@ namespace ChatCommunicator.Application.Managers
                 }
 
                 await DeleteInviteAsync(senderUser, recipientUser);
-                await AddFriendsAsync(senderUser, recipientUser);
+                var friendshipId = await AddFriendsAsync(senderUser, recipientUser);
 
                 _logger.LogInformation("AddFriendsAsync: Friends added between {SenderId} and {RecipientId}", senderId, recipientId);
-                return Result.Success();
+                return friendshipId;
             }
             catch (Exception ex)
             {
@@ -429,7 +429,7 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        private async Task AddFriendsAsync(UserAccount user1, UserAccount user2)
+        private async Task<Guid> AddFriendsAsync(UserAccount user1, UserAccount user2)
         {
             _logger.LogInformation("AddFriendsAsync called for user1Id: {User1Id}, user2Id: {User2Id}", user1.Id, user2.Id);
 
@@ -445,6 +445,8 @@ namespace ChatCommunicator.Application.Managers
             await _unitOfWork.SaveAsync();
 
             _logger.LogInformation("AddFriendsAsync: Friendship added successfully");
+
+            return friendship.Id;
         }
 
         private async Task<List<SimpleUserWithAvatarDto>> GetFriendsFromDbAsync(Guid userId)
