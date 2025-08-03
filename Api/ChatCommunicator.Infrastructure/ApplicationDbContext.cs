@@ -106,10 +106,6 @@ namespace ChatCommunicator.Infrastructure
 
             builder.Entity<Message>()
                 .HasIndex(m => new { m.ConversationId, m.Timestamp });
-
-            builder.Entity<Message>()
-                .Property(m => m.IsRead)
-                .HasDefaultValue(false);
         }
 
     }

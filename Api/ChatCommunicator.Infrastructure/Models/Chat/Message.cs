@@ -11,6 +11,5 @@
 
         public required string Content { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-        public bool IsRead { get; set; } = false;
     }
 }

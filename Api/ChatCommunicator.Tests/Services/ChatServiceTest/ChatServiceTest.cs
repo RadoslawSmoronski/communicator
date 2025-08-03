@@ -77,8 +77,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 SenderId = _sampleUser1.Id,
                 Sender = _sampleUser1,
                 Content = "sampleMessage1",
-                Timestamp = DateTime.UtcNow.AddSeconds(-20),
-                IsRead = true
+                Timestamp = DateTime.UtcNow.AddSeconds(-20)
             };
 
             _sampleMessage2 = new Message()
@@ -88,8 +87,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 SenderId = _sampleUser2.Id,
                 Sender = _sampleUser2,
                 Content = "sampleMessage2",
-                Timestamp = DateTime.UtcNow.AddSeconds(-10),
-                IsRead = true
+                Timestamp = DateTime.UtcNow.AddSeconds(-10)
             };
 
             _sampleMessage3 = new Message()
@@ -99,8 +97,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 SenderId = _sampleUser1.Id,
                 Sender = _sampleUser1,
                 Content = "sampleMessage3",
-                Timestamp = DateTime.UtcNow,
-                IsRead = true
+                Timestamp = DateTime.UtcNow
             };
 
             _sampleMessagesList = new List<Message>()
