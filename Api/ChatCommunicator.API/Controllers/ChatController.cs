@@ -109,7 +109,7 @@ namespace ChatCommunicator.Application.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetPagedMessagesAsync(Guid? conversationId, Guid? fromMessageId)
+        public async Task<IActionResult> GetPagedMessagesAsync(Guid conversationId, Guid? fromMessageId)
         {
             var validate = ValidateAndGetUserId("GetPagedMessagesAsync", _logger, out Guid userId);
 
@@ -118,7 +118,7 @@ namespace ChatCommunicator.Application.Controllers
                 return validate;
             }
 
-            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, fromMessageId);
+            var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, userId, fromMessageId);
 
             if (result.IsSuccess)
             {
