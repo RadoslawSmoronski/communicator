@@ -6,7 +6,7 @@ namespace ChatCommunicator.Application.Services.Interfaces
 {
     public interface IChatService
     {
-        Task<ResultT<Guid>> SetAndGetUserLastFriendReadMessageAsync(Guid userId, Guid conversationId);
+        Task<ResultT<Guid>> SetAndGetUserLastReadMessageAsync(Guid userId, Guid conversationId);
 
         //Conversation
         Task<ResultT<Conversation>> GetOrCreateConversationAsync(Guid userId, Guid friendId);

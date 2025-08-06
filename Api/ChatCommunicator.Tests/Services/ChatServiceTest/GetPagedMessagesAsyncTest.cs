@@ -25,7 +25,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
             var expectedPagedMessagesDto = new PagedMessagesDto
             {
                 Messages = _mapper.Map<List<MessageDto>>(_extraSampleMessageList),
-                LastMessageReadId = null
+                LastFriendReadMessageId = null
             };
 
             // Act
@@ -52,7 +52,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
             var expectedPagedMessagesDto = new PagedMessagesDto
             {
                 Messages = new List<MessageDto>(),
-                LastMessageReadId = null
+                LastFriendReadMessageId = null
             };
 
             // Act

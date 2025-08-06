@@ -188,7 +188,7 @@ namespace ChatCommunicator.Application.Services
                 return new PagedMessagesDto
                 {
                     Messages = Enumerable.Empty<MessageDto>(),
-                    LastMessageReadId = null
+                    LastFriendReadMessageId = null
                 };
             }
 
@@ -210,13 +210,30 @@ namespace ChatCommunicator.Application.Services
 
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
-                var lastFriendMessageReadId = messageDtos.Count > 0 ? _GetFriendLastReadMessage(userId, messages[0].Conversation) : null;
+                var lastFriendReadMessageId = messageDtos.Count > 0 ? _GetFriendLastReadMessage(userId, messages[0].Conversation) : null;
+
+                var setUserLastMessageResult = await SetAndGetUserLastReadMessageAsync(userId, conversationId);
+
+                if (!setUserLastMessageResult.IsSuccess)
+                {
+                    var error = setUserLastMessageResult.Error;
+
+                    if (error == null)
+                    {
+                        throw new Exception("An unknown error occurred while setting and retrieving the last friend read message.");
+                    }
+
+                    if(error.Code != "LAST_FRIEND_MESSAGE_NOT_FOUND")
+                    {
+                        return error;
+                    }
+                }
 
                 _logger.LogInformation("Returning {Count} messages", messageDtos.Count);
                 return new PagedMessagesDto
                 {
                     Messages = messageDtos,
-                    LastMessageReadId = lastFriendMessageReadId
+                    LastFriendReadMessageId = lastFriendReadMessageId
                 };
             }
             catch (Exception ex)
@@ -243,49 +260,53 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<ResultT<Guid>> SetAndGetUserLastFriendReadMessageAsync(Guid userId, Guid conversationId)
+        public async Task<ResultT<Guid>> SetAndGetUserLastReadMessageAsync(Guid userId, Guid conversationId)
         {
             if (userId == Guid.Empty)
             {
-                _logger.LogWarning("SetAndGetUserLastFriendReadMessageAsync called with empty userId");
+                _logger.LogWarning("SetAndGetUserLastReadMessageAsync called with empty userId");
                 return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
             }
 
             if (conversationId == Guid.Empty)
             {
-                _logger.LogWarning("SetAndGetUserLastFriendReadMessageAsync called with empty conversationId");
+                _logger.LogWarning("SetAndGetUserLastReadMessageAsync called with empty conversationId");
                 return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
             }
 
             try
             {
-                _logger.LogInformation("Setting and retrieving last friend read message for userId {UserId} in conversationId {ConversationId}", userId, conversationId);
-                var result = await _SetAndGetUserLastFriendReadMessageAsync(userId, conversationId);
+                _logger.LogInformation("Setting and retrieving last read message for userId {UserId} in conversationId {ConversationId}", userId, conversationId);
+                var result = await _SetAndGetUserLastReadMessageAsync(userId, conversationId);
 
                 if (result.IsSuccess)
                 {
+                    _logger.LogInformation("Successfully set and retrieved last read message for userId {UserId} in conversationId {ConversationId}", userId, conversationId);
                     return result;
                 }
 
+                _logger.LogWarning("Failed to set and retrieve last read message for userId {UserId} in conversationId {ConversationId}", userId, conversationId);
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An exception occurred in SetAndGetUserLastFriendReadMessageAsync for userId: {UserId}, conversationId: {ConversationId}", userId, conversationId);
+                _logger.LogError(ex, "An exception occurred in SetAndGetUserLastReadMessageAsync for userId: {UserId}, conversationId: {ConversationId}", userId, conversationId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
 
-        private async Task<ResultT<Guid>> _SetAndGetUserLastFriendReadMessageAsync(Guid userId, Guid conversationId)
+        private async Task<ResultT<Guid>> _SetAndGetUserLastReadMessageAsync(Guid userId, Guid conversationId)
         {
+            _logger.LogInformation("Retrieving conversation with id {ConversationId} for userId {UserId}", conversationId, userId);
             var conversation = await GetConversationByIdAsync(conversationId);
 
             if (conversation == null)
             {
-                _logger.LogWarning("Conversation with id {ConversationId} not found", conversationId);
+                _logger.LogWarning("Conversation with id {ConversationId} not found for userId {UserId}", conversationId, userId);
                 return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
             }
 
+            _logger.LogInformation("Retrieving last friend message for userId {UserId} in conversationId {ConversationId}", userId, conversationId);
             var message = await _unitOfWork.Messages.GetUserLastFriendMessageAsync(conversationId, userId);
 
             if (message == null)
@@ -296,17 +317,18 @@ namespace ChatCommunicator.Application.Services
 
             if (conversation.User1Id == userId)
             {
-                conversation.User1LastReadMessageId = message.Id;
+                conversation.User2LastReadMessageId = message.Id;
             }
             else
             {
-                conversation.User2LastReadMessageId = message.Id;
+                conversation.User1LastReadMessageId = message.Id;
             }
 
+            _logger.LogInformation("Updating conversation with id {ConversationId} to set last read message for userId {UserId}", conversationId, userId);
             _unitOfWork.Conversations.Update(conversation);
             await _unitOfWork.SaveAsync();
 
-
+            _logger.LogInformation("Successfully updated last read message for userId {UserId} in conversationId {ConversationId}", userId, conversationId);
             return message.Id;
         }
 
