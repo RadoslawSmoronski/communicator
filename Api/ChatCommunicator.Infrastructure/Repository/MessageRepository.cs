@@ -27,5 +27,13 @@ namespace ChatCommunicator.Infrastructure.Repository
                 .OrderByDescending(x => x.Timestamp)
                 .Take(pageSize);
         }
+
+        public async Task<Message?> GetUserLastFriendMessageAsync(Guid conversationId, Guid userId)
+        {
+            return await _dbSet
+                .Where(x => x.ConversationId == conversationId && x.SenderId != userId)
+                .OrderByDescending(x => x.Timestamp)
+                .FirstOrDefaultAsync();
+        }
     }
 }

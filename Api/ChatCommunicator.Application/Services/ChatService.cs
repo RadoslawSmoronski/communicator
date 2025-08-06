@@ -176,7 +176,6 @@ namespace ChatCommunicator.Application.Services
                 return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
             }
 
-            // TESTS
             if (userId == Guid.Empty)
             {
                 _logger.LogWarning("GetPagedMessagesFromMessageIdAsync called with empty userId");
@@ -242,6 +241,73 @@ namespace ChatCommunicator.Application.Services
                 _logger.LogError(ex, "An exception occurred in SaveMessageAsync for messageId: {MessageId}", message.Id);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
+        }
+
+        public async Task<ResultT<Guid>> SetAndGetUserLastFriendReadMessageAsync(Guid userId, Guid conversationId)
+        {
+            if (userId == Guid.Empty)
+            {
+                _logger.LogWarning("SetAndGetUserLastFriendReadMessageAsync called with empty userId");
+                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
+            }
+
+            if (conversationId == Guid.Empty)
+            {
+                _logger.LogWarning("SetAndGetUserLastFriendReadMessageAsync called with empty conversationId");
+                return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
+            }
+
+            try
+            {
+                _logger.LogInformation("Setting and retrieving last friend read message for userId {UserId} in conversationId {ConversationId}", userId, conversationId);
+                var result = await _SetAndGetUserLastFriendReadMessageAsync(userId, conversationId);
+
+                if (result.IsSuccess)
+                {
+                    return result;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An exception occurred in SetAndGetUserLastFriendReadMessageAsync for userId: {UserId}, conversationId: {ConversationId}", userId, conversationId);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
+
+        private async Task<ResultT<Guid>> _SetAndGetUserLastFriendReadMessageAsync(Guid userId, Guid conversationId)
+        {
+            var conversation = await GetConversationByIdAsync(conversationId);
+
+            if (conversation == null)
+            {
+                _logger.LogWarning("Conversation with id {ConversationId} not found", conversationId);
+                return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
+            }
+
+            var message = await _unitOfWork.Messages.GetUserLastFriendMessageAsync(conversationId, userId);
+
+            if (message == null)
+            {
+                _logger.LogWarning("No last friend message found for userId {UserId} in conversationId {ConversationId}", userId, conversationId);
+                return Error.NotFound("LAST_FRIEND_MESSAGE_NOT_FOUND", "Last friend message was not found.");
+            }
+
+            if (conversation.User1Id == userId)
+            {
+                conversation.User1LastReadMessageId = message.Id;
+            }
+            else
+            {
+                conversation.User2LastReadMessageId = message.Id;
+            }
+
+            _unitOfWork.Conversations.Update(conversation);
+            await _unitOfWork.SaveAsync();
+
+
+            return message.Id;
         }
 
         private async Task<List<Message>> _GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId)

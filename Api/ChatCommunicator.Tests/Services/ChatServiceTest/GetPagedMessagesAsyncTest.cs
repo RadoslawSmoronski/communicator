@@ -29,7 +29,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
             };
 
             // Act
-                var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
+                var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleUser1.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -56,7 +56,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
             };
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleUser1.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -74,7 +74,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<Conversation?>(null));
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleUser1.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -89,7 +89,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         public async Task GetPagedMessagesFromMessageIdAsync_ShouldReturnBadRequestError_WhenInputDataIsNotValid()
         {
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(Guid.Empty, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(Guid.Empty, _sampleUser1.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -111,7 +111,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
             .Throws(new Exception());
 
             // Act
-            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
+            var result = await _chatManager.GetPagedMessagesFromMessageIdAsync(_sampleConversation.Id, _sampleUser1.Id, _sampleMessage2.Id) as ResultT<PagedMessagesDto>;
 
             // Assert
             result.Should().NotBeNull();

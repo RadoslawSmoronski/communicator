@@ -32,6 +32,9 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         protected readonly Message _sampleMessage3;
         protected readonly IEnumerable<Message> _sampleMessagesList;
 
+        protected const string SAMPLE_STRING_GUID = "12345678-1234-1234-1234-123456789abc";
+        protected const string SAMPLE_STRING_EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
+
         protected ChatServiceTest()
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
