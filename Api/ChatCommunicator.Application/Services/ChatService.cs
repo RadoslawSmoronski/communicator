@@ -296,32 +296,37 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<ResultT<Message>> SendMessageAsync(Guid userId, Guid conversationId, string content)
+        public async Task<ResultT<MessageDto>> SendMessageAsync(Guid userId, Guid conversationId, string content)
         {
             if (userId == Guid.Empty)
             {
+                _logger.LogWarning("SendMessageAsync called with empty userId");
                 return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
             }
 
             if (conversationId == Guid.Empty)
             {
+                _logger.LogWarning("SendMessageAsync called with empty conversationId");
                 return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
-
             }
 
             try
             {
+                _logger.LogInformation("Retrieving user with id {UserId}", userId);
                 var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (user == null)
                 {
+                    _logger.LogWarning("User with id {UserId} not found", userId);
                     return Error.NotFound("USER_NOT_FOUND", "User was not found.");
                 }
 
+                _logger.LogInformation("Retrieving conversation with id {ConversationId}", conversationId);
                 var conversation = await GetConversationByIdAsync(conversationId);
 
                 if (conversation == null)
                 {
+                    _logger.LogWarning("Conversation with id {ConversationId} not found", conversationId);
                     return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
                 }
 
@@ -336,13 +341,17 @@ namespace ChatCommunicator.Application.Services
                     Timestamp = DateTime.UtcNow
                 };
 
+                _logger.LogInformation("Saving new message with id {MessageId} for conversation {ConversationId}", message.Id, conversationId);
                 await _unitOfWork.Messages.AddAsync(message);
                 await _unitOfWork.SaveAsync();
 
-                return message;
+                _logger.LogInformation("Message with id {MessageId} saved successfully", message.Id);
+
+                return _mapper.Map<MessageDto>(message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "An exception occurred in SendMessageAsync for userId: {UserId}, conversationId: {ConversationId}", userId, conversationId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }

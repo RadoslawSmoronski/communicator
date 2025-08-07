@@ -52,7 +52,7 @@ namespace ChatCommunicator.Application.Hubs
             await base.OnConnectedAsync();
         }
 
-        public async Task SendMessage(Guid recipientId, Guid conversationId, string content) // TODO: Needs tests
+        public async Task SendMessage(Guid recipientId, Guid conversationId, string content) // TODO: Needs tests and finish UNDER section
         {
             var userName = Context.User?.Identity?.Name;
             var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -63,57 +63,34 @@ namespace ChatCommunicator.Application.Hubs
                 return;
             }
 
-            _logger.LogInformation("User {UserId} sending message to {RecipientId} in conversation {ConversationId}", userId, recipientId, conversationId);
+            var result = await _chatService.SendMessageAsync(userId, conversationId, content);
 
-            var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
-            var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
 
-            var conversationResult = await _chatService.GetOrCreateConversationAsync(userId, recipientId);
-            if (conversationResult.Error != null)
+            // UNDER SECTION <- do something with this
+            if(result.IsSuccess)
             {
-                _logger.LogError("Failed to get or create conversation between {UserId} and {RecipientId}: {Error}", userId, recipientId, conversationResult.Error.Description);
-                return;
-            }
+                var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
+                var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
 
-            var sender = await _userManager.FindByIdAsync(userIdString);
-            if (sender == null)
-            {
-                _logger.LogWarning("SendMessage failed: sender user not found. UserId: {UserId}", userId);
-                return;
-            }
-
-            var message = new Message()
-            {
-                ConversationId = conversationId,
-                Conversation = conversationResult.Value,
-                SenderId = userId,
-                Sender = sender,
-                Content = content,
-            };
-
-            var messageDto = _mapper.Map<MessageDto>(message);
-
-            try
-            {
-                if (recipientConnectionsId != null)
+                try
                 {
-                    await Clients.Clients(recipientConnectionsId).ReceiveMessage(messageDto);
-                    _logger.LogDebug("Message sent to recipient connections: {RecipientConnectionsCount}", recipientConnectionsId.Count);
-                }
+                    if (recipientConnectionsId != null)
+                    {
+                        await Clients.Clients(recipientConnectionsId).ReceiveMessage(result.Value);
+                    }
 
-                if (senderConnectionsId != null)
+                    if (senderConnectionsId != null)
+                    {
+                        await Clients.Clients(senderConnectionsId).ReceiveMessage(result.Value);
+                    }
+                }
+                catch (Exception ex)
                 {
-                    await Clients.Clients(senderConnectionsId).ReceiveMessage(messageDto);
-                    _logger.LogDebug("Message sent to sender connections: {SenderConnectionsCount}", senderConnectionsId.Count);
+                    
                 }
+            }
 
-                await _chatService.SaveMessageAsync(message);
-                _logger.LogInformation("Message saved to database. ConversationId: {ConversationId}, SenderId: {SenderId}", conversationId, userId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while sending or saving message. UserId: {UserId}, RecipientId: {RecipientId}", userId, recipientId);
-            }
+            //UNDER SECTION
         }
 
         public async Task ReadMessage(Guid recipientId, Guid conversationId)

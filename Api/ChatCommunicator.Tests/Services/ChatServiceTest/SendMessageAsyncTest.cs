@@ -1,4 +1,5 @@
-﻿using ChatCommunicator.Infrastructure.Models;
+﻿using ChatCommunicator.Contracts.Dtos.Chat;
+using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Models.Chat;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
@@ -20,13 +21,13 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<UserAccount?>(_sampleUser1));
 
             // Act
-            var result = await _chatManager.SendMessageAsync(_sampleUser1.Id, _sampleConversation.Id, "test") as ResultT<Message>;
+            var result = await _chatManager.SendMessageAsync(_sampleUser1.Id, _sampleConversation.Id, "test") as ResultT<MessageDto>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
 
-            result.Value.Should().BeOfType(typeof(Message));
+            result.Value.Should().BeOfType(typeof(MessageDto));
         }
 
         [Theory]
@@ -35,7 +36,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         public async Task SendMessageAsyncTest_ShouldReturnValidationError_WhenInputDataIsNotValid(string fakeUserId, string fakeConversationId)
         {
             // Act
-            var result = await _chatManager.SendMessageAsync(Guid.Parse(fakeUserId), Guid.Parse(fakeConversationId), "test") as ResultT<Message>;
+            var result = await _chatManager.SendMessageAsync(Guid.Parse(fakeUserId), Guid.Parse(fakeConversationId), "test") as ResultT<MessageDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -54,7 +55,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<Conversation?>(null));
   
             // Act
-            var result = await _chatManager.SendMessageAsync(_sampleUser1.Id, _sampleConversation.Id, "test") as ResultT<Message>;
+            var result = await _chatManager.SendMessageAsync(_sampleUser1.Id, _sampleConversation.Id, "test") as ResultT<MessageDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -74,7 +75,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 .Returns(Task.FromResult<UserAccount?>(null));
 
             // Act
-            var result = await _chatManager.SendMessageAsync(_sampleUser1.Id, _sampleConversation.Id, "test") as ResultT<Message>;
+            var result = await _chatManager.SendMessageAsync(_sampleUser1.Id, _sampleConversation.Id, "test") as ResultT<MessageDto>;
 
             // Assert
             result.Should().NotBeNull();
@@ -95,7 +96,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                 .Throws(new Exception());
 
             // Act
-            var result = await _chatManager.SendMessageAsync(_sampleUser1.Id, _sampleConversation.Id, "test") as ResultT<Message>;
+            var result = await _chatManager.SendMessageAsync(_sampleUser1.Id, _sampleConversation.Id, "test") as ResultT<MessageDto>;
 
             // Assert
             result.Should().NotBeNull();
