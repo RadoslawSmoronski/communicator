@@ -317,11 +317,11 @@ namespace ChatCommunicator.Application.Services
 
             if (conversation.User1Id == userId)
             {
-                conversation.User2LastReadMessageId = message.Id;
+                conversation.User1LastReadMessageId = message.Id;
             }
             else
             {
-                conversation.User1LastReadMessageId = message.Id;
+                conversation.User2LastReadMessageId = message.Id;
             }
 
             _logger.LogInformation("Updating conversation with id {ConversationId} to set last read message for userId {UserId}", conversationId, userId);
