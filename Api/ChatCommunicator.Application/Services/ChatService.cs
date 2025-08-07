@@ -1,12 +1,13 @@
-﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Contracts.Dtos.Chat;
-using ChatCommunicator.Shared.Result;
-using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
 using ChatCommunicator.Application.Services.Interfaces;
-using Microsoft.Extensions.Logging;
+using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Models.Chat;
+using ChatCommunicator.Infrastructure.UnitOfWork;
+using ChatCommunicator.Shared.Result;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace ChatCommunicator.Application.Services
 {
@@ -291,6 +292,57 @@ namespace ChatCommunicator.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An exception occurred in SetAndGetUserLastReadMessageAsync for userId: {UserId}, conversationId: {ConversationId}", userId, conversationId);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
+
+        public async Task<ResultT<Message>> SendMessageAsync(Guid userId, Guid conversationId, string content)
+        {
+            if (userId == Guid.Empty)
+            {
+                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be empty.");
+            }
+
+            if (conversationId == Guid.Empty)
+            {
+                return Error.Validation("CONVERSATIONID_IS_EMPTY", "ConversationId cannot be empty.");
+
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user == null)
+                {
+                    return Error.NotFound("USER_NOT_FOUND", "User was not found.");
+                }
+
+                var conversation = await GetConversationByIdAsync(conversationId);
+
+                if (conversation == null)
+                {
+                    return Error.NotFound("CONVERSATION_NOT_FOUND", "Conversation was not found.");
+                }
+
+                var message = new Message()
+                {
+                    Id = Guid.NewGuid(),
+                    ConversationId = conversationId,
+                    Conversation = conversation,
+                    SenderId = userId,
+                    Sender = user,
+                    Content = content,
+                    Timestamp = DateTime.UtcNow
+                };
+
+                await _unitOfWork.Messages.AddAsync(message);
+                await _unitOfWork.SaveAsync();
+
+                return message;
+            }
+            catch(Exception ex)
+            {
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }

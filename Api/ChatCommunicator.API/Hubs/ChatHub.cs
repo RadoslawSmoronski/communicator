@@ -116,6 +116,30 @@ namespace ChatCommunicator.Application.Hubs
             }
         }
 
+        public async Task ReadMessage(Guid recipientId, Guid conversationId)
+        {
+            var userName = Context.User?.Identity?.Name;
+            var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return;
+            }
+            var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
+            var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
+
+            var result = await _chatService.SetAndGetUserLastReadMessageAsync(userId, conversationId);
+
+            if (result.IsSuccess)
+            {
+                if (recipientConnectionsId != null)
+                {
+                    await Clients.Clients(recipientConnectionsId).MessageRead(result.Value);
+                }
+            }
+
+        }
+
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userName = Context.User?.Identity?.Name;
