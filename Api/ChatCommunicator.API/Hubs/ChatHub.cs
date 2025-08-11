@@ -1,5 +1,4 @@
-﻿using ChatCommunicator.Contracts.Dtos.Chat;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
@@ -7,7 +6,6 @@ using System.Security.Claims;
 using ChatCommunicator.Application.Hubs.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Infrastructure.Models;
-using ChatCommunicator.Infrastructure.Models.Chat;
 
 namespace ChatCommunicator.Application.Hubs
 {
@@ -16,8 +14,6 @@ namespace ChatCommunicator.Application.Hubs
     {
         private readonly IUsersConnectionService _usersConnectionManager;
         private readonly IChatService _chatService;
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IMapper _mapper;
         private readonly ILogger<ChatHub> _logger;
 
         public ChatHub(IUsersConnectionService usersConnectionManager,
@@ -28,8 +24,6 @@ namespace ChatCommunicator.Application.Hubs
         {
             _usersConnectionManager = usersConnectionManager;
             _chatService = chatService;
-            _userManager = userManager;
-            _mapper = mapper;
             _logger = logger;
         }
 
@@ -52,12 +46,9 @@ namespace ChatCommunicator.Application.Hubs
             await base.OnConnectedAsync();
         }
 
-        public async Task SendMessage(Guid recipientId, Guid conversationId, string content) // TODO: Needs tests and finish UNDER section
+        public async Task SendMessage(Guid recipientId, Guid conversationId, string content)
         {
-            var userName = Context.User?.Identity?.Name;
-            var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (!Guid.TryParse(userIdString, out var userId))
+            if (!TryGetUserId(out Guid userId))
             {
                 _logger.LogWarning("SendMessage called with invalid user ID. ConnectionId: {ConnectionId}", Context.ConnectionId);
                 return;
@@ -65,67 +56,49 @@ namespace ChatCommunicator.Application.Hubs
 
             var result = await _chatService.SendMessageAsync(userId, conversationId, content);
 
-
-            // UNDER SECTION <- do something with this
-            if(result.IsSuccess)
+            if (result.IsSuccess)
             {
-                var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
-                var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
-
-                try
-                {
-                    if (recipientConnectionsId != null)
-                    {
-                        await Clients.Clients(recipientConnectionsId).ReceiveMessage(result.Value);
-                    }
-
-                    if (senderConnectionsId != null)
-                    {
-                        await Clients.Clients(senderConnectionsId).ReceiveMessage(result.Value);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    
-                }
+                await NotifyClients(userId, recipientId,
+                    (clients, connections) => clients.Clients(connections).ReceiveMessage(result.Value),
+                    "sending message");
             }
-
-            //UNDER SECTION
+            else
+            {
+                _logger.LogWarning("Failed to send message. SenderId: {SenderId}, RecipientId: {RecipientId}, ConversationId: {ConversationId}, Error: {ErrorMessage}",
+                    userId, recipientId, conversationId, result.Error?.Description ?? "Unknown error");
+            }
         }
 
         public async Task ReadMessage(Guid recipientId, Guid conversationId)
         {
-            var userName = Context.User?.Identity?.Name;
-            var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (!Guid.TryParse(userIdString, out var userId))
+            if (!TryGetUserId(out Guid userId))
             {
+                _logger.LogWarning("ReadMessage called with invalid user ID. ConnectionId: {ConnectionId}", Context.ConnectionId);
                 return;
             }
-            var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
-            var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
 
             var result = await _chatService.SetAndGetUserLastReadMessageAsync(userId, conversationId);
 
             if (result.IsSuccess)
             {
-                if (recipientConnectionsId != null)
-                {
-                    await Clients.Clients(recipientConnectionsId).MessageRead(result.Value);
-                }
+                await NotifyClients(userId, recipientId,
+                    (clients, connections) => clients.Clients(connections).MessageRead(result.Value),
+                    "reading message");
+            }
+            else
+            {
+                _logger.LogWarning("Failed to set message as read. UserId: {UserId}, ConversationId: {ConversationId}, Error: {ErrorMessage}",
+                    userId, conversationId, result.Error?.Description ?? "Unknown error");
             }
 
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var userName = Context.User?.Identity?.Name;
-            var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (Guid.TryParse(userIdString, out var userId))
+            if (TryGetUserId(out Guid userId))
             {
-                _logger.LogInformation("User disconnected. UserId: {UserId}, UserName: {UserName}, ConnectionId: {ConnectionId}, Exception: {Exception}",
-                    userId, userName, Context.ConnectionId, exception?.Message);
+                _logger.LogInformation("User disconnected. UserId: {UserId}, ConnectionId: {ConnectionId}, Exception: {Exception}",
+                    userId, Context.ConnectionId, exception?.Message);
 
                 await _usersConnectionManager.RemoveAsync(Context.ConnectionId, userId);
             }
@@ -135,6 +108,44 @@ namespace ChatCommunicator.Application.Hubs
             }
 
             await base.OnDisconnectedAsync(exception);
+        }
+
+        private bool TryGetUserId(out Guid userId)
+        {
+            var userIdString = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(userIdString, out userId);
+        }
+
+        private async Task NotifyClients(Guid userId, Guid recipientId, Func<IHubClients<IChatClient>, IReadOnlyList<string>, Task> notificationAction, string operationDescription)
+        {
+            var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
+            var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
+
+            if (recipientConnectionsId != null)
+            {
+                try
+                {
+                    await notificationAction(Clients, recipientConnectionsId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error {OperationDescription} to recipient {RecipientId}. ConnectionIds: {ConnectionIds}",
+                        operationDescription, recipientId, string.Join(", ", recipientConnectionsId));
+                }
+            }
+
+            if (senderConnectionsId != null)
+            {
+                try
+                {
+                    await notificationAction(Clients, senderConnectionsId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error {OperationDescription} to sender {SenderId}. ConnectionIds: {ConnectionIds}",
+                        operationDescription, userId, string.Join(", ", senderConnectionsId));
+                }
+            }
         }
     }
 }
