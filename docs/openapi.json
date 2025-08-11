@@ -2221,9 +2221,6 @@
           "timestamp": {
             "type": "string",
             "format": "date-time"
-          },
-          "isRead": {
-            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -2241,7 +2238,7 @@
             },
             "nullable": true
           },
-          "lastMessageReadId": {
+          "lastFriendReadMessageId": {
             "type": "string",
             "format": "uuid",
             "nullable": true

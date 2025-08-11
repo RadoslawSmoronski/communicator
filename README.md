@@ -1,86 +1,77 @@
-# 💬 Chat Communicator - API
+# Chat Communicator - API
 
-**Chat Communicator** is a simple chat application built with .NET 8. It provides user registration, login, friend management, and real-time messaging using SignalR.
+A real-time chat application built with .NET 9 and C# 13.0, providing secure and efficient communication between users.
 
 ---
 
-## 🧰 Technologies
+##Overview
+ChatCommunicator is a full-featured chat platform that enables users to connect, manage friendships, and exchange messages in real-time. The application is built using a clean architecture approach with distinct layers for API, application logic, and infrastructure.
 
-- ASP.NET Core Web API (.NET 8)
-- SignalR
-- Entity Framework Core
-- Identity
-- JWT (authentication)
-- PostgreSQL
-- AutoMapper
-- Serilog
+## Technologies
+
+- .NET 9
+- C# 13.0
+- ASP.NET Core
+- SignalR for real-time communication
+- Entity Framework Core with PostgreSQL
+- JWT Authentication
+- Serilog for structured logging
+- AutoMapper for object mapping
+- Swagger/ReDoc for API
 - xUnit, FluentAssertions, FakeItEasy (unit testing)
-- Redoc (API documentation)
 
----
+## Features
 
-## 📄 REST API Documentation
+#### Authentication
 
-You can access the full API documentation here:  
-🔗 **[https://radoslawsmoronski.github.io/communicator/](https://radoslawsmoronski.github.io/communicator/)**
+- User registration and login
+- JWT token-based authentication
+- Refresh token mechanism for extended sessions
 
-The documentation provides details on endpoints, models, responses, and authentication.
+#### User Management
 
----
+- Profile management
+- Username customization
+- Password changes
+- Avatar upload, change, and deletion
 
-## 📡 SignalR – `ChatHub`
+#### Friendship
 
-Real-time messaging is handled through a SignalR hub called `ChatHub`.
+- Send, accept, and decline friend invitations
+- View pending invitations
+- Search for users to add as friends
+- View friend list
+- Messaging
+- Real-time chat between friends
+- Message history with pagination
+- Read receipts for messages
+- Last message tracking for conversations
 
-### Method available for clients
+## Project Structure
 
-#### `SendMessage(Guid recipientId, Guid conversationId, string content)`
+- ChatCommunicator.API: API endpoints and controllers
+- ChatCommunicator.Application: Business logic and services
+- ChatCommunicator.Infrastructure: Data access, persistence, and external services
+- ChatCommunicator.Contracts: DTOs and shared models
+- ChatCommunicator.Shared: Utilities and helper classes
 
-Sends a message to another user in the context of a specific conversation.
+## Configuration and Running Locally
 
-- `recipientId`: The target user's ID
-- `conversationId`: The ID of the conversation
-- `content`: The message content (text)
-
-### 🖥️ Frontend nad branches
-
-The frontend is developed using **React** and maintained in a separate `client` branch.
-
-- `api/development` — backend (API) development branch, contains the latest backend changes.
-- `client` — frontend development branch, containing the React app.
-- `development` — integration branch where the backend (`api/development`) and frontend (`client`) branches are merged.
-
-**Note:** The `development` branch may contain an older version of the backend API compared to `api/development`, since it integrates both backend and frontend changes.  
-Similarly, the frontend in `client` may be ahead of what is currently merged into `development`.
-
-## ⚙️ Configuration and Running Locally
-
-### Requirements
+#### Requirements
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 - PostgreSQL
 
-### Example `appsettings.json`
+#### Configuration
 
-<<<<<<< HEAD
+Configure your application settings in appsettings.json:
+
 ```json
 {
   "Logging": {
     "LogLevel": {
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning"
-=======
-    {
-      "ConnectionStrings": {
-        "DefaultConnection": "Host=string;Database=string;Port=string;Username=string;Password=string"
-      },
-      "JWT": {
-        "Issuer": "string",
-        "Audience": "string",
-        "SigningKey": "your-signing-key-here"
-      },
-      "AllowedHosts": "*"
->>>>>>> api/feature/development
     }
   },
   "ConnectionStrings": {
@@ -115,7 +106,61 @@ Similarly, the frontend in `client` may be ahead of what is currently merged int
 }
 ```
 
-## 💬 Logging with Serilog
+####Running the Application
+
+1.  Clone the repository
+2.  Apply migrations to your database:
+    `dotnet ef database update`
+3.  Run the application:
+    `dotnet run --project ChatCommunicator.API`
+
+## API Documentation
+
+You can access the full API documentation here:  
+🔗 **[https://radoslawsmoronski.github.io/communicator/](https://radoslawsmoronski.github.io/communicator/)**
+
+The documentation provides details on endpoints, models, responses, and authentication.
+
+## SignalR Integration
+
+ChatCommunicator leverages SignalR for real-time communication between clients. This enables instant message delivery, typing indicators, and read receipts.
+
+##### Chat Hub
+
+The application exposes a ChatHub that handles real-time messaging:
+`/ChatHub`
+
+##### Authentication
+
+All SignalR connections require authentication. Clients must provide a valid JWT token as a query parameter:
+
+`/ChatHub?access_token=your_jwt_token_here`
+
+#### Available Methods
+
+| Method      | Parameters                           | Description                                                     |
+| ----------- | ------------------------------------ | --------------------------------------------------------------- |
+| SendMessage | recipientId, conversationId, content | Sends a message to a specific recipient in a conversation       |
+| ReadMessage | recipientId, conversationId          | Marks messages as read up to the last message in a conversation |
+
+#### Client Callbacks
+
+The server invokes these methods on connected clients:
+
+| Method         | Parameters                                              | Description                                                    |
+| -------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
+| ReceiveMessage | messageId, conversationId, senderId, content, timestamp | Notifies clients when a new message is received                |
+| MessageRead    | messageId                                               | Notifies clients when a message has been read by the recipient |
+
+#### Connection Management
+
+The application tracks user connections using the UsersConnectionService:
+
+- Users can be connected from multiple devices simultaneously
+- When a user disconnects, their connection is automatically removed
+- Messages are delivered to all active connections of the recipient
+
+## Logging with Serilog
 
 The project uses Serilog for structured logging. Logs are saved to the console and to a PostgreSQL database (table Logs).
 
@@ -123,38 +168,33 @@ Additionally, an automatic cleanup service runs periodically to delete log entri
 
 The table is created automatically if it does not exist.
 
-## 🧪 Testing
+## Testing
 
 Unit tests are located in the `ChatCommunicator.Tests` project.
 
-They cover key components such as:
-
-- **UserController** – user registration, login, profile management
-- **ChatManager** – messaging, conversations, chat logic
-- **FriendsManager** – friend requests and management
-- **TokenManager** – JWT token generation and validation
-
-### Testing tools used:
+#### Testing tools used:
 
 - **xUnit** – testing framework
 - **FakeItEasy** – mocking dependencies
 - **FluentAssertions** – expressive assertions
 
-### Running tests
+#### Running tests
 
 Run all tests using the command:
 
 `dotnet test`
 
-## 🚧 Project Status & Future Work
+## Project Status & Future Work
 
 This project is currently **under active development** and not yet complete. There are still several important features and improvements planned, including:
 
 - Removing friends functionality
-- Avatar editing for user profiles
-- Editing user account details
 - Potential Docker integration for easier deployment and environment management
 - Additional enhancements to improve performance and user experience
+- Account activation via email
+- Password recovery
+- User online status
+- Improved documentation for SignalR integration
 
 We welcome feedback, ideas, and contributions to help make **Chat Communicator** even better!
 
