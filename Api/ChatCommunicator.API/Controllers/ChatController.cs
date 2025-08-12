@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace ChatCommunicator.Application.Controllers
 {
-    [Route("api/chat")]
+    [Route("api/chats")]
     [ApiController]
     public class ChatController : BaseController
     {
@@ -37,29 +37,28 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Get Chats
+        /// Retrieves all chat conversations for the currently authenticated user.
         /// </summary>
         /// <remarks>
-        /// This endpoint returns all chat conversations associated with the currently authenticated user.
-        /// A valid JWT token must be included in the Authorization header. The user's ID is extracted
-        /// from the token claims and used to fetch the relevant chat data.
+        /// Requires a valid JWT token in the Authorization header. The user's ID is extracted
+        /// from the token claims and used to fetch chat data.
         ///
-        /// If the user ID is missing or not a valid GUID, a 401 Unauthorized response is returned.
-        /// Appropriate error responses are returned in case of validation failures or internal errors.
+        /// Returns 401 Unauthorized if the user ID is missing or invalid.
+        /// Returns appropriate error responses for validation failures or internal errors.
         /// </remarks>
         /// <returns>
-        /// A list of chat conversations belonging to the authenticated user, or an error response.
+        /// A list of chat conversations for the authenticated user, or an error response.
         /// </returns>
-        /// <response code="200">Successfully retrieved the list of chats.</response>
+        /// <response code="200">List of chats successfully retrieved.</response>
         /// <response code="400">Invalid input or validation error.</response>
         /// <response code="401">Unauthorized – missing or invalid JWT token.</response>
         /// <response code="500">Internal server error.</response>
         /// <example>
-        /// GET /api/chat/get-chats
+        /// GET /api/chats
         /// Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
         /// </example>
         [Authorize]
-        [HttpGet("get-chats")]
+        [HttpGet()]
         [ProducesResponseType(typeof(List<ChatDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -87,34 +86,36 @@ namespace ChatCommunicator.Application.Controllers
 
 
         /// <summary>
-        /// Get Paged Messages
+        /// Retrieves a paginated list of messages from a conversation.
         /// </summary>
         /// <remarks>
-        /// This endpoint returns a paginated list of messages from a conversation.  
-        /// If <c>fromMessageId</c> is provided, it returns messages after that ID;  
-        /// if <c>fromMessageId</c> is null, it returns an empty list (with 200 OK).  
-        /// A valid JWT token must be included in the Authorization header.  
+        /// This endpoint returns a paginated list of messages for a given conversation.
+        /// If <c>fromMessageId</c> is provided, it returns messages after that ID.
+        /// If <c>fromMessageId</c> is null, it returns an empty list (with 200 OK).
+        /// Requires a valid JWT token in the Authorization header.
         /// If <c>conversationId</c> is missing, empty, or invalid, an error response is returned.
-        /// 
-        /// Additionally, if messages are successfully retrieved and both the recipient is online 
-        /// (has active connections) and there's a last read message ID from the friend, 
-        /// a SignalR notification is sent to the recipient with the MessageRead event containing 
+        /// <br/><br/>
+        /// If messages are successfully retrieved and both the recipient is online
+        /// (has active connections) and there's a last read message ID from the friend,
+        /// a SignalR notification is sent to the recipient with the MessageRead event containing
         /// the last read message ID.
         /// </remarks>
         /// <param name="conversationId">The ID of the conversation (GUID). Required.</param>
         /// <param name="fromMessageId">The ID of the message after which to start fetching (GUID). Optional.</param>
-        /// <returns>A paged result of messages (<see cref="PagedMessagesDto"/>) or an error response.</returns>
-        /// <response code="200">Successfully retrieved the paged messages (can be empty if fromMessageId is null).</response>
+        /// <returns>
+        /// A paged result of messages (<see cref="PagedMessagesDto"/>) or an error response.
+        /// </returns>
+        /// <response code="200">Successfully retrieved the paged messages (can be empty if <c>fromMessageId</c> is null).</response>
         /// <response code="400">Invalid input or validation error.</response>
         /// <response code="401">Unauthorized – missing or invalid JWT token.</response>
         /// <response code="404">Conversation not found or access denied.</response>
         /// <response code="500">Internal server error.</response>
         /// <example>
-        /// GET /api/chat/get-paged-messages?conversationId=123e4567-e89b-12d3-a456-426614174000
+        /// GET /api/chats/{conversationId}/messages?fromMessageId=123e4567-e89b-12d3-a456-426614174000
         /// Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
         /// </example>
         [Authorize]
-        [HttpGet("get-paged-messages")]
+        [HttpGet("{conversationId}/messages")]
         [ProducesResponseType(typeof(PagedMessagesDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
