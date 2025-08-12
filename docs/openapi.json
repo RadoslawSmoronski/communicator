@@ -1,20 +1,20 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.0.4",
   "info": {
     "title": "ChatCommunicator REST API docs",
     "version": "in dev"
   },
   "paths": {
-    "/api/chat/get-chats": {
+    "/api/chats": {
       "get": {
         "tags": [
           "Chat"
         ],
-        "summary": "Get Chats",
-        "description": "This endpoint returns all chat conversations associated with the currently authenticated user.\r\nA valid JWT token must be included in the Authorization header. The user's ID is extracted\r\nfrom the token claims and used to fetch the relevant chat data.\r\n            \r\nIf the user ID is missing or not a valid GUID, a 401 Unauthorized response is returned.\r\nAppropriate error responses are returned in case of validation failures or internal errors.",
+        "summary": "Retrieves all chat conversations for the currently authenticated user.",
+        "description": "Requires a valid JWT token in the Authorization header. The user's ID is extracted\r\nfrom the token claims and used to fetch chat data.\r\n            \r\nReturns 401 Unauthorized if the user ID is missing or invalid.\r\nReturns appropriate error responses for validation failures or internal errors.",
         "responses": {
           "200": {
-            "description": "Successfully retrieved the list of chats.",
+            "description": "List of chats successfully retrieved.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -43,100 +43,30 @@
             }
           },
           "400": {
-            "description": "Invalid input or validation error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid input or validation error."
           },
           "401": {
-            "description": "Unauthorized – missing or invalid JWT token.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unauthorized – missing or invalid JWT token."
           },
           "500": {
-            "description": "Internal server error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Internal server error."
           }
         }
       }
     },
-    "/api/chat/get-paged-messages": {
+    "/api/chats/{conversationId}/messages": {
       "get": {
         "tags": [
           "Chat"
         ],
-        "summary": "Get Paged Messages",
-        "description": "This endpoint returns a paginated list of messages from a conversation.  \r\nIf `fromMessageId` is provided, it returns messages after that ID;  \r\nif `fromMessageId` is null, it returns an empty list (with 200 OK).  \r\nA valid JWT token must be included in the Authorization header.  \r\nIf `conversationId` is missing, empty, or invalid, an error response is returned.",
+        "summary": "Retrieves a paginated list of messages from a conversation.",
+        "description": "This endpoint returns a paginated list of messages for a given conversation.\r\nIf `fromMessageId` is provided, it returns messages after that ID.\r\nIf `fromMessageId` is null, it returns an empty list (with 200 OK).\r\nRequires a valid JWT token in the Authorization header.\r\nIf `conversationId` is missing, empty, or invalid, an error response is returned.\r\n\r\n\r\n\r\nIf messages are successfully retrieved and both the recipient is online\r\n(has active connections) and there's a last read message ID from the friend,\r\na SignalR notification is sent to the recipient with the MessageRead event containing\r\nthe last read message ID.",
         "parameters": [
           {
             "name": "conversationId",
-            "in": "query",
+            "in": "path",
             "description": "The ID of the conversation (GUID). Required.",
+            "required": true,
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -154,7 +84,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved the paged messages (can be empty if fromMessageId is null).",
+            "description": "Successfully retrieved the paged messages (can be empty if `fromMessageId` is null).",
             "content": {
               "text/plain": {
                 "schema": {
@@ -174,84 +104,16 @@
             }
           },
           "400": {
-            "description": "Invalid input or validation error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid input or validation error."
           },
           "401": {
-            "description": "Unauthorized – missing or invalid JWT token.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unauthorized – missing or invalid JWT token."
           },
           "404": {
-            "description": "Conversation not found or access denied.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Conversation not found or access denied."
           },
           "500": {
-            "description": "Internal server error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Internal server error."
           }
         }
       }
