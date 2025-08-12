@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using ChatCommunicator.API.Controllers;
+using ChatCommunicator.Application.Hubs;
+using ChatCommunicator.Application.Hubs.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace ChatCommunicator.Application.Controllers
@@ -16,17 +19,20 @@ namespace ChatCommunicator.Application.Controllers
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IChatService _chatService;
+        private readonly IHubContext<ChatHub, IChatClient> _chatHubContext;
         private readonly ILogger<ChatController> _logger;   
 
         public ChatController(
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
             IChatService chatManager,
+            IHubContext<ChatHub, IChatClient> chatHubContext,
             ILogger<ChatController> logger)
         {
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _chatService = chatManager;
+            _chatHubContext = chatHubContext;
             _logger = logger;
         }
 
@@ -89,6 +95,11 @@ namespace ChatCommunicator.Application.Controllers
         /// if <c>fromMessageId</c> is null, it returns an empty list (with 200 OK).  
         /// A valid JWT token must be included in the Authorization header.  
         /// If <c>conversationId</c> is missing, empty, or invalid, an error response is returned.
+        /// 
+        /// Additionally, if messages are successfully retrieved and both the recipient is online 
+        /// (has active connections) and there's a last read message ID from the friend, 
+        /// a SignalR notification is sent to the recipient with the MessageRead event containing 
+        /// the last read message ID.
         /// </remarks>
         /// <param name="conversationId">The ID of the conversation (GUID). Required.</param>
         /// <param name="fromMessageId">The ID of the message after which to start fetching (GUID). Optional.</param>
@@ -120,11 +131,24 @@ namespace ChatCommunicator.Application.Controllers
 
             var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, userId, fromMessageId);
 
-            if (result.IsSuccess)
+            if (result.IsSuccess && result.Value != null && result.Value.PagedMessagesDto != null)
             {
                 _logger.LogInformation("[GetPagedMessagesAsync] Successfully retrieved paged messages. ConversationId: {ConversationId}, FromMessageId: {FromMessageId}",
                     conversationId, fromMessageId);
-                return Ok(result.Value);
+
+
+                if (result.Value.RecipientConnectionsId != null &&
+                   result.Value.PagedMessagesDto.LastFriendReadMessageId != null)
+                {
+                    _logger.LogInformation("[GetPagedMessagesAsync] Sending MessageRead notification to recipient. RecipientConnectionsCount: {ConnectionCount}, LastReadMessageId: {LastReadMessageId}",
+                        result.Value.RecipientConnectionsId.Count,
+                        result.Value.PagedMessagesDto.LastFriendReadMessageId.Value);
+
+                    await _chatHubContext.Clients.Clients(result.Value.RecipientConnectionsId)
+                        .MessageRead(result.Value.PagedMessagesDto.LastFriendReadMessageId.Value);
+                }
+
+                return Ok(result.Value.PagedMessagesDto);
             }
 
             return HandleError(result, "GetPagedMessagesAsync", _logger);
