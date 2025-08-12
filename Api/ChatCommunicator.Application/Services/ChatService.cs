@@ -16,6 +16,7 @@ namespace ChatCommunicator.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<UserAccount> _userManager;
         private readonly IMapper _mapper;
+        private readonly IUsersConnectionService _usersConnectionService;
         private readonly ILogger<ChatService> _logger;
 
         private readonly int _messagesPageSize = 10;
@@ -23,11 +24,13 @@ namespace ChatCommunicator.Application.Services
         public ChatService(IUnitOfWork unitOfWork,
             UserManager<UserAccount> userManager,
             IMapper mapper,
+            IUsersConnectionService usersConnectionService,
             ILogger<ChatService> logger)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
+            _usersConnectionService = usersConnectionService;
             _logger = logger;
         }
 
@@ -169,7 +172,7 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<ResultT<PagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid userId, Guid? fromMessageId)
+        public async Task<ResultT<ExtendedPagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid userId, Guid? fromMessageId)
         {
             if (conversationId == Guid.Empty)
             {
@@ -186,10 +189,17 @@ namespace ChatCommunicator.Application.Services
             if (fromMessageId == null || fromMessageId == Guid.Empty)
             {
                 _logger.LogInformation("GetPagedMessagesFromMessageIdAsync called with empty fromMessageId, returning empty list");
-                return new PagedMessagesDto
+                
+                var pagedMessagesDto = new PagedMessagesDto
                 {
                     Messages = Enumerable.Empty<MessageDto>(),
                     LastFriendReadMessageId = null
+                };
+
+                return new ExtendedPagedMessagesDto
+                {
+                    PagedMessagesDto = pagedMessagesDto,
+                    RecipientConnectionsId = null
                 };
             }
 
@@ -231,10 +241,22 @@ namespace ChatCommunicator.Application.Services
                 }
 
                 _logger.LogInformation("Returning {Count} messages", messageDtos.Count);
-                return new PagedMessagesDto
+
+                var pagedMessagesDto = new PagedMessagesDto
                 {
                     Messages = messageDtos,
                     LastFriendReadMessageId = lastFriendReadMessageId
+                };
+
+                var recipientId = conversation.User1Id == userId ? conversation.User2Id : conversation.User1Id; 
+                var recipientConnectionsId = _usersConnectionService.GetUserConnectionsId(recipientId);
+
+                if (recipientConnectionsId != null && recipientConnectionsId.Count < 1) recipientConnectionsId = null;
+
+                return new ExtendedPagedMessagesDto
+                {
+                    PagedMessagesDto = pagedMessagesDto,
+                    RecipientConnectionsId = recipientConnectionsId
                 };
             }
             catch (Exception ex)

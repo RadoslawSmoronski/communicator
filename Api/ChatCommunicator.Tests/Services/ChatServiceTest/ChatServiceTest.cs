@@ -1,13 +1,14 @@
-﻿using ChatCommunicator.Infrastructure.UnitOfWork;
-using ChatCommunicator.Contracts;
-using Microsoft.AspNetCore.Identity;
-using FakeItEasy;
-using AutoMapper;
-using ChatCommunicator.Application.Services.Interfaces;
+﻿using AutoMapper;
+using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Application.Services;
-using Microsoft.Extensions.Logging;
+using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Contracts;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Models.Chat;
+using ChatCommunicator.Infrastructure.UnitOfWork;
+using FakeItEasy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 {
@@ -16,6 +17,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         protected readonly UserManager<UserAccount> _userManager;
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IChatService _chatManager;
+        protected readonly IUsersConnectionService _usersConnectionService;
         protected readonly IMapper _mapper;
         protected readonly ILogger<ChatService> _logger;
 
@@ -39,6 +41,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
         {
             _userManager = A.Fake<UserManager<UserAccount>>();
             _unitOfWork = A.Fake<IUnitOfWork>();
+            _usersConnectionService = A.Fake<IUsersConnectionService>();
             _logger = A.Fake<ILogger<ChatService>>();
 
             var configuration = new MapperConfiguration(cfg =>
@@ -48,7 +51,7 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
 
             _mapper = configuration.CreateMapper();
 
-            _chatManager = new ChatService(_unitOfWork, _userManager, _mapper, _logger);
+            _chatManager = new ChatService(_unitOfWork, _userManager, _mapper, _usersConnectionService, _logger);
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid() };
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };
             _sampleUser3 = new UserAccount { UserName = "User3Login", Id = Guid.NewGuid() };
