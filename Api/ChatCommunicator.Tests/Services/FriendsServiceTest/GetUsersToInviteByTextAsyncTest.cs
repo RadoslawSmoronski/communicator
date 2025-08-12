@@ -4,6 +4,7 @@ using FakeItEasy;
 using FluentAssertions;
 using System.Linq.Expressions;
 using MockQueryable;
+using MockQueryable.FakeItEasy;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Models.Friendship;
 
