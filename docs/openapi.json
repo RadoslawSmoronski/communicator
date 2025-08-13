@@ -5,12 +5,132 @@
     "version": "in dev"
   },
   "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Authenticates user",
+        "description": "Validates the provided login credentials. On success, returns a JWT access token and a refresh token.\r\nIf authentication fails, a detailed error is returned.",
+        "requestBody": {
+          "description": "The login credentials, including email and password.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully authenticated. Tokens returned.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoggedUserDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoggedUserDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoggedUserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid login request (e.g., malformed input)."
+          },
+          "401": {
+            "description": "Invalid email or password."
+          },
+          "500": {
+            "description": "An unexpected server error occurred."
+          }
+        }
+      }
+    },
+    "/api/auth/refresh-token": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Refresh access token",
+        "description": "Validates the provided refresh token and, if valid, issues a new access token and refresh token.",
+        "requestBody": {
+          "description": "The DTO containing the refresh token.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Access token successfully refreshed.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or malformed refresh token."
+          },
+          "401": {
+            "description": "Unauthorized or expired refresh token."
+          },
+          "500": {
+            "description": "An unexpected server error occurred."
+          }
+        }
+      }
+    },
     "/api/chats": {
       "get": {
         "tags": [
-          "Chat"
+          "Chats"
         ],
-        "summary": "Retrieves all chat conversations for the currently authenticated user.",
+        "summary": "Get chats",
         "description": "Requires a valid JWT token in the Authorization header. The user's ID is extracted\r\nfrom the token claims and used to fetch chat data.\r\n            \r\nReturns 401 Unauthorized if the user ID is missing or invalid.\r\nReturns appropriate error responses for validation failures or internal errors.",
         "responses": {
           "200": {
@@ -57,9 +177,9 @@
     "/api/chats/{conversationId}/messages": {
       "get": {
         "tags": [
-          "Chat"
+          "Chats"
         ],
-        "summary": "Retrieves a paginated list of messages from a conversation.",
+        "summary": "Get a paginated list of messages",
         "description": "This endpoint returns a paginated list of messages for a given conversation.\r\nIf `fromMessageId` is provided, it returns messages after that ID.\r\nIf `fromMessageId` is null, it returns an empty list (with 200 OK).\r\nRequires a valid JWT token in the Authorization header.\r\nIf `conversationId` is missing, empty, or invalid, an error response is returned.\r\n\r\n\r\n\r\nIf messages are successfully retrieved and both the recipient is online\r\n(has active connections) and there's a last read message ID from the friend,\r\na SignalR notification is sent to the recipient with the MessageRead event containing\r\nthe last read message ID.",
         "parameters": [
           {
@@ -909,12 +1029,12 @@
         }
       }
     },
-    "/api/user/register": {
+    "/api/users": {
       "post": {
         "tags": [
           "User"
         ],
-        "summary": "Register",
+        "summary": "Register user",
         "description": "This endpoint creates a new user using an email, username, and password. If the email already exists,\r\na conflict response is returned. On success, basic user data is returned.",
         "requestBody": {
           "description": "The registration data including email, username, and password.",
@@ -958,299 +1078,45 @@
             }
           },
           "400": {
-            "description": "Invalid registration data (e.g., password policy not met).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid registration data (e.g., password policy not met)."
           },
           "409": {
-            "description": "Email already exists.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Email already exists."
           },
           "500": {
-            "description": "An unexpected server error occurred.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "An unexpected server error occurred."
           }
         }
       }
     },
-    "/api/user/login": {
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Login",
-        "description": "This endpoint validates the provided login credentials. On success, it returns a JWT access token\r\nand a refresh token. If authentication fails, a detailed error is returned.",
-        "requestBody": {
-          "description": "The login credentials, including username and password.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User successfully authenticated. Tokens returned.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid login request (e.g., malformed input).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Invalid username or password.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "An unexpected server error occurred.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/refresh-access-token": {
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Refresh Access Token",
-        "description": "This endpoint checks the provided refresh token and issues a new access token if it's valid.",
-        "requestBody": {
-          "description": "The refresh token container.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Access token successfully refreshed.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or malformed refresh token.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized or expired refresh token.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "An unexpected server error occurred.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/user/change-username": {
+    "/api/users/{userId}/username": {
       "patch": {
         "tags": [
           "User"
         ],
         "summary": "Change Username",
         "description": "Authenticated users can change their username. The new username must be unique.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The ID of the user whose username is to be changed (from query).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
-          "description": "The new username to assign.",
+          "description": "The new username to assign (from body).",
           "content": {
             "application/json": {
               "schema": {
@@ -1291,95 +1157,46 @@
             }
           },
           "400": {
-            "description": "Invalid or missing username.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid or missing username."
           },
           "401": {
-            "description": "User is not authenticated or token is invalid.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User is not authenticated or token is invalid."
           },
           "409": {
-            "description": "The username is already taken.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "The username is already taken."
           },
           "500": {
-            "description": "An unexpected server error occurred.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "An unexpected server error occurred."
           }
         }
       }
     },
-    "/api/user/change-password": {
+    "/api/users/{userId}/password": {
       "patch": {
         "tags": [
           "User"
         ],
         "summary": "Change Password",
         "description": "Authenticated users can change their password by providing the old password and a new password.\r\nThe new password must meet the required criteria.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The ID of the user whose password is to be changed (from query).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "description": "The DTO containing the old and new passwords.",
           "content": {
@@ -1405,75 +1222,43 @@
             "description": "Password successfully changed."
           },
           "400": {
-            "description": "Invalid input (e.g., missing user ID, invalid old or new password).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid input (e.g., missing user ID, invalid old or new password)."
           },
           "401": {
-            "description": "User is not authenticated or token is invalid.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User is not authenticated, token is invalid, or old password is incorrect."
           },
           "500": {
-            "description": "An unexpected server error occurred.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "An unexpected server error occurred."
           }
         }
       }
     },
-    "/api/user/avatar": {
+    "/api/users/{userId}/avatar": {
       "post": {
         "tags": [
           "User"
         ],
         "summary": "Upload Avatar",
-        "description": "Authenticated users can upload a new avatar image. \r\nThe uploaded file must meet specific requirements:\r\n\r\n- Maximum file size: 5 MB.\r\n\r\n- Maximum dimensions: 500x500 pixels.\r\n\r\n- Supported formats: JPEG, PNG, etc.",
+        "description": "Authenticated users can upload a new avatar image.\r\n\r\nThe uploaded file must meet the following requirements:\r\n<ul><li>Maximum file size: 5 MB</li><li>Maximum dimensions: 500x500 pixels</li><li>Supported formats: JPEG, PNG, etc.</li></ul>\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The ID of the user uploading the avatar (from query).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -1519,104 +1304,19 @@
             }
           },
           "400": {
-            "description": "Invalid file (e.g., empty, too big, wrong format, too large, too small).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid file (e.g., empty, too big, wrong format, too large, too small)."
           },
           "401": {
-            "description": "User is not authenticated or token is invalid.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User is not authenticated or token is invalid."
           },
           "404": {
-            "description": "User not found in the system.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User not found in the system."
           },
           "409": {
-            "description": "User already has an avatar set.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User already has an avatar set."
           },
           "500": {
-            "description": "An unexpected server error occurred.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "An unexpected server error occurred."
           }
         }
       },
@@ -1625,7 +1325,26 @@
           "User"
         ],
         "summary": "Delete Avatar",
-        "description": "Authenticated users can delete their avatar. \r\nThis action removes the avatar associated with the user account.",
+        "description": "Authenticated users can delete their avatar.\r\n\r\nThis action removes the avatar associated with the user account.\r\n\r\n\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The ID of the user whose avatar is to be deleted (from query).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Avatar successfully deleted.",
@@ -1648,104 +1367,19 @@
             }
           },
           "400": {
-            "description": "Invalid or missing user ID.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid or missing user ID."
           },
           "401": {
-            "description": "Unauthorized",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User is not authenticated or token is invalid."
           },
           "404": {
-            "description": "User not found in the system.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User not found in the system."
           },
           "409": {
-            "description": "No avatar is set for this user, so there is nothing to delete.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "No avatar is set for this user, so there is nothing to delete."
           },
           "500": {
-            "description": "An unexpected server error occurred.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "An unexpected server error occurred."
           }
         }
       },
@@ -1754,7 +1388,26 @@
           "User"
         ],
         "summary": "Change Avatar",
-        "description": "Authenticated users can change their avatar by uploading a new image. \r\nThe uploaded file must meet specific requirements:\r\n\r\n- Maximum file size: 5 MB.\r\n\r\n- Maximum dimensions: 500x500 pixels.\r\n\r\n- Supported formats: JPEG, PNG, etc.",
+        "description": "Authenticated users can change their avatar by uploading a new image.\r\n\r\nThe uploaded file must meet the following requirements:\r\n<ul><li>Maximum file size: 5 MB</li><li>Maximum dimensions: 500x500 pixels</li><li>Supported formats: JPEG, PNG, etc.</li></ul>\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "The ID of the user whose avatar is to be changed (from query).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -1800,104 +1453,19 @@
             }
           },
           "400": {
-            "description": "Invalid file (e.g., empty, too big, wrong format, too large, too small).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid file (e.g., empty, too big, wrong format, too large, too small)."
           },
           "401": {
-            "description": "User is not authenticated or token is invalid.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User is not authenticated or token is invalid."
           },
           "404": {
-            "description": "User not found in the system.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User not found in the system."
           },
           "409": {
-            "description": "User does not have an avatar set to change.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "User does not have an avatar set to change."
           },
           "500": {
-            "description": "An unexpected server error occurred.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "An unexpected server error occurred."
           }
         }
       }
