@@ -1,5 +1,6 @@
 ﻿using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
@@ -17,7 +18,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
                 .Returns(Task.FromResult(IdentityResult.Success));
 
-            var expectedResult = _mapper.Map<SimpleUserDto>(_sampleUser1);
+            var expectedResult = _mapper.Map<RegisteredDto>(_sampleRegistredDtoUser1);
 
             //Act
             var result = await _accountManager.RegisterAsync(_sampleUser1RegisterDto);
@@ -42,7 +43,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
                     })
                 ));
 
-            var expectedResult = _mapper.Map<SimpleUserDto>(_sampleUser1);
+            var expectedResult = _mapper.Map<RegisteredDto>(_sampleRegistredDtoUser1);
 
             //Act
             var result = await _accountManager.RegisterAsync(_sampleUser1RegisterDto);
@@ -68,7 +69,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
                     })
                 ));
 
-            var expectedResult = _mapper.Map<SimpleUserDto>(_sampleUser1);
+            var expectedResult = _mapper.Map<RegisteredDto>(_sampleRegistredDtoUser1);
 
             //Act
             var result = await _accountManager.RegisterAsync(_sampleUser1RegisterDto);
@@ -88,7 +89,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             A.CallTo(() => _userManager.CreateAsync(A<UserAccount>._, A<string>._))
                 .Throws(new Exception());
 
-            var expectedResult = _mapper.Map<SimpleUserDto>(_sampleUser1);
+            var expectedResult = _mapper.Map<RegisteredDto>(_sampleRegistredDtoUser1);
 
             //Act
             var result = await _accountManager.RegisterAsync(_sampleUser1RegisterDto);

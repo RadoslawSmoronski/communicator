@@ -2,10 +2,12 @@
 using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog.Context;
 
 namespace ChatCommunicator.Application.Controllers
 {
@@ -14,14 +16,17 @@ namespace ChatCommunicator.Application.Controllers
     public class UsersController : BaseController
     {
         private readonly ITokenService _tokenManager;
+        private readonly IFriendsService _friendsService;
         private readonly IAccountManager _accountManager;
         private readonly ILogger<UsersController> _logger;
 
         public UsersController(ITokenService tokenManager,
+            IFriendsService friendsService,
             IAccountManager accountManager,
             ILogger<UsersController> logger)
         {
             _tokenManager = tokenManager;
+            _friendsService = friendsService;
             _accountManager = accountManager;
             _logger = logger;
         }
@@ -50,7 +55,7 @@ namespace ChatCommunicator.Application.Controllers
         /// </code>
         /// </example>
         [HttpPost()]
-        [ProducesResponseType(typeof(SimpleUserDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(RegisteredDto), StatusCodes.Status201Created)]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
         {
             var result = await _accountManager.RegisterAsync(registerDto);
@@ -88,7 +93,7 @@ namespace ChatCommunicator.Application.Controllers
         [Authorize]
         [HttpPatch("{userId}/username")]
         [ProducesResponseType<string>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangeUsernameAsync([FromQuery] Guid userId, [FromBody] string newUsername)
+        public async Task<IActionResult> ChangeUsernameAsync([FromRoute] Guid userId, [FromBody] string newUsername)
         {
             var validate = ValidateAndGetUserId("ChangeUsernameAsync", _logger, out Guid loggedUserId);
 
@@ -137,7 +142,7 @@ namespace ChatCommunicator.Application.Controllers
         [Authorize]
         [HttpPatch("{userId}/password")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangePasswordAsync([FromQuery] Guid userId, [FromBody] ChangePasswordDto changePasswordDto)
+        public async Task<IActionResult> ChangePasswordAsync([FromRoute] Guid userId, [FromBody] ChangePasswordDto changePasswordDto)
         {
             var validate = ValidateAndGetUserId("ChangePasswordAsync", _logger, out Guid loggerUserId);
 
@@ -204,7 +209,7 @@ namespace ChatCommunicator.Application.Controllers
         [HttpPost("{userId}/avatar")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType<string>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadAvatarAsync([FromQuery] Guid userId, [FromForm] UploadAvatarDto uploadAvatarDto)
+        public async Task<IActionResult> UploadAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarDto uploadAvatarDto)
         {
             var validate = ValidateAndGetUserId("UploadAvatarAsync", _logger, out Guid loggerUserId);
 
@@ -249,7 +254,7 @@ namespace ChatCommunicator.Application.Controllers
         [Authorize]
         [HttpDelete("{userId}/avatar")]
         [ProducesResponseType<string>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> DeleteAvatarAsync([FromQuery] Guid userId)
+        public async Task<IActionResult> DeleteAvatarAsync([FromRoute] Guid userId)
         {
             var validate = ValidateAndGetUserId("DeleteAvatarAsync", _logger, out Guid loggedUserId);
 
@@ -306,7 +311,7 @@ namespace ChatCommunicator.Application.Controllers
         [HttpPut("{userId}/avatar")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType<string>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangeAvatarAsync([FromQuery] Guid userId, [FromForm] UploadAvatarDto uploadAvatarDto)
+        public async Task<IActionResult> ChangeAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarDto uploadAvatarDto)
         {
             var validate = ValidateAndGetUserId("ChangeAvatarAsync", _logger, out Guid loggedUserId);
 
@@ -323,6 +328,143 @@ namespace ChatCommunicator.Application.Controllers
             }
 
             return HandleError(result, "ChangeAvatarAsync", _logger);
+        }
+
+        /// <summary>
+        /// Get Friend Invitations
+        /// </summary>
+        /// <remarks>
+        /// Returns all pending friend invitations for the specified user.
+        /// If the user does not exist or the input is invalid, appropriate error responses are returned.
+        /// </remarks>
+        /// <param name="userId">The GUID of the user whose invitations are to be retrieved (from query).</param>
+        /// <returns>
+        /// A list of users who sent invitations, or an error response.
+        /// </returns>
+        /// <response code="200">Invitations retrieved successfully.</response>
+        /// <response code="400">Invalid user ID (e.g., malformed GUID).</response>
+        /// <response code="401">Unauthorized - JWT token required.</response>
+        /// <response code="404">User not found.</response>
+        /// <response code="500">Unexpected server error.</response>
+        /// <example>
+        /// <code>
+        /// GET /api/users/{userId}/friend-invitations?userId=3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// Authorization: Bearer {token}
+        /// </code>
+        /// </example>
+        [Authorize]
+        [HttpGet("{userId}/friend-invitations")]
+        [ProducesResponseType(typeof(List<SimpleUserWithAvatarDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetFriendInvitationsAsync([FromRoute] Guid userId)
+        {
+            var validate = ValidateAndGetUserId("GetFriendInvitationsAsync", _logger, out Guid loggedUserId);
+
+            var result = await _friendsService.GetInvitationsAsync(userId);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[GetFriendInvitationsAsync] Successfully retrieved invitations for UserId: {UserId}. Count: {Count}",
+                    userId, result.Value?.Count() ?? 0);
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "GetFriendInvitationsAsync", _logger);
+        }
+
+        /// <summary>
+        /// Get Users
+        /// </summary>
+        /// <remarks>
+        /// Authenticated users can search for other users by username or display name.
+        /// The search excludes users who are already friends or have already been invited.
+        /// Requires a valid JWT token with user GUID.
+        /// </remarks>
+        /// <param name="search">Text to search users by.</param>
+        /// <param name="invitableFor">The GUID of the user for whom to find invitable users (required).</param>
+        /// <returns>
+        /// List of users matching the search criteria who are available for invitation, or an error response.
+        /// </returns>
+        /// <response code="200">Users retrieved successfully.</response>
+        /// <response code="400">Invalid request (e.g., missing or malformed input).</response>
+        /// <response code="401">Unauthorized - JWT token missing or invalid.</response>
+        /// <response code="404">No matching users found.</response>
+        /// <response code="500">Unexpected server error.</response>
+        /// <example>
+        /// <code>
+        /// GET /api/users/{userId}?search=john&amp;invitableFor=3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// Authorization: Bearer {token}
+        /// </code>
+        /// </example>
+        [Authorize]
+        [HttpGet("{userId}")]
+        [ProducesResponseType(typeof(List<UserToInviteDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUsersAsync([FromRoute] string search, [FromQuery] Guid invitableFor)
+        {
+            //REFACTOR
+            if (invitableFor == Guid.Empty)
+            {
+                return Problem(
+                    statusCode: 400,
+                    title: "Bad Request",
+                    detail: "The 'invitableFor' query parameter is required and must be a valid GUID. Other search functionality is currently not supported."
+                );
+            }
+            //REFACTOR
+
+            var validate = ValidateAndGetUserId("GetUsersAsync", _logger, out Guid userId);
+
+            if (validate != null)
+            {
+                return validate;
+            }
+
+            var result = await _friendsService.GetUsersToInviteByTextAsync(invitableFor, search); //REFACTOR
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[GetUsersAsync] Successfully retrieved users to invite for UserId: {UserId}, SearchText: {Text}. Count: {Count}",
+                    userId, search, result.Value?.Count() ?? 0);
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "GetUsersToInviteByTextAsync", _logger);
+        }
+
+        /// <summary>
+        /// Get Friends
+        /// </summary>
+        /// <remarks>
+        /// Fetches all users marked as friends of the specified user GUID.
+        /// Returns errors for invalid input or unexpected issues.
+        /// </remarks>
+        /// <param name="userId">The GUID of the user whose friends are to be retrieved (from query).</param>
+        /// <returns>
+        /// List of friends or an error response.
+        /// </returns>
+        /// <response code="200">Friends list retrieved successfully.</response>
+        /// <response code="400">Invalid user ID.</response>
+        /// <response code="401">Unauthorized - JWT token required.</response>
+        /// <response code="500">Unexpected server error.</response>
+        /// <example>
+        /// <code>
+        /// GET /api/users/{userId}/friends?userId=3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// Authorization: Bearer {token}
+        /// </code>
+        /// </example>
+        [Authorize]
+        [HttpGet("{userId}/friends")]
+        [ProducesResponseType(typeof(List<SimpleUserWithAvatarDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetFriendsAsync([FromRoute] Guid userId)
+        {
+            var result = await _friendsService.GetFriendsAsync(userId);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[GetFriendsAsync] Friends list fetched successfully. UserId: {UserId}", userId);
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "GetFriendsAsync", _logger);
         }
 
     }

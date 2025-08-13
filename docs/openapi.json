@@ -238,13 +238,13 @@
         }
       }
     },
-    "/api/friends/send-invite": {
+    "/api/friend-invitations": {
       "post": {
         "tags": [
-          "Friends"
+          "FriendInvitations"
         ],
         "summary": "Send Invite",
-        "description": "This endpoint allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.\r\nReturns a ChatCommunicator.Contracts.Dtos.Friendships.SendInviteDto object containing the invitation ID on success, or an error response on failure.",
+        "description": "Allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.\r\nReturns a ChatCommunicator.Contracts.Dtos.Friendships.SendInviteDto object containing the invitation ID on success, or an error response on failure.",
         "requestBody": {
           "description": "Invitation data including sender and recipient GUIDs.",
           "content": {
@@ -287,120 +287,35 @@
             }
           },
           "400": {
-            "description": "Invalid invitation data (e.g., malformed or missing GUIDs).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid invitation data (e.g., malformed or missing GUIDs)."
           },
           "401": {
-            "description": "Unauthorized - JWT token required.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unauthorized - JWT token required."
           },
           "404": {
-            "description": "Recipient user not found.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Recipient user not found."
           },
           "409": {
-            "description": "Conflict (e.g., invitation already exists).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Conflict (e.g., invitation already exists)."
           },
           "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unexpected server error."
           }
         }
       }
     },
-    "/api/friends/get-invitations/{userId}": {
-      "get": {
+    "/api/friend-invitations/{friendInvitationId}/decline": {
+      "post": {
         "tags": [
-          "Friends"
+          "FriendInvitations"
         ],
-        "summary": "Get Invitations",
-        "description": "Returns all pending friend invitations for the specified user GUID.\r\nIf the user does not exist or input is invalid, returns appropriate error responses.",
+        "summary": "Decline Invite",
+        "description": "Allows an authenticated user to decline a friend invitation by providing the invitation ID, sender and recipient GUIDs.\r\nReturns appropriate errors if the invitation is invalid, already handled, or missing.",
         "parameters": [
           {
-            "name": "userId",
+            "name": "friendInvitationId",
             "in": "path",
-            "description": "GUID of the user whose invitations to retrieve.",
+            "description": "The unique identifier of the friend invitation to decline.",
             "required": true,
             "schema": {
               "type": "string",
@@ -408,257 +323,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Invitations retrieved successfully.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid user ID (e.g., malformed GUID).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - JWT token required.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User not found.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/friends/get-users-to-invite-by-text/{text}": {
-      "get": {
-        "tags": [
-          "Friends"
-        ],
-        "summary": "Get Users to Invite by Text",
-        "description": "Authenticated users can search for other users by username or display name.\r\nThe search excludes users who are already friends or already invited.\r\nRequires a valid JWT token with user GUID.",
-        "parameters": [
-          {
-            "name": "text",
-            "in": "path",
-            "description": "Text to search users by.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Users retrieved successfully.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request (e.g., empty or malformed input).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - JWT token missing or invalid.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No matching users found.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/friends/deceline-invite": {
-      "post": {
-        "tags": [
-          "Friends"
-        ],
-        "summary": "Deceline Invite",
-        "description": "Allows an authenticated user to decline a friend invitation by providing sender and recipient GUIDs.\r\nReturns appropriate errors if the invitation is invalid, already handled, or missing.",
         "requestBody": {
           "description": "Invitation data with sender and recipient GUIDs.",
           "content": {
@@ -684,95 +348,37 @@
             "description": "Invitation declined successfully."
           },
           "400": {
-            "description": "Invalid data (e.g., malformed GUIDs).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid data (e.g., malformed GUIDs)."
           },
           "401": {
-            "description": "Unauthorized - JWT token required.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unauthorized - JWT token required."
           },
           "404": {
-            "description": "Invitation not found or already declined.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invitation not found or already declined."
           },
           "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unexpected server error."
           }
         }
-      }
-    },
-    "/api/friends/accept-invite": {
-      "post": {
+      },
+      "patch": {
         "tags": [
-          "Friends"
+          "FriendInvitations"
         ],
-        "summary": "Accept Invite",
-        "description": "Allows an authenticated user to accept a friend invitation by providing sender and recipient GUIDs.\r\nOn success, users are added to each other's friend lists and an ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto object is returned.\r\nThe returned object includes the friendship ID and the conversation ID.\r\nReturns errors for invalid input, not found invitations, or conflicts.",
+        "summary": "Decline Invite",
+        "description": "Allows an authenticated user to decline a friend invitation by providing the invitation ID, sender and recipient GUIDs.\r\nReturns appropriate errors if the invitation is invalid, already handled, or missing.",
+        "parameters": [
+          {
+            "name": "friendInvitationId",
+            "in": "path",
+            "description": "The unique identifier of the friend invitation to decline.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Invitation data with sender and recipient GUIDs.",
           "content": {
@@ -794,141 +400,36 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "Invitation accepted; users are now friends. Returns ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              }
-            }
+          "200": {
+            "description": "Invitation declined successfully."
           },
           "400": {
-            "description": "Invalid data provided.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid data (e.g., malformed GUIDs)."
           },
           "401": {
-            "description": "Unauthorized - JWT token required.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unauthorized - JWT token required."
           },
           "404": {
-            "description": "Invitation not found.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict - users already friends or invitation accepted.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invitation not found or already declined."
           },
           "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unexpected server error."
           }
         }
       }
     },
-    "/api/friends/get-friends/{userId}": {
-      "get": {
+    "/api/friend-invitations/{friendInvitationId}/accept": {
+      "post": {
         "tags": [
-          "Friends"
+          "FriendInvitations"
         ],
-        "summary": "Get Friends",
-        "description": "Fetches all users marked as friends of the specified user GUID.\r\nReturns errors for invalid input or unexpected issues.",
+        "summary": "Accept Friend Invitation",
+        "description": "Allows an authenticated user to accept a friend invitation by providing the invitation ID, sender's and recipient's GUIDs.\r\nOn success, both users are added to each other's friend lists and a conversation is created between them.\r\nReturns an ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto object containing the friendship ID and the conversation ID.\r\nReturns errors for invalid input, not found invitations, or conflicts (e.g., already friends).",
         "parameters": [
           {
-            "name": "userId",
+            "name": "friendInvitationId",
             "in": "path",
-            "description": "GUID of the user whose friends to retrieve.",
+            "description": "The unique identifier of the friend invitation to accept.",
             "required": true,
             "schema": {
               "type": "string",
@@ -936,95 +437,137 @@
             }
           }
         ],
+        "requestBody": {
+          "description": "Invitation data including sender and recipient GUIDs.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteDto"
+              }
+            }
+          }
+        },
         "responses": {
-          "200": {
-            "description": "Friends list retrieved successfully.",
+          "201": {
+            "description": "Invitation accepted; users are now friends and a conversation is created. Returns ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto.",
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
-                  }
+                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
-                  }
+                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
-                  }
+                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid user ID.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Invalid data provided (e.g., malformed or missing GUIDs)."
           },
           "401": {
-            "description": "Unauthorized - JWT token required.",
+            "description": "Unauthorized - JWT token required."
+          },
+          "404": {
+            "description": "Invitation not found."
+          },
+          "409": {
+            "description": "Conflict - users already friends or invitation already accepted."
+          },
+          "500": {
+            "description": "Unexpected server error."
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "FriendInvitations"
+        ],
+        "summary": "Accept Friend Invitation",
+        "description": "Allows an authenticated user to accept a friend invitation by providing the invitation ID, sender's and recipient's GUIDs.\r\nOn success, both users are added to each other's friend lists and a conversation is created between them.\r\nReturns an ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto object containing the friendship ID and the conversation ID.\r\nReturns errors for invalid input, not found invitations, or conflicts (e.g., already friends).",
+        "parameters": [
+          {
+            "name": "friendInvitationId",
+            "in": "path",
+            "description": "The unique identifier of the friend invitation to accept.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Invitation data including sender and recipient GUIDs.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invitation accepted; users are now friends and a conversation is created. Returns ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto.",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
                 }
               }
             }
           },
+          "400": {
+            "description": "Invalid data provided (e.g., malformed or missing GUIDs)."
+          },
+          "401": {
+            "description": "Unauthorized - JWT token required."
+          },
+          "404": {
+            "description": "Invitation not found."
+          },
+          "409": {
+            "description": "Conflict - users already friends or invitation already accepted."
+          },
           "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+            "description": "Unexpected server error."
           }
         }
       }
@@ -1032,7 +575,7 @@
     "/api/users": {
       "post": {
         "tags": [
-          "User"
+          "Users"
         ],
         "summary": "Register user",
         "description": "This endpoint creates a new user using an email, username, and password. If the email already exists,\r\na conflict response is returned. On success, basic user data is returned.",
@@ -1092,26 +635,19 @@
     "/api/users/{userId}/username": {
       "patch": {
         "tags": [
-          "User"
+          "Users"
         ],
         "summary": "Change Username",
         "description": "Authenticated users can change their username. The new username must be unique.",
         "parameters": [
           {
             "name": "userId",
-            "in": "query",
+            "in": "path",
             "description": "The ID of the user whose username is to be changed (from query).",
+            "required": true,
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -1174,26 +710,19 @@
     "/api/users/{userId}/password": {
       "patch": {
         "tags": [
-          "User"
+          "Users"
         ],
         "summary": "Change Password",
         "description": "Authenticated users can change their password by providing the old password and a new password.\r\nThe new password must meet the required criteria.",
         "parameters": [
           {
             "name": "userId",
-            "in": "query",
+            "in": "path",
             "description": "The ID of the user whose password is to be changed (from query).",
+            "required": true,
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -1236,26 +765,19 @@
     "/api/users/{userId}/avatar": {
       "post": {
         "tags": [
-          "User"
+          "Users"
         ],
         "summary": "Upload Avatar",
         "description": "Authenticated users can upload a new avatar image.\r\n\r\nThe uploaded file must meet the following requirements:\r\n<ul><li>Maximum file size: 5 MB</li><li>Maximum dimensions: 500x500 pixels</li><li>Supported formats: JPEG, PNG, etc.</li></ul>\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
         "parameters": [
           {
             "name": "userId",
-            "in": "query",
+            "in": "path",
             "description": "The ID of the user uploading the avatar (from query).",
+            "required": true,
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -1322,26 +844,19 @@
       },
       "delete": {
         "tags": [
-          "User"
+          "Users"
         ],
         "summary": "Delete Avatar",
         "description": "Authenticated users can delete their avatar.\r\n\r\nThis action removes the avatar associated with the user account.\r\n\r\n\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
         "parameters": [
           {
             "name": "userId",
-            "in": "query",
+            "in": "path",
             "description": "The ID of the user whose avatar is to be deleted (from query).",
+            "required": true,
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -1385,26 +900,19 @@
       },
       "put": {
         "tags": [
-          "User"
+          "Users"
         ],
         "summary": "Change Avatar",
         "description": "Authenticated users can change their avatar by uploading a new image.\r\n\r\nThe uploaded file must meet the following requirements:\r\n<ul><li>Maximum file size: 5 MB</li><li>Maximum dimensions: 500x500 pixels</li><li>Supported formats: JPEG, PNG, etc.</li></ul>\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
         "parameters": [
           {
             "name": "userId",
-            "in": "query",
+            "in": "path",
             "description": "The ID of the user whose avatar is to be changed (from query).",
+            "required": true,
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -1466,6 +974,211 @@
           },
           "500": {
             "description": "An unexpected server error occurred."
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/friend-invitations": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get Friend Invitations",
+        "description": "Returns all pending friend invitations for the specified user.\r\nIf the user does not exist or the input is invalid, appropriate error responses are returned.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The GUID of the user whose invitations are to be retrieved (from query).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invitations retrieved successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user ID (e.g., malformed GUID)."
+          },
+          "401": {
+            "description": "Unauthorized - JWT token required."
+          },
+          "404": {
+            "description": "User not found."
+          },
+          "500": {
+            "description": "Unexpected server error."
+          }
+        }
+      }
+    },
+    "/api/users/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get Users",
+        "description": "Authenticated users can search for other users by username or display name.\r\nThe search excludes users who are already friends or have already been invited.\r\nRequires a valid JWT token with user GUID.",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "path",
+            "description": "Text to search users by.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitableFor",
+            "in": "query",
+            "description": "The GUID of the user for whom to find invitable users (required).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserToInviteDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserToInviteDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserToInviteDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g., missing or malformed input)."
+          },
+          "401": {
+            "description": "Unauthorized - JWT token missing or invalid."
+          },
+          "404": {
+            "description": "No matching users found."
+          },
+          "500": {
+            "description": "Unexpected server error."
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/friends": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get Friends",
+        "description": "Fetches all users marked as friends of the specified user GUID.\r\nReturns errors for invalid input or unexpected issues.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The GUID of the user whose friends are to be retrieved (from query).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Friends list retrieved successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user ID."
+          },
+          "401": {
+            "description": "Unauthorized - JWT token required."
+          },
+          "500": {
+            "description": "Unexpected server error."
           }
         }
       }
@@ -1675,33 +1388,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "nullable": true
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "detail": {
-            "type": "string",
-            "nullable": true
-          },
-          "instance": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": { }
       },
       "RefreshAccessTokenDto": {
         "required": [

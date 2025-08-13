@@ -36,7 +36,7 @@ namespace ChatCommunicator.Application.Managers
             _logger = logger;
         }
 
-        public async Task<ResultT<SimpleUserDto>> RegisterAsync(RegisterDto registerDto)
+        public async Task<ResultT<RegisteredDto>> RegisterAsync(RegisterDto registerDto)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace ChatCommunicator.Application.Managers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User registered successfully: {Email}", registerDto.Email);
-                    var dto = _mapper.Map<SimpleUserDto>(user);
+                    var dto = _mapper.Map<RegisteredDto>(user);
                     return dto;
                 }
 

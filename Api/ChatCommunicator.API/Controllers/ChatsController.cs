@@ -104,7 +104,7 @@ namespace ChatCommunicator.Application.Controllers
         [Authorize]
         [HttpGet("{conversationId}/messages")]
         [ProducesResponseType(typeof(PagedMessagesDto), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPagedMessagesAsync(Guid conversationId, Guid? fromMessageId)
+        public async Task<IActionResult> GetPagedMessagesAsync([FromRoute]Guid conversationId, [FromQuery] Guid? fromMessageId)
         {
             var validate = ValidateAndGetUserId("GetPagedMessagesAsync", _logger, out Guid userId);
 

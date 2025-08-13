@@ -28,6 +28,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         protected readonly UserAccount _sampleUserWithAvatar;
 
         protected readonly RegisterDto _sampleUser1RegisterDto;
+        protected readonly RegisteredDto _sampleRegistredDtoUser1;
 
         protected const string SAMPLE_STRING_GUID = "12345678-1234-1234-1234-123456789abc";
         protected const string SAMPLE_STRING_EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
@@ -56,6 +57,8 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
             _sampleUser1RegisterDto = _mapper.Map<RegisterDto>(_sampleUser1);
             _sampleUser1RegisterDto.Password = "test";
+
+            _sampleRegistredDtoUser1 = _mapper.Map<RegisteredDto>(_sampleUser1);
         }
     }
 }
