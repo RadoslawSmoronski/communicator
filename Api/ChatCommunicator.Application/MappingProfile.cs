@@ -13,6 +13,7 @@ namespace ChatCommunicator.Contracts
         {
             CreateMap<UserAccount, SimpleUserDto>();
             CreateMap<UserAccount, RegisterDto>();
+            CreateMap<UserAccount, RegisteredDto>();
             CreateMap<Message, MessageDto>()
                 .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.Id.ToString()))
                 .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId.ToString()))

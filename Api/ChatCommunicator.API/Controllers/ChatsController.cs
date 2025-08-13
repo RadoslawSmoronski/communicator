@@ -1,43 +1,34 @@
-﻿using AutoMapper;
-using ChatCommunicator.API.Controllers;
+﻿using ChatCommunicator.API.Controllers;
 using ChatCommunicator.Application.Hubs;
 using ChatCommunicator.Application.Hubs.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos.Chat;
-using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using System.Security.Claims;
 
 namespace ChatCommunicator.Application.Controllers
 {
     [Route("api/chats")]
     [ApiController]
-    public class ChatController : BaseController
+    public class ChatsController : BaseController
     {
-        private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IChatService _chatService;
         private readonly IHubContext<ChatHub, IChatClient> _chatHubContext;
-        private readonly ILogger<ChatController> _logger;   
+        private readonly ILogger<ChatsController> _logger;   
 
-        public ChatController(
-            IMapper mapper,
-            IHttpContextAccessor httpContextAccessor,
+        public ChatsController(
             IChatService chatManager,
             IHubContext<ChatHub, IChatClient> chatHubContext,
-            ILogger<ChatController> logger)
+            ILogger<ChatsController> logger)
         {
-            _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
             _chatService = chatManager;
             _chatHubContext = chatHubContext;
             _logger = logger;
         }
 
         /// <summary>
-        /// Retrieves all chat conversations for the currently authenticated user.
+        /// Get chats
         /// </summary>
         /// <remarks>
         /// Requires a valid JWT token in the Authorization header. The user's ID is extracted
@@ -60,10 +51,6 @@ namespace ChatCommunicator.Application.Controllers
         [Authorize]
         [HttpGet()]
         [ProducesResponseType(typeof(List<ChatDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetChatsAsync()
         {
             var validate = ValidateAndGetUserId("GetChatsAsync", _logger, out Guid userId);
@@ -86,7 +73,7 @@ namespace ChatCommunicator.Application.Controllers
 
 
         /// <summary>
-        /// Retrieves a paginated list of messages from a conversation.
+        /// Get a paginated list of messages
         /// </summary>
         /// <remarks>
         /// This endpoint returns a paginated list of messages for a given conversation.
@@ -117,11 +104,7 @@ namespace ChatCommunicator.Application.Controllers
         [Authorize]
         [HttpGet("{conversationId}/messages")]
         [ProducesResponseType(typeof(PagedMessagesDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetPagedMessagesAsync(Guid conversationId, Guid? fromMessageId)
+        public async Task<IActionResult> GetPagedMessagesAsync([FromRoute]Guid conversationId, [FromQuery] Guid? fromMessageId)
         {
             var validate = ValidateAndGetUserId("GetPagedMessagesAsync", _logger, out Guid userId);
 

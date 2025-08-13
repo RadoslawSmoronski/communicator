@@ -8,7 +8,7 @@ namespace ChatCommunicator.Application.Managers.Interfaces
 {
     public interface IAccountManager
     {
-        Task<ResultT<SimpleUserDto>> RegisterAsync(RegisterDto registerDto);
+        Task<ResultT<RegisteredDto>> RegisterAsync(RegisterDto registerDto);
         Task<ResultT<LoggedUserDto>> LoginAsync(LoginDto loginDto);
         Task<ResultT<string>> ChangeUsernameAsync(Guid userId, string newUsername);
         Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
