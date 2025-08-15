@@ -8,7 +8,7 @@ import Avatar from "../Avatar";
 import FeedbackText from "../form/FeedbackText";
 
 const EditAvatar = () => {
-    const { avatarUrl, setAvatarUrl, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
+    const { avatarUrl,userId ,setAvatarUrl, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
     const [previewAvatarUrl, setPreviewAvatarUrl] = useState(null);
     const [file, setFile] = useState(null);
 
@@ -58,7 +58,7 @@ const EditAvatar = () => {
         formData.append("file", file);
 
         try {
-            const res = await axios.post(APIs.AVATAR,
+            const res = await axios.post(APIs.AVATAR(userId),
                 formData,
                 {
                     withCredentials: true,
@@ -92,7 +92,7 @@ const EditAvatar = () => {
         formData.append("file", file);
 
         try {
-            const res = await axios.put(APIs.AVATAR,
+            const res = await axios.put(APIs.AVATAR(userId),
                 formData,
                 {
                     withCredentials: true,
@@ -121,7 +121,7 @@ const EditAvatar = () => {
 
     const deleteAvatar = async () => {
         try {
-            const res = await axios.delete(APIs.AVATAR,
+            const res = await axios.delete(APIs.AVATAR(userId),
                 {
                     withCredentials: true,
                     headers: {

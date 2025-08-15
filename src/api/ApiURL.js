@@ -2,25 +2,24 @@
 const APIs = {
     SERVER_URL: "http://localhost:5205",
 
-    LOGIN : "/api/user/login",
-    REGISTER : "/api/user/register",
-    FIND_PEOPLE : "/api/users/get-users-by-text",
-    FIND_FRIENDS : "/api/friends/get-friends",
-    FIND_PEOPLE_TO_INVITE: "/api/friends/get-users-to-invite-by-text",
-    REFRESH_TOKEN: "/api/user/refresh-access-token",
+    LOGIN : "/api/auth/login",
+    REGISTER : "/api/users",
+    REFRESH_TOKEN: "/api/auth/refresh-token",
 
-    SEND_INVITE: "/api/friends/send-invite",
-    GET_INVITATIONS: "/api/friends/get-invitations",
-    DECELINE_INVITE: "/api/friends/deceline-invite",
-    ACCEPT_INVITE: "/api/friends/accept-invite",
+    GET_CHATS: (userId) => `/api/users/${userId}/chats`,
+    GET_MESSAGES: (conversationId, fromMessageId) => `api/chats/${conversationId}/messages?fromMessageId=${fromMessageId}`,
 
-    GET_CHATS: "/api/chat/get-chats",
-    GET_FRIENDS: "/api/friends/get-friends",
-    GET_MESSAGES: "/api/chat/get-paged-messages",
+    SEND_INVITE: "/api/friend-invitations",
+    GET_INVITATIONS: (userId) => `/api/users/${userId}/friend-invitations`,
+    DECELINE_INVITE:(friendInvitationId) => `/api/friend-invitations/${friendInvitationId}/decline`,
+    ACCEPT_INVITE: (friendInvitationId)=> `/api/friend-invitations/${friendInvitationId}/accept`,
+    
+    FIND_PEOPLE_TO_INVITE: (text, userId) => `/api/users?search=${text}&invitableFor=${userId}`,
+    GET_FRIENDS: (userId) => `/api/users/${userId}/friend`,
 
-    AVATAR: "api/user/avatar",
-    CHANGE_USERNAME: "api/user/change-username",
-    CHANGE_PASSWORD: "api/user/change-password",
+    AVATAR: (userId) => `/api/users/${userId}/avatar`,
+    CHANGE_USERNAME: (userId) => `/api/users/${userId}/username`,
+    CHANGE_PASSWORD: (userId) => `/api/users/${userId}/password`,
 }
 
 export default APIs;

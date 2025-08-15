@@ -135,7 +135,7 @@ const MessagePage = () => {
 
 
         try {
-            const data = await axios.get(`${APIs.FIND_PEOPLE_TO_INVITE}/${searchText}`, {
+            const data = await axios.get(APIs.FIND_PEOPLE_TO_INVITE(searchText, userId), {
                 withCredentials: true,
                 headers: {
                     Authorization: `Bearer ${accessToken}`
@@ -179,7 +179,7 @@ const MessagePage = () => {
     // Fetches the user friend list
     const getFriends = async () => {
         try {
-            const data = await axios.get(APIs.GET_CHATS, {
+            const data = await axios.get(APIs.GET_CHATS(userId), {
                 withCredentials: true,
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
@@ -374,7 +374,7 @@ const MessagePage = () => {
 
         try {
             const data = await axios.get(
-                `${APIs.GET_MESSAGES}/?ConversationId=${conversationId}&fromMessageId=${lastMessageId}`,
+                APIs.GET_MESSAGES(conversationId,lastMessageId),
                 {
                     withCredentials: true,
                     headers: { Authorization: `Bearer ${accessToken}` },
@@ -383,6 +383,9 @@ const MessagePage = () => {
 
             if (data.status === 200) {
                 const newMessages = data.data;
+
+                console.log("GET_MESSAGES:");
+                console.log(newMessages);
 
                 let newMessagesFlag = newMessages.length === 0;
 

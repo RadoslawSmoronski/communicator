@@ -49,7 +49,7 @@ const Layout = () => {
     // Fetches all invitations
     const getInvitations = async () => {
         try {
-            const data = await axios.get(`${APIs.GET_INVITATIONS}/${userId}`, {
+            const data = await axios.get(APIs.GET_INVITATIONS(userId), {
                 withCredentials: true,
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
@@ -77,14 +77,14 @@ const Layout = () => {
 
     // Invitation list
     // Handles actions for accepting or decelining invitation
-    const invitationActions = async (action, recipientID) => {
-        const API_URL = action === "accept" ? APIs.ACCEPT_INVITE : APIs.DECELINE_INVITE;
+    const invitationActions = async (action, invitationId, senderId) => {
+        const API_URL = action === "accept" ? APIs.ACCEPT_INVITE(invitationId) : APIs.DECELINE_INVITE(invitationId);
 
         try {
             const data = await axios.post(
                 API_URL,
                 JSON.stringify({
-                    senderId: recipientID,
+                    senderId: senderId,
                     recipientId: userId,
                 }),
                 {
@@ -100,7 +100,7 @@ const Layout = () => {
                 // delete invitation
                 setFriend(prev => ({
                     ...prev,
-                    invitations: prev.invitations.filter(inv => inv.id !== recipientID),
+                    invitations: prev.invitations.filter(inv => inv.friendInvitationId !== invitationId),
                 }));
 
                 // emit the 'refreshFriends'
@@ -109,7 +109,7 @@ const Layout = () => {
         } catch (err) {
             if (err.response?.status === 401) {
                 await refreshAccessToken();
-                await invitationActions(action, recipientID);
+                await invitationActions(action, invitationId, senderId);
             } else if (err.response?.status === 404) {
                 console.error("Invitation or RecipientUser doesn't exist");
             } else {
@@ -143,12 +143,13 @@ const Layout = () => {
             {display.invitationList && (
                 <div id='invitationsList'>
                     {friend.invitations && friend.invitations.length > 0 ? (
-                        friend.invitations.map(user => (
+                        friend.invitations.map(inv => (
                             <InvitationTile
-                                key={user.id}
-                                id={user.id}
-                                username={user.userName}
-                                avatarUrl={user.avatarUrl}
+                                key={inv.friendInvitationId}
+                                invitationId={inv.friendInvitationId}
+                                senderId ={inv.senderId}
+                                username={inv.senderUserName}
+                                avatarUrl={inv.senderAvatarUrl}
                                 invitationAction={invitationActions}
                             />
                         ))

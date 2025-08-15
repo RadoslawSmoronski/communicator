@@ -9,7 +9,7 @@ import regexUtils from "../../utils/regexUtils";
 import FeedbackText from "../form/FeedbackText";
 
 const EditPassword = () => {
-    const { accessToken, refreshAccessToken } = useContext(AuthContext);
+    const { accessToken, refreshAccessToken, userId } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
         oldpass: "",
@@ -110,7 +110,7 @@ const EditPassword = () => {
         }
 
         try {
-            const res = await axios.patch(APIs.CHANGE_PASSWORD,
+            const res = await axios.patch(APIs.CHANGE_PASSWORD(userId),
                 JSON.stringify({
                     oldPassword: oldpass,
                     newPassword: newpass

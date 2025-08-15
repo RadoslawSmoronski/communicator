@@ -9,7 +9,7 @@ import regexUtils from "../../utils/regexUtils";
 import FeedbackText from "../form/FeedbackText";
 
 const EditUsername = () => {
-    const { username, setUsername, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
+    const { userId, username, setUsername, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
 
     const [formData, setFormData] = useState(username);
     const [regexStatus, setRegexStatus] = useState(true);
@@ -68,7 +68,7 @@ const EditUsername = () => {
         }
 
         try {
-            const res = await axios.patch(`${APIs.CHANGE_USERNAME}?newUsername=${formData}`,
+            const res = await axios.patch(APIs.CHANGE_USERNAME(userId),
                 formData,
                 {
                     withCredentials: true,

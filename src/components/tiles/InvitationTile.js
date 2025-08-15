@@ -1,13 +1,13 @@
 import React, { useContext } from 'react';
 import Avatar from '../Avatar';
 
-const InvitationTile = ({ id, username, invitationAction, avatarUrl }) => {
+const InvitationTile = ({ invitationId, senderId,  username, invitationAction, avatarUrl }) => {
     const acceptInvitation = () => {
-        invitationAction('accept', id);
+        invitationAction('accept', invitationId, senderId);
     };
 
     const rejectInvitation = () => {
-        invitationAction('reject', id);
+        invitationAction('reject', invitationId, senderId);
     };
 
     return (
