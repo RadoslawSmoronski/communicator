@@ -28,51 +28,6 @@ namespace ChatCommunicator.Application.Controllers
         }
 
         /// <summary>
-        /// Get chats
-        /// </summary>
-        /// <remarks>
-        /// Requires a valid JWT token in the Authorization header. The user's ID is extracted
-        /// from the token claims and used to fetch chat data.
-        ///
-        /// Returns 401 Unauthorized if the user ID is missing or invalid.
-        /// Returns appropriate error responses for validation failures or internal errors.
-        /// </remarks>
-        /// <returns>
-        /// A list of chat conversations for the authenticated user, or an error response.
-        /// </returns>
-        /// <response code="200">List of chats successfully retrieved.</response>
-        /// <response code="400">Invalid input or validation error.</response>
-        /// <response code="401">Unauthorized – missing or invalid JWT token.</response>
-        /// <response code="500">Internal server error.</response>
-        /// <example>
-        /// GET /api/chats
-        /// Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
-        /// </example>
-        [Authorize]
-        [HttpGet()]
-        [ProducesResponseType(typeof(List<ChatDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetChatsAsync()
-        {
-            var validate = ValidateAndGetUserId("GetChatsAsync", _logger, out Guid userId);
-
-            if (validate != null)
-            {
-                return validate;
-            }
-
-            var result = await _chatService.GetChatsAsync(userId);
-
-            if (result.IsSuccess)
-            {
-                _logger.LogInformation("[GetChatsAsync] Successfully retrieved chats for UserId: {UserId}. Count: {Count}", userId, result.Value?.Count() ?? 0);
-                return Ok(result.Value);
-            }
-
-            return HandleError(result, "GetChatsAsync", _logger);
-        }
-
-
-        /// <summary>
         /// Get a paginated list of messages
         /// </summary>
         /// <remarks>

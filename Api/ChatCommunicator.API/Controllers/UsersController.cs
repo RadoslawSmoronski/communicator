@@ -1,7 +1,9 @@
 ﻿using ChatCommunicator.API.Controllers;
 using ChatCommunicator.Application.Managers.Interfaces;
+using ChatCommunicator.Application.Services;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
@@ -18,16 +20,19 @@ namespace ChatCommunicator.Application.Controllers
     {
         private readonly ITokenService _tokenManager;
         private readonly IFriendsService _friendsService;
+        private readonly IChatService _chatService;
         private readonly IAccountManager _accountManager;
         private readonly ILogger<UsersController> _logger;
 
         public UsersController(ITokenService tokenManager,
             IFriendsService friendsService,
+            IChatService chatService,
             IAccountManager accountManager,
             ILogger<UsersController> logger)
         {
             _tokenManager = tokenManager;
             _friendsService = friendsService;
+            _chatService = chatService;
             _accountManager = accountManager;
             _logger = logger;
         }
@@ -162,11 +167,11 @@ namespace ChatCommunicator.Application.Controllers
             else if (result.Error != null && result.Error.Code == "OLDPASSWORD_IS_INCORRECT")
             {
                 _logger.LogWarning("[ChangePasswordAsync] Old password is incorrect for user {UserId}.", userId);
-                        return Problem(
-                        statusCode: 401,
-                        title: "OLDPASSWORD_IS_INCORRECT",
-                        detail: "Old password is incorrect for user " + userId
-                    );
+                return Problem(
+                statusCode: 401,
+                title: "OLDPASSWORD_IS_INCORRECT",
+                detail: "Old password is incorrect for user " + userId
+            );
             }
 
 
@@ -465,6 +470,53 @@ namespace ChatCommunicator.Application.Controllers
             }
 
             return HandleError(result, "GetFriendsAsync", _logger);
+        }
+
+        /// <summary>
+        /// Get User Chats
+        /// </summary>
+        /// <remarks>
+        /// Retrieves all chat conversations for the specified user.
+        /// Requires a valid JWT token in the Authorization header.
+        ///
+        /// Returns 401 Unauthorized if the user ID is missing or invalid.
+        /// Returns appropriate error responses for validation failures or internal errors.
+        /// </remarks>
+        /// <param name="userId">The ID of the user whose chats are being retrieved (from route).</param>
+        /// <returns>
+        /// A list of chat conversations for the specified user, or an error response.
+        /// </returns>
+        /// <response code="200">List of chats successfully retrieved.</response>
+        /// <response code="400">Invalid input or validation error.</response>
+        /// <response code="401">Unauthorized – missing or invalid JWT token.</response>
+        /// <response code="500">Internal server error.</response>
+        /// <example>
+        /// <code>
+        /// GET /api/users/3fa85f64-5717-4562-b3fc-2c963f66afa6/chats
+        /// Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
+        /// </code>
+        /// </example>
+        [Authorize]
+        [HttpGet("{userId}/chats")]
+        [ProducesResponseType(typeof(List<ChatDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetChatsAsync([FromRoute] Guid userId)
+        {
+            var validate = ValidateAndGetUserId("GetChatsAsync", _logger, out Guid loggedUserId);
+
+            if (validate != null)
+            {
+                return validate;
+            }
+
+            var result = await _chatService.GetChatsAsync(userId);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[GetChatsAsync] Successfully retrieved chats for UserId: {UserId}. Count: {Count}", userId, result.Value?.Count() ?? 0);
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "GetChatsAsync", _logger);
         }
 
     }
