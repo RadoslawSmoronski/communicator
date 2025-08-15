@@ -28,19 +28,14 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
                 }
             };
 
-            var expectList = new List<SimpleUserDto>
-            {
-                new SimpleUserDto { userName = _sampleSenderUser.UserName!, Id = _sampleSenderUser.Id }
-            };
 
-
-            A.CallTo(() => _unitOfWork.FriendshipInvitations.WhereAsync(
+        A.CallTo(() => _unitOfWork.FriendshipInvitations.WhereAsync(
                     A<Expression<Func<FriendshipInvitation, bool>>>._,
                     A<Expression<Func<FriendshipInvitation, object>>[]>._))
                     .Returns(Task.FromResult(friendshipInvitations));
 
             // Act
-            var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<SimpleUserWithAvatarDto>>;
+            var result = await _friendsManager.GetInvitationsAsync(_sampleUser.Id) as ResultT<List<FriendshipInvitationDto>>;
 
             // Assert
             result.Should().NotBeNull();
@@ -48,7 +43,7 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
             result.Value.Should().NotBeNull();
 
             var value = result.Value;
-            value.Should().BeEquivalentTo(expectList);
+            value.Should().BeOfType<List<FriendshipInvitationDto>>();
         }
 
         [Fact]

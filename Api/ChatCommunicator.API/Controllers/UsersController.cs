@@ -5,6 +5,7 @@ using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
+using ChatCommunicator.Infrastructure.Models.Friendship;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog.Context;
@@ -337,7 +338,7 @@ namespace ChatCommunicator.Application.Controllers
         /// Returns all pending friend invitations for the specified user.
         /// If the user does not exist or the input is invalid, appropriate error responses are returned.
         /// </remarks>
-        /// <param name="userId">The GUID of the user whose invitations are to be retrieved (from query).</param>
+        /// <param name="userId">The GUID of the user whose invitations are to be retrieved (from route).</param>
         /// <returns>
         /// A list of users who sent invitations, or an error response.
         /// </returns>
@@ -348,13 +349,13 @@ namespace ChatCommunicator.Application.Controllers
         /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
-        /// GET /api/users/{userId}/friend-invitations?userId=3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// GET /api/users/3fa85f64-5717-4562-b3fc-2c963f66afa6/friend-invitations
         /// Authorization: Bearer {token}
         /// </code>
         /// </example>
         [Authorize]
         [HttpGet("{userId}/friend-invitations")]
-        [ProducesResponseType(typeof(List<SimpleUserWithAvatarDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<FriendshipInvitationDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFriendInvitationsAsync([FromRoute] Guid userId)
         {
             var validate = ValidateAndGetUserId("GetFriendInvitationsAsync", _logger, out Guid loggedUserId);
