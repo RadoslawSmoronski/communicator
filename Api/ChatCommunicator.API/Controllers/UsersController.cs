@@ -376,29 +376,28 @@ namespace ChatCommunicator.Application.Controllers
         /// </summary>
         /// <remarks>
         /// Authenticated users can search for other users by username or display name.
-        /// The search excludes users who are already friends or have already been invited.
-        /// Requires a valid JWT token with user GUID.
+        /// Results exclude users who are already friends with, or already invited by, the specified user.
+        /// Requires a valid JWT token.
         /// </remarks>
-        /// <param name="search">Text to search users by.</param>
+        /// <param name="search">Optional text to search users by (e.g., username or display name).</param>
         /// <param name="invitableFor">The GUID of the user for whom to find invitable users (required).</param>
         /// <returns>
-        /// List of users matching the search criteria who are available for invitation, or an error response.
+        /// A list of users matching the search criteria and available for invitation. Can be empty.
         /// </returns>
         /// <response code="200">Users retrieved successfully.</response>
-        /// <response code="400">Invalid request (e.g., missing or malformed input).</response>
+        /// <response code="400">Invalid request (e.g., missing or malformed 'invitableFor' GUID).</response>
         /// <response code="401">Unauthorized - JWT token missing or invalid.</response>
-        /// <response code="404">No matching users found.</response>
         /// <response code="500">Unexpected server error.</response>
         /// <example>
         /// <code>
-        /// GET /api/users/{userId}?search=john&amp;invitableFor=3fa85f64-5717-4562-b3fc-2c963f66afa6
+        /// GET /api/users?search=john&amp;invitableFor=3fa85f64-5717-4562-b3fc-2c963f66afa6
         /// Authorization: Bearer {token}
         /// </code>
         /// </example>
         [Authorize]
-        [HttpGet("{userId}")]
+        [HttpGet("")]
         [ProducesResponseType(typeof(List<UserToInviteDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetUsersAsync([FromRoute] string search, [FromQuery] Guid invitableFor)
+        public async Task<IActionResult> GetUsersAsync([FromQuery] string search, [FromQuery] Guid invitableFor)
         {
             //REFACTOR
             if (invitableFor == Guid.Empty)
