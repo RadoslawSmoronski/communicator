@@ -15,11 +15,11 @@ namespace ChatCommunicator.API.Controllers
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out userId))
             {
                 userId = Guid.Empty;
-                logger.LogWarning("[{LogContext}] UserId is null or empty.", logContext);
+                logger.LogWarning("[{LogContext}] Missing or invalid UserId claim. Returning 401 Unauthorized.", logContext);
                 return Problem(
-                    statusCode: 400,
-                    title: "Bad Request",
-                    detail: "UserId cannot be null or empty."
+                    statusCode: 401,
+                    title: "Unauthorized",
+                    detail: "Authentication is required. Missing or invalid user identifier."
                 );
             }
 
