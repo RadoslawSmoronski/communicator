@@ -605,17 +605,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/SimpleUserDto"
+                  "$ref": "#/components/schemas/RegisteredDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SimpleUserDto"
+                  "$ref": "#/components/schemas/RegisteredDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SimpleUserDto"
+                  "$ref": "#/components/schemas/RegisteredDto"
                 }
               }
             }
@@ -628,6 +628,72 @@
           },
           "500": {
             "description": "An unexpected server error occurred."
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get Users",
+        "description": "Authenticated users can search for other users by username or display name.\r\nResults exclude users who are already friends with, or already invited by, the specified user.\r\nRequires a valid JWT token.",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Optional text to search users by (e.g., username or display name).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitableFor",
+            "in": "query",
+            "description": "The GUID of the user for whom to find invitable users (required).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserToInviteDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserToInviteDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserToInviteDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g., missing or malformed 'invitableFor' GUID)."
+          },
+          "401": {
+            "description": "Unauthorized - JWT token missing or invalid."
+          },
+          "500": {
+            "description": "Unexpected server error."
           }
         }
       }
@@ -1042,86 +1108,6 @@
         }
       }
     },
-    "/api/users/{userId}": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Get Users",
-        "description": "Authenticated users can search for other users by username or display name.\r\nThe search excludes users who are already friends or have already been invited.\r\nRequires a valid JWT token with user GUID.",
-        "parameters": [
-          {
-            "name": "search",
-            "in": "path",
-            "description": "Text to search users by.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "invitableFor",
-            "in": "query",
-            "description": "The GUID of the user for whom to find invitable users (required).",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Users retrieved successfully.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request (e.g., missing or malformed input)."
-          },
-          "401": {
-            "description": "Unauthorized - JWT token missing or invalid."
-          },
-          "404": {
-            "description": "No matching users found."
-          },
-          "500": {
-            "description": "Unexpected server error."
-          }
-        }
-      }
-    },
     "/api/users/{userId}/friends": {
       "get": {
         "tags": [
@@ -1446,6 +1432,29 @@
         },
         "additionalProperties": false
       },
+      "RegisteredDto": {
+        "required": [
+          "email",
+          "id",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "SendInviteDto": {
         "required": [
           "friendshipInvitationId"
@@ -1455,24 +1464,6 @@
           "friendshipInvitationId": {
             "type": "string",
             "format": "uuid"
-          }
-        },
-        "additionalProperties": false
-      },
-      "SimpleUserDto": {
-        "required": [
-          "id",
-          "userName"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userName": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false
