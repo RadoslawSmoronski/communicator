@@ -1055,7 +1055,7 @@
           {
             "name": "userId",
             "in": "path",
-            "description": "The GUID of the user whose invitations are to be retrieved (from query).",
+            "description": "The GUID of the user whose invitations are to be retrieved (from route).",
             "required": true,
             "schema": {
               "type": "string",
@@ -1071,7 +1071,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                    "$ref": "#/components/schemas/FriendshipInvitationDto"
                   }
                 }
               },
@@ -1079,7 +1079,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                    "$ref": "#/components/schemas/FriendshipInvitationDto"
                   }
                 }
               },
@@ -1087,7 +1087,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                    "$ref": "#/components/schemas/FriendshipInvitationDto"
                   }
                 }
               }
@@ -1247,6 +1247,33 @@
           "lastMessageTimestamp": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FriendshipInvitationDto": {
+        "required": [
+          "friendInvitationId",
+          "senderId",
+          "senderUserName"
+        ],
+        "type": "object",
+        "properties": {
+          "friendInvitationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "senderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "senderUserName": {
+            "type": "string",
+            "nullable": true
+          },
+          "senderAvatarUrl": {
+            "type": "string",
             "nullable": true
           }
         },

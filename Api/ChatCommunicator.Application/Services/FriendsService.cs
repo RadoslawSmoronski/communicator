@@ -89,7 +89,7 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public async Task<ResultT<List<SimpleUserWithAvatarDto>>> GetInvitationsAsync(Guid userId)
+        public async Task<ResultT<List<FriendshipInvitationDto>>> GetInvitationsAsync(Guid userId)
         {
             _logger.LogInformation("GetInvitationsAsync called with userId: {UserId}", userId);
 
@@ -348,7 +348,7 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        private async Task<List<SimpleUserWithAvatarDto>> GetUserInvitationsAsync(UserAccount user)
+        private async Task<List<FriendshipInvitationDto>> GetUserInvitationsAsync(UserAccount user)
         {
             _logger.LogInformation("GetUserInvitationsAsync called for userId: {UserId}", user.Id);
 
@@ -358,11 +358,12 @@ namespace ChatCommunicator.Application.Managers
                     x => x.RecipientUser
                 );
 
-            return result.Select(x => new SimpleUserWithAvatarDto()
+            return result.Select(x => new FriendshipInvitationDto()
             {
-                Id = x.SenderId,
-                userName = x.SenderUser.UserName ?? throw new Exception(),
-                AvatarUrl = x.SenderUser.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(x.SenderUser.AvatarUrl) : null
+                FriendInvitationId = x.Id,
+                SenderId = x.SenderId,
+                SenderUserName = x.SenderUser.UserName ?? throw new Exception(),
+                SenderAvatarUrl = x.SenderUser.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(x.SenderUser.AvatarUrl) : null
             }).ToList();
         }
 
