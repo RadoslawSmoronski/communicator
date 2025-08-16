@@ -8,6 +8,7 @@ const APIs = {
 
     GET_CHATS: (userId) => `/api/users/${userId}/chats`,
     GET_MESSAGES: (conversationId, fromMessageId) => `api/chats/${conversationId}/messages?fromMessageId=${fromMessageId}`,
+    GET_MESSAGES_NULL_FROM_MESSAGE_ID: (conversationId) => `api/chats/${conversationId}/messages`,
 
     SEND_INVITE: "/api/friend-invitations",
     GET_INVITATIONS: (userId) => `/api/users/${userId}/friend-invitations`,

@@ -1,6 +1,8 @@
 import React from 'react';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 
-const MessageTile = ({ time, mess, yours }) => {
+const MessageTile = ({ time, mess, yours, isLastReadByFriend }) => {
     const dateNow = new Date();
     const dateOfMessage = new Date(time);
     const hours = dateOfMessage.getHours();
@@ -31,6 +33,10 @@ const MessageTile = ({ time, mess, yours }) => {
                 <div className="messageCloud">{mess}</div>
                 <div className="messageTileTime">{formattedTime}</div>
             </div>
+            {isLastReadByFriend &&
+                <FontAwesomeIcon icon={faCheck} className='messageCloudCheckMark' />
+            }
+
         </div>
     ) : (
         <div className="messageTileLeft">
@@ -38,6 +44,9 @@ const MessageTile = ({ time, mess, yours }) => {
                 <div className="messageCloud messageCloudLeft">{mess}</div>
                 <div className="messageTileTime">{formattedTime}</div>
             </div>
+            {isLastReadByFriend &&
+                <FontAwesomeIcon icon={faCheck} className='messageCloudCheckMark' />
+            }
         </div>
     );
 };

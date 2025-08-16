@@ -2,48 +2,58 @@
 
 // ------ MESSAGE BOX ---------
 
-.messageTileRight{
+.messageTileRight {
     width: 100%;
     display: flex;
     justify-content: flex-end;
+    position: relative;
 }
 
-.messageTileLeft{
+.messageTileLeft {
     width: 100%;
     display: flex;
     justify-content: flex-start;
+    position: relative;
 }
 
-.messageTileWrapperRight{
+.messageTileWrapperRight {
     display: flex;
     flex-direction: row-reverse;
 }
 
-.messageTileWrapperLeft{
+.messageTileWrapperLeft {
     display: flex;
     flex-direction: row;
 }
 
-.messageCloud{
+.messageCloud {
     background-color: vars.$primary-color;
     border-radius: 15px;
     color: wheat;
     font-size: 20px;
     padding: 10px 30px 10px 30px;
     margin: 10px;
-    width:fit-content;
+    width: fit-content;
 
     overflow-wrap: break-word;
     //word-break:break-all;
 }
 
-.messageCloudLeft{
+.messageCloudLeft {
     background-color: rgba(66, 66, 66, 0.8);
 }
 
-.messageTileTime{
+.messageTileTime {
     display: flex;
     align-items: center;
     text-align: center;
-    height: 100%; 
+    height: 100%;
+}
+
+.messageCloudCheckMark {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: -5px;
+    bottom: 0px;
 }

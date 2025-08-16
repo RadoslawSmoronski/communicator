@@ -43,6 +43,7 @@ const MessagePage = () => {
         activeReciepientId: '',
         messages: {},
         noNewMessagesFlag: {},
+        lastReadMessageIds: {},
         lastOpenedChat: null
     });
     // chatRef - solve the problem of old data "chat"
@@ -282,6 +283,31 @@ const MessagePage = () => {
         }
     };
 
+    // Reads message and send notifiation to fiend
+    const readMessage = async () => {
+        // to message user have to scroll down
+        // if (scrollMessageBoxRef.current.scrollTop != 0) {
+        //     return;
+        // }
+
+        if (
+            signalRConnection &&
+            signalRConnection.state === signalR.HubConnectionState.Connected
+        ){
+            try{
+                await signalRConnection.invoke(
+                    SIGNALR_HUBS.READ_MESSAGE,
+                    chat.activeReciepientId,
+                    chat.selectedId
+                );
+            }catch (err) {
+                console.error("Error reading message: ", err);
+            }
+        }else {
+            console.error("Connection not established or message is empty.");
+        }
+    }
+
     // Friend list
     // Handles clicking on chat
     // adds param (lastOpened) to userInfo localStorage
@@ -347,6 +373,7 @@ const MessagePage = () => {
             // console.log(!isScrollable, !chatRef.current.noNewMessagesFlag[conversationId])
 
         }
+        await readMessage();
     };
 
     // Message box
@@ -368,13 +395,18 @@ const MessagePage = () => {
     const getMessagesForFriend = async (conversationId) => {
         let chatLenght = chatRef.current.messages[conversationId].length;
         let lastMessageId = null;
+        let API_URL;
+
         if (chatLenght > 0) {
             lastMessageId = chatRef.current.messages[conversationId][chatLenght - 1].messageId;
+            API_URL = APIs.GET_MESSAGES(conversationId, lastMessageId);
+        } else {
+            API_URL = APIs.GET_MESSAGES_NULL_FROM_MESSAGE_ID(conversationId);
         }
 
         try {
             const data = await axios.get(
-                APIs.GET_MESSAGES(conversationId,lastMessageId),
+                API_URL,
                 {
                     withCredentials: true,
                     headers: { Authorization: `Bearer ${accessToken}` },
@@ -382,8 +414,8 @@ const MessagePage = () => {
             );
 
             if (data.status === 200) {
-                const newMessages = data.data;
-
+                const newMessages = data.data.messages;
+                const lastFriendReadMessageId = data.data.lastFriendReadMessageId;
                 console.log("GET_MESSAGES:");
                 console.log(newMessages);
 
@@ -400,6 +432,10 @@ const MessagePage = () => {
                     noNewMessagesFlag: {
                         ...prev.noNewMessagesFlag,
                         [conversationId]: newMessagesFlag
+                    },
+                    lastReadMessageIds: {
+                        ...prev.lastReadMessageIds,
+                        [conversationId]: lastFriendReadMessageId
                     }
                 }));
             }
@@ -464,6 +500,23 @@ const MessagePage = () => {
         }));
     };
 
+    // handles reading message by friend 
+    // and saves lastReadMessageId
+    const handleReadMessageByFriend = async (lastReadMessageDto) => {
+        console.log("Friend read message:" + lastReadMessageDto);
+
+        let convId = lastReadMessageDto.conversationId;
+        let lastReadMessId = lastReadMessageDto.lastFriendReadMessageId;
+
+        setChat(prev => ({
+            ...prev,
+            lastReadMessageIds: {
+                ...prev.lastReadMessageIds,
+                [convId]: lastReadMessId
+            }
+        }));
+    }
+
     // SignalR connection
     useEffect(() => {
         if (accessToken != '') {
@@ -495,6 +548,10 @@ const MessagePage = () => {
         connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE,
             (messageDto) => handleNewMessageFromFriend(messageDto)
         );
+        connection.on(SIGNALR_HUBS.READ_MESSAGE,
+            (lastReadMessageDto) => handleReadMessageByFriend(lastReadMessageDto)
+        )
+
         setSignalRConnection(connection);
 
         // listen for 'refreshFriends'
@@ -622,10 +679,11 @@ const MessagePage = () => {
                 {Array.isArray(chat.messages[chat.selectedId]) &&
                     chat.messages[chat.selectedId].map((message, index) => (
                         <MessageTile
-                            key={index}
+                            key={message.messageId}
                             mess={message.content}
                             yours={message.senderId === userId}
                             time={message.timestamp}
+                            isLastReadByFriend={chat.lastReadMessageIds[chat.selectedId] === message.messageId}
                         />
                     ))
                 }
