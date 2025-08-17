@@ -2,7 +2,7 @@
 
 // -------- FRIEND LIST ---------
 
-.friendTile{
+.friendTile {
     display: flex;
     width: 300px;
     height: 80px;
@@ -14,37 +14,39 @@
     flex-shrink: 0;
 }
 
-.friendTile:hover{
+.friendTile:hover {
     background-color: rgba(66, 66, 66, 0.8);
 }
 
-.friendTileIcon{
+.friendTileIcon {
     height: 50px;
     width: 50px;
     border-radius: 25px;
     background-image: url("../../../../gfx/blank-profile-picture.png");
-    background-position: center; 
+    background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     margin: 0 10px 0 10px;
+
+    position: relative;
 }
 
-.friendTileWrapper{
+.friendTileWrapper {
     position: relative;
     //display: inline-block;
     display: flex;
     width: 230px;
     flex-direction: column;
-    text-align:left;
+    text-align: left;
 }
 
-.friendTileUserName{
+.friendTileUserName {
     font-size: 18px;
     font-weight: 600;
 }
 
-.btnPerson{
-    border: none ;
+.btnPerson {
+    border: none;
     border-radius: 5px;
     font-size: 15px;
     padding: 4px 0 4px 0;
@@ -61,32 +63,51 @@
     cursor: pointer;
 }
 
-.btnDisabled{
+.btnDisabled {
     background-color: rgba(66, 66, 66, 0.8);
-    cursor:not-allowed;
+    cursor: not-allowed;
 }
 
-.btnPerson:hover{
+.btnPerson:hover {
     filter: brightness(1.2);
 }
 
-.btnPerson:active{
+.btnPerson:active {
     filter: brightness(0.9);
 }
 
-.btnDisabled:hover, .btnDisabled:active{
+.btnDisabled:hover,
+.btnDisabled:active {
     filter: brightness(1);
 }
 
 
-.personBtnWrapper{
+.personBtnWrapper {
     display: flex;
     flex-direction: row;
-    text-align:left;
+    text-align: left;
     justify-content: center;
     margin-top: 5px;
 }
 
-.selectedChat{
+.selectedChat {
     border: solid 2px vars.$primary-color;
+}
+
+.onlineBadge {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.onlineBadge.online{
+    background-color: green;
+}
+
+.onlineBadge.offline{
+    background-color: gray;
 }

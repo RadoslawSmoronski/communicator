@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Avatar = ({ url, size = 50 }) => {
+const Avatar = ({ url, size = 50, children }) => {
 
     return (
         url != null ?
@@ -12,7 +12,9 @@ const Avatar = ({ url, size = 50 }) => {
                         height: `${size}px`,
                         borderRadius: `${size / 2}px`,
                     }}
-                />
+                >
+                    {children}
+                </div>
             )
             :
             (<div className="friendTileIcon"
@@ -21,7 +23,9 @@ const Avatar = ({ url, size = 50 }) => {
                     height: `${size}px`,
                     borderRadius: `${size / 2}px`,
                 }}
-            />)
+            >
+                {children}
+            </div>)
     )
 }
 

@@ -2,7 +2,10 @@ import React from 'react';
 
 import Avatar from '../Avatar';
 
-const FriendTile = ({ messTimestamp, mess, username, author, selected, onClick, newMessageNotify, avatarUrl }) => {
+const FriendTile = ({ 
+    messTimestamp, mess, username, author,
+    selected, onClick, newMessageNotify, avatarUrl,
+    isOnline }) => {
     const dateNow = new Date();
     const dateOfMessage = new Date(messTimestamp);
     const hours = dateOfMessage.getHours().toString().padStart(2, '0');
@@ -34,7 +37,9 @@ const FriendTile = ({ messTimestamp, mess, username, author, selected, onClick, 
 
     return (
         <div className={selected ? 'friendTile selectedChat' : 'friendTile'} onClick={onClick}>
-            <Avatar  url={avatarUrl}/>
+            <Avatar  url={avatarUrl}>
+                <div className={isOnline ? "onlineBadge online" : "onlineBadge offline"}/>
+            </Avatar>
             <div className="friendTileWrapper">
                 <div className="friendTileUserName">{username}</div>
                 {
@@ -45,6 +50,7 @@ const FriendTile = ({ messTimestamp, mess, username, author, selected, onClick, 
                 }
 
                 {newMessageNotify && <div className="newMessageNotification" />}
+                
             </div>
         </div>
     );

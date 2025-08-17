@@ -35,7 +35,8 @@ const MessagePage = () => {
         list_filtered: [],
         findStatus: 'not found',
         activeFriendName: '',
-        activeFriendAvatarUrl: null
+        activeFriendAvatarUrl: null,
+        activeFriendOnlineStatus: false
     });
 
     const [chat, setChat] = useState({
@@ -293,17 +294,17 @@ const MessagePage = () => {
         if (
             signalRConnection &&
             signalRConnection.state === signalR.HubConnectionState.Connected
-        ){
-            try{
+        ) {
+            try {
                 await signalRConnection.invoke(
                     SIGNALR_HUBS.READ_MESSAGE,
                     chat.activeReciepientId,
                     chat.selectedId
                 );
-            }catch (err) {
+            } catch (err) {
                 console.error("Error reading message: ", err);
             }
-        }else {
+        } else {
             console.error("Connection not established or message is empty.");
         }
     }
@@ -372,8 +373,10 @@ const MessagePage = () => {
 
             // console.log(!isScrollable, !chatRef.current.noNewMessagesFlag[conversationId])
 
+        } else if (chat.messages[conversationId].length > 1) {
+            // messages already fetched, invoke read message
+            await readMessage();
         }
-        await readMessage();
     };
 
     // Message box
@@ -460,6 +463,11 @@ const MessagePage = () => {
     // Message box and friend list
     // It handles new message, creates notification, add to the list
     const handleNewMessageFromFriend = async (messageDto) => {
+        let isInTheSameChat = messageDto.conversationId === chatRef.current.selectedId;
+        // invoke read message if user is in the same chat
+        if (isInTheSameChat) {
+            readMessage();
+        }
         // add last message to FriendTile
         console.log(messageDto);
 
@@ -471,7 +479,7 @@ const MessagePage = () => {
                         isFriendSenderMessage: messageDto.senderId != userId,
                         lastMessageContent: messageDto.content,
                         lastMessageTimestamp: messageDto.timestamp,
-                        newMessNotify: messageDto.conversationId != chatRef.current.selectedId,
+                        newMessNotify: !isInTheSameChat,
                     };
                 }
                 return f;
@@ -627,6 +635,7 @@ const MessagePage = () => {
                                     selected={chat.selectedId === f.conversationId}
                                     newMessageNotify={f.newMessNotify}
                                     avatarUrl={f.friendAvatarUrl}
+                                    isOnline={false}
                                 />
                             ))
                         ) : (
@@ -659,7 +668,9 @@ const MessagePage = () => {
                 {friend.activeFriendName &&
                     <>
                         <div className='friendBarIconBox'>
-                            <Avatar url={friend.activeFriendAvatarUrl} />
+                            <Avatar url={friend.activeFriendAvatarUrl} >
+                                <div className={friend.activeFriendOnlineStatus ? "onlineBadge online" : "onlineBadge offline"} />
+                            </Avatar>
                         </div>
                         <div className='friendBarUserName'>{friend.activeFriendName}</div>
                         <div className='friendBarRightBox'>
