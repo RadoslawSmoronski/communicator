@@ -266,23 +266,6 @@ namespace ChatCommunicator.Application.Services
             }
         }
 
-        public async Task<Result> SaveMessageAsync(Message message)
-        {
-            try
-            {
-                _logger.LogInformation("Saving message with id {MessageId} in conversation {ConversationId}", message.Id, message.ConversationId);
-                await _SaveMessageAsync(message);
-                await UpdateLastMessageInConversationAsync(message);
-                _logger.LogInformation("Message saved and conversation last message updated");
-                return Result.Success();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An exception occurred in SaveMessageAsync for messageId: {MessageId}", message.Id);
-                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
-            }
-        }
-
         public async Task<ResultT<Guid>> SetAndGetUserLastReadMessageAsync(Guid userId, Guid conversationId)
         {
             if (userId == Guid.Empty)
@@ -363,11 +346,16 @@ namespace ChatCommunicator.Application.Services
                     Timestamp = DateTime.UtcNow
                 };
 
+                _logger.LogInformation("Updating conversation {ConversationId} with new last message {MessageId}", conversationId, message.Id);
+                conversation.LastMessage = message;
+                conversation.LastMessageTime = message.Timestamp;
+                conversation.LastMessageId = message.Id;
+
                 _logger.LogInformation("Saving new message with id {MessageId} for conversation {ConversationId}", message.Id, conversationId);
                 await _unitOfWork.Messages.AddAsync(message);
+                _unitOfWork.Conversations.Update(conversation);
                 await _unitOfWork.SaveAsync();
-
-                _logger.LogInformation("Message with id {MessageId} saved successfully", message.Id);
+                _logger.LogInformation("Message {MessageId} saved and conversation {ConversationId} updated successfully", message.Id, conversationId);
 
                 return _mapper.Map<MessageDto>(message);
             }
