@@ -68,6 +68,11 @@ namespace ChatCommunicator.Application.Controllers
                 return validate;
             }
 
+            if(fromMessageId == null && fromMessageId == Guid.Empty) //REFACTOR , TEMP
+            {
+                return Ok();
+            }
+
             var result = await _chatService.GetPagedMessagesFromMessageIdAsync(conversationId, userId, fromMessageId);
 
             if (result.IsSuccess && result.Value != null && result.Value.PagedMessagesDto != null)
