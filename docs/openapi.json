@@ -7,7 +7,9 @@
   "paths": {
     "/api/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Authenticates user",
         "description": "Validates the provided login credentials. On success, returns a JWT access token and a refresh token.\r\nIf authentication fails, a detailed error is returned.",
         "requestBody": {
@@ -65,7 +67,9 @@
     },
     "/api/auth/refresh-token": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Refresh access token",
         "description": "Validates the provided refresh token and, if valid, issues a new access token and refresh token.",
         "requestBody": {
@@ -123,7 +127,9 @@
     },
     "/api/chats/{conversationId}/messages": {
       "get": {
-        "tags": ["Chats"],
+        "tags": [
+          "Chats"
+        ],
         "summary": "Get a paginated list of messages",
         "description": "This endpoint returns a paginated list of messages for a given conversation.\r\nIf `fromMessageId` is provided, it returns messages after that ID.\r\nIf `fromMessageId` is null, it returns an empty list (with 200 OK).\r\nRequires a valid JWT token in the Authorization header.\r\nIf `conversationId` is missing, empty, or invalid, an error response is returned.\r\n\r\n\r\n\r\nIf messages are successfully retrieved and both the recipient is online\r\n(has active connections) and there's a last read message ID from the friend,\r\na SignalR notification is sent to the recipient with the MessageRead event containing\r\nthe last read message ID.",
         "parameters": [
@@ -185,7 +191,9 @@
     },
     "/api/friend-invitations": {
       "post": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Send Invite",
         "description": "Allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.\r\nReturns a ChatCommunicator.Contracts.Dtos.Friendships.SendInviteDto object containing the invitation ID on success, or an error response on failure.",
         "requestBody": {
@@ -249,7 +257,9 @@
     },
     "/api/friend-invitations/{friendInvitationId}/decline": {
       "post": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Decline Invite",
         "description": "Allows an authenticated user to decline a friend invitation by providing the invitation ID, sender and recipient GUIDs.\r\nReturns appropriate errors if the invitation is invalid, already handled, or missing.",
         "parameters": [
@@ -303,7 +313,9 @@
         }
       },
       "patch": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Decline Invite",
         "description": "Allows an authenticated user to decline a friend invitation by providing the invitation ID, sender and recipient GUIDs.\r\nReturns appropriate errors if the invitation is invalid, already handled, or missing.",
         "parameters": [
@@ -359,7 +371,9 @@
     },
     "/api/friend-invitations/{friendInvitationId}/accept": {
       "post": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Accept Friend Invitation",
         "description": "Allows an authenticated user to accept a friend invitation by providing the invitation ID, sender's and recipient's GUIDs.\r\nOn success, both users are added to each other's friend lists and a conversation is created between them.\r\nReturns an ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto object containing the friendship ID and the conversation ID.\r\nReturns errors for invalid input, not found invitations, or conflicts (e.g., already friends).",
         "parameters": [
@@ -433,7 +447,9 @@
         }
       },
       "patch": {
-        "tags": ["FriendInvitations"],
+        "tags": [
+          "FriendInvitations"
+        ],
         "summary": "Accept Friend Invitation",
         "description": "Allows an authenticated user to accept a friend invitation by providing the invitation ID, sender's and recipient's GUIDs.\r\nOn success, both users are added to each other's friend lists and a conversation is created between them.\r\nReturns an ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto object containing the friendship ID and the conversation ID.\r\nReturns errors for invalid input, not found invitations, or conflicts (e.g., already friends).",
         "parameters": [
@@ -509,7 +525,9 @@
     },
     "/api/users": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Register user",
         "description": "This endpoint creates a new user using an email, username, and password. If the email already exists,\r\na conflict response is returned. On success, basic user data is returned.",
         "requestBody": {
@@ -565,7 +583,9 @@
         }
       },
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get Users",
         "description": "Authenticated users can search for other users by username or display name.\r\nResults exclude users who are already friends with, or already invited by, the specified user.\r\nRequires a valid JWT token.",
         "parameters": [
@@ -631,7 +651,9 @@
     },
     "/api/users/{userId}/username": {
       "patch": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Change Username",
         "description": "Authenticated users can change their username. The new username must be unique.",
         "parameters": [
@@ -704,7 +726,9 @@
     },
     "/api/users/{userId}/password": {
       "patch": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Change Password",
         "description": "Authenticated users can change their password by providing the old password and a new password.\r\nThe new password must meet the required criteria.",
         "parameters": [
@@ -757,7 +781,9 @@
     },
     "/api/users/{userId}/avatar": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Upload Avatar",
         "description": "Authenticated users can upload a new avatar image.\r\n\r\nThe uploaded file must meet the following requirements:\r\n<ul><li>Maximum file size: 5 MB</li><li>Maximum dimensions: 500x500 pixels</li><li>Supported formats: JPEG, PNG, etc.</li></ul>\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
         "parameters": [
@@ -776,7 +802,9 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "required": ["file"],
+                "required": [
+                  "file"
+                ],
                 "type": "object",
                 "properties": {
                   "file": {
@@ -832,7 +860,9 @@
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Delete Avatar",
         "description": "Authenticated users can delete their avatar.\r\n\r\nThis action removes the avatar associated with the user account.\r\n\r\n\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
         "parameters": [
@@ -886,7 +916,9 @@
         }
       },
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Change Avatar",
         "description": "Authenticated users can change their avatar by uploading a new image.\r\n\r\nThe uploaded file must meet the following requirements:\r\n<ul><li>Maximum file size: 5 MB</li><li>Maximum dimensions: 500x500 pixels</li><li>Supported formats: JPEG, PNG, etc.</li></ul>\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
         "parameters": [
@@ -905,7 +937,9 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "required": ["file"],
+                "required": [
+                  "file"
+                ],
                 "type": "object",
                 "properties": {
                   "file": {
@@ -963,7 +997,9 @@
     },
     "/api/users/{userId}/friend-invitations": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get Friend Invitations",
         "description": "Returns all pending friend invitations for the specified user.\r\nIf the user does not exist or the input is invalid, appropriate error responses are returned.",
         "parameters": [
@@ -1025,7 +1061,9 @@
     },
     "/api/users/{userId}/friends": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get Friends",
         "description": "Fetches all users marked as friends of the specified user GUID.\r\nReturns errors for invalid input or unexpected issues.",
         "parameters": [
@@ -1084,7 +1122,9 @@
     },
     "/api/users/{userId}/chats": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get User Chats",
         "description": "Retrieves all chat conversations for the specified user.\r\nRequires a valid JWT token in the Authorization header.\r\n            \r\nReturns 401 Unauthorized if the user ID is missing or invalid.\r\nReturns appropriate error responses for validation failures or internal errors.",
         "parameters": [
@@ -1145,7 +1185,10 @@
   "components": {
     "schemas": {
       "AcceptFriendshipInviteDto": {
-        "required": ["conversationId", "friendshipId"],
+        "required": [
+          "conversationId",
+          "friendshipId"
+        ],
         "type": "object",
         "properties": {
           "friendshipId": {
@@ -1160,7 +1203,10 @@
         "additionalProperties": false
       },
       "ChangePasswordDto": {
-        "required": ["newPassword", "oldPassword"],
+        "required": [
+          "newPassword",
+          "oldPassword"
+        ],
         "type": "object",
         "properties": {
           "oldPassword": {
@@ -1175,7 +1221,11 @@
         "additionalProperties": false
       },
       "ChatDto": {
-        "required": ["conversationId", "friendId", "friendUserName"],
+        "required": [
+          "conversationId",
+          "friendId",
+          "friendUserName"
+        ],
         "type": "object",
         "properties": {
           "friendId": {
@@ -1189,6 +1239,9 @@
           "friendAvatarUrl": {
             "type": "string",
             "nullable": true
+          },
+          "isFriendOnline": {
+            "type": "boolean"
           },
           "conversationId": {
             "type": "string",
@@ -1215,7 +1268,11 @@
         "additionalProperties": false
       },
       "FriendshipInvitationDto": {
-        "required": ["friendInvitationId", "senderId", "senderUserName"],
+        "required": [
+          "friendInvitationId",
+          "senderId",
+          "senderUserName"
+        ],
         "type": "object",
         "properties": {
           "friendInvitationId": {
@@ -1238,7 +1295,10 @@
         "additionalProperties": false
       },
       "InviteDto": {
-        "required": ["recipientId", "senderId"],
+        "required": [
+          "recipientId",
+          "senderId"
+        ],
         "type": "object",
         "properties": {
           "senderId": {
@@ -1253,7 +1313,12 @@
         "additionalProperties": false
       },
       "LoggedUserDto": {
-        "required": ["accessToken", "id", "refreshToken", "userName"],
+        "required": [
+          "accessToken",
+          "id",
+          "refreshToken",
+          "userName"
+        ],
         "type": "object",
         "properties": {
           "userName": {
@@ -1280,7 +1345,10 @@
         "additionalProperties": false
       },
       "LoginDto": {
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "type": "object",
         "properties": {
           "email": {
@@ -1297,7 +1365,12 @@
         "additionalProperties": false
       },
       "MessageDto": {
-        "required": ["content", "conversationId", "messageId", "senderId"],
+        "required": [
+          "content",
+          "conversationId",
+          "messageId",
+          "senderId"
+        ],
         "type": "object",
         "properties": {
           "messageId": {
@@ -1324,7 +1397,9 @@
         "additionalProperties": false
       },
       "PagedMessagesDto": {
-        "required": ["messages"],
+        "required": [
+          "messages"
+        ],
         "type": "object",
         "properties": {
           "messages": {
@@ -1343,7 +1418,10 @@
         "additionalProperties": false
       },
       "RefreshAccessTokenDto": {
-        "required": ["accessToken", "refreshToken"],
+        "required": [
+          "accessToken",
+          "refreshToken"
+        ],
         "type": "object",
         "properties": {
           "accessToken": {
@@ -1358,7 +1436,9 @@
         "additionalProperties": false
       },
       "RefreshTokenDto": {
-        "required": ["refreshToken"],
+        "required": [
+          "refreshToken"
+        ],
         "type": "object",
         "properties": {
           "refreshToken": {
@@ -1369,7 +1449,11 @@
         "additionalProperties": false
       },
       "RegisterDto": {
-        "required": ["email", "password", "username"],
+        "required": [
+          "email",
+          "password",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "email": {
@@ -1391,7 +1475,11 @@
         "additionalProperties": false
       },
       "RegisteredDto": {
-        "required": ["email", "id", "username"],
+        "required": [
+          "email",
+          "id",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1410,7 +1498,9 @@
         "additionalProperties": false
       },
       "SendInviteDto": {
-        "required": ["friendshipInvitationId"],
+        "required": [
+          "friendshipInvitationId"
+        ],
         "type": "object",
         "properties": {
           "friendshipInvitationId": {
@@ -1421,7 +1511,10 @@
         "additionalProperties": false
       },
       "SimpleUserWithAvatarDto": {
-        "required": ["id", "userName"],
+        "required": [
+          "id",
+          "userName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1440,7 +1533,10 @@
         "additionalProperties": false
       },
       "UserToInviteDto": {
-        "required": ["id", "userName"],
+        "required": [
+          "id",
+          "userName"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -1473,7 +1569,7 @@
   },
   "security": [
     {
-      "Bearer": []
+      "Bearer": [ ]
     }
   ]
 }

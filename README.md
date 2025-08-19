@@ -4,7 +4,8 @@ A real-time chat application built with .NET 9 and C# 13.0, providing secure and
 
 ---
 
-##Overview
+## Overview
+
 ChatCommunicator is a full-featured chat platform that enables users to connect, manage friendships, and exchange messages in real-time. The application is built using a clean architecture approach with distinct layers for API, application logic, and infrastructure.
 
 ## Technologies
@@ -106,7 +107,7 @@ Configure your application settings in appsettings.json:
 }
 ```
 
-####Running the Application
+#### Running the Application
 
 1.  Clone the repository
 2.  Apply migrations to your database:
@@ -147,10 +148,12 @@ All SignalR connections require authentication. Clients must provide a valid JWT
 
 The server invokes these methods on connected clients:
 
-| Method         | Parameters                                              | Description                                                    |
-| -------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
-| ReceiveMessage | messageId, conversationId, senderId, content, timestamp | Notifies clients when a new message is received                |
-| MessageRead    | messageId                                               | Notifies clients when a message has been read by the recipient |
+| Method           | Parameters                                              | Description                                                    |
+| ---------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
+| ReceiveMessage   | messageId, conversationId, senderId, content, timestamp | Notifies clients when a new message is received                |
+| MessageRead      | messageId                                               | Notifies clients when a message has been read by the recipient |
+| FriendConnect    | friendId                                                | Notifies clients when friend has been connected                |
+| FriendDisconnect | friendId                                                | Notifies clients when friend has been disconnected             |
 
 #### Connection Management
 

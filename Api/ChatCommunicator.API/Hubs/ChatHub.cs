@@ -2,7 +2,6 @@
 using ChatCommunicator.Application.Hubs.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Infrastructure.Models;
-using ChatCommunicator.Infrastructure.Models.Chat;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
