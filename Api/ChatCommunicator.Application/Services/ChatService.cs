@@ -7,7 +7,6 @@ using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace ChatCommunicator.Application.Services
 {
@@ -139,6 +138,8 @@ namespace ChatCommunicator.Application.Services
                     x => x.LastMessage!
                 );
 
+                var onlineUsers = await _usersConnectionService.GetOnlineUsersIdAsync();
+
                 var chatDtos = conversations
                     .Where(x => {
                         var isUser1 = x.User1Id == userId;
@@ -154,6 +155,7 @@ namespace ChatCommunicator.Application.Services
                             FriendId = friend.Id,
                             FriendUserName = friend.UserName == null ? throw new Exception("Friend UserName is null.") : friend.UserName,
                             FriendAvatarUrl = friend.AvatarUrl,
+                            IsFriendOnline = onlineUsers.Any(x => x == friend.Id),
                             ConversationId = x.Id,
                             LastMessageId = x.LastMessageId,
                             LastMessageContent = x.LastMessage?.Content,

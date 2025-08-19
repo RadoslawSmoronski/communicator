@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
+using ChatCommunicator.Application.Hubs.Interfaces;
+using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Chat;
+using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
-using ChatCommunicator.Application.Hubs.Interfaces;
-using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Infrastructure.Models;
 
 namespace ChatCommunicator.Application.Hubs
 {
@@ -14,16 +16,19 @@ namespace ChatCommunicator.Application.Hubs
     {
         private readonly IUsersConnectionService _usersConnectionManager;
         private readonly IChatService _chatService;
+        private readonly IFriendsService _friendsService;
         private readonly ILogger<ChatHub> _logger;
 
         public ChatHub(IUsersConnectionService usersConnectionManager,
             IChatService chatService,
             UserManager<UserAccount> userManager,
             IMapper mapper,
+            IFriendsService friendsService,
             ILogger<ChatHub> logger)
         {
             _usersConnectionManager = usersConnectionManager;
             _chatService = chatService;
+            _friendsService = friendsService;
             _logger = logger;
         }
 
@@ -37,6 +42,13 @@ namespace ChatCommunicator.Application.Hubs
                 _logger.LogInformation("User connected. UserId: {UserId}, UserName: {UserName}, ConnectionId: {ConnectionId}", userId, userName, Context.ConnectionId);
 
                 await _usersConnectionManager.AddUpdateAsync(Context.ConnectionId, userId);
+
+                var onlineFriends = await _friendsService.GetUserOnlineFriendsConnectionsIdAsync(userId);
+
+                if(onlineFriends.IsSuccess)
+                {
+                    await Clients.Clients(onlineFriends.Value).FriendConnect(userId);
+                }
             }
             else
             {
@@ -101,6 +113,13 @@ namespace ChatCommunicator.Application.Hubs
                     userId, Context.ConnectionId, exception?.Message);
 
                 await _usersConnectionManager.RemoveAsync(Context.ConnectionId, userId);
+
+                var isUserDisconnect = await IsUserDisconnect(userId);
+
+                if (isUserDisconnect.IsSuccess)
+                {
+                    await Clients.Clients(isUserDisconnect.Value).FriendDisconnect(userId);
+                }
             }
             else
             {
@@ -147,5 +166,25 @@ namespace ChatCommunicator.Application.Hubs
                 }
             }
         }
+    
+        private async Task<ResultT<List<string>>> IsUserDisconnect(Guid userId)
+        {
+            var isOnline = await _usersConnectionManager.IsUserOnlineAsync(userId);
+
+            if (isOnline)
+            {
+                return ResultT<List<string>>.Failure(
+                    Error.Failure("UserStillOnline", "User is still online."));
+            }
+
+            var friendsConnectionsResult = await _friendsService.GetUserOnlineFriendsConnectionsIdAsync(userId);
+            if (!friendsConnectionsResult.IsSuccess)
+            {
+                return ResultT<List<string>>.Failure(friendsConnectionsResult.Error!);
+            }
+
+            return friendsConnectionsResult.Value;
+        }
+    
     }
 }

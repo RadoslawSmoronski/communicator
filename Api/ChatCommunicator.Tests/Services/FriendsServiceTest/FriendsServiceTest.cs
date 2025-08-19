@@ -15,6 +15,7 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ILogger<FriendsService> _logger;
         protected readonly IUserAvatarService _userAvatarService;
+        protected readonly IUsersConnectionService _usersConnectionService;
 
         protected readonly FriendsService _friendsManager;
 
@@ -33,8 +34,9 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
             _unitOfWork = A.Fake<IUnitOfWork>();
             _logger = A.Fake<ILogger<FriendsService>>();
             _userAvatarService = A.Fake<IUserAvatarService>();
+            _usersConnectionService = A.Fake<IUsersConnectionService>();
 
-            _friendsManager = new FriendsService(_userManager, _unitOfWork, _logger, _userAvatarService);
+            _friendsManager = new FriendsService(_userManager, _unitOfWork, _logger, _userAvatarService, _usersConnectionService);
             _sampleSenderUser = new UserAccount { UserName = "senderUserLogin", Id = Guid.NewGuid() };
             _sampleRecipientUser = new UserAccount { UserName = "recipientUserLogin", Id = Guid.NewGuid() };
             _sampleUser = new UserAccount { UserName = "sampleUserLogin", Id = Guid.NewGuid() };

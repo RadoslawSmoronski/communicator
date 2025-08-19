@@ -4,8 +4,7 @@
     {
         Task AddUpdateAsync(string connectionId, Guid userId);
         Task RemoveAsync(string connectionId, Guid userId);
-
-        List<Guid> GetOnlineUsersIdAsync();
+        Task<List<Guid>> GetOnlineUsersIdAsync();
         Task<bool> IsUserOnlineAsync(Guid userId);
         List<string>? GetUserConnectionsId(Guid UserId);
     }

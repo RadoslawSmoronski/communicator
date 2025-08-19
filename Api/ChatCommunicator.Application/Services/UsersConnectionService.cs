@@ -73,10 +73,10 @@ namespace ChatCommunicator.Application.Managers
             return Task.CompletedTask;
         }
 
-        public List<Guid> GetOnlineUsersIdAsync()
+        public async Task<List<Guid>> GetOnlineUsersIdAsync()
         {
             _logger.LogDebug("Getting list of online users. Count: {Count}", _usersOnline.Count);
-            return _usersOnline.Keys.ToList();
+            return await Task.FromResult(_usersOnline.Keys.ToList());
         }
 
         public Task<bool> IsUserOnlineAsync(Guid userId)
@@ -97,5 +97,6 @@ namespace ChatCommunicator.Application.Managers
             _logger.LogDebug("GetUserConnectionsId: UserId {UserId} not found online", userId);
             return null;
         }
+
     }
 }

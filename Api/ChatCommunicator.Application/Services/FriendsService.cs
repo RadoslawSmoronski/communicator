@@ -1,14 +1,15 @@
-﻿using ChatCommunicator.Infrastructure.UnitOfWork;
+﻿using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
+using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Friendship;
+using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ChatCommunicator.Application.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using ChatCommunicator.Infrastructure.Models;
-using ChatCommunicator.Infrastructure.Models.Friendship;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ChatCommunicator.Application.Managers
 {
@@ -17,17 +18,20 @@ namespace ChatCommunicator.Application.Managers
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<FriendsService> _logger;
+        private readonly IUsersConnectionService _usersConnectionService;
         private readonly IUserAvatarService _userAvatarService;
 
         public FriendsService(UserManager<UserAccount> userManager,
             IUnitOfWork unitOfWork,
             ILogger<FriendsService> logger,
-            IUserAvatarService userAvatarService)
+            IUserAvatarService userAvatarService,
+            IUsersConnectionService usersConnectionService)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _userAvatarService = userAvatarService;
+            _usersConnectionService = usersConnectionService;
         }
 
         public async Task<ResultT<Guid>> SendInviteAsync(Guid senderId, Guid recipientId)
@@ -309,6 +313,48 @@ namespace ChatCommunicator.Application.Managers
             return await _unitOfWork.Friendships
                 .AnyAsync(x => x.User1Id == userId1 && x.User2Id == userId2
                 || x.User1Id == userId2 && x.User2Id == userId1);
+        }
+
+        public async Task<ResultT<List<string>>> GetUserOnlineFriendsConnectionsIdAsync(Guid userId)
+        {
+            if (userId == Guid.Empty)
+            {
+                _logger.LogWarning("GetUserOnlineFriendsConnectionsIdAsync validation failed: userId is empty");
+                return Error.Validation("USERID_IS_EMPTY", "UserId cannot be null or empty.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user == null || user.UserName == null)
+                {
+                    _logger.LogWarning("GetUserOnlineFriendsConnectionsIdAsync: User not found for id {UserId}", userId);
+                    return Error.NotFound("USER_NOT_FOUND", "User was not found.");
+                }
+
+                var friends = await GetFriendsFromDbAsync(userId);
+                var onlineFriendsConnections = new List<string>();
+
+                foreach (var friend in friends)
+                {
+                    if (await _usersConnectionService.IsUserOnlineAsync(friend.Id))
+                    {
+                        var connections = _usersConnectionService.GetUserConnectionsId(friend.Id);
+                        if (connections != null)
+                        {
+                            onlineFriendsConnections.AddRange(connections);
+                        }
+                    }
+                }
+
+                _logger.LogInformation("GetUserOnlineFriendsConnectionsIdAsync: Found {Count} online friends connections for userId {UserId}", onlineFriendsConnections.Count, userId);
+                return onlineFriendsConnections;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetUserOnlineFriendsConnectionsIdAsync: Internal server error for userId {UserId}", userId);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
         }
 
         private async Task<bool> IsFriendsInvitationExists(Guid user1Id, Guid user2Id)

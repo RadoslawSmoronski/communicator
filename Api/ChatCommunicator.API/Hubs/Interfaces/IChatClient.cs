@@ -6,5 +6,7 @@ namespace ChatCommunicator.Application.Hubs.Interfaces
     {
         Task ReceiveMessage(MessageDto message);
         Task MessageRead(Guid messageId);
+        Task FriendConnect(Guid friendId);
+        Task FriendDisconnect(Guid friendId);
     }
 }
