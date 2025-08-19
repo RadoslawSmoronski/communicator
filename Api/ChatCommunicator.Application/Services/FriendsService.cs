@@ -356,6 +356,42 @@ namespace ChatCommunicator.Application.Managers
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
+        public async Task<Result> DeleteAsync(Guid friendshipId)
+        {
+            if (friendshipId == Guid.Empty)
+            {
+                _logger.LogWarning("DeleteAsync validation failed: friendshipId is empty");
+                return Error.Validation("FRIENDSHIPID_IS_EMPTY", "FriendshipId cannot be null or empty.");
+            }
+
+            try
+            {
+                var friendship = await _GetFriendship(friendshipId);
+
+                if (friendship == null)
+                {
+                    _logger.LogWarning("DeleteAsync: Friendship not found for id {FriendshipId}", friendshipId);
+                    return Error.NotFound("FRIENDSHIP_NOT_FOUND", "Friendship was not found.");
+                }
+
+                _unitOfWork.Friendships.Delete(friendship);
+                await _unitOfWork.SaveAsync();
+
+                _logger.LogInformation("DeleteAsync: Friendship deleted successfully for id {FriendshipId}", friendshipId);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "DeleteAsync: Internal server error for friendshipId {FriendshipId}", friendshipId);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
+
+        private async Task<Friendship?> _GetFriendship(Guid friendshipId)
+        {
+            _logger.LogInformation("GetFriendship called with friendshipId: {FriendshipId}", friendshipId);
+            return await _unitOfWork.Friendships.FirstOrDefaultAsync(x => x.Id == friendshipId);
+        }
 
         private async Task<bool> IsFriendsInvitationExists(Guid user1Id, Guid user2Id)
         {

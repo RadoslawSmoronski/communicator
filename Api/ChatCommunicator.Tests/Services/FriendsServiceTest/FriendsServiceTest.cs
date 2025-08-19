@@ -24,6 +24,7 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
         protected readonly UserAccount _sampleUser;
 
         protected readonly FriendshipInvitation _sampleFriendshipInvitation;
+        protected readonly Friendship _sampleFriendship;
 
         protected const string SAMPLE_STRING_GUID = "12345678-1234-1234-1234-123456789abc";
         protected const string SAMPLE_STRING_EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
@@ -41,6 +42,7 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
             _sampleRecipientUser = new UserAccount { UserName = "recipientUserLogin", Id = Guid.NewGuid() };
             _sampleUser = new UserAccount { UserName = "sampleUserLogin", Id = Guid.NewGuid() };
             _sampleFriendshipInvitation = new FriendshipInvitation { SenderId = _sampleSenderUser.Id, RecipientId = _sampleRecipientUser.Id, SenderUser = _sampleSenderUser, RecipientUser = _sampleRecipientUser };
+            _sampleFriendship = new Friendship { User1Id = _sampleSenderUser.Id, User1 = _sampleSenderUser, User2Id = _sampleRecipientUser.Id, User2 = _sampleRecipientUser };
         }
     }
 }
