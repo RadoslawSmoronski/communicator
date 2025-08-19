@@ -523,6 +523,44 @@
         }
       }
     },
+    "/api/friendships/{friendshipId}": {
+      "delete": {
+        "tags": [
+          "Friends"
+        ],
+        "summary": "Delete friendship",
+        "description": "This endpoint deletes a friendship relationship identified by `friendshipId`.\r\nRequires a valid JWT token in the Authorization header.\r\nIf the friendship does not exist or the user does not have permission, an error response is returned.",
+        "parameters": [
+          {
+            "name": "friendshipId",
+            "in": "path",
+            "description": "The ID of the friendship (GUID). Required.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted the friendship."
+          },
+          "400": {
+            "description": "Invalid input or validation error."
+          },
+          "401": {
+            "description": "Unauthorized – missing or invalid JWT token."
+          },
+          "404": {
+            "description": "Friendship not found or access denied."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
     "/api/users": {
       "post": {
         "tags": [

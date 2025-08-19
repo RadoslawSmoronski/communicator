@@ -191,12 +191,10 @@ Run all tests using the command:
 
 This project is currently **under active development** and not yet complete. There are still several important features and improvements planned, including:
 
-- Removing friends functionality
 - Potential Docker integration for easier deployment and environment management
 - Additional enhancements to improve performance and user experience
 - Account activation via email
 - Password recovery
-- User online status
 - Improved documentation for SignalR integration
 
 We welcome feedback, ideas, and contributions to help make **Chat Communicator** even better!
