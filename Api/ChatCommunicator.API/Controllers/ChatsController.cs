@@ -2,6 +2,7 @@
 using ChatCommunicator.Application.Hubs;
 using ChatCommunicator.Application.Hubs.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -89,7 +90,7 @@ namespace ChatCommunicator.Application.Controllers
                         result.Value.PagedMessagesDto.LastFriendReadMessageId.Value);
 
                     await _chatHubContext.Clients.Clients(result.Value.RecipientConnectionsId)
-                        .MessageRead(result.Value.PagedMessagesDto.LastFriendReadMessageId.Value);
+                        .MessageRead(new MessageReadDto { FriendId = result.Value.PagedMessagesDto.LastFriendReadMessageId.Value, ConversationId = conversationId });
                 }
 
                 return Ok(result.Value.PagedMessagesDto);

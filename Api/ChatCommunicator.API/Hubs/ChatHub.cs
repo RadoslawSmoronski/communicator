@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ChatCommunicator.Application.Hubs.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Authorization;
@@ -93,7 +94,7 @@ namespace ChatCommunicator.Application.Hubs
             if (result.IsSuccess)
             {
                 await NotifyClients(userId, recipientId,
-                    (clients, connections) => clients.Clients(connections).MessageRead(result.Value),
+                    (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadDto { FriendId = result.Value, ConversationId = conversationId}),
                     "reading message");
             }
             else
