@@ -62,23 +62,17 @@
 
 #messageBox{
     grid-area: 3 / 2 / 9 / 7;
-    padding: 0 30px 0 30px;
     display: flex;
-    flex-direction: column-reverse;
-
-    justify-content: flex-start;
-    align-items: stretch;
-    overflow-y: auto;
-    overflow-x: hidden;
+    position: relative;
 }
 
-#messageBox::-webkit-scrollbar,
+.messageBoxContent::-webkit-scrollbar,
 #friendsList::-webkit-scrollbar,
 #invitationsList::-webkit-scrollbar {
     width: 10px; /* Szerokość paska przewijania */
 }
 
-#messageBox::-webkit-scrollbar-thumb,
+.messageBoxContent::-webkit-scrollbar-thumb,
 #friendsList::-webkit-scrollbar-thumb,
 #invitationsList::-webkit-scrollbar-thumb {
     background: #999; /* Kolor uchwytu */
@@ -86,7 +80,7 @@
 }
 
 
-#messageBox::-webkit-scrollbar-track,
+.messageBoxContent::-webkit-scrollbar-track,
 #friendsList::-webkit-scrollbar-track,
 #invitationsList::-webkit-scrollbar-track {
     background: #333; /* Kolor tła paska przewijania */
@@ -94,7 +88,7 @@
 }
 
 /* Możliwe dodatkowe style */
-#messageBox::-webkit-scrollbar-thumb:hover,
+.messageBoxContent::-webkit-scrollbar-thumb:hover,
 #friendsList::-webkit-scrollbar-thumb:hover,
 #invitationsList::-webkit-scrollbar-thumb:hover {
     background: #666666; /* Kolor uchwytu podczas najechania */

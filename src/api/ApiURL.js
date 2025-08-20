@@ -14,7 +14,8 @@ const APIs = {
     GET_INVITATIONS: (userId) => `/api/users/${userId}/friend-invitations`,
     DECELINE_INVITE:(friendInvitationId) => `/api/friend-invitations/${friendInvitationId}/decline`,
     ACCEPT_INVITE: (friendInvitationId)=> `/api/friend-invitations/${friendInvitationId}/accept`,
-    
+    FRIENDSHIP: (friendshipId)=> `/api/friendships/${friendshipId}`,
+
     FIND_PEOPLE_TO_INVITE: (text, userId) => `/api/users?search=${text}&invitableFor=${userId}`,
     GET_FRIENDS: (userId) => `/api/users/${userId}/friend`,
 

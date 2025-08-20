@@ -2,6 +2,19 @@
 
 // ------ MESSAGE BOX ---------
 
+.messageBoxContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+
+    align-items: stretch;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 0 30px 0 30px;
+}
+
 .messageTileRight {
     width: 100%;
     display: flex;
@@ -56,4 +69,23 @@
     height: 20px;
     right: -5px;
     bottom: 0px;
+}
+
+.friendDetailsPanel {
+    flex-shrink: 0;
+    width: max(20%, 150px);
+    background-color: vars.$bk-msg-page-color;
+    border: solid vars.$secondary-color;
+    border-width: 0px 0px 0px 2px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn2.delete{
+    color: vars.$btn-delete-color;
+    width: 150px;
 }

@@ -17,6 +17,7 @@ import Avatar from '../../components/Avatar';
 import FriendTile from '../../components/tiles/FriendTile';
 import MessageTile from '../../components/tiles/MessageTile';
 import PersonTile from '../../components/tiles/PersonTile';
+import FriendDetailsPanel from '../../components/FriendDetailsPanel';
 
 const MessagePage = () => {
     const { userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
@@ -47,6 +48,7 @@ const MessagePage = () => {
         lastReadMessageIds: {},
         lastOpenedChat: null
     });
+
     // chatRef - solve the problem of old data "chat"
     const chatRef = useRef(chat);
     useEffect(() => {
@@ -56,11 +58,21 @@ const MessagePage = () => {
     const [messageInput, setMessageInput] = useState('');
 
     const [display, setDisplay] = useState({
-        yourChatIsActive: true
+        yourChatIsActive: true,
+        friendDetailsPanel: false
     });
 
     const [signalRConnection, setSignalRConnection] = useState(null);
     const signalRConnectionRef = useRef(null);
+
+    // Set UI visibility by name
+    const toggleUI = (uiName, isVisible) => {
+        setDisplay(prev => ({
+            ...prev,
+            [uiName]: isVisible
+        }));
+
+    }
 
     // Search bar block
     // Actions when you type on search bar 
@@ -331,7 +343,11 @@ const MessagePage = () => {
     // Handles selecting chat
     // newMessNotify - is for turning off new message notification from friend
     const selectChat = async (conversationId, friendId, friendName, friendAvatarUrl) => {
-        scrollMessageBoxRef.current.scrollTop = 0;
+        if (chat.selectedId != conversationId) {
+            scrollMessageBoxRef.current.scrollTop = 0;
+            toggleUI("friendDetailsPanel", false);
+        }
+
 
         const updatedFriends = friend.list.map(friend =>
             friend.conversationId === conversationId
@@ -754,7 +770,7 @@ const MessagePage = () => {
                         <div className='friendBarUserName'>{friend.activeFriendName}</div>
                         <div className='friendBarRightBox'>
                             <FontAwesomeIcon icon={faPhone} className='friendBarIcon' />
-                            <FontAwesomeIcon icon={faCircleInfo} className='friendBarIcon' />
+                            <FontAwesomeIcon icon={faCircleInfo} className='friendBarIcon' onClick={() => toggleUI("friendDetailsPanel", !display.friendDetailsPanel)} />
                         </div>
                     </>
                 }
@@ -763,37 +779,41 @@ const MessagePage = () => {
             {/* MESSAGE BOX */}
             <div
                 id='messageBox'
-                ref={scrollMessageBoxRef}
-                onScroll={handleScrollMessageBox}
             >
-                {Array.isArray(chat.messages[chat.selectedId]) &&
-                    chat.messages[chat.selectedId].map((message, index) => (
-                        <MessageTile
-                            key={index}
-                            mess={message.content}
-                            yours={message.senderId === userId}
-                            time={message.timestamp}
-                            isLastReadByFriend={chat.lastReadMessageIds[chat.selectedId] === message.messageId}
-                        />
-                    ))
-                }
+                <div className='messageBoxContent'
+                    ref={scrollMessageBoxRef}
+                    onScroll={handleScrollMessageBox}
+                >
+                    {Array.isArray(chat.messages[chat.selectedId]) &&
+                        chat.messages[chat.selectedId].map((message, index) => (
+                            <MessageTile
+                                key={index}
+                                mess={message.content}
+                                yours={message.senderId === userId}
+                                time={message.timestamp}
+                                isLastReadByFriend={chat.lastReadMessageIds[chat.selectedId] === message.messageId}
+                            />
+                        ))
+                    }
 
-                {/* info inside chat */}
-                {chat.messages[chat.selectedId]?.length > 0 ?
-                    chat.noNewMessagesFlag[chat.selectedId] &&
-                    ( // there're some messages
-                        <span className='textCenter'>--- End of conversation ---</span>
-                    ) :
-                    chat.selectedId ?
-                        ( // there aren't any messages
-                            <span className='textCenter'>--- Start a conversation ---</span>
+                    {/* info inside chat */}
+                    {chat.messages[chat.selectedId]?.length > 0 ?
+                        chat.noNewMessagesFlag[chat.selectedId] &&
+                        ( // there're some messages
+                            <span className='textCenter'>--- End of conversation ---</span>
                         ) :
-                        ( // chat isn't selected
-                            <span className='textCenter'>--- Select chat ---</span>
-                        )
+                        chat.selectedId ?
+                            ( // there aren't any messages
+                                <span className='textCenter'>--- Start a conversation ---</span>
+                            ) :
+                            ( // chat isn't selected
+                                <span className='textCenter'>--- Select chat ---</span>
+                            )
+                    }
+                </div>
+                {display.friendDetailsPanel &&
+                    <FriendDetailsPanel friendName={friend.activeFriendName}/>
                 }
-
-
             </div>
 
             {/* SEND MESSAGE BOX */}
