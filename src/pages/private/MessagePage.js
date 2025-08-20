@@ -60,6 +60,7 @@ const MessagePage = () => {
     });
 
     const [signalRConnection, setSignalRConnection] = useState(null);
+    const signalRConnectionRef = useRef(null);
 
     // Search bar block
     // Actions when you type on search bar 
@@ -286,27 +287,23 @@ const MessagePage = () => {
 
     // Reads message and send notifiation to fiend
     const readMessage = async () => {
-        // to message user have to scroll down
-        // if (scrollMessageBoxRef.current.scrollTop != 0) {
-        //     return;
-        // }
+        console.log("readMessage_POST was invoked");
 
-        if (
-            signalRConnection &&
-            signalRConnection.state === signalR.HubConnectionState.Connected
-        ) {
-            try {
-                await signalRConnection.invoke(
-                    SIGNALR_HUBS.READ_MESSAGE,
-                    chat.activeReciepientId,
-                    chat.selectedId
-                );
-            } catch (err) {
-                console.error("Error reading message: ", err);
-            }
-        } else {
-            console.error("Connection not established or message is empty.");
+        let recipientId = chatRef.current.activeReciepientId;
+        let conversationId = chatRef.current.lastOpenedChat;
+
+        const connection = await waitForConnection();
+
+        try {
+            await connection.invoke(
+                SIGNALR_HUBS.READ_MESSAGE_POST,
+                recipientId,
+                conversationId
+            );
+        } catch (err) {
+            console.error("Error reading message: ", err);
         }
+
     }
 
     // Friend list
@@ -407,12 +404,16 @@ const MessagePage = () => {
             API_URL = APIs.GET_MESSAGES_NULL_FROM_MESSAGE_ID(conversationId);
         }
 
+        const abortCtr = new AbortController();
+        abortControllerRef.current = abortCtr;
+
         try {
             const data = await axios.get(
                 API_URL,
                 {
                     withCredentials: true,
                     headers: { Authorization: `Bearer ${accessToken}` },
+                    signal: abortCtr.signal
                 }
             );
 
@@ -443,6 +444,10 @@ const MessagePage = () => {
                 }));
             }
         } catch (err) {
+            if (err.name === 'CanceledError') { // cancel the request
+                return;
+            }
+
             if (err.response?.status === 401) {
                 await refreshAccessToken();
                 await getMessagesForFriend(conversationId);
@@ -466,6 +471,7 @@ const MessagePage = () => {
         let isInTheSameChat = messageDto.conversationId === chatRef.current.selectedId;
         // invoke read message if user is in the same chat
         if (isInTheSameChat) {
+            console.log("Message is from the active chat");
             readMessage();
         }
         // add last message to FriendTile
@@ -511,16 +517,17 @@ const MessagePage = () => {
     // handles reading message by friend 
     // and saves lastReadMessageId
     const handleReadMessageByFriend = async (lastReadMessageDto) => {
-        console.log("Friend read message:" + lastReadMessageDto);
+        console.log("Friend read message:");
+        console.log(lastReadMessageDto)
 
         let convId = lastReadMessageDto.conversationId;
-        let lastReadMessId = lastReadMessageDto.lastFriendReadMessageId;
+        let messId = lastReadMessageDto.messageId;
 
         setChat(prev => ({
             ...prev,
             lastReadMessageIds: {
                 ...prev.lastReadMessageIds,
-                [convId]: lastReadMessId
+                [convId]: messId
             }
         }));
     }
@@ -550,17 +557,20 @@ const MessagePage = () => {
             .build();
 
         connection.start()
-            .then(() => console.log("Connected to SignalR"))
+            .then(() => {
+                console.log("Connected to SignalR");
+
+                setSignalRConnection(connection);
+                signalRConnectionRef.current = connection;
+            })
             .catch(err => console.error("Connection failed: ", err));
 
         connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE,
             (messageDto) => handleNewMessageFromFriend(messageDto)
         );
-        connection.on(SIGNALR_HUBS.READ_MESSAGE,
+        connection.on(SIGNALR_HUBS.READ_MESSAGE_GET,
             (lastReadMessageDto) => handleReadMessageByFriend(lastReadMessageDto)
         )
-
-        setSignalRConnection(connection);
 
         // listen for 'refreshFriends'
         eventBus.on('refreshFriends', getFriends);
@@ -570,6 +580,18 @@ const MessagePage = () => {
             eventBus.off('refreshFriends', getFriends);
         };
     }, []);
+
+    // wait for signalR connection
+    const waitForConnection = async () => {
+        while (
+            !signalRConnectionRef.current ||
+            signalRConnectionRef.current.state !== signalR.HubConnectionState.Connected
+        ) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        return signalRConnectionRef.current;
+    };
+
 
     // load last openned chat
     useEffect(() => {
@@ -690,7 +712,7 @@ const MessagePage = () => {
                 {Array.isArray(chat.messages[chat.selectedId]) &&
                     chat.messages[chat.selectedId].map((message, index) => (
                         <MessageTile
-                            key={message.messageId}
+                            key={index}
                             mess={message.content}
                             yours={message.senderId === userId}
                             time={message.timestamp}

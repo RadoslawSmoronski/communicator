@@ -96,7 +96,7 @@ const Layout = () => {
                 }
             );
 
-            if (data.status === 200) {
+            if (data.status === 200 || data.status === 201) {
                 // delete invitation
                 setFriend(prev => ({
                     ...prev,
