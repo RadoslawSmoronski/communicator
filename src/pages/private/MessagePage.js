@@ -532,6 +532,40 @@ const MessagePage = () => {
         }));
     }
 
+    // handles change of friend online status
+    const handleFriendChangeOnlineStatus = async (friendId, isOnline) => {
+        if (isOnline) {
+            console.log(friendId + " is Online");
+        } else {
+            console.log(friendId + " is Offline");
+        }
+
+        // update online status to friend list
+        setFriend(prev => {
+            const updatedFriends = prev.list.map(f =>
+                f.friendId === friendId ? { ...f, isFriendOnline: isOnline } : f
+            );
+
+            let updatedActiveStatus = prev.activeFriendOnlineStatus;
+
+            // update online status at friend bar
+            if (friendId === chatRef.current.activeReciepientId) {
+                const activeFriend = updatedFriends.find(f => f.friendId === chatRef.current.activeReciepientId);
+                if (activeFriend) {
+                    updatedActiveStatus = activeFriend.isFriendOnline;
+                }
+            }
+
+
+            return {
+                ...prev,
+                list: updatedFriends,
+                list_filtered: listUtils.returnFilteredFriends(updatedFriends, searchBar),
+                activeFriendOnlineStatus: updatedActiveStatus
+            };
+        });
+    }
+
     // SignalR connection
     useEffect(() => {
         if (accessToken != '') {
@@ -571,6 +605,12 @@ const MessagePage = () => {
         connection.on(SIGNALR_HUBS.READ_MESSAGE_GET,
             (lastReadMessageDto) => handleReadMessageByFriend(lastReadMessageDto)
         )
+        connection.on(SIGNALR_HUBS.FRIEND_CONNECT,
+            (friendId) => handleFriendChangeOnlineStatus(friendId, true)
+        )
+        connection.on(SIGNALR_HUBS.FRIEND_DISCONNECT,
+            (friendId) => handleFriendChangeOnlineStatus(friendId, false)
+        )
 
         // listen for 'refreshFriends'
         eventBus.on('refreshFriends', getFriends);
@@ -606,6 +646,23 @@ const MessagePage = () => {
         }
     }, [chat.lastOpenedChat, friend.list]);
 
+    // auto update online status at friend bar
+    useEffect(() => {
+        setFriend(prev => {
+            let updatedActiveStatus = prev.activeFriendOnlineStatus;
+
+            // update online status at friend bar
+            const activeFriend = friend.list.find(f => f.friendId === chatRef.current.activeReciepientId);
+            if (activeFriend != null) {
+                updatedActiveStatus = activeFriend.isFriendOnline;
+            }
+
+            return {
+                ...prev,
+                activeFriendOnlineStatus: updatedActiveStatus
+            };
+        });
+    }, [friend.list, chat.activeReciepientId])
 
     return (
         <>
@@ -657,7 +714,7 @@ const MessagePage = () => {
                                     selected={chat.selectedId === f.conversationId}
                                     newMessageNotify={f.newMessNotify}
                                     avatarUrl={f.friendAvatarUrl}
-                                    isOnline={false}
+                                    isOnline={f.isFriendOnline}
                                 />
                             ))
                         ) : (
