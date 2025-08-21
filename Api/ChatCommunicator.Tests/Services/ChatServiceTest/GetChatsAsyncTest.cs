@@ -30,7 +30,6 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                         FriendId = friend!.Id,
                         FriendUserName = friend.UserName!,
                         ConversationId = x.Id,
-                        FriendshipId = x.Id,
                         LastMessageId = x.LastMessageId,
                         LastMessageContent = (x.LastMessage == null) ? null : x.LastMessage.Content,
                         IsFriendSenderMessage = x.LastMessage != null && x.LastMessage.SenderId == friend.Id,

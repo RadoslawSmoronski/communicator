@@ -2,6 +2,7 @@
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
+using ChatCommunicator.Contracts.Dtos.Friendships;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Models.Friendship;
 using ChatCommunicator.Infrastructure.UnitOfWork;
@@ -274,7 +275,7 @@ namespace ChatCommunicator.Application.Managers
             }
         }
 
-        public async Task<ResultT<List<SimpleUserWithAvatarDto>>> GetFriendsAsync(Guid userId)
+        public async Task<ResultT<List<FriendDto>>> GetFriendsAsync(Guid userId)
         {
             _logger.LogInformation("GetFriendsAsync called with userId: {UserId}", userId);
 
@@ -410,8 +411,7 @@ namespace ChatCommunicator.Application.Managers
                 _logger.LogError(ex, "GetFriendshipByFriends: Internal server error for user1Id {User1Id} and user2Id {User2Id}", user1Id, user2Id);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
-        }
-
+        } // to remove?
         private async Task<Friendship?> _GetFriendship(Guid friendshipId)
         {
             _logger.LogInformation("GetFriendship called with friendshipId: {FriendshipId}", friendshipId);
@@ -556,7 +556,7 @@ namespace ChatCommunicator.Application.Managers
             return friendship.Id;
         }
 
-        private async Task<List<SimpleUserWithAvatarDto>> GetFriendsFromDbAsync(Guid userId)
+        private async Task<List<FriendDto>> GetFriendsFromDbAsync(Guid userId)
         {
             _logger.LogInformation("GetFriendsFromDbAsync called for userId: {UserId}", userId);
 
@@ -569,16 +569,18 @@ namespace ChatCommunicator.Application.Managers
             var friends = result.Select(x =>
             {
                 if (x.User1Id == userId)
-                    return new SimpleUserWithAvatarDto
+                    return new FriendDto
                     {
                         Id = x.User2Id,
+                        FriendshipId = x.Id,
                         userName = x.User2?.UserName ?? string.Empty,
                         AvatarUrl = x.User2?.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(x.User2.AvatarUrl) : null
                     };
                 else
-                    return new SimpleUserWithAvatarDto
+                    return new FriendDto
                     {
                         Id = x.User1Id,
+                        FriendshipId = x.Id,
                         userName = x.User1?.UserName ?? string.Empty,
                         AvatarUrl = x.User1?.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(x.User1.AvatarUrl) : null
                     };
@@ -588,6 +590,7 @@ namespace ChatCommunicator.Application.Managers
 
             return friends;
         }
+
     }
 }
 

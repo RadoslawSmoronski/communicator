@@ -150,7 +150,6 @@ namespace ChatCommunicator.Application.Services
                         var isUser1 = x.User1Id == userId;
                         var friend = isUser1 ? x.User2 : x.User1;
 
-
                         return new ChatDto
                         {
                             FriendId = friend.Id,
@@ -158,7 +157,6 @@ namespace ChatCommunicator.Application.Services
                             FriendAvatarUrl = friend.AvatarUrl,
                             IsFriendOnline = onlineUsers.Any(x => x == friend.Id),
                             ConversationId = x.Id,
-                            FriendshipId = x.Id,
                             LastMessageId = x.LastMessageId,
                             LastMessageContent = x.LastMessage?.Content,
                             IsFriendSenderMessage = x.LastMessage?.SenderId == friend.Id,

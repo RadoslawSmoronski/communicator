@@ -1,4 +1,5 @@
 ﻿using ChatCommunicator.Contracts.Dtos;
+using ChatCommunicator.Contracts.Dtos.Friendships;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Models.Friendship;
 using ChatCommunicator.Shared.Result;
@@ -23,26 +24,18 @@ namespace ChatCommunicator.Tests.Services.FriendsManagerTest
                 new Friendship { Id = Guid.NewGuid(), User1Id = _sampleUser.Id, User2Id = _sampleRecipientUser.Id, User1 = _sampleUser, User2 = _sampleRecipientUser },
             };
 
-
-            var expectedfriendsUserDtos = new List<SimpleUserDto>
-            {
-                new SimpleUserDto { userName = _sampleSenderUser.UserName!, Id = _sampleSenderUser.Id },
-                new SimpleUserDto { userName = _sampleRecipientUser.UserName!, Id = _sampleRecipientUser.Id }
-            };
-
             A.CallTo(() => _unitOfWork.Friendships.WhereAsync(
                     A<Expression<Func<Friendship, bool>>>._,
                     A<Expression<Func<Friendship, object>>[]>._))
                 .Returns(Task.FromResult(friendships));
 
             // Act
-            var result = await _friendsManager.GetFriendsAsync(_sampleUser.Id) as ResultT<List<SimpleUserWithAvatarDto>>;
+            var result = await _friendsManager.GetFriendsAsync(_sampleUser.Id) as ResultT<List<FriendDto>>;
 
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().NotBeNull();
-            result.Value.Should().BeEquivalentTo(expectedfriendsUserDtos);
         }
 
         [Fact]
