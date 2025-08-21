@@ -1,4 +1,5 @@
 ﻿using ChatCommunicator.Contracts.Dtos.Chat;
+using ChatCommunicator.Contracts.Dtos.Friendships;
 using ChatCommunicator.Infrastructure.Models.Chat;
 using ChatCommunicator.Shared.Result;
 using FakeItEasy;
@@ -36,6 +37,8 @@ namespace ChatCommunicator.Tests.Managers.ChatManagerTest
                         LastMessageTimestamp = x.LastMessage?.Timestamp
                     };
                 }).ToList();
+            A.CallTo(() => _friendsService.GetFriendsAsync(_sampleUser1.Id))
+                .Returns(Task.FromResult<ResultT<List<FriendDto>>>(ResultT<List<FriendDto>>.Failure(Error.NotFound("test", "test"))));
 
             // Act
             var result = await _chatManager.GetChatsAsync(_sampleUser1.Id) as ResultT<List<ChatDto>>;

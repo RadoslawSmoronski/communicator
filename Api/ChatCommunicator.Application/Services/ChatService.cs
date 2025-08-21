@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ChatCommunicator.Application.Managers;
 using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Infrastructure.Models;
@@ -14,6 +15,7 @@ namespace ChatCommunicator.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<UserAccount> _userManager;
+        private readonly IFriendsService _friendsService;
         private readonly IMapper _mapper;
         private readonly IUsersConnectionService _usersConnectionService;
         private readonly ILogger<ChatService> _logger;
@@ -22,12 +24,14 @@ namespace ChatCommunicator.Application.Services
 
         public ChatService(IUnitOfWork unitOfWork,
             UserManager<UserAccount> userManager,
+            IFriendsService friendsService,
             IMapper mapper,
             IUsersConnectionService usersConnectionService,
             ILogger<ChatService> logger)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _friendsService = friendsService;
             _mapper = mapper;
             _usersConnectionService = usersConnectionService;
             _logger = logger;
@@ -140,29 +144,50 @@ namespace ChatCommunicator.Application.Services
 
                 var onlineUsers = await _usersConnectionService.GetOnlineUsersIdAsync();
 
-                var chatDtos = conversations
-                    .Where(x => {
-                        var isUser1 = x.User1Id == userId;
-                        var friend = isUser1 ? x.User2 : x.User1;
-                        return friend?.UserName != null;
-                    })
-                    .Select(x => {
-                        var isUser1 = x.User1Id == userId;
-                        var friend = isUser1 ? x.User2 : x.User1;
+                    var chatDtos = conversations
+                        .Where(x => {
+                            var isUser1 = x.User1Id == userId;
+                            var friend = isUser1 ? x.User2 : x.User1;
+                            return friend?.UserName != null;
+                        })
+                        .Select(x => {
+                            var isUser1 = x.User1Id == userId;
+                            var friend = isUser1 ? x.User2 : x.User1;
 
-                        return new ChatDto
+                            return new ChatDto
+                            {
+                                FriendId = friend.Id,
+                                FriendUserName = friend.UserName == null ? throw new Exception("Friend UserName is null.") : friend.UserName,
+                                FriendAvatarUrl = friend.AvatarUrl,
+                                IsFriendOnline = onlineUsers.Any(x => x == friend.Id),
+                                ConversationId = x.Id,
+                                LastMessageId = x.LastMessageId,
+                                LastMessageContent = x.LastMessage?.Content,
+                                IsFriendSenderMessage = x.LastMessage?.SenderId == friend.Id,
+                                LastMessageTimestamp = x.LastMessage?.Timestamp
+                            };
+                        }).ToList();
+
+                    var getFriends = await _friendsService.GetFriendsAsync(userId);
+
+                    if(getFriends.IsSuccess)
+                    {
+                        var result = chatDtos.Select(chat =>
                         {
-                            FriendId = friend.Id,
-                            FriendUserName = friend.UserName == null ? throw new Exception("Friend UserName is null.") : friend.UserName,
-                            FriendAvatarUrl = friend.AvatarUrl,
-                            IsFriendOnline = onlineUsers.Any(x => x == friend.Id),
-                            ConversationId = x.Id,
-                            LastMessageId = x.LastMessageId,
-                            LastMessageContent = x.LastMessage?.Content,
-                            IsFriendSenderMessage = x.LastMessage?.SenderId == friend.Id,
-                            LastMessageTimestamp = x.LastMessage?.Timestamp
-                        };
-                    }).ToList();
+                            var friends = getFriends.Value;
+
+                            var friend = friends.FirstOrDefault(f => f.Id == chat.FriendId);
+
+                            if (friend != null)
+                            {
+                                chat.FriendshipId = friend.FriendshipId;
+                            }
+
+                            return chat;
+                        }).ToList();
+
+                        return result;
+                    }
 
                 _logger.LogInformation("Returning {Count} chats for user id {UserId}", chatDtos.Count, userId);
                 return chatDtos;

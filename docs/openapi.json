@@ -1124,7 +1124,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                    "$ref": "#/components/schemas/FriendDto"
                   }
                 }
               },
@@ -1132,7 +1132,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                    "$ref": "#/components/schemas/FriendDto"
                   }
                 }
               },
@@ -1140,7 +1140,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SimpleUserWithAvatarDto"
+                    "$ref": "#/components/schemas/FriendDto"
                   }
                 }
               }
@@ -1281,6 +1281,11 @@
           "isFriendOnline": {
             "type": "boolean"
           },
+          "friendshipId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
           "conversationId": {
             "type": "string",
             "format": "uuid"
@@ -1300,6 +1305,33 @@
           "lastMessageTimestamp": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FriendDto": {
+        "required": [
+          "friendshipId",
+          "id",
+          "userName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "friendshipId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -1544,28 +1576,6 @@
           "friendshipInvitationId": {
             "type": "string",
             "format": "uuid"
-          }
-        },
-        "additionalProperties": false
-      },
-      "SimpleUserWithAvatarDto": {
-        "required": [
-          "id",
-          "userName"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userName": {
-            "type": "string",
-            "nullable": true
-          },
-          "avatarUrl": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false

@@ -7,6 +7,7 @@ using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
+using ChatCommunicator.Contracts.Dtos.Friendships;
 using ChatCommunicator.Infrastructure.Models.Friendship;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -458,7 +459,7 @@ namespace ChatCommunicator.Application.Controllers
         /// </example>
         [Authorize]
         [HttpGet("{userId}/friends")]
-        [ProducesResponseType(typeof(List<SimpleUserWithAvatarDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<FriendDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFriendsAsync([FromRoute] Guid userId)
         {
             var result = await _friendsService.GetFriendsAsync(userId);
