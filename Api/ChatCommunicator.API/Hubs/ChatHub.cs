@@ -94,7 +94,7 @@ namespace ChatCommunicator.Application.Hubs
             if (result.IsSuccess)
             {
                 await NotifyClients(userId, recipientId,
-                    (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadDto { FriendId = result.Value, ConversationId = conversationId}),
+                    (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadDto { MessageId = result.Value, ConversationId = conversationId}),
                     "reading message");
             }
             else
