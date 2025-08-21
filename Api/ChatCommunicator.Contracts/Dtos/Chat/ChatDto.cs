@@ -6,6 +6,7 @@
         public required string FriendUserName {  get; set; }
         public string? FriendAvatarUrl { get; set; }
         public bool IsFriendOnline { get; set; } = false;
+        public required Guid FriendshipId { get; set; }
         public required Guid ConversationId { get; set; }
         public Guid? LastMessageId { get; set; }
         public string? LastMessageContent { get; set; }

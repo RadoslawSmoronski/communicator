@@ -13,6 +13,7 @@ namespace ChatCommunicator.Application.Services.Interfaces
         Task<Result> DecelineInviteAsync(Guid senderId, Guid recipientId);
         Task<ResultT<Guid>> AddFriendsAsync(Guid senderId, Guid recipientId);
         Task<ResultT<List<SimpleUserWithAvatarDto>>> GetFriendsAsync(Guid userId);
+        Task<ResultT<Friendship>> GetFriendshipByFriendsIdAsync(Guid user1Id, Guid user2Id);
         Task<bool> IsFriendsExistAsync(Guid userId1, Guid userId2);
         Task<ResultT<List<string>>> GetUserOnlineFriendsConnectionsIdAsync(Guid userId);
         Task<Result> DeleteAsync(Guid friendshipId);

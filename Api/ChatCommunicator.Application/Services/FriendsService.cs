@@ -386,13 +386,37 @@ namespace ChatCommunicator.Application.Managers
                 return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
             }
         }
+        public async Task<ResultT<Friendship>> GetFriendshipByFriendsIdAsync(Guid user1Id, Guid user2Id)
+        {
+            try
+            {
+                _logger.LogInformation("GetFriendshipByFriends called with user1Id: {User1Id}, user2Id: {User2Id}", user1Id, user2Id);
+
+                var result = await _unitOfWork.Friendships.FirstOrDefaultAsync(x =>
+                    (x.User1Id == user1Id && x.User2Id == user2Id) ||
+                    (x.User2Id == user1Id && x.User1Id == user2Id));
+
+                if (result != null)
+                {
+                    _logger.LogInformation("GetFriendshipByFriends: Friendship found between user1Id: {User1Id} and user2Id: {User2Id}", user1Id, user2Id);
+                    return result;
+                }
+
+                _logger.LogWarning("GetFriendshipByFriends: Friendship not found between user1Id: {User1Id} and user2Id: {User2Id}", user1Id, user2Id);
+                return Error.NotFound("FRIENDSHIP_NOT_FOUND", "Friendship between the specified users was not found.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetFriendshipByFriends: Internal server error for user1Id {User1Id} and user2Id {User2Id}", user1Id, user2Id);
+                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+            }
+        }
 
         private async Task<Friendship?> _GetFriendship(Guid friendshipId)
         {
             _logger.LogInformation("GetFriendship called with friendshipId: {FriendshipId}", friendshipId);
             return await _unitOfWork.Friendships.FirstOrDefaultAsync(x => x.Id == friendshipId);
         }
-
         private async Task<bool> IsFriendsInvitationExists(Guid user1Id, Guid user2Id)
         {
             _logger.LogInformation("IsFriendsInvitationExists called with user1Id: {User1Id}, user2Id: {User2Id}", user1Id, user2Id);

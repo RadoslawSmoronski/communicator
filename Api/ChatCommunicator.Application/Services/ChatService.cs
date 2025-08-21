@@ -150,6 +150,7 @@ namespace ChatCommunicator.Application.Services
                         var isUser1 = x.User1Id == userId;
                         var friend = isUser1 ? x.User2 : x.User1;
 
+
                         return new ChatDto
                         {
                             FriendId = friend.Id,
@@ -157,6 +158,7 @@ namespace ChatCommunicator.Application.Services
                             FriendAvatarUrl = friend.AvatarUrl,
                             IsFriendOnline = onlineUsers.Any(x => x == friend.Id),
                             ConversationId = x.Id,
+                            FriendshipId = x.Id,
                             LastMessageId = x.LastMessageId,
                             LastMessageContent = x.LastMessage?.Content,
                             IsFriendSenderMessage = x.LastMessage?.SenderId == friend.Id,
@@ -223,7 +225,7 @@ namespace ChatCommunicator.Application.Services
 
                 var messageDtos = _mapper.Map<List<MessageDto>>(messages);
 
-                var lastFriendReadMessageId = messageDtos.Count > 0 ? _GetFriendLastReadMessage(userId, messages[0].Conversation) : null;
+                var lastFriendReadMessageId = _GetFriendLastReadMessage(userId, conversation);
 
                 var setUserLastMessageResult = await SetAndGetUserLastReadMessageAsync(userId, conversationId);
 
