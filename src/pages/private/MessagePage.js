@@ -18,6 +18,7 @@ import FriendTile from '../../components/tiles/FriendTile';
 import MessageTile from '../../components/tiles/MessageTile';
 import PersonTile from '../../components/tiles/PersonTile';
 import FriendDetailsPanel from '../../components/FriendDetailsPanel';
+import ConfirmationBox from '../../components/form/ConfirmationBox';
 
 const MessagePage = () => {
     const { userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
@@ -37,7 +38,8 @@ const MessagePage = () => {
         findStatus: 'not found',
         activeFriendName: '',
         activeFriendAvatarUrl: null,
-        activeFriendOnlineStatus: false
+        activeFriendOnlineStatus: false,
+        activeFriendshipId: null
     });
 
     const [chat, setChat] = useState({
@@ -59,7 +61,10 @@ const MessagePage = () => {
 
     const [display, setDisplay] = useState({
         yourChatIsActive: true,
-        friendDetailsPanel: false
+        friendDetailsPanel: false,
+        confirmationBox: false,
+        confirmationBoxText: "Are you sure?",
+        confirmationBoxFunc: null
     });
 
     const [signalRConnection, setSignalRConnection] = useState(null);
@@ -297,12 +302,14 @@ const MessagePage = () => {
         }
     };
 
-    // Reads message and send notifiation to fiend
+    // Reads message and send notifiation to friend
     const readMessage = async () => {
         console.log("readMessage_POST was invoked");
 
         let recipientId = chatRef.current.activeReciepientId;
-        let conversationId = chatRef.current.lastOpenedChat;
+        let conversationId = chatRef.current.selectedId;
+
+        console.log("recipientId: " + recipientId + ", conversationId: " + conversationId);
 
         const connection = await waitForConnection();
 
@@ -321,7 +328,7 @@ const MessagePage = () => {
     // Friend list
     // Handles clicking on chat
     // adds param (lastOpened) to userInfo localStorage
-    const handleClickingOnChat = async (conversationId, friendId, friendName, friendAvatarUrl) => {
+    const handleClickingOnChat = async (conversationId, friendId, friendName, friendAvatarUrl, friendshipId) => {
         // cookie override
         let lastOpenedChatsSet = cookieUtils.get('lastOpenedChatSet') || {};
 
@@ -329,20 +336,21 @@ const MessagePage = () => {
             conversationId,
             friendId,
             friendName,
-            friendAvatarUrl
+            friendAvatarUrl,
+            friendshipId
         };
 
         lastOpenedChatsSet[userId] = lastOpenedChatObj;
 
         cookieUtils.set('lastOpenedChatSet', lastOpenedChatsSet);
 
-        selectChat(conversationId, friendId, friendName, friendAvatarUrl);
+        selectChat(conversationId, friendId, friendName, friendAvatarUrl, friendshipId);
     }
 
     // Friend list
     // Handles selecting chat
     // newMessNotify - is for turning off new message notification from friend
-    const selectChat = async (conversationId, friendId, friendName, friendAvatarUrl) => {
+    const selectChat = async (conversationId, friendId, friendName, friendAvatarUrl, friendshipId) => {
         if (chat.selectedId != conversationId) {
             scrollMessageBoxRef.current.scrollTop = 0;
             toggleUI("friendDetailsPanel", false);
@@ -359,6 +367,7 @@ const MessagePage = () => {
             ...prev,
             activeFriendName: friendName,
             activeFriendAvatarUrl: friendAvatarUrl,
+            activeFriendshipId: friendshipId,
             list: updatedFriends,
             list_filtered: listUtils.returnFilteredFriends(updatedFriends, searchBar),
         }));
@@ -420,16 +429,12 @@ const MessagePage = () => {
             API_URL = APIs.GET_MESSAGES_NULL_FROM_MESSAGE_ID(conversationId);
         }
 
-        const abortCtr = new AbortController();
-        abortControllerRef.current = abortCtr;
-
         try {
             const data = await axios.get(
                 API_URL,
                 {
                     withCredentials: true,
-                    headers: { Authorization: `Bearer ${accessToken}` },
-                    signal: abortCtr.signal
+                    headers: { Authorization: `Bearer ${accessToken}` }
                 }
             );
 
@@ -443,38 +448,35 @@ const MessagePage = () => {
 
                 // add new messeges for [conversationId]
                 // noNewMessagesFlag for stopping fetching new messages
-                setChat(prev => ({
-                    ...prev,
-                    messages: {
-                        ...prev.messages,
-                        [conversationId]: [...(prev.messages[conversationId] || []), ...newMessages],
-                    },
-                    noNewMessagesFlag: {
-                        ...prev.noNewMessagesFlag,
-                        [conversationId]: newMessagesFlag
-                    },
-                    lastReadMessageIds: {
-                        ...prev.lastReadMessageIds,
-                        [conversationId]: lastFriendReadMessageId
+                setChat(prev => {
+                    const oldMessages = prev.messages[conversationId] || [];
+                    const newMessagesArr = [...oldMessages, ...newMessages];
+
+                    chatRef.current.messages[conversationId] = newMessagesArr;
+
+                    return {
+                        ...prev,
+                        messages: {
+                            ...prev.messages,
+                            [conversationId]: newMessagesArr,
+                        },
+                        noNewMessagesFlag: {
+                            ...prev.noNewMessagesFlag,
+                            [conversationId]: newMessagesFlag
+                        },
+                        lastReadMessageIds: {
+                            ...prev.lastReadMessageIds,
+                            [conversationId]: lastFriendReadMessageId
+                        }
                     }
-                }));
+                });
             }
         } catch (err) {
-            if (err.name === 'CanceledError') { // cancel the request
-                return;
-            }
-
             if (err.response?.status === 401) {
                 await refreshAccessToken();
                 await getMessagesForFriend(conversationId);
             } else if (err.response?.status === 404) {
-                // setChat(prev => ({
-                //     ...prev,
-                //     messages: {
-                //         ...prev.messages,
-                //         [conversationId]: [],
-                //     },
-                // }));
+
             } else {
                 console.error(err);
             }
@@ -589,52 +591,53 @@ const MessagePage = () => {
 
             // get your last chat info
             const userChat = cookieUtils.get('lastOpenedChatSet');
-            if (userChat) {
-                if (userChat[userId]) {
+            if (userChat) { // if cookie exists
+                if (userChat[userId]) { // if there is a record from logged user
                     setChat(prev => ({
                         ...prev,
                         lastOpenedChat: userChat[userId]
                     }))
+
                 }
             }
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl(`http://localhost:5205${SIGNALR_HUBS.CHATHUB}`, {
+                    accessTokenFactory: () => accessToken
+                })
+                .withAutomaticReconnect()
+                .build();
+
+            connection.start()
+                .then(() => {
+                    console.log("Connected to SignalR");
+
+                    setSignalRConnection(connection);
+                    signalRConnectionRef.current = connection;
+                })
+                .catch(err => console.error("Connection failed: ", err));
+
+            connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE,
+                (messageDto) => handleNewMessageFromFriend(messageDto)
+            );
+            connection.on(SIGNALR_HUBS.READ_MESSAGE_GET,
+                (lastReadMessageDto) => handleReadMessageByFriend(lastReadMessageDto)
+            )
+            connection.on(SIGNALR_HUBS.FRIEND_CONNECT,
+                (friendId) => handleFriendChangeOnlineStatus(friendId, true)
+            )
+            connection.on(SIGNALR_HUBS.FRIEND_DISCONNECT,
+                (friendId) => handleFriendChangeOnlineStatus(friendId, false)
+            )
+
+            // listen for 'refreshFriends'
+            eventBus.on('refreshFriends', getFriends);
+
+            return () => {
+                connection.stop();
+                eventBus.off('refreshFriends', getFriends);
+            };
         }
-
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl(`http://localhost:5205${SIGNALR_HUBS.CHATHUB}`, {
-                accessTokenFactory: () => accessToken
-            })
-            .withAutomaticReconnect()
-            .build();
-
-        connection.start()
-            .then(() => {
-                console.log("Connected to SignalR");
-
-                setSignalRConnection(connection);
-                signalRConnectionRef.current = connection;
-            })
-            .catch(err => console.error("Connection failed: ", err));
-
-        connection.on(SIGNALR_HUBS.RECEIVE_MESSAGE,
-            (messageDto) => handleNewMessageFromFriend(messageDto)
-        );
-        connection.on(SIGNALR_HUBS.READ_MESSAGE_GET,
-            (lastReadMessageDto) => handleReadMessageByFriend(lastReadMessageDto)
-        )
-        connection.on(SIGNALR_HUBS.FRIEND_CONNECT,
-            (friendId) => handleFriendChangeOnlineStatus(friendId, true)
-        )
-        connection.on(SIGNALR_HUBS.FRIEND_DISCONNECT,
-            (friendId) => handleFriendChangeOnlineStatus(friendId, false)
-        )
-
-        // listen for 'refreshFriends'
-        eventBus.on('refreshFriends', getFriends);
-
-        return () => {
-            connection.stop();
-            eventBus.off('refreshFriends', getFriends);
-        };
     }, []);
 
     // wait for signalR connection
@@ -652,8 +655,12 @@ const MessagePage = () => {
     // load last openned chat
     useEffect(() => {
         if (chat.lastOpenedChat && friend.list.length > 0) {
-            const { conversationId, friendId, friendName, friendAvatarUrl } = chat.lastOpenedChat;
-            selectChat(conversationId, friendId, friendName, friendAvatarUrl);
+            const { conversationId, friendId, friendName, friendAvatarUrl, friendshipId } = chat.lastOpenedChat;
+            let lastChatObj = friend.list.filter(f => f.friendId == chat.lastOpenedChat.friendId);
+            if (lastChatObj[0]?.friendshipId) { // load if last chat opened is still with friend
+                selectChat(conversationId, friendId, friendName, friendAvatarUrl, friendshipId);
+            }
+
 
             setChat(prev => ({
                 ...prev,
@@ -719,20 +726,22 @@ const MessagePage = () => {
                 {display.yourChatIsActive ? (
                     friend.list.length > 0 ? (
                         friend.list_filtered.length > 0 ? (
-                            friend.list_filtered.map(f => (
-                                <FriendTile
-                                    key={f.friendId}
-                                    username={f.friendUserName}
-                                    onClick={() => handleClickingOnChat(f.conversationId, f.friendId, f.friendUserName, f.friendAvatarUrl)}
-                                    author={f.isFriendSenderMessage ? '' : 'You: '}
-                                    mess={f.lastMessageContent}
-                                    messTimestamp={f.lastMessageTimestamp}
-                                    selected={chat.selectedId === f.conversationId}
-                                    newMessageNotify={f.newMessNotify}
-                                    avatarUrl={f.friendAvatarUrl}
-                                    isOnline={f.isFriendOnline}
-                                />
-                            ))
+                            friend.list_filtered
+                                .filter(f => f.friendshipId !== null)
+                                .map(f => (
+                                    <FriendTile
+                                        key={f.friendId}
+                                        username={f.friendUserName}
+                                        onClick={() => handleClickingOnChat(f.conversationId, f.friendId, f.friendUserName, f.friendAvatarUrl, f.friendshipId)}
+                                        author={f.isFriendSenderMessage ? '' : 'You: '}
+                                        mess={f.lastMessageContent}
+                                        messTimestamp={f.lastMessageTimestamp}
+                                        selected={chat.selectedId === f.conversationId}
+                                        newMessageNotify={f.newMessNotify}
+                                        avatarUrl={f.friendAvatarUrl}
+                                        isOnline={f.isFriendOnline}
+                                    />
+                                ))
                         ) : (
                             <div className='infoText'>There are no friends named {searchBar} ...</div>
                         )
@@ -812,7 +821,16 @@ const MessagePage = () => {
                     }
                 </div>
                 {display.friendDetailsPanel &&
-                    <FriendDetailsPanel friendName={friend.activeFriendName}/>
+                    <FriendDetailsPanel
+                        friendName={friend.activeFriendName}
+                        friendshipId={friend.activeFriendshipId}
+                        setDisplay={setDisplay}
+                        showConfirmationBox={() => toggleUI("confirmationBox", true)}
+                        closeConfirmationBox={() => toggleUI("confirmationBox", false)}
+                        setFriend={setFriend}
+                        setChat={setChat}
+                        friendState={friend}
+                    />
                 }
             </div>
 
@@ -834,6 +852,14 @@ const MessagePage = () => {
                     onClick={chat.selectedId === null ? null : sendMessageToFriend}
                 />
             </div>
+
+            {display.confirmationBox &&
+                <ConfirmationBox
+                    confirmFunc={display.confirmationBoxFunc}
+                    closePanel={() => toggleUI("confirmationBox", false)}
+                    text={display.confirmationBoxText}
+                />
+            }
         </>
     );
 

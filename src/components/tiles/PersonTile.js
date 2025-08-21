@@ -28,11 +28,7 @@ const PersonTile = ({ recipientId, username, isInvited, avatarUrl }) => {
                 }
             );
 
-            const res = data.data;
-
             if (data.status === 201) {
-                console.log(res.title);
-                console.log(res.traceId);
                 setSendBtnIsActive(false);
             }
 
