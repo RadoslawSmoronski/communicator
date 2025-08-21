@@ -306,12 +306,12 @@ const MessagePage = () => {
     const readMessage = async () => {
         console.log("readMessage_POST was invoked");
 
+        const connection = await waitForConnection();
+
         let recipientId = chatRef.current.activeReciepientId;
         let conversationId = chatRef.current.selectedId;
 
         console.log("recipientId: " + recipientId + ", conversationId: " + conversationId);
-
-        const connection = await waitForConnection();
 
         try {
             await connection.invoke(
@@ -372,14 +372,18 @@ const MessagePage = () => {
             list_filtered: listUtils.returnFilteredFriends(updatedFriends, searchBar),
         }));
 
-        setChat(prev => ({
-            ...prev,
-            selectedId: conversationId,
-            activeReciepientId: friendId,
-        }));
+        setChat(prev => {
+            const updatedChat = {
+                ...prev,
+                selectedId: conversationId,
+                activeReciepientId: friendId,
+            };
+            chatRef.current = updatedChat;
+            return updatedChat;
+        });
 
         // fetch new messages if there are no fetched messages
-        if (chat.messages[conversationId].length === 1) {
+        if (chatRef.current.messages[conversationId].length === 1) {
             await eventUtils.waitForDOMUpdate();
 
             const box = scrollMessageBoxRef.current;
@@ -395,7 +399,7 @@ const MessagePage = () => {
 
             // console.log(!isScrollable, !chatRef.current.noNewMessagesFlag[conversationId])
 
-        } else if (chat.messages[conversationId].length > 1) {
+        } else if (chatRef.current.messages[conversationId].length > 1) {
             // messages already fetched, invoke read message
             await readMessage();
         }
@@ -487,8 +491,10 @@ const MessagePage = () => {
     // It handles new message, creates notification, add to the list
     const handleNewMessageFromFriend = async (messageDto) => {
         let isInTheSameChat = messageDto.conversationId === chatRef.current.selectedId;
+        let isFromFriend = messageDto.senderId != userId;
         // invoke read message if user is in the same chat
-        if (isInTheSameChat) {
+        // and message is from friend not from user
+        if (isInTheSameChat && isFromFriend) {
             console.log("Message is from the active chat");
             readMessage();
         }
