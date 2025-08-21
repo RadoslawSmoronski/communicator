@@ -90,7 +90,7 @@ namespace ChatCommunicator.Application.Controllers
                         result.Value.PagedMessagesDto.LastFriendReadMessageId.Value);
 
                     await _chatHubContext.Clients.Clients(result.Value.RecipientConnectionsId)
-                        .MessageRead(new MessageReadDto { FriendId = result.Value.PagedMessagesDto.LastFriendReadMessageId.Value, ConversationId = conversationId });
+                        .MessageRead(new MessageReadDto { MessageId = result.Value.PagedMessagesDto.LastFriendReadMessageId.Value, ConversationId = conversationId });
                 }
 
                 return Ok(result.Value.PagedMessagesDto);
