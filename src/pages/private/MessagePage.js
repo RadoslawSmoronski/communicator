@@ -351,7 +351,8 @@ const MessagePage = () => {
     // Handles selecting chat
     // newMessNotify - is for turning off new message notification from friend
     const selectChat = async (conversationId, friendId, friendName, friendAvatarUrl, friendshipId) => {
-        if (chat.selectedId != conversationId) {
+        const isInTheSameChat = chat.selectedId == conversationId;
+        if (!isInTheSameChat) {
             scrollMessageBoxRef.current.scrollTop = 0;
             toggleUI("friendDetailsPanel", false);
         }
@@ -399,7 +400,7 @@ const MessagePage = () => {
 
             // console.log(!isScrollable, !chatRef.current.noNewMessagesFlag[conversationId])
 
-        } else if (chatRef.current.messages[conversationId].length > 1) {
+        } else if (chatRef.current.messages[conversationId].length > 1 && !isInTheSameChat) {
             // messages already fetched, invoke read message
             await readMessage();
         }
@@ -484,6 +485,16 @@ const MessagePage = () => {
             } else {
                 console.error(err);
             }
+
+            setChat(prev => {
+                return {
+                    ...prev,
+                    noNewMessagesFlag: {
+                        ...prev.noNewMessagesFlag,
+                        [conversationId]: true
+                    }
+                }
+            });
         }
     };
 
