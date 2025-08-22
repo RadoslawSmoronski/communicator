@@ -1,8 +1,6 @@
 ﻿using ChatCommunicator.API.Controllers;
 using ChatCommunicator.Application.Managers.Interfaces;
-using ChatCommunicator.Application.Services;
 using ChatCommunicator.Application.Services.Interfaces;
-using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Chat;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
@@ -479,11 +477,15 @@ namespace ChatCommunicator.Application.Controllers
         /// <remarks>
         /// Retrieves all chat conversations for the specified user.
         /// Requires a valid JWT token in the Authorization header.
+        /// <br/><br/>
+        /// <b>Note:</b> The <c>onlyFriends</c> query parameter is currently <b>required</b> and must be set to <c>true</c>.
+        /// There is no implementation for retrieving chats with <c>onlyFriends</c> set to <c>false</c>.
         ///
         /// Returns 401 Unauthorized if the user ID is missing or invalid.
         /// Returns appropriate error responses for validation failures or internal errors.
         /// </remarks>
         /// <param name="userId">The ID of the user whose chats are being retrieved (from route).</param>
+        /// <param name="onlyFriends">Currently required. Must be set to <c>true</c>.</param>
         /// <returns>
         /// A list of chat conversations for the specified user, or an error response.
         /// </returns>
@@ -493,15 +495,20 @@ namespace ChatCommunicator.Application.Controllers
         /// <response code="500">Internal server error.</response>
         /// <example>
         /// <code>
-        /// GET /api/users/3fa85f64-5717-4562-b3fc-2c963f66afa6/chats
+        /// GET /api/users/3fa85f64-5717-4562-b3fc-2c963f66afa6/chats?onlyFriends=true
         /// Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...
         /// </code>
         /// </example>
         [Authorize]
         [HttpGet("{userId}/chats")]
         [ProducesResponseType(typeof(List<ChatDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetChatsAsync([FromRoute] Guid userId)
+        public async Task<IActionResult> GetChatsAsync([FromRoute] Guid userId, [FromQuery] bool onlyFriends)
         {
+            if(onlyFriends != true) // REFACTOR
+            {
+                return Forbid("You need to set onlyFriends on true.");
+            }
+
             var validate = ValidateAndGetUserId("GetChatsAsync", _logger, out Guid loggedUserId);
 
             if (validate != null)
