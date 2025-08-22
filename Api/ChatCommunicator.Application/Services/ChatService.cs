@@ -277,13 +277,19 @@ namespace ChatCommunicator.Application.Services
 
                 var recipientId = conversation.User1Id == userId ? conversation.User2Id : conversation.User1Id; 
                 var recipientConnectionsId = _usersConnectionService.GetUserConnectionsId(recipientId);
+                Guid? userReadMessageId = setUserLastMessageResult.Value;
 
-                if (recipientConnectionsId != null && recipientConnectionsId.Count < 1) recipientConnectionsId = null;
+                if (recipientConnectionsId != null && recipientConnectionsId.Count < 1)
+                {
+                    recipientConnectionsId = null;
+                    userReadMessageId = null;
+                }
 
                 return new ExtendedPagedMessagesDto
                 {
                     PagedMessagesDto = pagedMessagesDto,
-                    RecipientConnectionsId = recipientConnectionsId
+                    RecipientConnectionsId = recipientConnectionsId,
+                    UserReadMessageId = userReadMessageId
                 };
             }
             catch (Exception ex)

@@ -4,5 +4,6 @@ namespace ChatCommunicator.Contracts.Dtos.Chat
     {
         public required PagedMessagesDto PagedMessagesDto { get; set; }
         public List<string>? RecipientConnectionsId { get; set; }
+        public Guid? UserReadMessageId { get; set; }
     }
 }

@@ -83,14 +83,14 @@ namespace ChatCommunicator.Application.Controllers
 
 
                 if (result.Value.RecipientConnectionsId != null &&
-                   result.Value.PagedMessagesDto.LastFriendReadMessageId != null)
+                   result.Value.UserReadMessageId != null)
                 {
-                    _logger.LogInformation("[GetPagedMessagesAsync] Sending MessageRead notification to recipient. RecipientConnectionsCount: {ConnectionCount}, LastReadMessageId: {LastReadMessageId}",
+                    _logger.LogInformation("[GetPagedMessagesAsync] Sending MessageRead notification to recipient. RecipientConnectionsCount: {ConnectionCount}, UserReadMessageId: {UserReadMessageId}",
                         result.Value.RecipientConnectionsId.Count,
-                        result.Value.PagedMessagesDto.LastFriendReadMessageId.Value);
+                        result.Value.UserReadMessageId.Value);
 
                     await _chatHubContext.Clients.Clients(result.Value.RecipientConnectionsId)
-                        .MessageRead(new MessageReadDto { MessageId = result.Value.PagedMessagesDto.LastFriendReadMessageId.Value, ConversationId = conversationId });
+                        .MessageRead(new MessageReadDto { MessageId = result.Value.UserReadMessageId.Value, ConversationId = conversationId });
                 }
 
                 return Ok(result.Value.PagedMessagesDto);
