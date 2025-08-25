@@ -93,7 +93,7 @@ namespace ChatCommunicator.Application.Hubs
 
             if (result.IsSuccess)
             {
-                await NotifyClients(userId, recipientId,
+                await NotifyClients(null, recipientId,
                     (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadDto { MessageId = result.Value, ConversationId = conversationId}),
                     "reading message");
             }
@@ -135,38 +135,41 @@ namespace ChatCommunicator.Application.Hubs
             return Guid.TryParse(userIdString, out userId);
         }
 
-        private async Task NotifyClients(Guid userId, Guid recipientId, Func<IHubClients<IChatClient>, IReadOnlyList<string>, Task> notificationAction, string operationDescription)
+        private async Task NotifyClients(Guid? userId, Guid? recipientId, Func<IHubClients<IChatClient>, IReadOnlyList<string>, Task> notificationAction, string operationDescription)
         {
-            var recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId);
-            var senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId);
+            List<string>? recipientConnectionsId = null;
+            List<string>? senderConnectionsId = null;
 
-            if (recipientConnectionsId != null)
+            if(userId != null)
             {
-                try
-                {
-                    await notificationAction(Clients, recipientConnectionsId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error {OperationDescription} to recipient {RecipientId}. ConnectionIds: {ConnectionIds}",
-                        operationDescription, recipientId, string.Join(", ", recipientConnectionsId));
-                }
+                senderConnectionsId = _usersConnectionManager.GetUserConnectionsId(userId.Value);
             }
 
-            if (senderConnectionsId != null)
+            if(recipientId != null)
+            {
+                recipientConnectionsId = _usersConnectionManager.GetUserConnectionsId(recipientId.Value);
+            }
+
+            await NotifyConnections(recipientConnectionsId, notificationAction, operationDescription);
+            await NotifyConnections(senderConnectionsId, notificationAction, operationDescription);
+        }
+
+        private async Task NotifyConnections(List<string>? connectionsId, Func<IHubClients<IChatClient>, IReadOnlyList<string>, Task> notificationAction, string operationDescription)
+        {
+            if (connectionsId != null)
             {
                 try
                 {
-                    await notificationAction(Clients, senderConnectionsId);
+                    await notificationAction(Clients, connectionsId);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error {OperationDescription} to sender {SenderId}. ConnectionIds: {ConnectionIds}",
-                        operationDescription, userId, string.Join(", ", senderConnectionsId));
+                    _logger.LogError(ex, "Error during {OperationDescription}. ConnectionIds: {ConnectionIds}",
+                        operationDescription, string.Join(", ", connectionsId));
                 }
             }
         }
-    
+
         private async Task<ResultT<List<string>>> IsUserDisconnect(Guid userId)
         {
             var isOnline = await _usersConnectionManager.IsUserOnlineAsync(userId);

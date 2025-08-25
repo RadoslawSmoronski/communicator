@@ -4,6 +4,7 @@ using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.FriendsController;
 using ChatCommunicator.Contracts.Dtos.Friendships;
 using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Models.Chat;
 using ChatCommunicator.Infrastructure.Models.Friendship;
 using ChatCommunicator.Infrastructure.UnitOfWork;
 using ChatCommunicator.Shared.Result;
