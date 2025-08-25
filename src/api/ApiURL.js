@@ -6,7 +6,7 @@ const APIs = {
     REGISTER : "/api/users",
     REFRESH_TOKEN: "/api/auth/refresh-token",
 
-    GET_CHATS: (userId) => `/api/users/${userId}/chats`,
+    GET_CHATS: (userId) => `/api/users/${userId}/chats?onlyFriends=true`,
     GET_MESSAGES: (conversationId, fromMessageId) => `api/chats/${conversationId}/messages?fromMessageId=${fromMessageId}`,
     GET_MESSAGES_NULL_FROM_MESSAGE_ID: (conversationId) => `api/chats/${conversationId}/messages`,
 
