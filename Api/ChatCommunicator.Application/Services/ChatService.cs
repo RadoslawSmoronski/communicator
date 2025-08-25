@@ -251,8 +251,13 @@ namespace ChatCommunicator.Application.Services
                 var lastFriendReadMessageId = _GetFriendLastReadMessage(userId, conversation);
 
                 var setUserLastMessageResult = await SetAndGetUserLastReadMessageAsync(userId, conversationId);
+                Guid? userReadMessageId = null;
 
-                if (!setUserLastMessageResult.IsSuccess)
+                if(setUserLastMessageResult.IsSuccess)
+                {
+                    userReadMessageId = setUserLastMessageResult.Value;
+                }
+                else
                 {
                     var error = setUserLastMessageResult.Error;
 
@@ -277,7 +282,6 @@ namespace ChatCommunicator.Application.Services
 
                 var recipientId = conversation.User1Id == userId ? conversation.User2Id : conversation.User1Id; 
                 var recipientConnectionsId = _usersConnectionService.GetUserConnectionsId(recipientId);
-                Guid? userReadMessageId = setUserLastMessageResult.Value;
 
                 if (recipientConnectionsId != null && recipientConnectionsId.Count < 1)
                 {
