@@ -14,6 +14,7 @@ namespace ChatCommunicator.Infrastructure.Extensions
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUnitOfWork, ChatCommunicator.Infrastructure.UnitOfWork.UnitOfWork>();
             services.AddScoped<IFileStorageService, FileStorageService>();
+            services.AddScoped<IEmailService, SmtpEmailService>();
             services.AddSingleton<LogCleanupService>();
             services.AddHostedService<LogCleanupService>();
             return services;
