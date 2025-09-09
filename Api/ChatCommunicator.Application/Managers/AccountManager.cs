@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
 using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Services.Interfaces;
 using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace ChatCommunicator.Application.Managers
 {
@@ -17,6 +20,7 @@ namespace ChatCommunicator.Application.Managers
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
         private readonly IUserAvatarService _userAvatarService;
         private readonly IMapper _mapper;
         private readonly ILogger<AccountManager> _logger;
@@ -25,6 +29,7 @@ namespace ChatCommunicator.Application.Managers
             IMapper mapper,
             SignInManager<UserAccount> signInManager,
             ITokenService tokenService,
+            IEmailService emailService,
             IUserAvatarService userAvatarService,
             ILogger<AccountManager> logger)
         {
@@ -34,6 +39,7 @@ namespace ChatCommunicator.Application.Managers
             _tokenService = tokenService;
             _userAvatarService = userAvatarService;
             _logger = logger;
+            _emailService = emailService;
         }
 
         public async Task<ResultT<RegisteredDto>> RegisterAsync(RegisterDto registerDto)
@@ -48,7 +54,19 @@ namespace ChatCommunicator.Application.Managers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User registered successfully: {Email}", registerDto.Email);
+
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    var emailContent = "Click the link and activate the account: ";
+
+                    var emailLink = "https://rsmoronski.pl/?userId=test?token=test";
+
+                    await _emailService.SendAsync(user.Email, "Activation account link", emailContent + emailLink);
+
                     var dto = _mapper.Map<RegisteredDto>(user);
+
+                    dto.ConfirmToken = token;
+
                     return dto;
                 }
 
@@ -123,6 +141,20 @@ namespace ChatCommunicator.Application.Managers
                 _logger.LogError(ex, "Exception occurred during login of user: {UserName}", loginDto.Email);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
             }
+        }
+
+        public async Task<Result> ConfirmEmailAsync(ConfirmEmailDto confirmEmailDto)
+        {
+            var user = await _userManager.FindByIdAsync(confirmEmailDto.UserId.ToString());
+
+            var result = await _userManager.ConfirmEmailAsync(user, confirmEmailDto.Token);
+
+            if (result.Succeeded)
+            {
+                return Result.Success();
+            }
+
+            return Error.Failure("test", "test");
         }
 
         public async Task<ResultT<string>> ChangeUsernameAsync(Guid userId, string newUsername)

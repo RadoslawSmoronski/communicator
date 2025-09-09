@@ -8,6 +8,7 @@ using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Application.Managers;
 using Microsoft.Extensions.Logging;
 using ChatCommunicator.Infrastructure.Models;
+using ChatCommunicator.Infrastructure.Services.Interfaces;
 
 namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 {
@@ -19,6 +20,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         protected readonly IUserAvatarService _userAvatarService;
         protected readonly IMapper _mapper;
         protected readonly ILogger<AccountManager> _logger;
+        protected readonly IEmailService _emailService;
 
         protected readonly IAccountManager _accountManager;
 
@@ -40,6 +42,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             _signInManager = A.Fake<SignInManager<UserAccount>>();
             _userAvatarService = A.Fake<IUserAvatarService>();
             _logger = A.Fake<ILogger<AccountManager>>();
+            _emailService = A.Fake<IEmailService>();
 
             var configuration = new MapperConfiguration(cfg =>
             {
@@ -48,7 +51,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
             _mapper = configuration.CreateMapper();
 
-            _accountManager = new AccountManager(_userManager, _mapper, _signInManager, _tokenService, _userAvatarService, _logger);    
+            _accountManager = new AccountManager(_userManager, _mapper, _signInManager, _tokenService, _emailService, _userAvatarService, _logger);    
 
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid(), Email = "test@test.com"};
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };

@@ -1,4 +1,5 @@
-﻿using ChatCommunicator.Contracts.Dtos;
+﻿using ChatCommunicator.Contracts;
+using ChatCommunicator.Contracts.Dtos;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.RegisterAsync;
 using ChatCommunicator.Shared.Result;
@@ -10,6 +11,7 @@ namespace ChatCommunicator.Application.Managers.Interfaces
     {
         Task<ResultT<RegisteredDto>> RegisterAsync(RegisterDto registerDto);
         Task<ResultT<LoggedUserDto>> LoginAsync(LoginDto loginDto);
+        Task<Result> ConfirmEmailAsync(ConfirmEmailDto confirmEmailDto);
         Task<ResultT<string>> ChangeUsernameAsync(Guid userId, string newUsername);
         Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
         Task<ResultT<string>> UploadAvatarAsync(Guid userId, IFormFile? file);

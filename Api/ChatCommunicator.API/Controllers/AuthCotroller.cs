@@ -1,10 +1,13 @@
 ﻿using ChatCommunicator.Application.Controllers;
 using ChatCommunicator.Application.Managers.Interfaces;
 using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Service;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace ChatCommunicator.API.Controllers
 {
@@ -91,6 +94,42 @@ namespace ChatCommunicator.API.Controllers
             }
 
             return HandleError(newToken, "RefreshAccessTokenAsync", _logger);
+        }
+
+        /// <summary>
+        /// Confirms user's email address
+        /// </summary>
+        /// <remarks>
+        /// Validates the provided confirmation token for the specified user and confirms their email address.
+        /// <b>Note:</b> This endpoint is currently not fully finished, but is functional.
+        /// </remarks>
+        /// <param name="confirmEmailDto">The DTO containing the user's ID and confirmation token.</param>
+        /// <returns>
+        /// <see cref="IActionResult"/> indicating the result of the confirmation attempt.
+        /// Returns <c>200 OK</c> if the email was confirmed successfully, or <c>400 Bad Request</c> if confirmation failed.
+        /// </returns>
+        /// <response code="200">Email confirmed successfully.</response>
+        /// <response code="400">Invalid confirmation token or user ID.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
+        /// <example>
+        /// POST /api/auth/confirm-email
+        /// {
+        ///     "userId": "00000000-0000-0000-0000-000000000000",
+        ///     "token": "confirmation-token-value"
+        /// }
+        /// </example>
+        [HttpPost("confirm-email")]
+        [ProducesResponseType<RefreshAccessTokenDto>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailDto confirmEmailDto)
+        {
+            var result = await _accountManager.ConfirmEmailAsync(confirmEmailDto);
+
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            return BadRequest();
         }
     }
 }
