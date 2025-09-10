@@ -9,6 +9,7 @@ using ChatCommunicator.Application.Managers;
 using Microsoft.Extensions.Logging;
 using ChatCommunicator.Infrastructure.Models;
 using ChatCommunicator.Infrastructure.Services.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 {
@@ -21,6 +22,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
         protected readonly IMapper _mapper;
         protected readonly ILogger<AccountManager> _logger;
         protected readonly IEmailService _emailService;
+        protected readonly IOptions<ConfirmEmailMessageSettings> _confirmEmailMessageSettings;
 
         protected readonly IAccountManager _accountManager;
 
@@ -44,6 +46,15 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
             _logger = A.Fake<ILogger<AccountManager>>();
             _emailService = A.Fake<IEmailService>();
 
+            var testConfirmEmailMessageSettings = new ConfirmEmailMessageSettings
+            {
+                Content = "Test email content: [address]",
+                Address = "test"
+            };
+
+            _confirmEmailMessageSettings = A.Fake<IOptions<ConfirmEmailMessageSettings>>();
+            A.CallTo(() => _confirmEmailMessageSettings.Value).Returns(testConfirmEmailMessageSettings);
+
             var configuration = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile<MappingProfile>();
@@ -51,7 +62,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
             _mapper = configuration.CreateMapper();
 
-            _accountManager = new AccountManager(_userManager, _mapper, _signInManager, _tokenService, _emailService, _userAvatarService, _logger);    
+            _accountManager = new AccountManager(_userManager, _mapper, _signInManager, _tokenService, _emailService, _userAvatarService, _logger, _confirmEmailMessageSettings);    
 
             _sampleUser1 = new UserAccount { UserName = "User1Login", Id = Guid.NewGuid(), Email = "test@test.com"};
             _sampleUser2 = new UserAccount { UserName = "User2Login", Id = Guid.NewGuid() };

@@ -1,15 +1,10 @@
 ﻿using ChatCommunicator.API.Models;
 using ChatCommunicator.Application.Extensions;
 using ChatCommunicator.Application.Hubs;
-using ChatCommunicator.Application.Managers;
-using ChatCommunicator.Application.Managers.Interfaces;
-using ChatCommunicator.Application.Services;
-using ChatCommunicator.Application.Services.Interfaces;
 using ChatCommunicator.Contracts;
 using ChatCommunicator.Infrastructure;
 using ChatCommunicator.Infrastructure.Extensions;
 using ChatCommunicator.Infrastructure.Models;
-using ChatCommunicator.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +27,8 @@ namespace ChatCommunicator.Application
             // Configuration
             builder.Services.Configure<SmtpEmailSettings>(
                 builder.Configuration.GetSection("SmtpEmailSettings"));
+            builder.Services.Configure<ConfirmEmailMessageSettings>(
+                builder.Configuration.GetSection("ConfirmEmailMessageSettings"));
 
             // Framework services
             builder.Services.AddControllers();
