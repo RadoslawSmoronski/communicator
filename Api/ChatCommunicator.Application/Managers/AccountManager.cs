@@ -11,6 +11,7 @@ using ChatCommunicator.Shared.Result;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace ChatCommunicator.Application.Managers
@@ -24,6 +25,7 @@ namespace ChatCommunicator.Application.Managers
         private readonly IUserAvatarService _userAvatarService;
         private readonly IMapper _mapper;
         private readonly ILogger<AccountManager> _logger;
+        private readonly ConfirmEmailMessageSettings _confirmEmailMessageSettings;
 
         public AccountManager(UserManager<UserAccount> userManager,
             IMapper mapper,
@@ -31,7 +33,8 @@ namespace ChatCommunicator.Application.Managers
             ITokenService tokenService,
             IEmailService emailService,
             IUserAvatarService userAvatarService,
-            ILogger<AccountManager> logger)
+            ILogger<AccountManager> logger,
+            IOptions<ConfirmEmailMessageSettings> confirmEmailMessageSettings )
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -40,6 +43,7 @@ namespace ChatCommunicator.Application.Managers
             _userAvatarService = userAvatarService;
             _logger = logger;
             _emailService = emailService;
+            _confirmEmailMessageSettings = confirmEmailMessageSettings.Value;
         }
 
         public async Task<ResultT<RegisteredDto>> RegisterAsync(RegisterDto registerDto)
@@ -57,11 +61,9 @@ namespace ChatCommunicator.Application.Managers
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    var emailContent = "Click the link and activate the account: ";
+                    var emailContent = CreateEmailContent(user.Id, token);
 
-                    var emailLink = "https://rsmoronski.pl/?userId=test?token=test";
-
-                    await _emailService.SendAsync(user.Email, "Activation account link", emailContent + emailLink);
+                    await _emailService.SendAsync(user.Email, "Activation account link", emailContent);
 
                     var dto = _mapper.Map<RegisteredDto>(user);
 
@@ -445,6 +447,12 @@ namespace ChatCommunicator.Application.Managers
                 _logger.LogError(ex, "DeleteAvatarAsync failed: exception occurred for user {UserId}.", userId);
                 return Error.Unknown("INTERNAL_SERVER_ERROR", ex.Message);
             }
+        }
+
+        private string CreateEmailContent(Guid userId, string token)
+        {
+            var address = $"{_confirmEmailMessageSettings.Address}/userId={userId.ToString()}?token={token}";
+            return _confirmEmailMessageSettings.Content.Replace("[address]", address);
         }
 
     }

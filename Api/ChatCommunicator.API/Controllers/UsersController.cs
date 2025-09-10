@@ -40,8 +40,10 @@ namespace ChatCommunicator.Application.Controllers
         /// Register user
         /// </summary>
         /// <remarks>
-        /// This endpoint creates a new user using an email, username, and password. If the email already exists,
-        /// a conflict response is returned. On success, basic user data is returned.
+        /// This endpoint creates a new user using an email, username, and password. If the email already exists, a conflict response is returned. On success, basic user data is returned. <br/>
+        /// <br/> After registration, an email will be sent to the user with a link containing additional information.
+        /// The link inside the email content is: <c>[client address]/userId={userId}?token={activationToken}</c>
+        /// <br/> Settings for the link and email message are located in <c>appsettings</c> under the section <c>ConfirmEmailMessageSettings</c>.
         /// </remarks>
         /// <param name="registerDto">The registration data including email, username, and password.</param>
         /// <returns>A response containing the created user's ID and username, or an error message.</returns>

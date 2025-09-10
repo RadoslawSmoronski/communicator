@@ -125,6 +125,75 @@
         }
       }
     },
+    "/api/auth/confirm-email": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Confirms user's email address",
+        "description": "Validates the provided confirmation token for the specified user and confirms their email address.\r\n<b>Note:</b> This endpoint is currently not fully finished, but is functional.",
+        "requestBody": {
+          "description": "The DTO containing the user's ID and confirmation token.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email confirmed successfully.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid confirmation token or user ID."
+          },
+          "500": {
+            "description": "An unexpected server error occurred."
+          }
+        }
+      }
+    },
+    "/api/Basic/test": {
+      "get": {
+        "tags": [
+          "Basic"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/chats/{conversationId}/messages": {
       "get": {
         "tags": [
@@ -567,7 +636,7 @@
           "Users"
         ],
         "summary": "Register user",
-        "description": "This endpoint creates a new user using an email, username, and password. If the email already exists,\r\na conflict response is returned. On success, basic user data is returned.",
+        "description": "This endpoint creates a new user using an email, username, and password. If the email already exists, a conflict response is returned. On success, basic user data is returned. \r\n\r\n After registration, an email will be sent to the user with a link containing additional information.\r\nThe link inside the email content is: `[client address]/userId={userId}?token={activationToken}`\r\n Settings for the link and email message are located in `appsettings` under the section `ConfirmEmailMessageSettings`.",
         "requestBody": {
           "description": "The registration data including email, username, and password.",
           "content": {
@@ -1164,7 +1233,7 @@
           "Users"
         ],
         "summary": "Get User Chats",
-        "description": "Retrieves all chat conversations for the specified user.\r\nRequires a valid JWT token in the Authorization header.\r\n            \r\nReturns 401 Unauthorized if the user ID is missing or invalid.\r\nReturns appropriate error responses for validation failures or internal errors.",
+        "description": "Retrieves all chat conversations for the specified user.\r\nRequires a valid JWT token in the Authorization header.\r\n\r\n\r\n<b>Note:</b> The `onlyFriends` query parameter is currently <b>required</b> and must be set to `true`.\r\nThere is no implementation for retrieving chats with `onlyFriends` set to `false`.\r\n            \r\nReturns 401 Unauthorized if the user ID is missing or invalid.\r\nReturns appropriate error responses for validation failures or internal errors.",
         "parameters": [
           {
             "name": "userId",
@@ -1174,6 +1243,14 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "onlyFriends",
+            "in": "query",
+            "description": "Currently required. Must be set to `true`.",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -1305,6 +1382,24 @@
           "lastMessageTimestamp": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConfirmEmailDto": {
+        "required": [
+          "token",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "token": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -1546,6 +1641,7 @@
       },
       "RegisteredDto": {
         "required": [
+          "confirmToken",
           "email",
           "id",
           "username"
@@ -1561,6 +1657,10 @@
             "nullable": true
           },
           "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmToken": {
             "type": "string",
             "nullable": true
           }
