@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace ChatCommunicator.Application.Managers
 {
@@ -34,7 +35,7 @@ namespace ChatCommunicator.Application.Managers
             IEmailService emailService,
             IUserAvatarService userAvatarService,
             ILogger<AccountManager> logger,
-            IOptions<ConfirmEmailMessageSettings> confirmEmailMessageSettings )
+            IOptions<ConfirmEmailMessageSettings> confirmEmailMessageSettings)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -52,7 +53,7 @@ namespace ChatCommunicator.Application.Managers
             {
                 _logger.LogInformation("Attempting to register user with email: {email}", registerDto.Email);
 
-                var user = new UserAccount { Email = registerDto.Email, UserName = registerDto.Username};
+                var user = new UserAccount { Email = registerDto.Email, UserName = registerDto.Username };
                 var result = await _userManager.CreateAsync(user, registerDto.Password);
 
                 if (result.Succeeded)
@@ -60,14 +61,15 @@ namespace ChatCommunicator.Application.Managers
                     _logger.LogInformation("User registered successfully: {Email}", registerDto.Email);
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var encodedToken = WebUtility.UrlEncode(token);
 
-                    var emailContent = CreateEmailContent(user.Id, token);
+                    var emailContent = CreateEmailContent(user.Id, encodedToken);
 
-                    await _emailService.SendAsync(user.Email, "Activation account link", emailContent);
+                    await _emailService.SendAsync(user.Email, _confirmEmailMessageSettings.Title, emailContent);
 
                     var dto = _mapper.Map<RegisteredDto>(user);
 
-                    dto.ConfirmToken = token;
+                    dto.ConfirmToken = encodedToken;
 
                     return dto;
                 }
@@ -107,7 +109,8 @@ namespace ChatCommunicator.Application.Managers
                 {
                     _logger.LogWarning("Login failed: user not found - {Email}", loginDto.Email);
                     return Error.Unauthorized("UNAUTHORIZED", "Email or password is incorrect.");
-                };
+                }
+                ;
 
                 var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
 
@@ -121,7 +124,7 @@ namespace ChatCommunicator.Application.Managers
                     if (refreshToken.IsSuccess && accessToken.IsSuccess)
                     {
                         var avatarUrl = user.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(user.AvatarUrl) : null;
-                        
+
                         var resultObj = new LoggedUserDto()
                         {
                             UserName = user.UserName!,
@@ -152,7 +155,7 @@ namespace ChatCommunicator.Application.Managers
             if (user == null)
                 return Error.NotFound("test", "test"); //refactor
 
-            var result = await _userManager.ConfirmEmailAsync(user, confirmEmailDto.Token);
+            var result = await _userManager.ConfirmEmailAsync(user, WebUtility.UrlDecode(confirmEmailDto.Token));
 
             if (result.Succeeded)
             {
@@ -187,7 +190,8 @@ namespace ChatCommunicator.Application.Managers
                 {
                     _logger.LogWarning("Username change failed: user not found - {UserId}", userId);
                     return Error.Unauthorized("UNAUTHORIZED", "The user associated with the access token does not exist. Please log in again.");
-                };
+                }
+                ;
 
                 var isUsernameExists = await _userManager.FindByNameAsync(newUsername);
 
@@ -266,10 +270,10 @@ namespace ChatCommunicator.Application.Managers
                         _logger.LogWarning("ChangePasswordAsync failed: new password does not meet the required criteria for user {UserId}.", userId);
                         return Error.Validation("NEWPASSWORD_IS_NOT_VALID", "The new password does not meet the required criteria.");
                     }
-                    
+
                     _logger.LogWarning("ChangePasswordAsync failed: old password is incorrect for user {UserId}.", userId);
                     return Error.Unauthorized("OLDPASSWORD_IS_INCORRECT", "The old password is incorrect.");
-                }     
+                }
             }
             catch (Exception ex)
             {
@@ -280,7 +284,7 @@ namespace ChatCommunicator.Application.Managers
 
         public async Task<ResultT<string>> UploadAvatarAsync(Guid userId, IFormFile? file)
         {
-            if(Guid.Empty == userId)
+            if (Guid.Empty == userId)
             {
                 _logger.LogWarning("UploadAvatarAsync failed: userId is empty or null.");
                 return Error.Validation("VALIDATION_USERID", "UserId cannot be empty or null.");
@@ -390,7 +394,7 @@ namespace ChatCommunicator.Application.Managers
                         userId, uploadFileResult.Error.Code, uploadFileResult.Error.Description);
                     return uploadFileResult.Error;
                 }
-                
+
                 _logger.LogError("ChangeAvatarAsync failed: unable to upload new avatar for user {UserId}.", userId);
                 return Error.Unknown("AVATAR_UPLOAD_FAILED", "Failed to upload avatar file.");
             }
