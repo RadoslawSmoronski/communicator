@@ -1,0 +1,9 @@
+﻿using ChatCommunicator.Shared.Result;
+
+namespace ChatCommunicator.Application.Services.Interfaces
+{
+    public interface IAuthService
+    {
+        Task<ResultT<string>> SendPasswordResetEmailAsync(string email);
+    }
+}

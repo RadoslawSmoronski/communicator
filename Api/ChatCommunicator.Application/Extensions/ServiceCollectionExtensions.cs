@@ -13,6 +13,7 @@ namespace ChatCommunicator.Application.Extensions
         {
             services.AddSingleton<TokenCleanupService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IFriendsService, FriendsService>();
             services.AddScoped<IAccountManager, AccountManager>();

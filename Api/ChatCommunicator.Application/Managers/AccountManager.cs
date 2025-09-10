@@ -149,6 +149,9 @@ namespace ChatCommunicator.Application.Managers
         {
             var user = await _userManager.FindByIdAsync(confirmEmailDto.UserId.ToString());
 
+            if (user == null)
+                return Error.NotFound("test", "test"); //refactor
+
             var result = await _userManager.ConfirmEmailAsync(user, confirmEmailDto.Token);
 
             if (result.Succeeded)

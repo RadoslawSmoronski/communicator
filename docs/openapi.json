@@ -154,24 +154,7 @@
         },
         "responses": {
           "200": {
-            "description": "Email confirmed successfully.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              }
-            }
+            "description": "Email confirmed successfully."
           },
           "400": {
             "description": "Invalid confirmation token or user ID."
@@ -182,7 +165,56 @@
         }
       }
     },
+    "/api/auth/request-password-reset": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Requests a password reset email",
+        "description": "This endpoint sends a password reset email to the user with the provided email address. \r\n\r\n If the email exists in the system, a password reset email will be sent containing a link with further instructions.\r\nThe link inside the email content is: `[client address]/?userId={userId}&token={resetToken}`\r\n Settings for the link and email message are located in `appsettings` under the section `RecoveryPasswordMessageSettings`.",
+        "requestBody": {
+          "description": "The DTO containing the user's email address.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordResetDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordResetDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordResetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset email sent successfully."
+          },
+          "400": {
+            "description": "Error"
+          }
+        }
+      }
+    },
     "/api/Basic/test": {
+      "get": {
+        "tags": [
+          "Basic"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Basic/test3": {
       "get": {
         "tags": [
           "Basic"
@@ -1661,6 +1693,19 @@
             "nullable": true
           },
           "confirmToken": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequestPasswordResetDto": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
             "type": "string",
             "nullable": true
           }

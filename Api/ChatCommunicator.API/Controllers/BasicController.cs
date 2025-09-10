@@ -1,4 +1,5 @@
-﻿using ChatCommunicator.Infrastructure.Services.Interfaces;
+﻿using ChatCommunicator.Application.Services.Interfaces;
+using ChatCommunicator.Infrastructure.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatCommunicator.API.Controllers
@@ -8,10 +9,12 @@ namespace ChatCommunicator.API.Controllers
     public class BasicController : ControllerBase
     {
         private readonly IEmailService _emailService;
+        private readonly IAuthService _authService;
 
-        public BasicController(IEmailService emailService)
+        public BasicController(IEmailService emailService, IAuthService authService)
         {
             _emailService = emailService;
+            _authService = authService;
         }
 
         [HttpGet("test")]
@@ -19,6 +22,15 @@ namespace ChatCommunicator.API.Controllers
         {
 
             var result = await _emailService.SendAsync("radoslaw.smo@gmail.com", "test", "test");
+
+            return Ok("Test endpoint response");
+        }
+
+        [HttpGet("test3")]
+        public async Task<IActionResult> Test3()
+        {
+
+            var result = await _authService.SendPasswordResetEmailAsync("radoslaw.smo@gmail.com");
 
             return Ok("Test endpoint response");
         }

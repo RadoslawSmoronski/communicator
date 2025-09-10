@@ -5,9 +5,7 @@ using ChatCommunicator.Contracts;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController;
 using ChatCommunicator.Contracts.Dtos.Controllers.UserController.LoginAsync;
 using ChatCommunicator.Contracts.Dtos.Service;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 
 namespace ChatCommunicator.API.Controllers
 {
@@ -17,14 +15,17 @@ namespace ChatCommunicator.API.Controllers
     {
         private readonly ITokenService _tokenManager;
         private readonly IAccountManager _accountManager;
+        private readonly IAuthService _authService;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(ITokenService tokenManager,
             IAccountManager accountManager,
+            IAuthService authService,
             ILogger<AuthController> logger)
         {
             _tokenManager = tokenManager;
             _accountManager = accountManager;
+            _authService = authService;
             _logger = logger;
         }
 
@@ -119,7 +120,7 @@ namespace ChatCommunicator.API.Controllers
         /// }
         /// </example>
         [HttpPost("confirm-email")]
-        [ProducesResponseType<RefreshAccessTokenDto>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailDto confirmEmailDto)
         {
             var result = await _accountManager.ConfirmEmailAsync(confirmEmailDto);
@@ -127,6 +128,42 @@ namespace ChatCommunicator.API.Controllers
             if (result.IsSuccess)
             {
                 return Ok();
+            }
+
+            return BadRequest();
+        }
+
+        /// <summary>
+        /// Requests a password reset email
+        /// </summary>
+        /// <remarks>
+        /// This endpoint sends a password reset email to the user with the provided email address. <br/>
+        /// <br/> If the email exists in the system, a password reset email will be sent containing a link with further instructions.
+        /// The link inside the email content is: <c>[client address]/?userId={userId}&amp;token={resetToken}</c>
+        /// <br/> Settings for the link and email message are located in <c>appsettings</c> under the section <c>RecoveryPasswordMessageSettings</c>.
+        /// </remarks>
+        /// <param name="requestPasswordResetDto">The DTO containing the user's email address.</param>
+        /// <returns>
+        /// <see cref="IActionResult"/> indicating the result of the password reset request.
+        /// Returns <c>200 OK</c> if the email was sent successfully, or <c>400 Bad Request</c> if the request failed.
+        /// </returns>
+        /// <response code="200">Password reset email sent successfully.</response>
+        /// <response code="400">Error</response>
+        /// <example>
+        /// POST /api/auth/request-password-reset
+        /// {
+        ///     "email": "user@example.com"
+        /// }
+        /// </example>
+        [HttpPost("request-password-reset")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> RequestPasswordResetAsync([FromBody] RequestPasswordResetDto requestPasswordResetDto)
+        {
+            var result = await _authService.SendPasswordResetEmailAsync(requestPasswordResetDto.Email);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
             }
 
             return BadRequest();
