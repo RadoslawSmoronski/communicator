@@ -5,5 +5,6 @@ namespace ChatCommunicator.Application.Services.Interfaces
     public interface IAuthService
     {
         Task<ResultT<string>> SendPasswordResetEmailAsync(string email);
+        //Task<ResultT<string>> ResetPasswordAsync(string token);
     }
 }

@@ -45,7 +45,7 @@ namespace ChatCommunicator.Application.Services
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var encodedToken = WebUtility.UrlEncode(token);
 
-                var content = CreateEmailContent(encodedToken);
+                var content = CreateEmailContent(encodedToken, user.Id);
 
                 var emailResult = await _emailService.SendAsync(email, _recoveryPasswordMessageSettings.Title, content);
                 if (!emailResult.IsSuccess)
@@ -63,10 +63,21 @@ namespace ChatCommunicator.Application.Services
                 return Error.Unknown("TOKEN_GENERATION_FAILED", "Failed to generate password reset token.");
             }
         }
-        private string CreateEmailContent(string token)
+        private string CreateEmailContent(string token, Guid userId)
         {
-            var address = $"{_recoveryPasswordMessageSettings.Address}/?token={token}";
+            var address = $"{_recoveryPasswordMessageSettings.Address}/?userId={userId}?token={token}";
             return _recoveryPasswordMessageSettings.Content.Replace("[address]", address);
         }
+
+        //public async Task<ResultT<string>> ResetPasswordAsync(UserAccount user, string token, string newPassword)
+        //{
+        //    var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+        //    if (result.Succeeded)
+        //    {
+        //        return "test";
+        //    }
+
+        //    return Error.Failure("test", "test");
+        //}
     }
 }
