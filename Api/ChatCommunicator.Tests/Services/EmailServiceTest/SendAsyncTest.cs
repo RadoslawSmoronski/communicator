@@ -14,7 +14,6 @@ namespace ChatCommunicator.Tests.Services.EmailServiceTest
 {
     public class SendAsyncTest
     {
-        private readonly SmtpEmailSettings _smtpEmailSettings;
         private readonly SmtpEmailService _fakeSmtpEmailService;
         private readonly ILogger<SmtpEmailService> _logger;
 

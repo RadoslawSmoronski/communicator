@@ -29,6 +29,8 @@ namespace ChatCommunicator.Application
                 builder.Configuration.GetSection("SmtpEmailSettings"));
             builder.Services.Configure<ConfirmEmailMessageSettings>(
                 builder.Configuration.GetSection("ConfirmEmailMessageSettings"));
+            builder.Services.Configure<RecoveryPasswordMessageSettings>(
+                builder.Configuration.GetSection("RecoveryPasswordMessageSettings"));
 
             // Framework services
             builder.Services.AddControllers();
