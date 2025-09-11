@@ -193,9 +193,7 @@ This project is currently **under active development** and not yet complete. The
 
 - Potential Docker integration for easier deployment and environment management
 - Additional enhancements to improve performance and user experience
-- Account activation via email
-- Password recovery
-- Improved documentation for SignalR integration
+- General refactor to clean architecture
 
 We welcome feedback, ideas, and contributions to help make **Chat Communicator** even better!
 

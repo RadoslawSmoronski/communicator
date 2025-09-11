@@ -48,6 +48,7 @@ namespace ChatCommunicator.Tests.Managers.AccountManagerTest
 
             var testConfirmEmailMessageSettings = new ConfirmEmailMessageSettings
             {
+                Title = "test",
                 Content = "Test email content: [address]",
                 Address = "test"
             };

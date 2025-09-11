@@ -45,7 +45,7 @@ namespace ChatCommunicator.Application.Services
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var encodedToken = WebUtility.UrlEncode(token);
 
-                var content = CreateEmailContent(encodedToken);
+                var content = CreateEmailContent(encodedToken, user.Id);
 
                 var emailResult = await _emailService.SendAsync(email, _recoveryPasswordMessageSettings.Title, content);
                 if (!emailResult.IsSuccess)
@@ -63,10 +63,47 @@ namespace ChatCommunicator.Application.Services
                 return Error.Unknown("TOKEN_GENERATION_FAILED", "Failed to generate password reset token.");
             }
         }
-        private string CreateEmailContent(string token)
+        private string CreateEmailContent(string token, Guid userId)
         {
-            var address = $"{_recoveryPasswordMessageSettings.Address}/?token={token}";
+            var address = $"{_recoveryPasswordMessageSettings.Address}/?userId={userId}?token={token}";
             return _recoveryPasswordMessageSettings.Content.Replace("[address]", address);
+        }
+
+        public async Task<ResultT<string>> ResetPasswordAsync(Guid userId, string token, string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+            {
+                _logger.LogWarning("Password reset attempted for null user.");
+                return Error.NotFound("USER_NOT_FOUND", "User does not exist.");
+            }
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                _logger.LogWarning("Password reset attempted with empty token for user {UserId}.", user.Id);
+                return Error.Validation("TOKEN_EMPTY", "Password reset token is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                _logger.LogWarning("Password reset attempted with empty new password for user {UserId}.", user.Id);
+                return Error.Validation("PASSWORD_EMPTY", "New password is required.");
+            }
+
+            var decodedToken = WebUtility.UrlDecode(token);
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Password reset successful for user {UserId}.", user.Id);
+                return newPassword;
+            }
+
+            var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));
+            _logger.LogError("Password reset failed for user {UserId}: {Errors}", user.Id, errorDescription);
+            return Error.Failure("PASSWORD_RESET_FAILED", errorDescription);
         }
     }
 }
