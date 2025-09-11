@@ -168,5 +168,42 @@ namespace ChatCommunicator.API.Controllers
 
             return BadRequest();
         }
+
+        /// <summary>
+        /// Resets the user's password
+        /// </summary>
+        /// <remarks>
+        /// This endpoint allows a user to reset their password by providing their user ID, a valid reset token, and a new password.
+        /// </remarks>
+        /// <param name="resetPasswordDto">
+        /// The DTO containing the user's ID, reset token, and new password.
+        /// </param>
+        /// <returns>
+        /// <see cref="IActionResult"/> indicating the result of the password reset attempt.
+        /// Returns <c>200 OK</c> if the password was reset successfully, or <c>400 Bad Request</c> if the reset failed.
+        /// </returns>
+        /// <response code="200">Password reset successfully.</response>
+        /// <response code="400">Invalid token, user ID, or password.</response>
+        /// <example>
+        /// POST /api/auth/password-reset
+        /// {
+        ///     "userId": "00000000-0000-0000-0000-000000000000",
+        ///     "token": "reset-token-value",
+        ///     "newPassword": "NewPassword123!"
+        /// }
+        /// </example>
+        [HttpPost("password-reset")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            var result = await _authService.ResetPasswordAsync(resetPasswordDto.UserId, resetPasswordDto.Token, resetPasswordDto.NewPassword);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+
+            return BadRequest();
+        }
     }
 }

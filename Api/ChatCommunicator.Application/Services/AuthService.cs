@@ -69,15 +69,41 @@ namespace ChatCommunicator.Application.Services
             return _recoveryPasswordMessageSettings.Content.Replace("[address]", address);
         }
 
-        //public async Task<ResultT<string>> ResetPasswordAsync(UserAccount user, string token, string newPassword)
-        //{
-        //    var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
-        //    if (result.Succeeded)
-        //    {
-        //        return "test";
-        //    }
+        public async Task<ResultT<string>> ResetPasswordAsync(Guid userId, string token, string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
 
-        //    return Error.Failure("test", "test");
-        //}
+            if (user == null)
+            {
+                _logger.LogWarning("Password reset attempted for null user.");
+                return Error.NotFound("USER_NOT_FOUND", "User does not exist.");
+            }
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                _logger.LogWarning("Password reset attempted with empty token for user {UserId}.", user.Id);
+                return Error.Validation("TOKEN_EMPTY", "Password reset token is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                _logger.LogWarning("Password reset attempted with empty new password for user {UserId}.", user.Id);
+                return Error.Validation("PASSWORD_EMPTY", "New password is required.");
+            }
+
+            var decodedToken = WebUtility.UrlDecode(token);
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Password reset successful for user {UserId}.", user.Id);
+                return newPassword;
+            }
+
+            var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));
+            _logger.LogError("Password reset failed for user {UserId}: {Errors}", user.Id, errorDescription);
+            return Error.Failure("PASSWORD_RESET_FAILED", errorDescription);
+        }
     }
 }
