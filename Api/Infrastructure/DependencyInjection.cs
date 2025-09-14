@@ -18,5 +18,7 @@ public static class DependencyInjection
         }
         builder.Services.AddDbContext<ApplicationDbContext>
             (options => options.UseNpgsql(connectionString));
+
+
     }
 }
