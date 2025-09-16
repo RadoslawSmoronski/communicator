@@ -1,8 +1,8 @@
-﻿using Application.Interfaces;
+﻿using Application.Repositories;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repository
+namespace Infrastructure.Repositories
 {
     public class MessageRepository : Repository<Message>, IMessageRepository
     {

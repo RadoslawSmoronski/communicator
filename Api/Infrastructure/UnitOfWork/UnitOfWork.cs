@@ -1,7 +1,7 @@
-﻿using Application.Interfaces;
+﻿using Application.Repositories;
 using Domain.Entities;
 using Infrastructure.Database;
-using Infrastructure.Repository;
+using Infrastructure.Repositories;
 
 namespace Infrastructure.UnitOfWork
 {

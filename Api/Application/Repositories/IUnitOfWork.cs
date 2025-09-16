@@ -1,6 +1,6 @@
 ﻿using Domain.Entities;
 
-namespace Application.Interfaces
+namespace Application.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {

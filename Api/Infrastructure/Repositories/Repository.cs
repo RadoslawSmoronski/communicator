@@ -1,8 +1,8 @@
-﻿using Application.Interfaces;
+﻿using Application.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace Infrastructure.Repository
+namespace Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {

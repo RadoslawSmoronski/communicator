@@ -1,7 +1,8 @@
-﻿using Infrastructure.Database;
+﻿using Application.Interfaces;
+using Infrastructure.Database;
+using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -19,6 +20,23 @@ public static class DependencyInjection
         builder.Services.AddDbContext<ApplicationDbContext>
             (options => options.UseNpgsql(connectionString));
 
+        builder.Services.AddScoped<IUserService, UserService>();
 
+        builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
+        {
+            options.Password.RequireDigit = false;
+            options.Password.RequiredLength = 6;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+
+            options.Lockout.AllowedForNewUsers = true;
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+
+            options.User.RequireUniqueEmail = false;
+            options.SignIn.RequireConfirmedEmail = true;
+        })
+.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
     }
 }
