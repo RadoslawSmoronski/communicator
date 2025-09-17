@@ -57,9 +57,6 @@ const ConfirmAccountPage = () => {
 
 
     useEffect(() => {
-        console.log("userId:", userId);
-        console.log("token:", token);
-
         confirmAccount();
     }, []);
 

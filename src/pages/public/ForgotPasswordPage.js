@@ -85,7 +85,7 @@ const ForgotPasswordPage = () => {
                         }
                     />
 
-                    <button className="btn" onClick={submitForm}>Reset Password</button>
+                    <button className="btn" onClick={submitForm}>Send</button>
 
                 </div>
                 <PopUp ref={popUpRef} />

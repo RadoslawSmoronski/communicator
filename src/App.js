@@ -18,6 +18,7 @@ import MessagePage from "./pages/private/MessagePage";
 import ConfirmAccountPage from "./pages/public/ConfirmAccountPage";
 import LoggingHelpPage from "./pages/public/LoggingHelpPage";
 import ForgotPasswordPage from "./pages/public/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/public/ResetPasswordPage";
 
 const App = () => {
     console.log("renderuje app");
@@ -32,6 +33,7 @@ const App = () => {
                     <Route path="/confirm" element={<ConfirmAccountPage />} />
                     <Route path="/help" element={<LoggingHelpPage />} />
                     <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+                    <Route path="/resetpassword" element={<ResetPasswordPage />} />
                     <Route path="/login" element={
                         <RedirectIfAuth>
                             <LoginPage />
