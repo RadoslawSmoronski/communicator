@@ -22,6 +22,8 @@ const APIs = {
     AVATAR: (userId) => `/api/users/${userId}/avatar`,
     CHANGE_USERNAME: (userId) => `/api/users/${userId}/username`,
     CHANGE_PASSWORD: (userId) => `/api/users/${userId}/password`,
+
+    CONFIRM_ACCOUNT: "/api/auth/confirm-email"
 }
 
 export default APIs;

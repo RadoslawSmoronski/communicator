@@ -5,6 +5,7 @@ import './style/common/Components.scss';
 
 import './style/pages/LoginRegister404.scss';
 import './style/pages/EditProfile.scss';
+import './style/pages/ConfirmResetAccount.scss';
 import './style/pages/message/Main.scss';
 
 import App from './App.js';

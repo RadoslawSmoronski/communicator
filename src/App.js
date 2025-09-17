@@ -15,6 +15,7 @@ import LoginPage from "./pages/public/LoginPage";
 import RegisterPage from "./pages/public/RegisterPage";
 import DefaultPage from "./pages/public/DefaultPage";
 import MessagePage from "./pages/private/MessagePage";
+import ConfirmAccountPage from "./pages/public/ConfirmAccountPage";
 
 const App = () => {
     console.log("renderuje app");
@@ -26,6 +27,7 @@ const App = () => {
                     {/* public routes */}
                     <Route path="/" element={<Navigate replace to="/login" />} />
                     <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/confirm" element={<ConfirmAccountPage />} />
                     <Route path="/login" element={
                         <RedirectIfAuth>
                             <LoginPage />
