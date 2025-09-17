@@ -23,7 +23,8 @@ const APIs = {
     CHANGE_USERNAME: (userId) => `/api/users/${userId}/username`,
     CHANGE_PASSWORD: (userId) => `/api/users/${userId}/password`,
 
-    CONFIRM_ACCOUNT: "/api/auth/confirm-email"
+    CONFIRM_ACCOUNT: "/api/auth/confirm-email",
+    REQUEST_PASSWORD_RESET: "/api/auth/request-password-reset"
 }
 
 export default APIs;

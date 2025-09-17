@@ -117,6 +117,10 @@ const LoginPage = () => {
                 <div>Don't have an account? Sign up below</div>
                 <Link to="/register">Create an account</Link>
                 <Link to="/message">Message Page</Link>
+
+                <br />
+                <div>Having trouble logging in?</div>
+                <Link to="/help">Troubleshooting center</Link>
             </form>
 
             <div className="welcomeBlock">

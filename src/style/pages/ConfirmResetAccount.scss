@@ -1,5 +1,7 @@
 @use './../variables' as vars;
 
+// confirm account
+
 .confirmAccountBody {
     position: relative;
     display: flex;
@@ -49,4 +51,50 @@
 
 .successText {
     color: green;
+}
+
+// logging help
+
+.loggingHelpBody {
+    background-color: vars.$panel-color;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    margin-top: 80px;
+    max-width: 600px;
+    border-radius: 15px;
+    width: 100%;
+}
+
+.loggingHelp.mainText {
+    font-size: 18px;
+    text-align: center;
+}
+
+.loggingHelp.btnWrapper {
+    margin-top: 25px;
+}
+
+.btn2.link {
+    margin: 2px;
+}
+
+.btn2.link:hover {
+    background: none;
+}
+
+.loginPanel.small {
+    margin-top: 80px;
+    justify-content: space-around;
+    height: 350px;
+}
+
+.loggingHelp.formWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
