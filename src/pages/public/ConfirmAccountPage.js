@@ -3,18 +3,22 @@ import { Link, useLocation } from 'react-router-dom';
 import axios from "../../api/axios";
 
 import APIs from "../../api/ApiURL";
+import useRawQueryParam from "../../hooks/useRawQueryParam";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark, faCircleCheck, faChampagneGlasses } from "@fortawesome/free-solid-svg-icons";
 
 const ConfirmAccountPage = () => {
     const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
+    // const queryParams = new URLSearchParams(location.search);
+    // const userId = queryParams.get("userId");
+    // const token = queryParams.get("token");
 
     const [feedbackMess, setFeedbackMess] = useState(<>Wait ...</>);
     const [isSuccess, setIsSuccess] = useState(null);
-    const userId = queryParams.get("userId");
-    const token = queryParams.get("token");
+
+    const userId = useRawQueryParam("userId");
+    const token = useRawQueryParam("token");
 
     const errorMark = <FontAwesomeIcon icon={faCircleXmark} />;
 
@@ -57,6 +61,9 @@ const ConfirmAccountPage = () => {
 
 
     useEffect(() => {
+        console.log("userId: " + userId);
+        console.log("token: " + token)
+
         confirmAccount();
     }, []);
 
@@ -68,7 +75,7 @@ const ConfirmAccountPage = () => {
 
                 {isSuccess &&
                     <>
-                        <FontAwesomeIcon icon={faChampagneGlasses} className="confirmAccount icon"/>
+                        <FontAwesomeIcon icon={faChampagneGlasses} className="confirmAccount icon" />
                         <div className="confirmAccount thanks">THANKS FOR JOINING</div>
                         <div className="confirmAccount mainText">Your registration is complete.</div>
                     </>

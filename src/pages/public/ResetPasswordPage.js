@@ -6,6 +6,7 @@ import ValidatedInput from "../../components/form/ValidatedInput";
 import axios from "../../api/axios";
 import APIs from "../../api/ApiURL";
 import regexUtils from "../../utils/regexUtils";
+import useRawQueryParam from "../../hooks/useRawQueryParam";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUnlock } from "@fortawesome/free-solid-svg-icons";
@@ -16,8 +17,9 @@ const ResetPasswordPage = () => {
     const popUpRef = useRef();
 
     const queryParams = new URLSearchParams(location.search);
-    const userId = queryParams.get("userId");
-    const token = queryParams.get("token");
+    const userId = useRawQueryParam("userId");
+    const token = useRawQueryParam("token");
+
     const [isSuccess, setIsSuccess] = useState(false);
 
     const [formData, setFormData] = useState({
