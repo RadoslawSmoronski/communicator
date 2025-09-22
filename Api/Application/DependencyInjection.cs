@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Application.Settings;
+using Microsoft.Extensions.Hosting;
 using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -11,5 +12,8 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
         });
 
+        // configuration
+        builder.Services.Configure<JWTTokenSettings>(
+            builder.Configuration.GetSection("JWTTokenSettings"));
     }
 }
