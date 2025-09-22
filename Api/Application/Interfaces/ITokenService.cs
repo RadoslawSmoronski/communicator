@@ -9,6 +9,6 @@ namespace Application.Interfaces
         //Task<Result<RefreshAccessTokenDto>> RefreshAccessTokenAsync(Guid refreshToken);
 
         //RefreshToken
-        //Task<ResultT<Guid>> CreateRefreshTokenAsync(Guid userId);
+        Task<Result<Guid>> CreateRefreshTokenAsync(Guid userId);
     }
 }

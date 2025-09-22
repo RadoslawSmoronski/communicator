@@ -9,20 +9,30 @@ using Microsoft.IdentityModel.Tokens;
 using Shared.Result;
 using System.Security.Claims;
 using System.Text;
+using Application.Repositories;
+using Domain.Entities;
 
 namespace Infrastructure.Services
 {
     public class TokenService : ITokenService
     {
         private readonly UserManager<UserAccount> _userManager;
-        private readonly JWTTokenSettings _tokenSettings;
+        private readonly JWTTokenSettings _accessTokenSettings;
+        private readonly RefreshTokenSettings _refreshTokenSettings;
         private readonly ILogger<TokenService> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TokenService(UserManager<UserAccount> userManager, IOptions<JWTTokenSettings> options, ILogger<TokenService> logger)
+        public TokenService(UserManager<UserAccount> userManager,
+            IOptions<JWTTokenSettings> accessTokenOptions,
+            IOptions<RefreshTokenSettings> refreshTokenOptions,
+            ILogger<TokenService> logger,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
-            _tokenSettings = options.Value;
+            _accessTokenSettings = accessTokenOptions.Value;
+            _refreshTokenSettings = refreshTokenOptions.Value;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<string>> CreateAccessTokenAsync(Guid userId)
@@ -54,16 +64,16 @@ namespace Infrastructure.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenSettings.SigningKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_accessTokenSettings.SigningKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.Add(TimeSpan.FromSeconds(_tokenSettings.AccessTokenLifeInSeconds)),
+                Expires = DateTime.UtcNow.Add(TimeSpan.FromSeconds(_accessTokenSettings.AccessTokenLifeInSeconds)),
                 SigningCredentials = creds,
-                Issuer = _tokenSettings.Issuer,
-                Audience = _tokenSettings.Audience
+                Issuer = _accessTokenSettings.Issuer,
+                Audience = _accessTokenSettings.Audience
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -72,5 +82,54 @@ namespace Infrastructure.Services
 
             return writtenToken;
         }
+
+        public async Task<Result<Guid>> CreateRefreshTokenAsync(Guid userId)
+        {
+            _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Attempting to create refresh token for user id: {Id}", userId);
+
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user is null)
+            {
+                _logger.LogWarning("[TokenService - CreateRefreshTokenAsync] User not found for id: {Id}", userId);
+                return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+            }
+
+            _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] User found. Checking for existing refresh token for user id: {Id}", userId);
+
+            var oldRefreshToken = await GetRefreshTokenObjectByUserIdAsync(userId);
+
+            var newRefreshToken = Guid.NewGuid();
+            var expiration = DateTime.UtcNow.Add(TimeSpan.FromSeconds(_refreshTokenSettings.RefreshTokenLifeInSeconds));
+
+            if (oldRefreshToken != null)
+            {
+                _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Existing refresh token found. Updating token and expiration for user id: {Id}", userId);
+                oldRefreshToken.Token = newRefreshToken;
+                oldRefreshToken.Expiration = expiration;
+                _unitOfWork.RefreshTokens.Update(oldRefreshToken);
+            }
+            else
+            {
+                _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] No existing refresh token found. Creating new refresh token for user id: {Id}", userId);
+                var newObject = new RefreshToken
+                {
+                    Token = newRefreshToken,
+                    UserId = userId,
+                    Expiration = expiration
+                };
+
+                await _unitOfWork.RefreshTokens.AddAsync(newObject);
+            }
+
+            _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Saving changes to refresh token for user id: {Id}", userId);
+            await _unitOfWork.SaveAsync();
+
+            _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Refresh token created successfully for user id: {Id}", userId);
+
+            return newRefreshToken;
+        }
+
+        private async Task<RefreshToken?> GetRefreshTokenObjectByUserIdAsync(Guid userId) => await _unitOfWork.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == userId);
     }
 }

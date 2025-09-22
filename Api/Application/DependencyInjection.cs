@@ -15,5 +15,7 @@ public static class DependencyInjection
         // configuration
         builder.Services.Configure<JWTTokenSettings>(
             builder.Configuration.GetSection("JWTTokenSettings"));
+        builder.Services.Configure<RefreshTokenSettings>(
+            builder.Configuration.GetSection("RefreshTokenSettings"));
     }
 }
