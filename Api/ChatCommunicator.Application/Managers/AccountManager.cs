@@ -458,7 +458,7 @@ namespace ChatCommunicator.Application.Managers
 
         private string CreateEmailContent(Guid userId, string token)
         {
-            var address = $"{_confirmEmailMessageSettings.Address}/userId={userId.ToString()}?token={token}";
+            var address = $"{_confirmEmailMessageSettings.Address}/userId={userId.ToString()}&token={token}";
             return _confirmEmailMessageSettings.Content.Replace("[address]", address);
         }
 

@@ -65,7 +65,7 @@ namespace ChatCommunicator.Application.Services
         }
         private string CreateEmailContent(string token, Guid userId)
         {
-            var address = $"{_recoveryPasswordMessageSettings.Address}/?userId={userId}?token={token}";
+            var address = $"{_recoveryPasswordMessageSettings.Address}/?userId={userId}&token={token}";
             return _recoveryPasswordMessageSettings.Content.Replace("[address]", address);
         }
 

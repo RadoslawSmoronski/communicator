@@ -1,45 +1,39 @@
-﻿using Application;
+﻿using API.DTOs;
 using Application.Auth.Commands.LoginUser;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Result;
-using System.Drawing;
 
 namespace API.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    public class AuthController : Controller
+    public class AuthController : BaseController
     {
         private readonly ISender _sender;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(ISender sender)
+        public AuthController(ISender sender, ILogger<AuthController> logger)
         {
             _sender = sender;
+            _logger = logger;
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<Guid>> LoginAsync()
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
-            var command = new LoginUserCommand("testuser1@mail.com", "testUser1Password123$");
+            _logger.LogInformation("[AuthController - LoginAsync] Login attempt for email: {Email}", loginDto.Email);
+
+            var command = new LoginUserCommand(loginDto.Email, loginDto.Password);
             var result = await _sender.Send(command);
-            var error = result.Error;
 
             if (result.IsSuccess)
             {
-                return result.Value;
-            }
-            else if (error is not null)
-            {
-                return error.ErrorType switch
-                {
-                    ErrorType.NotFound => NotFound(),
-                    _ => BadRequest()
-                };
+                _logger.LogInformation("[AuthController - LoginAsync] Login successful for email: {Email}", loginDto.Email);
+                return Ok(result.Value);
             }
 
-
-            return BadRequest();
+            return HandleError(result, "AuthController - LoginAsync", _logger);
         }
     }
 }

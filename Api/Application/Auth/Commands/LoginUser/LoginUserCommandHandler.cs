@@ -1,11 +1,12 @@
-﻿using Application.Interfaces;
+﻿using Application.DTOs;
+using Application.Interfaces;
 using MediatR;
 using Shared.Result;
 using System.Drawing;
 
 namespace Application.Auth.Commands.LoginUser
 {
-    public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Result<Guid>>
+    public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Result<LoggedUserDto>>
     {
         private readonly IUserService _userService;
 
@@ -14,21 +15,21 @@ namespace Application.Auth.Commands.LoginUser
             _userService = userService;
         }
 
-        public async Task<Result<Guid>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
+        public async Task<Result<LoggedUserDto>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
-            var userId = await _userService.LoginAsync(request.Email, request.Password);
-            var error = userId.Error;
+            var userIdResult = await _userService.LoginAsync(request.Email, request.Password);
 
-            if (userId.IsSuccess)
+            if (userIdResult.IsSuccess)
             {
-                return userId.Value;
-            }
-            else if(error is not null)
-            {
-                return error;
+                return userIdResult.Value;
             }
 
-            return Error.Unknown("test", "test");
+            if (userIdResult.Error is not null)
+            {
+                return userIdResult.Error;
+            }
+
+            return Error.Unknown("LoginFailed", "An unknown error occurred during login.");
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Application.Interfaces;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection;

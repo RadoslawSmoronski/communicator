@@ -1,5 +1,7 @@
-﻿using Application.Interfaces;
+﻿using Application.DTOs;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Shared.Result;
 
 namespace Infrastructure.Identity
@@ -8,25 +10,43 @@ namespace Infrastructure.Identity
     {
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
+        private readonly ILogger<UserService> _logger;
 
-        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager)
+        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
 
-        public async Task<Result<Guid>> LoginAsync(string email, string password)
+        public async Task<Result<LoggedUserDto>> LoginAsync(string email, string password)
         {
+            _logger.LogInformation("[UserService - LoginAsync] Login attempt for email: {Email}", email);
+
             var user = await _userManager.FindByEmailAsync(email);
 
             if (user is null)
+            {
+                _logger.LogWarning("[UserService - LoginAsync] User not found for email: {Email}", email);
                 return Error.NotFound("UserNotFound", $"User with email '{email}' was not found.");
+            }
 
             var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
 
             if (result.Succeeded)
-                return user.Id;
+            {
+                _logger.LogInformation("[UserService - LoginAsync] Login succeeded for user: {UserId}", user.Id);
+                return new LoggedUserDto()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName!,
+                    AvatarUrl = user.AvatarUrl,
+                    AccessToken = "test", // todo
+                    RefreshToken = Guid.NewGuid() // todo
+                };
+            }
 
+            _logger.LogWarning("[UserService - LoginAsync] Invalid credentials for email: {Email}", email);
             return Error.Unauthorized("InvalidCredentials", "Invalid email or password.");
         }
     }
