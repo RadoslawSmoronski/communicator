@@ -2,34 +2,38 @@
 using Application.Interfaces;
 using MediatR;
 using Shared.Result;
-using System.Drawing;
 
 namespace Application.Auth.Commands.LoginUser
 {
     public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Result<LoggedUserDto>>
     {
         private readonly IUserService _userService;
+        private readonly ITokenService _tokenService;
 
-        public LoginUserCommandHandler(IUserService userService)
+        public LoginUserCommandHandler(IUserService userService, ITokenService tokenService)
         {
             _userService = userService;
+            _tokenService = tokenService;
         }
 
         public async Task<Result<LoggedUserDto>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
-            var userIdResult = await _userService.LoginAsync(request.Email, request.Password);
+            var loggedUserResult = await _userService.LoginAsync(request.Email, request.Password);
+            if (!loggedUserResult.IsSuccess)
+                return loggedUserResult.Error!;
 
-            if (userIdResult.IsSuccess)
-            {
-                return userIdResult.Value;
-            }
+            var accessToken = await _tokenService.CreateAccessTokenAsync(loggedUserResult.Value.Id);
+            if (!accessToken.IsSuccess)
+                return accessToken.Error!;
 
-            if (userIdResult.Error is not null)
-            {
-                return userIdResult.Error;
-            }
+            var refreshToken = await _tokenService.CreateRefreshTokenAsync(loggedUserResult.Value.Id);
+            if (!refreshToken.IsSuccess)
+                return refreshToken.Error!;
 
-            return Error.Unknown("LoginFailed", "An unknown error occurred during login.");
+            loggedUserResult.Value.AccessToken = accessToken.Value;
+            loggedUserResult.Value.RefreshToken = refreshToken.Value;
+
+            return loggedUserResult.Value;
         }
     }
 }

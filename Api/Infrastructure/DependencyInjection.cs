@@ -1,7 +1,9 @@
 ﻿using Application.Interfaces;
+using Application.Repositories;
 using Infrastructure.Database;
 using Infrastructure.Identity;
 using Infrastructure.Services;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +25,7 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
         {

@@ -39,21 +39,29 @@ namespace Infrastructure.Services
         {
             _logger.LogInformation("[TokenService - CreateAccessTokenAsync] Attempting to create access token for user id: {Id}", userId);
 
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-
-            if (user is null)
+            try
             {
-                _logger.LogWarning("[TokenService - CreateAccessTokenAsync] User not found for id: {Id}", userId);
-                return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user is null)
+                {
+                    _logger.LogWarning("[TokenService - CreateAccessTokenAsync] User not found for id: {Id}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
+
+                _logger.LogInformation("[TokenService - CreateAccessTokenAsync] User found. Creating JWT token for user: {UserName}, id: {Id}", user.UserName, user.Id);
+
+                var accessToken = CreateJwtToken(user);
+
+                _logger.LogInformation("[TokenService - CreateAccessTokenAsync] JWT token created successfully for user id: {Id}", userId);
+
+                return accessToken;
             }
-
-            _logger.LogInformation("[TokenService - CreateAccessTokenAsync] User found. Creating JWT token for user: {UserName}, id: {Id}", user.UserName, user.Id);
-
-            var accessToken = CreateJwtToken(user);
-
-            _logger.LogInformation("[TokenService - CreateAccessTokenAsync] JWT token created successfully for user id: {Id}", userId);
-
-            return accessToken;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[TokenService - CreateAccessTokenAsync] Exception occurred while creating access token for user id: {Id}", userId);
+                return Error.Failure("AccessTokenCreationFailed", "An error occurred while creating the access token.");
+            }
         }
 
         private string CreateJwtToken(UserAccount user)
@@ -87,47 +95,55 @@ namespace Infrastructure.Services
         {
             _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Attempting to create refresh token for user id: {Id}", userId);
 
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-
-            if (user is null)
+            try
             {
-                _logger.LogWarning("[TokenService - CreateRefreshTokenAsync] User not found for id: {Id}", userId);
-                return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
-            }
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
-            _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] User found. Checking for existing refresh token for user id: {Id}", userId);
-
-            var oldRefreshToken = await GetRefreshTokenObjectByUserIdAsync(userId);
-
-            var newRefreshToken = Guid.NewGuid();
-            var expiration = DateTime.UtcNow.Add(TimeSpan.FromSeconds(_refreshTokenSettings.RefreshTokenLifeInSeconds));
-
-            if (oldRefreshToken != null)
-            {
-                _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Existing refresh token found. Updating token and expiration for user id: {Id}", userId);
-                oldRefreshToken.Token = newRefreshToken;
-                oldRefreshToken.Expiration = expiration;
-                _unitOfWork.RefreshTokens.Update(oldRefreshToken);
-            }
-            else
-            {
-                _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] No existing refresh token found. Creating new refresh token for user id: {Id}", userId);
-                var newObject = new RefreshToken
+                if (user is null)
                 {
-                    Token = newRefreshToken,
-                    UserId = userId,
-                    Expiration = expiration
-                };
+                    _logger.LogWarning("[TokenService - CreateRefreshTokenAsync] User not found for id: {Id}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
 
-                await _unitOfWork.RefreshTokens.AddAsync(newObject);
+                _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] User found. Checking for existing refresh token for user id: {Id}", userId);
+
+                var oldRefreshToken = await GetRefreshTokenObjectByUserIdAsync(userId);
+
+                var newRefreshToken = Guid.NewGuid();
+                var expiration = DateTime.UtcNow.Add(TimeSpan.FromSeconds(_refreshTokenSettings.RefreshTokenLifeInSeconds));
+
+                if (oldRefreshToken != null)
+                {
+                    _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Existing refresh token found. Updating token and expiration for user id: {Id}", userId);
+                    oldRefreshToken.Token = newRefreshToken;
+                    oldRefreshToken.Expiration = expiration;
+                    _unitOfWork.RefreshTokens.Update(oldRefreshToken);
+                }
+                else
+                {
+                    _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] No existing refresh token found. Creating new refresh token for user id: {Id}", userId);
+                    var newObject = new RefreshToken
+                    {
+                        Token = newRefreshToken,
+                        UserId = userId,
+                        Expiration = expiration
+                    };
+
+                    await _unitOfWork.RefreshTokens.AddAsync(newObject);
+                }
+
+                _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Saving changes to refresh token for user id: {Id}", userId);
+                await _unitOfWork.SaveAsync();
+
+                _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Refresh token created successfully for user id: {Id}", userId);
+
+                return newRefreshToken;
             }
-
-            _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Saving changes to refresh token for user id: {Id}", userId);
-            await _unitOfWork.SaveAsync();
-
-            _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Refresh token created successfully for user id: {Id}", userId);
-
-            return newRefreshToken;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[TokenService - CreateRefreshTokenAsync] Exception occurred while creating refresh token for user id: {Id}", userId);
+                return Error.Failure("RefreshTokenCreationFailed", "An error occurred while creating the refresh token.");
+            }
         }
 
         private async Task<RefreshToken?> GetRefreshTokenObjectByUserIdAsync(Guid userId) => await _unitOfWork.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == userId);

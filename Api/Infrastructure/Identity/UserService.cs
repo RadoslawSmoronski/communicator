@@ -23,31 +23,37 @@ namespace Infrastructure.Identity
         {
             _logger.LogInformation("[UserService - LoginAsync] Login attempt for email: {Email}", email);
 
-            var user = await _userManager.FindByEmailAsync(email);
-
-            if (user is null)
+            try
             {
-                _logger.LogWarning("[UserService - LoginAsync] User not found for email: {Email}", email);
-                return Error.NotFound("UserNotFound", $"User with email '{email}' was not found.");
-            }
+                var user = await _userManager.FindByEmailAsync(email);
 
-            var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
-
-            if (result.Succeeded)
-            {
-                _logger.LogInformation("[UserService - LoginAsync] Login succeeded for user: {UserId}", user.Id);
-                return new LoggedUserDto()
+                if (user is null)
                 {
-                    Id = user.Id,
-                    UserName = user.UserName!,
-                    AvatarUrl = user.AvatarUrl,
-                    AccessToken = "test", // todo
-                    RefreshToken = Guid.NewGuid() // todo
-                };
-            }
+                    _logger.LogWarning("[UserService - LoginAsync] User not found for email: {Email}", email);
+                    return Error.NotFound("UserNotFound", $"User with email '{email}' was not found.");
+                }
 
-            _logger.LogWarning("[UserService - LoginAsync] Invalid credentials for email: {Email}", email);
-            return Error.Unauthorized("InvalidCredentials", "Invalid email or password.");
+                var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("[UserService - LoginAsync] Login succeeded for user: {UserId}", user.Id);
+                    return new LoggedUserDto()
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName!,
+                        AvatarUrl = user.AvatarUrl
+                    };
+                }
+
+                _logger.LogWarning("[UserService - LoginAsync] Invalid credentials for email: {Email}", email);
+                return Error.Unauthorized("InvalidCredentials", "Invalid email or password.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - LoginAsync] Unexpected error for email: {Email}", email);
+                return Error.Failure("LoginFailed", "An unexpected error occurred during login.");
+            }
         }
     }
 }
