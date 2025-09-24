@@ -5,12 +5,12 @@ using Shared.Result;
 
 namespace Application.Auth.Commands.LoginUser
 {
-    public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Result<LoggedUserDto>>
+    public class LoginUserHandler : IRequestHandler<LoginUserCommand, Result<LoggedUserDto>>
     {
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
 
-        public LoginUserCommandHandler(IUserService userService, ITokenService tokenService)
+        public LoginUserHandler(IUserService userService, ITokenService tokenService)
         {
             _userService = userService;
             _tokenService = tokenService;

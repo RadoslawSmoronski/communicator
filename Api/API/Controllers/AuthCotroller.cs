@@ -1,5 +1,6 @@
 ﻿using API.DTOs;
 using Application.Auth.Commands.LoginUser;
+using Application.Auth.Commands.RefreshAccessToken;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Result;
@@ -19,7 +20,7 @@ namespace API.Controllers
             _logger = logger;
         }
 
-        [HttpPost("login")]
+        [HttpPost("login")] // refactor: docs
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
         {
             _logger.LogInformation("[AuthController - LoginAsync] Login attempt for email: {Email}", loginDto.Email);
@@ -34,6 +35,23 @@ namespace API.Controllers
             }
 
             return HandleError(result, "AuthController - LoginAsync", _logger);
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshAccessTokenDto refreshAccessTokenDto)
+        {
+            _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token attempt: {RefreshToken}", refreshAccessTokenDto.RefreshToken);
+
+            var command = new RefreshAccessTokenCommand(refreshAccessTokenDto.RefreshToken);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token successful for: {RefreshToken}", refreshAccessTokenDto.RefreshToken);
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "AuthController - RefreshAccessTokenAsync", _logger);
         }
     }
 }

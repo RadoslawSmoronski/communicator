@@ -1,16 +1,18 @@
-﻿using Application.Interfaces;
+﻿using Application.DTOs;
+using Application.Interfaces;
+using Application.Repositories;
 using Application.Settings;
+using Domain.Entities;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Result;
+using System.IdentityModel.Tokens.Jwt;
+using System.Runtime;
 using System.Security.Claims;
 using System.Text;
-using Application.Repositories;
-using Domain.Entities;
 
 namespace Infrastructure.Services
 {
@@ -91,6 +93,63 @@ namespace Infrastructure.Services
             return writtenToken;
         }
 
+        public async Task<Result<RefreshAccessTokenResponseDto>> RefreshAccessTokenAsync(Guid refreshToken)
+        {
+            _logger.LogInformation("[TokenService - RefreshAccessTokenAsync] Attempting to refresh access token with refresh token: {RefreshToken}", refreshToken);
+
+            try
+            {
+                var refreshTokenFromDb = await GetRefreshTokenAsync(refreshToken);
+
+                if (refreshTokenFromDb == null)
+                {
+                    _logger.LogWarning("[TokenService - RefreshAccessTokenAsync] Refresh token not found or expired: {RefreshToken}", refreshToken);
+                    return Error.Unauthorized("RefreshTokenUnauthorized", $"Refresh token '{refreshToken}' was not found or is expired.");
+                }
+
+                var user = await _userManager.FindByIdAsync(refreshTokenFromDb.UserId.ToString());
+
+                if (user == null)
+                {
+                    _logger.LogWarning("[TokenService - RefreshAccessTokenAsync] User not found for refresh token: {RefreshToken}, userId: {UserId}", refreshToken, refreshTokenFromDb.UserId);
+                    return Error.NotFound("UserNotFound", $"User with id '{refreshTokenFromDb.UserId}' was not found.");
+                }
+
+                _logger.LogInformation("[TokenService - RefreshAccessTokenAsync] User found. Creating new access token for user: {UserName}, userId: {UserId}", user.UserName, user.Id);
+
+                var accessToken = CreateJwtToken(user);
+                var newRefreshToken = Guid.NewGuid();
+
+                refreshTokenFromDb.Token = newRefreshToken;
+                refreshTokenFromDb.Expiration = DateTime.UtcNow; // refactor: Consider renaming 'Expiration' to 'CreatedAt' if this is creation time.
+
+                _unitOfWork.RefreshTokens.Update(refreshTokenFromDb);
+                await _unitOfWork.SaveAsync();
+
+                _logger.LogInformation("[TokenService - RefreshAccessTokenAsync] Access token and refresh token refreshed successfully for userId: {UserId}", user.Id);
+
+                return new RefreshAccessTokenResponseDto()
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = newRefreshToken
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[TokenService - RefreshAccessTokenAsync] Exception occurred while refreshing access token with refresh token: {RefreshToken}", refreshToken);
+                return Error.Failure("RefreshTokenCreationFailed", "An error occurred while creating the refresh token.");
+            }
+        }
+
+        private async Task<RefreshToken?> GetRefreshTokenAsync(Guid refreshToken)
+        {
+            var expirationTimeSpan = TimeSpan.FromSeconds(_refreshTokenSettings.RefreshTokenLifeInSeconds);
+            var expirationTime = DateTime.UtcNow - expirationTimeSpan;
+
+            return await _unitOfWork.RefreshTokens
+                .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.Expiration > expirationTime);
+        }
+
         public async Task<Result<Guid>> CreateRefreshTokenAsync(Guid userId)
         {
             _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Attempting to create refresh token for user id: {Id}", userId);
@@ -144,5 +203,6 @@ namespace Infrastructure.Services
         }
 
         private async Task<RefreshToken?> GetRefreshTokenObjectByUserIdAsync(Guid userId) => await _unitOfWork.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == userId);
+
     }
 }

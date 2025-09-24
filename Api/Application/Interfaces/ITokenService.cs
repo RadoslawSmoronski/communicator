@@ -1,4 +1,5 @@
-﻿using Shared.Result;
+﻿using Application.DTOs;
+using Shared.Result;
 
 namespace Application.Interfaces
 {
@@ -6,7 +7,7 @@ namespace Application.Interfaces
     {
         //Access Token
         Task<Result<string>> CreateAccessTokenAsync(Guid userId);
-        //Task<Result<RefreshAccessTokenDto>> RefreshAccessTokenAsync(Guid refreshToken);
+        Task<Result<RefreshAccessTokenResponseDto>> RefreshAccessTokenAsync(Guid refreshToken);
 
         //RefreshToken
         Task<Result<Guid>> CreateRefreshTokenAsync(Guid userId);
