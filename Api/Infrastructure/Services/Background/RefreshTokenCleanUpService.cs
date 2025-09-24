@@ -20,7 +20,6 @@ namespace Infrastructure.Services.Background
             _settings = settings.Value;
         }
 
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try

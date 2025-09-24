@@ -14,14 +14,6 @@ namespace Application.Auth.Commands.RefreshAccessToken
             _tokenService = tokenService;
         }
 
-
-        public async Task<Result<RefreshAccessTokenResponseDto>> Handle(RefreshAccessTokenCommand request, CancellationToken cancellationToken)
-        {
-            var refreshAccessTokenResult = await _tokenService.RefreshAccessTokenAsync(request.refreshToken);
-            if (!refreshAccessTokenResult.IsSuccess)
-                return refreshAccessTokenResult.Error!;
-
-            return refreshAccessTokenResult.Value;
-        }
+        public async Task<Result<RefreshAccessTokenResponseDto>> Handle(RefreshAccessTokenCommand request, CancellationToken cancellationToken) => await _tokenService.RefreshAccessTokenAsync(request.refreshToken);
     }
 }

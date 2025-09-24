@@ -10,7 +10,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Result;
 using System.IdentityModel.Tokens.Jwt;
-using System.Runtime;
 using System.Security.Claims;
 using System.Text;
 
