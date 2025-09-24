@@ -4,5 +4,5 @@ using Shared.Result;
 
 namespace Application.Auth.Commands.RefreshAccessToken
 {
-    public record RefreshAccessTokenCommand(Guid refreshToken) : IRequest<Result<RefreshAccessTokenResponseDto>>;
+    public record RefreshAccessTokenCommand(Guid RefreshToken) : IRequest<Result<RefreshAccessTokenResponseDto>>;
 }

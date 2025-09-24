@@ -17,5 +17,7 @@ public static class DependencyInjection
             builder.Configuration.GetSection("JWTTokenSettings"));
         builder.Services.Configure<RefreshTokenSettings>(
             builder.Configuration.GetSection("RefreshTokenSettings"));
+        builder.Services.Configure<SmtpEmailSettings>(
+            builder.Configuration.GetSection("SmtpEmailSettings"));
     }
 }

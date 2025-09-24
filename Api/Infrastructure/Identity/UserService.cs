@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
+using System.Net;
 
 namespace Infrastructure.Identity
 {
@@ -54,6 +55,23 @@ namespace Infrastructure.Identity
                 _logger.LogError(ex, "[UserService - LoginAsync] Unexpected error for email: {Email}", email);
                 return Error.Failure("LoginFailed", "An unexpected error occurred during login.");
             }
+        }
+
+        public async Task<Result> ConfirmEmailAsync(Guid userId, string confirmationToken)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return Error.NotFound("", "");
+
+            var result = await _userManager.ConfirmEmailAsync(user, confirmationToken);
+
+            if (result.Succeeded)
+            {
+                return Result.Success();
+            }
+
+            return Error.Failure("", "");
         }
     }
 }
