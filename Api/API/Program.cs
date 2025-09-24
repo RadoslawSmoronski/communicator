@@ -38,9 +38,12 @@ namespace API
             };
 
             Log.Logger = new LoggerConfiguration()
-                    .WriteTo.Console()
-                    .WriteTo.PostgreSQL(builder.Configuration.GetConnectionString("DefaultConnection"), "Logs", columnWriters, needAutoCreateTable: true)
-                    .CreateLogger();
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Warning)
+                .WriteTo.Console()
+                .WriteTo.PostgreSQL(builder.Configuration.GetConnectionString("DefaultConnection"), "Logs", columnWriters, needAutoCreateTable: true)
+                .CreateLogger();
 
             builder.Host.UseSerilog();
 

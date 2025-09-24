@@ -110,13 +110,11 @@ namespace Infrastructure.Services
                 var oldRefreshToken = await GetRefreshTokenObjectByUserIdAsync(userId);
 
                 var newRefreshToken = Guid.NewGuid();
-                var expiration = DateTime.UtcNow.Add(TimeSpan.FromSeconds(_refreshTokenSettings.RefreshTokenLifeInSeconds));
 
                 if (oldRefreshToken != null)
                 {
                     _logger.LogInformation("[TokenService - CreateRefreshTokenAsync] Existing refresh token found. Updating token and expiration for user id: {Id}", userId);
                     oldRefreshToken.Token = newRefreshToken;
-                    oldRefreshToken.Expiration = expiration;
                     _unitOfWork.RefreshTokens.Update(oldRefreshToken);
                 }
                 else
@@ -126,7 +124,6 @@ namespace Infrastructure.Services
                     {
                         Token = newRefreshToken,
                         UserId = userId,
-                        Expiration = expiration
                     };
 
                     await _unitOfWork.RefreshTokens.AddAsync(newObject);
