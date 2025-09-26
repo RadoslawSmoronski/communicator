@@ -21,5 +21,7 @@ public static class DependencyInjection
             builder.Configuration.GetSection("SmtpEmailSettings"));
         builder.Services.Configure<RecoveryPasswordMessageSettings>(
             builder.Configuration.GetSection("RecoveryPasswordMessageSettings"));
+        builder.Services.Configure<ConfirmEmailMessageSettings>(
+            builder.Configuration.GetSection("ConfirmEmailMessageSettings"));
     }
 }

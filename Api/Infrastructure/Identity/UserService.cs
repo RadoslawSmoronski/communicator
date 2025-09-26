@@ -3,7 +3,6 @@ using Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
-using System.Net;
 
 namespace Infrastructure.Identity
 {
@@ -135,6 +134,77 @@ namespace Infrastructure.Identity
             {
                 _logger.LogError(ex, "[UserService - ResetPasswordAsync] Unexpected error for userId: {UserId}", userId);
                 return Error.Failure("PasswordResetException", "An unexpected error occurred during password reset.");
+            }
+        }
+
+        public async Task<Result<RegisteredDto>> RegisterAsync(string email, string username, string password)
+        {
+            _logger.LogInformation("[UserService - RegisterAsync] Registration attempt for email: {Email}, username: {Username}", email, username);
+
+            try
+            {
+                var user = new UserAccount { Email = email, UserName = username };
+                var result = await _userManager.CreateAsync(user, password);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("[UserService - RegisterAsync] Registration succeeded for user: {UserId}", user.Id);
+                    return new RegisteredDto()
+                    {
+                        Id = user.Id,
+                        Email = email,
+                        Username = username
+                    };
+                }
+
+                var conflictEmailError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateEmail");
+                if (conflictEmailError != null)
+                {
+                    _logger.LogWarning("[UserService - RegisterAsync] Email conflict for email: {Email}", email);
+                    return Error.Conflict("DuplicateEmail", $"Email '{email}' is already in use.");
+                }
+
+                var conflictUsernameError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName");
+                if (conflictUsernameError != null)
+                {
+                    _logger.LogWarning("[UserService - RegisterAsync] Username conflict for username: {Username}", username);
+                    return Error.Conflict("DuplicateUsername", $"Username '{username}' is already in use.");
+                }
+
+                var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));
+                _logger.LogWarning("[UserService - RegisterAsync] Registration failed for email: {Email}, username: {Username}. Errors: {Errors}", email, username, errorDescription);
+                return Error.Failure("RegistrationFailed", errorDescription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - RegisterAsync] Unexpected error for email: {Email}, username: {Username}", email, username);
+                return Error.Failure("RegistrationException", "An unexpected error occurred during registration.");
+            }
+        }
+
+        public async Task<Result<string>> GenerateEmailConfirmationTokenAsync(Guid userId)
+        {
+            _logger.LogInformation("[UserService - GenerateEmailConfirmationTokenAsync] Generating email confirmation token for userId: {UserId}", userId);
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user is null)
+                {
+                    _logger.LogWarning("[UserService - GenerateEmailConfirmationTokenAsync] User not found for userId: {UserId}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
+
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                _logger.LogInformation("[UserService - GenerateEmailConfirmationTokenAsync] Token generated for userId: {UserId}", userId);
+                return token;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - GenerateEmailConfirmationTokenAsync] Unexpected error for userId: {UserId}", userId);
+                return Error.Failure("EmailConfirmationTokenFailed", "An unexpected error occurred while generating the email confirmation token.");
             }
         }
     }

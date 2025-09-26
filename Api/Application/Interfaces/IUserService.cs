@@ -9,6 +9,7 @@ namespace Application.Interfaces
         Task<Result> ConfirmEmailAsync(Guid userId, string confirmationToken);
         Task<Result<PasswordResetToken>> GeneratePasswordResetTokenAsync(string email);
         Task<Result<string>> ResetPasswordAsync(Guid userId, string token, string newPassword);
-        //Task<Guid?> RegisterAsync(string email, string password);
+        Task<Result<RegisteredDto>> RegisterAsync(string email, string username, string password);
+        Task<Result<string>> GenerateEmailConfirmationTokenAsync(Guid userId);
     }
 }

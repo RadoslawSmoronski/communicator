@@ -6,7 +6,6 @@ using Application.Auth.Commands.RequestPasswordReset;
 using Application.Auth.Commands.ResetPassword;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Result;
 using System.Net;
 
 namespace API.Controllers
