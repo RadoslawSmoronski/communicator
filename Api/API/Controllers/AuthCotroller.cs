@@ -3,6 +3,7 @@ using Application.Auth.Commands.ConfirmEmail;
 using Application.Auth.Commands.LoginUser;
 using Application.Auth.Commands.RefreshAccessToken;
 using Application.Auth.Commands.RequestPasswordReset;
+using Application.Auth.Commands.ResetPassword;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Result;
@@ -87,6 +88,20 @@ namespace API.Controllers
 
             _logger.LogWarning("[AuthController - RequestPasswordResetAsync] Password reset request failed for email: {Email}. Error: {Error}", requestPasswordResetDto.Email, result.Error?.Description);
             return HandleError(result, "AuthController - RequestPasswordResetAsync", _logger);
+        }
+
+        [HttpPost("password-reset")] // refactor: docs
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordDto resetPasswordResetDto)
+        {
+            var command = new ResetPasswordCommand(resetPasswordResetDto.UserId, resetPasswordResetDto.CodedToken, resetPasswordResetDto.NewPassword);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "ResetPasswordAsync - RequestPasswordResetAsync", _logger);
         }
     }
 }

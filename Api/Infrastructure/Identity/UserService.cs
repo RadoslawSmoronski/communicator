@@ -104,5 +104,38 @@ namespace Infrastructure.Identity
                 return Error.Failure("PasswordResetTokenFailed", "An unexpected error occurred while generating the password reset token.");
             }
         }
+
+        public async Task<Result<string>> ResetPasswordAsync(Guid userId, string token, string newPassword)
+        {
+            _logger.LogInformation("[UserService - ResetPasswordAsync] Password reset attempt for userId: {UserId}", userId);
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user is null)
+                {
+                    _logger.LogWarning("[UserService - ResetPasswordAsync] User not found for userId: {UserId}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
+
+                var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("[UserService - ResetPasswordAsync] Password reset succeeded for userId: {UserId}", userId);
+                    return newPassword;
+                }
+
+                var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));
+                _logger.LogWarning("[UserService - ResetPasswordAsync] Password reset failed for userId: {UserId}. Errors: {Errors}", userId, errorDescription);
+                return Error.Failure("PasswordResetFailed", errorDescription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - ResetPasswordAsync] Unexpected error for userId: {UserId}", userId);
+                return Error.Failure("PasswordResetException", "An unexpected error occurred during password reset.");
+            }
+        }
     }
 }

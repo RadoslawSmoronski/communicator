@@ -2,9 +2,10 @@
 using Application.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Shared.Result;
+using System.Net;
 
 namespace Application.Auth.Commands.RequestPasswordReset
 {
@@ -30,14 +31,15 @@ namespace Application.Auth.Commands.RequestPasswordReset
         public async Task<Result<string>> Handle(RequestPasswordResetCommand request, CancellationToken cancellationToken)
         {
             var passwordToken = await _userService.GeneratePasswordResetTokenAsync(request.Email);
+            var encodedToken = WebUtility.UrlEncode(passwordToken.Value.Token);
 
-            var content = CreateEmailContent(passwordToken.Value.Token, passwordToken.Value.UserId);
+            var content = CreateEmailContent(encodedToken, passwordToken.Value.UserId);
             var emailResult = await _emailService.SendAsync(request.Email, _recoveryPasswordMessageSettings.Title, content);
 
             if (emailResult.IsSuccess)
             {
                 _logger.LogInformation("Password reset email sent to: {Email}", request.Email);
-                return passwordToken.Value.Token; //refactor: to delete after clean architecture refactor
+                return encodedToken; //refactor: to delete after clean architecture refactor
             }
 
             _logger.LogError("Failed to send password reset email to: {Email}. Error: {Error}", request.Email, emailResult.Error?.Description);
