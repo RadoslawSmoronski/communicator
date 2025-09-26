@@ -27,7 +27,7 @@ namespace Infrastructure.Services
                 return Error.Validation("Email.InvalidContent", "Subject and body must not be empty.");
             }
 
-            if (string.IsNullOrEmpty(to) || !IsValidEmail(to))
+            if (string.IsNullOrEmpty(to))
             {
                 _logger.LogWarning("Invalid recipient email address: '{To}'", to);
                 return Error.Validation("Email.InvalidRecipient", "Recipient email address is invalid.");
@@ -56,19 +56,6 @@ namespace Infrastructure.Services
             {
                 _logger.LogError(ex, "Unexpected error occurred while sending email to '{To}'", to);
                 return Error.Failure("Email.SendError", $"An unexpected error occurred while sending email: {ex.Message}");
-            }
-        }
-
-        private static bool IsValidEmail(string email)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
             }
         }
     }

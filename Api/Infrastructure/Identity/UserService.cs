@@ -73,5 +73,36 @@ namespace Infrastructure.Identity
 
             return Error.Failure("", "");
         }
+
+        public async Task<Result<PasswordResetToken>> GeneratePasswordResetTokenAsync(string email)
+        {
+            _logger.LogInformation("[UserService - GeneratePasswordResetTokenAsync] Password reset token request for email: {Email}", email);
+
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("[UserService - GeneratePasswordResetTokenAsync] User not found for email: {Email}", email);
+                    return Error.NotFound("UserNotFound", $"User with email '{email}' was not found.");
+                }
+
+                _logger.LogInformation("[UserService - GeneratePasswordResetTokenAsync] Password reset token generated for user: {UserId}", user.Id);
+                
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                return new PasswordResetToken()
+                {
+                    UserId = user.Id,
+                    Token = token
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - GeneratePasswordResetTokenAsync] Unexpected error for email: {Email}", email);
+                return Error.Failure("PasswordResetTokenFailed", "An unexpected error occurred while generating the password reset token.");
+            }
+        }
     }
 }

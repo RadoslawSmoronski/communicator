@@ -19,5 +19,7 @@ public static class DependencyInjection
             builder.Configuration.GetSection("RefreshTokenSettings"));
         builder.Services.Configure<SmtpEmailSettings>(
             builder.Configuration.GetSection("SmtpEmailSettings"));
+        builder.Services.Configure<RecoveryPasswordMessageSettings>(
+            builder.Configuration.GetSection("RecoveryPasswordMessageSettings"));
     }
 }

@@ -2,6 +2,7 @@
 using Application.Auth.Commands.ConfirmEmail;
 using Application.Auth.Commands.LoginUser;
 using Application.Auth.Commands.RefreshAccessToken;
+using Application.Auth.Commands.RequestPasswordReset;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Result;
@@ -68,6 +69,24 @@ namespace API.Controllers
             }
 
             return HandleError(result, "AuthController - RefreshAccessTokenAsync", _logger);
+        }
+
+        [HttpPost("request-password-reset")] // refactor: docs
+        public async Task<IActionResult> RequestPasswordResetAsync([FromBody] RequestPasswordResetDto requestPasswordResetDto)
+        {
+            _logger.LogInformation("[AuthController - RequestPasswordResetAsync] Password reset requested for email: {Email}", requestPasswordResetDto.Email);
+
+            var command = new RequestPasswordResetCommand(requestPasswordResetDto.Email);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[AuthController - RequestPasswordResetAsync] Password reset request successful for email: {Email}", requestPasswordResetDto.Email);
+                return Ok(result.Value);
+            }
+
+            _logger.LogWarning("[AuthController - RequestPasswordResetAsync] Password reset request failed for email: {Email}. Error: {Error}", requestPasswordResetDto.Email, result.Error?.Description);
+            return HandleError(result, "AuthController - RequestPasswordResetAsync", _logger);
         }
     }
 }
