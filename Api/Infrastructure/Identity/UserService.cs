@@ -224,5 +224,46 @@ namespace Infrastructure.Identity
 
             return false;
         }
+
+        public async Task<Result<string>> ChangeUsernameAsync(Guid userId, string newUsername)
+        {
+            _logger.LogInformation("[UserService - ChangeNameAsync] Change username attempt for userId: {UserId}, newUsername: {NewUsername}", userId, newUsername);
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user is null)
+                {
+                    _logger.LogWarning("[UserService - ChangeUsernameAsync] User not found for userId: {UserId}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
+
+                var isUsernameExists = await _userManager.FindByNameAsync(newUsername);
+
+                if (isUsernameExists != null)
+                {
+                    _logger.LogWarning("[UserService - ChangeUsernameAsync] Username conflict for newUsername: {NewUsername}", newUsername);
+                    return Error.Conflict("DuplicateUsername", $"Username '{newUsername}' is already in use.");
+                }
+
+                var result = await _userManager.SetUserNameAsync(user, newUsername);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("[UserService - ChangeUsernameAsync] Username changed successfully for userId: {UserId}", userId);
+                    return newUsername;
+                }
+
+                var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));
+                _logger.LogWarning("[UserService - ChangeUsernameAsync] Username change failed for userId: {UserId}. Errors: {Errors}", userId, errorDescription);
+                return Error.Failure("ChangeNameFailed", errorDescription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - ChangeUsernameAsync] Unexpected error for userId: {UserId}", userId);
+                return Error.Failure("ChangeNameException", "An unexpected error occurred during username change.");
+            }
+        }
     }
 }

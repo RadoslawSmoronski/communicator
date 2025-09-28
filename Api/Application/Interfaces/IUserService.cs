@@ -12,5 +12,6 @@ namespace Application.Interfaces
         Task<Result<string>> ResetPasswordAsync(Guid userId, string token, string newPassword);
         Task<Result<RegisteredDto>> RegisterAsync(string email, string username, string password);
         Task<Result<string>> GenerateEmailConfirmationTokenAsync(Guid userId);
+        Task<Result<string>> ChangeUsernameAsync(Guid userId, string newUsername);
     }
 }

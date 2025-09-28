@@ -55,14 +55,14 @@ namespace Application.Users.Commands.RegisterUser
 
             var emailResult = await _emailService.SendAsync(registredUser.Email, _confirmEmailMessageSettings.Title, emailContent);
 
-            if (!emailResult.IsSuccess)
+            if (emailResult.IsSuccess)
             {
-                _logger.LogError("Failed to send confirmation email to {Email}: {Error}", registredUser.Email, emailResult.Error?.Description);
-                return emailResult.Error ?? Error.Failure("EmailSend", "Unknown email sending error");
+                _logger.LogInformation("User registered and confirmation email sent to {Email}", registredUser.Email);
+                return registredUser;
             }
 
-            _logger.LogInformation("User registered and confirmation email sent to {Email}", registredUser.Email);
-            return registredUser;
+            _logger.LogError("Failed to send confirmation email to {Email}: {Error}", registredUser.Email, emailResult.Error?.Description);
+            return emailResult.Error ?? Error.Failure("EmailSend", "Unknown email sending error");
         }
 
         private string CreateEmailContent(Guid userId, string token)

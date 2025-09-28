@@ -20,7 +20,7 @@ namespace API
             {
                 c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
-                    Description = "Wpisz token JWT w formacie: Bearer {token}",
+                    Description = "JWT Token: Bearer {token}",
                     Name = "Authorization",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Header,
                     Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,

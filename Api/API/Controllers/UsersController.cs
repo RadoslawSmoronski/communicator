@@ -37,7 +37,7 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpPatch("{userId}/username")]
+        [HttpPatch("{userId}/username")] // refactor: docs
         public async Task<IActionResult> ChangeUsernameAsync([FromRoute] Guid userId, [FromBody] ChangeUsernameDto changeUsernameDto)
         {
             var command = new ChangeUsernameCommand(userId, changeUsernameDto.NewUsername);
@@ -50,5 +50,6 @@ namespace API.Controllers
 
             return HandleError(result, "UsersController - ChangeUsernameAsync", _logger);
         }
+
     }
 }
