@@ -265,5 +265,57 @@ namespace Infrastructure.Identity
                 return Error.Failure("ChangeNameException", "An unexpected error occurred during username change.");
             }
         }
+
+        public async Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword)
+        {
+            _logger.LogInformation("[UserService - ChangePasswordAsync] Password change attempt for userId: {UserId}", userId);
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user == null)
+                {
+                    _logger.LogWarning("[UserService - ChangePasswordAsync] User not found for userId: {UserId}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
+
+                var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("[UserService - ChangePasswordAsync] Password changed successfully for userId: {UserId}", userId);
+                    return Result.Success();
+                }
+                else
+                {
+                    var passwordErrorCodes = new List<string>
+                    {
+                        "PasswordRequireDigit",
+                        "PasswordRequireLower",
+                        "PasswordRequireNonLetterOrDigit",
+                        "PasswordRequireUpper",
+                        "PasswordTooShort"
+                    };
+
+                    bool hasAnyPasswordError = result.Errors.Any(e => passwordErrorCodes.Contains(e.Code));
+                    var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));
+
+                    if (hasAnyPasswordError)
+                    {
+                        _logger.LogWarning("[UserService - ChangePasswordAsync] Password validation failed for userId: {UserId}. Errors: {Errors}", userId, errorDescription);
+                        return Error.Validation("PasswordValidationFailed", errorDescription);
+                    }
+
+                    _logger.LogWarning("[UserService - ChangePasswordAsync] Password change unauthorized for userId: {UserId}. Errors: {Errors}", userId, errorDescription);
+                    return Error.Unauthorized("ChangePasswordUnauthorized", errorDescription);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - ChangePasswordAsync] Unexpected error for userId: {UserId}", userId);
+                return Error.Unknown("ChangePasswordException", "An unexpected error occurred during password change.");
+            }
+        }
     }
 }

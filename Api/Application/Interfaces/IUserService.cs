@@ -13,5 +13,6 @@ namespace Application.Interfaces
         Task<Result<RegisteredDto>> RegisterAsync(string email, string username, string password);
         Task<Result<string>> GenerateEmailConfirmationTokenAsync(Guid userId);
         Task<Result<string>> ChangeUsernameAsync(Guid userId, string newUsername);
+        Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
     }
 }
