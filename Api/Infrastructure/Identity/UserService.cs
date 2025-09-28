@@ -1,5 +1,7 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Interfaces;
+using Application.DTOs;
 using Application.Interfaces;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
@@ -11,12 +13,14 @@ namespace Infrastructure.Identity
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly ILogger<UserService> _logger;
+        private readonly IUser _user;
 
-        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger)
+        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger, IUser user)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _user = user;
         }
 
         public async Task<Result<LoggedUserDto>> LoginAsync(string email, string password)
@@ -206,6 +210,19 @@ namespace Infrastructure.Identity
                 _logger.LogError(ex, "[UserService - GenerateEmailConfirmationTokenAsync] Unexpected error for userId: {UserId}", userId);
                 return Error.Failure("EmailConfirmationTokenFailed", "An unexpected error occurred while generating the email confirmation token.");
             }
+        }
+
+        public bool IsAuthorized(Guid userId)
+        {
+            var currentUserId = _user.Id;
+            var isAdmin = _user.Roles?.Contains("Admin") ?? false;
+
+            if (userId == currentUserId || isAdmin)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
