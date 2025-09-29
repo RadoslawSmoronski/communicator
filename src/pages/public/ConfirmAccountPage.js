@@ -80,7 +80,7 @@ const ConfirmAccountPage = () => {
                         <div className="confirmAccount mainText">Your registration is complete.</div>
                     </>
                 }
-                <div className={isSuccess != null && (isSuccess ? "successText" : "errorText")}>{feedbackMess}</div>
+                <div className={isSuccess != null ? (isSuccess ? "successText" : "errorText") : ""}>{feedbackMess}</div>
 
                 <Link to="/login" className="btn2 btn404">Back to login page</Link>
 

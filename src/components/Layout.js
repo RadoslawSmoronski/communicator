@@ -15,7 +15,7 @@ import EditProfilePanel from "./editProfile/EditProfilePanel"
 import Avatar from "./Avatar";
 
 const Layout = () => {
-    const { avatarUrl,email, username, userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
+    const { avatarUrl, email, username, userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
     const location = useLocation();
     const currentPath = location.pathname;
 
@@ -121,12 +121,17 @@ const Layout = () => {
     // Menu bar
     // Sings out user - reset states, session Storage
     const signOut = () => {
-        setAuth('', '', '', '');
         sessionStorage.removeItem('refreshToken');
         sessionStorage.removeItem('userInfo');
+        setAuth(null, '', '', '', '', '');
     };
 
     useEffect(() => {
+        const refreshToken = sessionStorage.getItem('refreshToken');
+        if (!refreshToken) { // do not refresh token if user is logged out
+            return;
+        }
+
         if (!accessToken) {
             refreshAccessToken();
         } else {
@@ -147,7 +152,7 @@ const Layout = () => {
                             <InvitationTile
                                 key={inv.friendInvitationId}
                                 invitationId={inv.friendInvitationId}
-                                senderId ={inv.senderId}
+                                senderId={inv.senderId}
                                 username={inv.senderUserName}
                                 avatarUrl={inv.senderAvatarUrl}
                                 invitationAction={invitationActions}
@@ -161,12 +166,12 @@ const Layout = () => {
 
             {/* USER INFO PANEL */}
             {display.userInfoPanel && (
-                <UserInfoPanel avatarUrl={avatarUrl} username={username} fullname={null} email={email} togglePanel={togglePanel}/>
+                <UserInfoPanel avatarUrl={avatarUrl} username={username} fullname={null} email={email} togglePanel={togglePanel} />
             )}
 
             {/* EDIT PROFILE PANEL */}
             {display.editProfilePanel && (
-                <EditProfilePanel togglePanel={togglePanel}/>
+                <EditProfilePanel togglePanel={togglePanel} />
             )
             }
 
@@ -187,7 +192,7 @@ const Layout = () => {
                     <button className='btn2' onClick={signOut}>Sign out</button>
                     <div className='profileInfoWrapper' onClick={() => togglePanel('userInfoPanel')}>
                         {username}
-                        <Avatar url={avatarUrl}/>
+                        <Avatar url={avatarUrl} />
                     </div>
                 </div>
             </div>

@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
         setAccessToken(_accessToken);
     }, []);
 
-    const saveToCookie = ({_avatarUrl = avatarUrl, _email = email, _username = username, _userId = userId, _role = role} = {}) => {
+    const saveToCookie = ({ _avatarUrl = avatarUrl, _email = email, _username = username, _userId = userId, _role = role } = {}) => {
         // user info
 
         let userInfo = {
@@ -80,12 +80,35 @@ const AuthProvider = ({ children }) => {
         }
     };
 
+    // useEffect(() => {
+    //     if (accessToken == "") {
+    //         refreshAccessToken();
+    //     }
+    //     setLoading(false);
+    // }, [setAuth]);
+
     useEffect(() => {
-        if (accessToken == "") {
-            refreshAccessToken();
-        }
-        setLoading(false);
-    }, [setAuth]);
+        const initAuth = async () => {
+            const refreshToken = sessionStorage.getItem('refreshToken');
+            if (!refreshToken) { // do not refresh token if user is logged out
+                setLoading(false);
+                return;
+            }
+
+             // try refresh token only if there is user is logged
+            try {
+                await refreshAccessToken();
+            } catch (err) {
+                sessionStorage.removeItem('refreshToken');
+                sessionStorage.removeItem('userInfo');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initAuth();
+    }, []);
+
 
     return (
         <AuthContext.Provider value={{
