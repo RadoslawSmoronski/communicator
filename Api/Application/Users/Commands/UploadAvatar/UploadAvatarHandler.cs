@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿using Application.Interfaces.Users;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
@@ -7,13 +7,15 @@ namespace Application.Users.Commands.UploadAvatar
 {
     public class UploadAvatarHandler : IRequestHandler<UploadAvatarCommand, Result<string>>
     {
-        private readonly IUserService _userService;
         private readonly ILogger<UploadAvatarCommand> _logger;
+        private readonly IUserAvatarService _userAvatarService;
+        private readonly IUserService _userService;
 
-        public UploadAvatarHandler(IUserService userService, ILogger<UploadAvatarCommand> logger)
+        public UploadAvatarHandler(ILogger<UploadAvatarCommand> logger, IUserAvatarService userAvatarService, IUserService userService)
         {
-            _userService = userService;
             _logger = logger;
+            _userAvatarService = userAvatarService;
+            _userService = userService;
         }
 
         public async Task<Result<string>> Handle(UploadAvatarCommand request, CancellationToken cancellationToken)
@@ -24,7 +26,7 @@ namespace Application.Users.Commands.UploadAvatar
                 return Error.Unauthorized("Unauthorized", "User is not authorized.");
             }
 
-            var result = await _userService.UploadAvatarAsync(request.UserId, request.File);
+            var result = await _userAvatarService.UploadAvatarAsync(request.UserId, request.File);
 
             if (result.IsSuccess)
             {

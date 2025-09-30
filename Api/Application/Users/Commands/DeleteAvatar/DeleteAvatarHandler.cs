@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿using Application.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
@@ -7,10 +7,12 @@ namespace Application.Users.Commands.DeleteAvatar
     public class DeleteAvatarHandler : IRequestHandler<DeleteAvatarCommand, Result>
     {
         private readonly IUserService _userService;
+        private readonly IUserAvatarService _userAvatarService;
 
-        public DeleteAvatarHandler(IUserService userService)
+        public DeleteAvatarHandler(IUserService userService, IUserAvatarService userAvatarService)
         {
             _userService = userService;
+            _userAvatarService = userAvatarService;
         }
 
         public async Task<Result> Handle(DeleteAvatarCommand request, CancellationToken cancellationToken)
@@ -20,7 +22,7 @@ namespace Application.Users.Commands.DeleteAvatar
                 return Error.Unauthorized("Unauthorized", "User is not authorized.");
             }
 
-            return await _userService.DeleteAvatarAsync(request.UserId);
+            return await _userAvatarService.DeleteAvatarAsync(request.UserId);
         }
     }
 }

@@ -3,7 +3,7 @@ using Application.Interfaces;
 using Application.Repositories;
 using Application.Settings;
 using Domain.Entities;
-using Infrastructure.Identity;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

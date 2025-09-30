@@ -1,9 +1,11 @@
 ﻿using Application.Interfaces;
+using Application.Interfaces.Users;
 using Application.Repositories;
 using Infrastructure.Database;
-using Infrastructure.Identity;
+using Infrastructure.Services;
 using Infrastructure.Services;
 using Infrastructure.Services.Background;
+using Infrastructure.Services.Users;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +27,7 @@ public static class DependencyInjection
             (options => options.UseNpgsql(connectionString));
 
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IEmailService, SmtpEmailService>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

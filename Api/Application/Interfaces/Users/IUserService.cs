@@ -1,8 +1,7 @@
 ﻿using Application.DTOs;
-using Microsoft.AspNetCore.Http;
 using Shared.Result;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.Users
 {
     public interface IUserService
     {
@@ -15,7 +14,5 @@ namespace Application.Interfaces
         Task<Result<string>> GenerateEmailConfirmationTokenAsync(Guid userId);
         Task<Result<string>> ChangeUsernameAsync(Guid userId, string newUsername);
         Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
-        Task<Result<string>> UploadAvatarAsync(Guid userId, IFormFile file);
-        Task<Result> DeleteAvatarAsync(Guid userId);
     }
 }

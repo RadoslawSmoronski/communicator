@@ -1,5 +1,5 @@
 ﻿using API.DTOs;
-using Application.Auth.Commands.LoginUser;
+using Application.Users.Commands.ChangeAvatar;
 using Application.Users.Commands.ChangePassword;
 using Application.Users.Commands.ChangeUsername;
 using Application.Users.Commands.DeleteAvatar;
@@ -7,7 +7,6 @@ using Application.Users.Commands.RegisterUser;
 using Application.Users.Commands.UploadAvatar;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -86,7 +85,7 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpDelete("{userId}/avatar")]
+        [HttpDelete("{userId}/avatar")] // refactor: docs
         [ProducesResponseType<string>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteAvatarAsync([FromRoute] Guid userId)
         {
@@ -99,6 +98,23 @@ namespace API.Controllers
             }
 
             return HandleError(result, "DeleteAvatarAsync - ChangeUsernameAsync", _logger);
+        }
+
+        [Authorize]
+        [HttpPut("{userId}/avatar")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType<string>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarDto uploadAvatarDto)
+        {
+            var command = new ChangeAvatarCommand(userId, uploadAvatarDto.File);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            return HandleError(result, "ChangeAvatarAsync - ChangeUsernameAsync", _logger);
         }
     }
 }

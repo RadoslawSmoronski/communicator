@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Interfaces.Users;
 using Application.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
