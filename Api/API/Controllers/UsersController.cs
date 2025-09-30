@@ -3,6 +3,7 @@ using Application.Auth.Commands.LoginUser;
 using Application.Users.Commands.ChangePassword;
 using Application.Users.Commands.ChangeUsername;
 using Application.Users.Commands.RegisterUser;
+using Application.Users.Commands.UploadAvatar;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -57,6 +58,22 @@ namespace API.Controllers
         public async Task<IActionResult> ChangePasswordAsync([FromRoute] Guid userId, [FromBody] ChangePasswordDto changePasswordDto)
         {
             var command = new ChangePasswordCommand(userId, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            return HandleError(result, "ChangePasswordAsync - ChangeUsernameAsync", _logger);
+        }
+
+        [Authorize]
+        [HttpPost("{userId}/avatar")]
+        [Consumes("multipart/form-data")] // refactor: docs
+        public async Task<IActionResult> UploadAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarDto uploadAvatarDto)
+        {
+            var command = new UploadAvatarCommand(userId, uploadAvatarDto.File);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)

@@ -88,6 +88,8 @@ namespace API
                 app.MapOpenApi();
             }
 
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

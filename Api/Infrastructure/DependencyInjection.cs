@@ -28,6 +28,7 @@ public static class DependencyInjection
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IEmailService, SmtpEmailService>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
         builder.Services.AddHostedService<RefreshTokenCleanUpService>();
 

@@ -1,10 +1,15 @@
 ﻿using Application.Common.Interfaces;
 using Application.DTOs;
 using Application.Interfaces;
-using MediatR;
+using Application.Settings;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Shared.Result;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+
 
 namespace Infrastructure.Identity
 {
@@ -14,13 +19,19 @@ namespace Infrastructure.Identity
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly ILogger<UserService> _logger;
         private readonly IUser _user;
+        private readonly UserAvatarSettings _userAvatarSettings;
+        private readonly IFileStorageService _fileStorageService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger, IUser user)
+        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger, IUser user, IOptions<UserAvatarSettings> userAvatarSettingsOption, IFileStorageService fileStorageService, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _user = user;
+            _userAvatarSettings = userAvatarSettingsOption.Value;
+            _fileStorageService = fileStorageService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Result<LoggedUserDto>> LoginAsync(string email, string password)
@@ -42,11 +53,14 @@ namespace Infrastructure.Identity
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("[UserService - LoginAsync] Login succeeded for user: {UserId}", user.Id);
+
+                    var avatarUrl = user.AvatarUrl != null ? GetPublicAvatarUrl(user.AvatarUrl) : null;
+
                     return new LoggedUserDto()
                     {
                         Id = user.Id,
                         UserName = user.UserName!,
-                        AvatarUrl = user.AvatarUrl
+                        AvatarUrl = avatarUrl
                     };
                 }
 
@@ -317,5 +331,113 @@ namespace Infrastructure.Identity
                 return Error.Unknown("ChangePasswordException", "An unexpected error occurred during password change.");
             }
         }
+
+        public async Task<Result<string>> UploadAvatarAsync(Guid userId, IFormFile file)
+        {
+            _logger.LogInformation("[UserService - UploadAvatarAsync] Upload avatar attempt for userId: {UserId}", userId);
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user == null)
+                {
+                    _logger.LogWarning("[UserService - UploadAvatarAsync] User not found for userId: {UserId}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
+                else if (!string.IsNullOrEmpty(user.AvatarUrl))
+                {
+                    _logger.LogWarning("[UserService - UploadAvatarAsync] User already has an avatar. userId: {UserId}", userId);
+                    return Error.Conflict("AvatarAlreadyExists", "User already has an avatar.");
+                }
+
+                var isAvatarFileValidAsync = await IsAvatarFileValidAsync(file);
+
+                if (!isAvatarFileValidAsync.IsSuccess)
+                {
+                    _logger.LogWarning("[UserService - UploadAvatarAsync] Avatar file validation failed for userId: {UserId}. Error: {Error}", userId, isAvatarFileValidAsync.Error?.Description);
+                    return isAvatarFileValidAsync.Error!;
+                }
+
+                var extension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+                var filename = "avatar_" + Guid.NewGuid().ToString() + extension;
+
+                var saveFileResult = await _fileStorageService.SaveFileAsync(file, "avatars", filename);
+
+                if (saveFileResult.IsSuccess)
+                {
+                    user.AvatarUrl = filename;
+
+                    var result = await _userManager.UpdateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("[UserService - UploadAvatarAsync] Avatar uploaded successfully for userId: {UserId}", userId);
+                        return filename;
+                    }
+
+                    var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));
+                    _logger.LogError("[UserService - UploadAvatarAsync] Failed to update user with new avatar for userId: {UserId}. Errors: {Errors}", userId, errorDescription);
+                    return Error.Failure("AvatarUpdateFailed", errorDescription);
+                }
+
+                _logger.LogError("[UserService - UploadAvatarAsync] Failed to save avatar file for userId: {UserId}. Error: {Error}", userId, saveFileResult.Error?.Description);
+                return Error.Failure("AvatarSaveFailed", saveFileResult.Error?.Description ?? "Failed to save avatar file.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - UploadAvatarAsync] Unexpected error for userId: {UserId}", userId);
+                return Error.Unknown("UploadAvatarException", "An unexpected error occurred during avatar upload.");
+            }
+        }
+
+        private async Task<Result> IsAvatarFileValidAsync(IFormFile file)
+        {
+            var extension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+            if (!_userAvatarSettings.AllowedExtensions.Contains(extension))
+            {
+                _logger.LogWarning("[UserService - IsAvatarFileValidAsync] Invalid file extension: {Extension}", extension);
+                return Error.Validation("InvalidAvatarExtension", $"File extension '{extension}' is not allowed. Allowed extensions: {string.Join(", ", _userAvatarSettings.AllowedExtensions)}.");
+            }
+
+            if (file.Length > _userAvatarSettings.MaxFileSizeBytes)
+            {
+                _logger.LogWarning("[UserService - IsAvatarFileValidAsync] File size too large: {FileSize} bytes", file.Length);
+                return Error.Validation("AvatarFileTooLarge", $"File size exceeds the maximum allowed size of {_userAvatarSettings.MaxFileSizeBytes} bytes.");
+            }
+
+            using (var stream = file.OpenReadStream())
+            {
+                try
+                {
+                    using (var image = await Image.LoadAsync<Rgba32>(stream))
+                    {
+                        if (image.Width > _userAvatarSettings.MaxImageWidth || image.Height > _userAvatarSettings.MaxImageHeight)
+                        {
+                            _logger.LogWarning("[UserService - IsAvatarFileValidAsync] Image dimensions too large: {Width}x{Height}", image.Width, image.Height);
+                            return Error.Validation("AvatarImageTooLarge", $"Image dimensions exceed the maximum allowed size of {_userAvatarSettings.MaxImageWidth}x{_userAvatarSettings.MaxImageHeight} pixels.");
+                        }
+                        else if (image.Width < _userAvatarSettings.MinImageWidth || image.Height < _userAvatarSettings.MinImageHeight)
+                        {
+                            _logger.LogWarning("[UserService - IsAvatarFileValidAsync] Image dimensions too small: {Width}x{Height}", image.Width, image.Height);
+                            return Error.Validation("AvatarImageTooSmall", $"Image dimensions are below the minimum required size of {_userAvatarSettings.MinImageWidth}x{_userAvatarSettings.MinImageHeight} pixels.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "[UserService - IsAvatarFileValidAsync] File is not a valid image.");
+                    return Error.Validation("InvalidAvatarImage", "The uploaded file is not a valid image or is corrupted.");
+                }
+            }
+
+            return Result.Success();
+        }
+        private string GetPublicAvatarUrl(string fileName)
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}/avatars/{fileName}";
+        }
+
     }
 }
