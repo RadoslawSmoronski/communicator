@@ -16,5 +16,6 @@ namespace Application.Interfaces
         Task<Result<string>> ChangeUsernameAsync(Guid userId, string newUsername);
         Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
         Task<Result<string>> UploadAvatarAsync(Guid userId, IFormFile file);
+        Task<Result> DeleteAvatarAsync(Guid userId);
     }
 }

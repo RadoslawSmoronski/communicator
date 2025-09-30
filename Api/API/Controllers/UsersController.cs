@@ -2,6 +2,7 @@
 using Application.Auth.Commands.LoginUser;
 using Application.Users.Commands.ChangePassword;
 using Application.Users.Commands.ChangeUsername;
+using Application.Users.Commands.DeleteAvatar;
 using Application.Users.Commands.RegisterUser;
 using Application.Users.Commands.UploadAvatar;
 using MediatR;
@@ -84,5 +85,20 @@ namespace API.Controllers
             return HandleError(result, "ChangePasswordAsync - ChangeUsernameAsync", _logger);
         }
 
+        [Authorize]
+        [HttpDelete("{userId}/avatar")]
+        [ProducesResponseType<string>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteAvatarAsync([FromRoute] Guid userId)
+        {
+            var command = new DeleteAvatarCommand(userId);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            return HandleError(result, "DeleteAvatarAsync - ChangeUsernameAsync", _logger);
+        }
     }
 }

@@ -433,6 +433,58 @@ namespace Infrastructure.Identity
 
             return Result.Success();
         }
+
+        public async Task<Result> DeleteAvatarAsync(Guid userId)
+        {
+            _logger.LogInformation("[UserService - DeleteAvatarAsync] Delete avatar attempt for userId: {UserId}", userId);
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user is null)
+                {
+                    _logger.LogWarning("[UserService - DeleteAvatarAsync] User not found for userId: {UserId}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
+
+                if (string.IsNullOrEmpty(user.AvatarUrl))
+                {
+                    _logger.LogWarning("[UserService - DeleteAvatarAsync] No avatar to delete for userId: {UserId}", userId);
+                    return Error.NotFound("AvatarNotFound", "User does not have an avatar to delete.");
+                }
+
+                var result = _fileStorageService.DeleteFile("avatars", user.AvatarUrl);
+
+                if (result.IsSuccess)
+                {
+                    user.AvatarUrl = null;
+                    var updateResult = await _userManager.UpdateAsync(user);
+                    if (updateResult.Succeeded)
+                    {
+                        _logger.LogInformation("[UserService - DeleteAvatarAsync] Avatar deleted successfully for userId: {UserId}", userId);
+                        return Result.Success();
+                    }
+                    else
+                    {
+                        var errorDescription = string.Join("; ", updateResult.Errors.Select(e => e.Description));
+                        _logger.LogError("[UserService - DeleteAvatarAsync] Failed to update user after avatar deletion for userId: {UserId}. Errors: {Errors}", userId, errorDescription);
+                        return Error.Failure("AvatarDeleteUpdateFailed", errorDescription);
+                    }
+                }
+                else
+                {
+                    _logger.LogError("[UserService - DeleteAvatarAsync] Failed to delete avatar file for userId: {UserId}. Error: {Error}", userId, result.Error?.Description);
+                    return Error.Failure("AvatarDeleteFailed", result.Error?.Description ?? "Failed to delete avatar file.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - DeleteAvatarAsync] Unexpected error for userId: {UserId}", userId);
+                return Error.Unknown("DeleteAvatarException", "An unexpected error occurred during avatar deletion.");
+            }
+        }
+
         private string GetPublicAvatarUrl(string fileName)
         {
             var request = _httpContextAccessor.HttpContext.Request;
