@@ -1,5 +1,6 @@
 ﻿using API.DTOs;
 using Application.DTOs;
+using Application.FriendInvitations.DecelineInvitation;
 using Application.FriendInvitations.SendFriendInvitation;
 using Application.Users.Commands.RegisterUser;
 using MediatR;
@@ -23,9 +24,9 @@ namespace API.Controllers
 
         [Authorize]  // refactor: docs
         [HttpPost()]
-        public async Task<IActionResult> SendFriendInvitationAsync([FromBody] InviteDto inviteDto)
+        public async Task<IActionResult> SendFriendInvitationAsync([FromBody] FriendInvitationDto friendInvitationDto)
         {
-            var command = new SendFriendInvitationCommand(inviteDto.SenderId, inviteDto.RecipientId);
+            var command = new SendFriendInvitationCommand(friendInvitationDto.SenderId, friendInvitationDto.RecipientId);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)
@@ -34,6 +35,22 @@ namespace API.Controllers
             }
 
             return HandleError(result, "FriendInvitationsController - SendFriendInvitationAsync", _logger);
+        }
+
+        [Authorize]
+        [HttpPost("{friendInvitationId}/decline")]
+        [HttpPatch("{friendInvitationId}/decline")]
+        public async Task<IActionResult> DecelineInvitationAsync([FromRoute] Guid friendInvitationId)
+        {
+            var command = new DecelineInvitationCommand(friendInvitationId);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            return HandleError(result, "FriendInvitationsController - DecelineInvitationAsync", _logger);
         }
     }
 }

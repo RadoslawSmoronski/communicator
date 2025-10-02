@@ -1,7 +1,9 @@
-﻿using Application.Interfaces.Users;
+﻿using Application.Common.Interfaces;
+using Application.Interfaces.Users;
 using Application.Repositories;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
 
@@ -12,12 +14,14 @@ namespace Infrastructure.Services
         private readonly UserManager<UserAccount> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<FriendInvitationsService> _logger;
+        private readonly IUser _user;
 
-        public FriendInvitationsService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, ILogger<FriendInvitationsService> logger)
+        public FriendInvitationsService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, ILogger<FriendInvitationsService> logger, IUser user)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _user = user;
         }
 
         public async Task<Result<Guid>> SendInviteAsync(Guid senderId, Guid recipientId)
@@ -81,11 +85,57 @@ namespace Infrastructure.Services
             }
         }
 
+        public async Task<Result> DeleteInviteAsync(Guid InviteId)
+        {
+            try
+            {
+                var invitation = await _unitOfWork.FriendshipInvitations.FirstOrDefaultAsync(x => x.Id == InviteId);
+
+                if (invitation is null)
+                {
+                    _logger.LogWarning("Friend invitation not found. InvitationId: {InvitationId}", InviteId);
+                    return Error.NotFound("FriendInvitation.NotFound", "Friend invitation was not found.");
+                }
+
+                if (IsAuthorizedToManageInvitation(invitation) is false)
+                {
+                    _logger.LogWarning("Unauthorized attempt to delete invitation. InvitationId: {InvitationId}, UserId: {UserId}", InviteId, _user.Id);
+                    return Error.Unauthorized("FriendInvitation.Unauthorized", "You are not authorized to delete this friend invitation.");
+                }
+
+                _unitOfWork.FriendshipInvitations.Delete(invitation);
+                await _unitOfWork.SaveAsync();
+
+                _logger.LogInformation("Friend invitation deleted. InvitationId: {InvitationId}, UserId: {UserId}", InviteId, _user.Id);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting friend invitation. InvitationId: {InvitationId}, UserId: {UserId}", InviteId, _user.Id);
+                return Error.Failure("FriendInvitation.Failure", "An unexpected error occurred while deleting the friend invitation.");
+            }
+        }
+
         private async Task<bool> IsFriendInvitationExistsAsync(Guid user1Id, Guid user2Id)
         {
             return await _unitOfWork.FriendshipInvitations.AnyAsync(x =>
                 x.SenderId == user1Id && x.RecipientId == user2Id ||
                 x.SenderId == user2Id && x.RecipientId == user1Id);
+        }
+
+        private bool IsAuthorizedToManageInvitation(FriendshipInvitation friendshipInvitation)
+        {
+            var isAdmin = _user.Roles?.Contains("Admin") ?? false;
+
+            if (isAdmin)
+                return true;
+
+            if (friendshipInvitation.SenderId == _user.Id || friendshipInvitation.RecipientId == _user.Id)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
