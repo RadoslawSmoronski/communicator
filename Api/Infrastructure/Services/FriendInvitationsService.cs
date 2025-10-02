@@ -1,5 +1,5 @@
 ﻿using Application.Common.Interfaces;
-using Application.Interfaces.Users;
+using Application.Interfaces;
 using Application.Repositories;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -85,34 +85,46 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<Result> DeleteInviteAsync(Guid InviteId)
+        public async Task<Result> DeleteInviteAsync(Guid invitationId) => await _AcceptDeleteInviteAsync(invitationId, false);
+
+        public async Task<Result> AcceptInviteAsync(Guid invitationId) => await _AcceptDeleteInviteAsync(invitationId, true);
+
+        private async Task<Result> _AcceptDeleteInviteAsync(Guid InvitationId, bool IsAcceptInvitation)
         {
+            var loggerTag = IsAcceptInvitation ? "Accept" : "Delete";
+
             try
             {
-                var invitation = await _unitOfWork.FriendshipInvitations.FirstOrDefaultAsync(x => x.Id == InviteId);
+                var invitation = await _unitOfWork.FriendshipInvitations.FirstOrDefaultAsync(x => x.Id == InvitationId);
 
                 if (invitation is null)
                 {
-                    _logger.LogWarning("Friend invitation not found. InvitationId: {InvitationId}", InviteId);
-                    return Error.NotFound("FriendInvitation.NotFound", "Friend invitation was not found.");
+                    _logger.LogWarning("Friend invitation not found. InvitationId: {InvitationId}", InvitationId);
+                    return Error.NotFound($"{loggerTag}InviteAsync.NotFound", "Friend invitation was not found.");
                 }
 
-                if (IsAuthorizedToManageInvitation(invitation) is false)
+                if (IsAcceptInvitation && IsAuthorizedToAcceptInvitation(invitation) is false)
                 {
-                    _logger.LogWarning("Unauthorized attempt to delete invitation. InvitationId: {InvitationId}, UserId: {UserId}", InviteId, _user.Id);
-                    return Error.Unauthorized("FriendInvitation.Unauthorized", "You are not authorized to delete this friend invitation.");
+                    _logger.LogWarning("Unauthorized attempt to accept invitation. InvitationId: {InvitationId}, UserId: {UserId}", InvitationId, _user.Id);
+                    return Error.Unauthorized("AcceptFriendInvitation.Unauthorized", "You are not authorized to accept this friend invitation.");
+                }
+
+                if (!IsAcceptInvitation && IsAuthorizedToDeleteInvitation(invitation) is false)
+                {
+                    _logger.LogWarning("Unauthorized attempt to delete invitation. InvitationId: {InvitationId}, UserId: {UserId}", InvitationId, _user.Id);
+                    return Error.Unauthorized("DeleteFriendInvitation.Unauthorized", "You are not authorized to delete this friend invitation.");
                 }
 
                 _unitOfWork.FriendshipInvitations.Delete(invitation);
                 await _unitOfWork.SaveAsync();
 
-                _logger.LogInformation("Friend invitation deleted. InvitationId: {InvitationId}, UserId: {UserId}", InviteId, _user.Id);
+                _logger.LogInformation("Friend invitation {Action}d. InvitationId: {InvitationId}, UserId: {UserId}", loggerTag.ToLower(), InvitationId, _user.Id);
                 return Result.Success();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting friend invitation. InvitationId: {InvitationId}, UserId: {UserId}", InviteId, _user.Id);
-                return Error.Failure("FriendInvitation.Failure", "An unexpected error occurred while deleting the friend invitation.");
+                _logger.LogError(ex, "An error occurred while {Action}ing friend invitation. InvitationId: {InvitationId}, UserId: {UserId}", loggerTag.ToLower(), InvitationId, _user.Id);
+                return Error.Failure($"AcceptFriendInvitation.Failure", $"An unexpected error occurred while {loggerTag.ToLower()}ing the friend invitation.");
             }
         }
 
@@ -123,7 +135,7 @@ namespace Infrastructure.Services
                 x.SenderId == user2Id && x.RecipientId == user1Id);
         }
 
-        private bool IsAuthorizedToManageInvitation(FriendshipInvitation friendshipInvitation)
+        private bool IsAuthorizedToDeleteInvitation(FriendshipInvitation friendshipInvitation)
         {
             var isAdmin = _user.Roles?.Contains("Admin") ?? false;
 
@@ -136,6 +148,16 @@ namespace Infrastructure.Services
             }
 
             return false;
+        }
+
+        private bool IsAuthorizedToAcceptInvitation(FriendshipInvitation friendshipInvitation)
+        {
+            var isAdmin = _user.Roles?.Contains("Admin") ?? false;
+
+            if (isAdmin)
+                return true;
+
+            return friendshipInvitation.RecipientId == _user.Id;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using API.DTOs;
 using Application.DTOs;
+using Application.FriendInvitations.AcceptFriendInvtation;
 using Application.FriendInvitations.DecelineInvitation;
 using Application.FriendInvitations.SendFriendInvitation;
 using Application.Users.Commands.RegisterUser;
@@ -37,7 +38,7 @@ namespace API.Controllers
             return HandleError(result, "FriendInvitationsController - SendFriendInvitationAsync", _logger);
         }
 
-        [Authorize]
+        [Authorize]  // refactor: docs
         [HttpPost("{friendInvitationId}/decline")]
         [HttpPatch("{friendInvitationId}/decline")]
         public async Task<IActionResult> DecelineInvitationAsync([FromRoute] Guid friendInvitationId)
@@ -51,6 +52,22 @@ namespace API.Controllers
             }
 
             return HandleError(result, "FriendInvitationsController - DecelineInvitationAsync", _logger);
+        }
+
+        [Authorize]  // refactor: docs
+        [HttpPost("{friendInvitationId}/accept")]
+        [HttpPatch("{friendInvitationId}/accept")]
+        public async Task<IActionResult> AcceptInvitationAsync([FromRoute] Guid friendInvitationId)
+        {
+            var command = new AcceptFriendInvitationCommand(friendInvitationId);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            return HandleError(result, "FriendInvitationsController - AcceptInvitationAsync", _logger);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Auth.Commands.ResetPassword;
+using Application.Interfaces;
 using Application.Interfaces.Users;
 using Application.Users.Commands.DeleteAvatar;
 using MediatR;
