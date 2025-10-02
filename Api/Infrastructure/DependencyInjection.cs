@@ -3,7 +3,6 @@ using Application.Interfaces.Users;
 using Application.Repositories;
 using Infrastructure.Database;
 using Infrastructure.Services;
-using Infrastructure.Services;
 using Infrastructure.Services.Background;
 using Infrastructure.Services.Users;
 using Infrastructure.UnitOfWork;
@@ -28,6 +27,7 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
+        builder.Services.AddScoped<IFriendInvitationsService, FriendInvitationsService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IEmailService, SmtpEmailService>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
