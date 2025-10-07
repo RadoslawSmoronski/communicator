@@ -1,4 +1,5 @@
 ﻿using Application.Common.Interfaces;
+using Application.DTOs;
 using Application.Interfaces;
 using Application.Repositories;
 using Domain.Entities;
@@ -85,11 +86,11 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<Result> DeleteInviteAsync(Guid invitationId) => await _AcceptDeleteInviteAsync(invitationId, false);
+        public async Task<Result<FriendshipInviteOperationDto>> DeleteInviteAsync(Guid invitationId) => await _AcceptDeleteInviteAsync(invitationId, false);
 
-        public async Task<Result> AcceptInviteAsync(Guid invitationId) => await _AcceptDeleteInviteAsync(invitationId, true);
+        public async Task<Result<FriendshipInviteOperationDto>> AcceptInviteAsync(Guid invitationId) => await _AcceptDeleteInviteAsync(invitationId, true);
 
-        private async Task<Result> _AcceptDeleteInviteAsync(Guid InvitationId, bool IsAcceptInvitation)
+        private async Task<Result<FriendshipInviteOperationDto>> _AcceptDeleteInviteAsync(Guid InvitationId, bool IsAcceptInvitation)
         {
             var loggerTag = IsAcceptInvitation ? "Accept" : "Delete";
 
@@ -119,7 +120,11 @@ namespace Infrastructure.Services
                 await _unitOfWork.SaveAsync();
 
                 _logger.LogInformation("Friend invitation {Action}d. InvitationId: {InvitationId}, UserId: {UserId}", loggerTag.ToLower(), InvitationId, _user.Id);
-                return Result.Success();
+                return new FriendshipInviteOperationDto()
+                {
+                    SenderId = invitation.SenderId,
+                    RecipientId = invitation.RecipientId,
+                };
             }
             catch (Exception ex)
             {
