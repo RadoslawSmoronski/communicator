@@ -4,7 +4,6 @@ using Application.Interfaces;
 using Application.Repositories;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
 

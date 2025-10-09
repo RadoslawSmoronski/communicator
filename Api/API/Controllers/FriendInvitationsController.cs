@@ -64,7 +64,7 @@ namespace API.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok();
+                return Ok(result.Value);
             }
 
             return HandleError(result, "FriendInvitationsController - AcceptInvitationAsync", _logger);
