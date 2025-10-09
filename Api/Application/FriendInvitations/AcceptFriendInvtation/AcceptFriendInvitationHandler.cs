@@ -9,11 +9,13 @@ namespace Application.FriendInvitations.AcceptFriendInvtation
     {
         private readonly IFriendInvitationsService _friendInvitationsService;
         private readonly IConversationService _conversationService;
+        private readonly IFriendshipService _friendshipService;
 
-        public AcceptFriendInvitationHandler(IFriendInvitationsService friendInvitationsService, IConversationService conversationService)
+        public AcceptFriendInvitationHandler(IFriendInvitationsService friendInvitationsService, IConversationService conversationService, IFriendshipService friendshipService)
         {
             _friendInvitationsService = friendInvitationsService;
             _conversationService = conversationService;
+            _friendshipService = friendshipService;
         }
 
         public async Task<Result<AcceptFriendshipInviteDto>> Handle(AcceptFriendInvitationCommand request, CancellationToken cancellationToken)
@@ -29,8 +31,15 @@ namespace Application.FriendInvitations.AcceptFriendInvtation
             if (!createConversationResult.IsSuccess)
                 return createConversationResult.Error!;
 
-            return new AcceptFriendshipInviteDto() // refactor, add conversationd and friendship create functionalities
-            { ConversationId = createConversationResult.Value.Id };
+            var addFriendshipResult = await _friendshipService.AddAsync(senderId, recepientId);
+            if (!addFriendshipResult.IsSuccess)
+                return addFriendshipResult.Error!;
+
+            return new AcceptFriendshipInviteDto()
+            {
+                ConversationId = createConversationResult.Value.Id,
+                FriendshipId = addFriendshipResult.Value
+            };
         }
     }
 }

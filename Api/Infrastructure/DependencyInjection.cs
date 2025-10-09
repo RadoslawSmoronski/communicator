@@ -28,6 +28,7 @@ public static class DependencyInjection
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
         builder.Services.AddScoped<IFriendInvitationsService, FriendInvitationsService>();
+        builder.Services.AddScoped<IFriendshipService, FriendshipService>();
         builder.Services.AddScoped<IConversationService, ConversationService>();
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<IEmailService, SmtpEmailService>();

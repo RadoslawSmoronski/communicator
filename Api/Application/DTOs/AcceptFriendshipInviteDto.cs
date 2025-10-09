@@ -2,7 +2,7 @@
 {
     public class AcceptFriendshipInviteDto
     {
-        public Guid? FriendshipId { get; set; } //refactor
-        public required Guid? ConversationId { get; set; }
+        public required Guid FriendshipId { get; set; }
+        public required Guid ConversationId { get; set; }
     }
 }
