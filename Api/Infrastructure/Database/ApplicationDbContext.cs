@@ -23,30 +23,46 @@ namespace Infrastructure.Database
             base.OnModelCreating(builder);
 
             builder.Entity<RefreshToken>()
-                .HasKey(rt => rt.Id);
-
-            builder.Entity<Friendship>()
-            .HasKey(f => f.Id);
-
-            builder.Entity<Friendship>()
-                .HasIndex(f => new { f.User1Id, f.User2Id })
-                .IsUnique();
-
-            builder.Entity<FriendshipInvitation>()
-                .HasKey(f => f.Id);
-
-            builder.Entity<FriendshipInvitation>()
-                .HasIndex(f => new { f.SenderId, f.RecipientId })
-                .IsUnique();
-
-            builder.Entity<Conversation>()
-                 .HasKey(c => c.Id);
-
-            builder.Entity<Conversation>()
-                .HasOne(c => c.LastMessage)
+                .HasOne<UserAccount>()
                 .WithMany()
-                .HasForeignKey(c => c.LastMessageId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Friendship>()
+                .HasOne<UserAccount>()
+                .WithMany()
+                .HasForeignKey(f => f.User1Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Friendship>()
+                .HasOne<UserAccount>()
+                .WithMany()
+                .HasForeignKey(f => f.User2Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<FriendshipInvitation>()
+                .HasOne<UserAccount>()
+                .WithMany()
+                .HasForeignKey(f => f.SenderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<FriendshipInvitation>()
+                .HasOne<UserAccount>()
+                .WithMany()
+                .HasForeignKey(f => f.RecipientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Conversation>()
+                .HasOne<UserAccount>()
+                .WithMany()
+                .HasForeignKey(c => c.User1Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Conversation>()
+                .HasOne<UserAccount>()
+                .WithMany()
+                .HasForeignKey(c => c.User2Id)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Conversation>()
                 .HasIndex(c => new { c.User1Id, c.User2Id }).IsUnique();
@@ -62,6 +78,12 @@ namespace Infrastructure.Database
 
             builder.Entity<Message>()
                 .HasIndex(m => new { m.ConversationId, m.Timestamp });
+
+            builder.Entity<Conversation>()
+                .HasOne(c => c.LastMessage)
+                .WithMany()
+                .HasForeignKey(c => c.LastMessageId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
     }
