@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Interfaces.Users;
 using Application.Repositories;
+using Infrastructure;
 using Infrastructure.Database;
 using Infrastructure.Services;
 using Infrastructure.Services.Background;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection
@@ -24,6 +26,11 @@ public static class DependencyInjection
         }
         builder.Services.AddDbContext<ApplicationDbContext>
             (options => options.UseNpgsql(connectionString));
+
+        builder.Services.AddAutoMapper(cfg =>
+        {
+            cfg.AddMaps(typeof(InfrastructureProfile).Assembly);
+        });
 
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();

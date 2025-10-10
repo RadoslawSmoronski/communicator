@@ -1,20 +1,20 @@
 ﻿using Application.Repositories;
+using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Identity;
-using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories
 {
     public class FriendshipInvitationRepository : IFriendshipInvitationRepository
     {
         private readonly DbSet<FriendshipInvitationEntity> _dbSet;
+        private readonly IMapper _mapper;
 
-        public FriendshipInvitationRepository(DbContext context)
+        public FriendshipInvitationRepository(DbContext context, IMapper mapper)
         {
             _dbSet = context.Set<FriendshipInvitationEntity>();
+            _mapper = mapper;
         }
 
         public async Task<IReadOnlyList<FriendshipInvitation>> GetAllAsync(Guid userId)
@@ -25,29 +25,12 @@ namespace Infrastructure.Repositories
                 .Where(x => x.RecipientId == userId)
                 .ToListAsync();
 
-            return entities.Select(entity => new FriendshipInvitation
-            {
-                Id = entity.Id,
-                SenderId = entity.SenderId,
-                RecipientId = entity.RecipientId,
-                SenderUser = new User() { Id = entity.SenderUser.Id, UserName = entity.SenderUser.UserName!, AvatarUrl = entity.SenderUser.AvatarUrl},
-                RecipientUser = new User() { Id = entity.RecipientUser.Id, UserName = entity.RecipientUser.UserName!, AvatarUrl = entity.RecipientUser.AvatarUrl },
-                CreatedAt = entity.CreatedAt
-            }).ToList();
+            return entities.Select(entity => _mapper.Map<FriendshipInvitation>(entity)).ToList();
         }
 
         public async Task AddAsync(FriendshipInvitation friendshipInvitation)
-        {
-            var entity = new FriendshipInvitationEntity()
-            {
-                Id = friendshipInvitation.Id,
-                SenderId = friendshipInvitation.SenderId,
-                RecipientId = friendshipInvitation.RecipientId,
-                CreatedAt = friendshipInvitation.CreatedAt
-            };
+             => await _dbSet.AddAsync(_mapper.Map<FriendshipInvitationEntity>(friendshipInvitation));
 
-            await _dbSet.AddAsync(entity);
-        }
 
 
         public async Task<FriendshipInvitation?> GetById(Guid id)
@@ -60,25 +43,7 @@ namespace Infrastructure.Repositories
             if (entity == null)
                 return null;
 
-            return new FriendshipInvitation
-            {
-                Id = entity.Id,
-                SenderId = entity.SenderId,
-                RecipientId = entity.RecipientId,
-                SenderUser = new User
-                {
-                    Id = entity.SenderUser.Id,
-                    UserName = entity.SenderUser.UserName!,
-                    AvatarUrl = entity.SenderUser.AvatarUrl
-                },
-                RecipientUser = new User
-                {
-                    Id = entity.RecipientUser.Id,
-                    UserName = entity.RecipientUser.UserName!,
-                    AvatarUrl = entity.RecipientUser.AvatarUrl
-                },
-                CreatedAt = entity.CreatedAt
-            };
+            return _mapper.Map<FriendshipInvitation>(entity);
         }
 
         public async Task DeleteAsync(Guid invitationId)

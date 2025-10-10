@@ -1,4 +1,5 @@
 ﻿using Application.Repositories;
+using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Database;
 using Infrastructure.Repositories;
@@ -13,15 +14,17 @@ namespace Infrastructure.UnitOfWork
         private IFriendshipInvitationRepository? _friendshipInvitations;
         private IRepository<Conversation>? _conversations;
         private IMessageRepository? _messages;
+        private IMapper _mapper;
 
-        public UnitOfWork(ApplicationDbContext context)
+        public UnitOfWork(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public IRepository<RefreshToken> RefreshTokens => _refreshTokens ??= new Repository<RefreshToken>(_context);
         public IRepository<Friendship> Friendships => _friendships ??= new Repository<Friendship>(_context);
-        public IFriendshipInvitationRepository FriendshipInvitations => _friendshipInvitations ??= new FriendshipInvitationRepository(_context);
+        public IFriendshipInvitationRepository FriendshipInvitations => _friendshipInvitations ??= new FriendshipInvitationRepository(_context, _mapper);
         public IRepository<Conversation> Conversations => _conversations ??= new Repository<Conversation>(_context);
         public IMessageRepository Messages => _messages ??= new MessageRepository(_context);
 
