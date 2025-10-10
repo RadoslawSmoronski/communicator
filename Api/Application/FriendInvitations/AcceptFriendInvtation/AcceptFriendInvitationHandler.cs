@@ -20,7 +20,7 @@ namespace Application.FriendInvitations.AcceptFriendInvtation
 
         public async Task<Result<AcceptFriendshipInviteDto>> Handle(AcceptFriendInvitationCommand request, CancellationToken cancellationToken)
         {
-            var friendshipInviteAcceptResult = await _friendInvitationsService.AcceptInviteAsync(request.InvitationId);
+            var friendshipInviteAcceptResult = await _friendInvitationsService.AcceptAsync(request.InvitationId);
             if (!friendshipInviteAcceptResult.IsSuccess)
                 return friendshipInviteAcceptResult.Error!;
 

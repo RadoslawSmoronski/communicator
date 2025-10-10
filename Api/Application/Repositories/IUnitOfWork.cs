@@ -6,7 +6,7 @@ namespace Application.Repositories
     {
         public IRepository<RefreshToken> RefreshTokens { get; }
         public IRepository<Friendship> Friendships { get; }
-        public IRepository<FriendshipInvitation> FriendshipInvitations { get; }
+        public IFriendshipInvitationRepository FriendshipInvitations { get; }
 
         //Chat
         public IRepository<Conversation> Conversations { get; }

@@ -1,7 +1,9 @@
 ﻿using Domain.Entities;
+using Infrastructure.Identity;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace Infrastructure.Database
 {
@@ -9,7 +11,7 @@ namespace Infrastructure.Database
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
-        public DbSet<FriendshipInvitation> FriendshipInvitations { get; set; }
+        public DbSet<FriendshipInvitationEntity> FriendshipInvitations { get; set; }
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<Message> Messages { get; set; }
 
@@ -40,17 +42,17 @@ namespace Infrastructure.Database
                 .HasForeignKey(f => f.User2Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<FriendshipInvitation>()
-                .HasOne<UserAccount>()
+            builder.Entity<FriendshipInvitationEntity>()
+                .HasOne(x => x.SenderUser)
                 .WithMany()
-                .HasForeignKey(f => f.SenderId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(x => x.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<FriendshipInvitation>()
-                .HasOne<UserAccount>()
+            builder.Entity<FriendshipInvitationEntity>()
+                .HasOne(x => x.RecipientUser)
                 .WithMany()
-                .HasForeignKey(f => f.RecipientId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(x => x.RecipientId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Conversation>()
                 .HasOne<UserAccount>()

@@ -1,10 +1,13 @@
 ﻿using API.DTOs;
+using Application.DTOs;
+using Application.FriendInvitations.GetInvitations;
 using Application.Users.Commands.ChangeAvatar;
 using Application.Users.Commands.ChangePassword;
 using Application.Users.Commands.ChangeUsername;
 using Application.Users.Commands.DeleteAvatar;
 using Application.Users.Commands.RegisterUser;
 using Application.Users.Commands.UploadAvatar;
+using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -86,7 +89,6 @@ namespace API.Controllers
 
         [Authorize]
         [HttpDelete("{userId}/avatar")] // refactor: docs
-        [ProducesResponseType<string>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteAvatarAsync([FromRoute] Guid userId)
         {
             var command = new DeleteAvatarCommand(userId);
@@ -102,8 +104,7 @@ namespace API.Controllers
 
         [Authorize]
         [HttpPut("{userId}/avatar")]
-        [Consumes("multipart/form-data")]
-        [ProducesResponseType<string>(StatusCodes.Status200OK)]
+        [Consumes("multipart/form-data")] // refactor: docs
         public async Task<IActionResult> ChangeAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarDto uploadAvatarDto)
         {
             var command = new ChangeAvatarCommand(userId, uploadAvatarDto.File);
@@ -116,5 +117,21 @@ namespace API.Controllers
 
             return HandleError(result, "ChangeAvatarAsync - ChangeUsernameAsync", _logger);
         }
+
+        [Authorize]
+        [HttpGet("{userId}/friend-invitations")] // refactor: docs
+        public async Task<IActionResult> GetFriendInvitationsAsync([FromRoute] Guid userId)
+        {
+            var command = new GetInvitationsCommand(userId);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "UsersController - GetFriendInvitationsAsync", _logger);
+        }
+
     }
 }
