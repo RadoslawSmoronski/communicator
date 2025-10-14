@@ -9,7 +9,6 @@ namespace Application.Interfaces
         Task<Result<FriendshipInviteOperationDto>> DeleteAsync(Guid InvitationId);
         Task<Result<FriendshipInviteOperationDto>> AcceptAsync(Guid InvitationId);
         Task<Result<List<FriendshipInvitationDto>>> GetAsync(Guid userId);
-        //Task<Result<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(Guid userId, string text);
-        //Task<Result> DecelineInviteAsync(Guid senderId, Guid recipientId);
+        // Task<Result<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(Guid userId, string text); // I need to finish friends service first
     }
 }

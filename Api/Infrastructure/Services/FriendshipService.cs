@@ -1,4 +1,6 @@
-﻿using Application.Interfaces;
+﻿using Application.DTOs;
+using Application.Interfaces;
+using Application.Interfaces.Users;
 using Application.Repositories;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -44,7 +46,7 @@ namespace Infrastructure.Services
                     return Error.NotFound("Friendship.User2NotFound", "User2 not found.");
                 }
 
-                if (await IsFriendshipExistAsync(user1Id, user2Id))
+                if (await _unitOfWork.Friendships.IsExistAsync(user1Id, user2Id))
                 {
                     _logger.LogWarning("Friendship already exists between User1Id: {User1Id} and User2Id: {User2Id}", user1Id, user2Id);
                     return Error.Conflict("Friendship.AlreadyExists", "Friendship already exists.");
@@ -69,9 +71,54 @@ namespace Infrastructure.Services
             }
         }
 
-        private async Task<bool> IsFriendshipExistAsync(Guid userId1, Guid userId2) => 
-             await _unitOfWork.Friendships
-                .AnyAsync(x => x.User1Id == userId1 && x.User2Id == userId2
-                || x.User1Id == userId2 && x.User2Id == userId1);
+        public async Task<Result<List<Friendship>>> GetAsync(Guid userId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+
+                if (user == null || user.UserName == null)
+                {
+                    _logger.LogWarning("User not found or has no username. UserId: {UserId}", userId);
+                    return Error.NotFound("Friendship.UserNotFound", "User not found or has no username.");
+                }
+
+                var friends = await _unitOfWork.Friendships.GetAllAsync(user.Id);
+
+                _logger.LogInformation("Fetched {Count} friendships for UserId: {UserId}", friends.Count, userId);
+
+                return friends.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get friendships for UserId: {UserId}", userId);
+                return Error.Failure("Friendship.GetFailed", "Failed to get friendships due to an unexpected error.");
+            }
+        }
+
+        public async Task<Result> DeleteAsync(Guid friendshipId)
+        {
+            try
+            {
+                var friendship = await _unitOfWork.Friendships.Get(friendshipId);
+
+                if (friendship == null)
+                {
+                    _logger.LogWarning("Friendship not found. FriendshipId: {FriendshipId}", friendshipId);
+                    return Error.NotFound("Friendship.NotFound", "Friendship with the specified ID does not exist.");
+                }
+
+                await _unitOfWork.Friendships.DeleteAsync(friendshipId);
+                await _unitOfWork.SaveAsync();
+
+                _logger.LogInformation("Friendship deleted. FriendshipId: {FriendshipId}", friendshipId);
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to delete friendship. FriendshipId: {FriendshipId}", friendshipId);
+                return Error.Failure("Friendship.DeleteFailed", "Failed to delete friendship due to an unexpected error.");
+            }
+        }
     }
 }

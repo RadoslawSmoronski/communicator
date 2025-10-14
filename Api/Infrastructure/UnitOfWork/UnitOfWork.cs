@@ -10,7 +10,7 @@ namespace Infrastructure.UnitOfWork
     {
         private readonly ApplicationDbContext _context;
         private IRepository<RefreshToken>? _refreshTokens;
-        private IRepository<Friendship>? _friendships;
+        private IFriendshipRepository? _friendships;
         private IFriendshipInvitationRepository? _friendshipInvitations;
         private IRepository<Conversation>? _conversations;
         private IMessageRepository? _messages;
@@ -23,7 +23,7 @@ namespace Infrastructure.UnitOfWork
         }
 
         public IRepository<RefreshToken> RefreshTokens => _refreshTokens ??= new Repository<RefreshToken>(_context);
-        public IRepository<Friendship> Friendships => _friendships ??= new Repository<Friendship>(_context);
+        public IFriendshipRepository Friendships => _friendships ??= new FriendshipRepository(_context, _mapper);
         public IFriendshipInvitationRepository FriendshipInvitations => _friendshipInvitations ??= new FriendshipInvitationRepository(_context, _mapper);
         public IRepository<Conversation> Conversations => _conversations ??= new Repository<Conversation>(_context);
         public IMessageRepository Messages => _messages ??= new MessageRepository(_context);

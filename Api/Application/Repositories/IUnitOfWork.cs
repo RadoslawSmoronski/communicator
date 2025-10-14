@@ -5,7 +5,7 @@ namespace Application.Repositories
     public interface IUnitOfWork : IDisposable
     {
         public IRepository<RefreshToken> RefreshTokens { get; }
-        public IRepository<Friendship> Friendships { get; }
+        public IFriendshipRepository Friendships { get; }
         public IFriendshipInvitationRepository FriendshipInvitations { get; }
 
         //Chat

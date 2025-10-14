@@ -31,8 +31,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(FriendshipInvitation friendshipInvitation)
              => await _dbSet.AddAsync(_mapper.Map<FriendshipInvitationEntity>(friendshipInvitation));
 
-
-
         public async Task<FriendshipInvitation?> GetById(Guid id)
         {
             var entity = await _dbSet

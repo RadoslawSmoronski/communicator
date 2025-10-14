@@ -10,7 +10,7 @@ namespace Infrastructure.Database
     public class ApplicationDbContext : IdentityDbContext<UserAccount, ApplicationRole, Guid>
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<Friendship> Friendships { get; set; }
+        public DbSet<FriendshipEntity> Friendships { get; set; }
         public DbSet<FriendshipInvitationEntity> FriendshipInvitations { get; set; }
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -30,17 +30,24 @@ namespace Infrastructure.Database
                 .HasForeignKey(rt => rt.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<Friendship>()
-                .HasOne<UserAccount>()
+            builder.Entity<FriendshipEntity>()
+                .HasKey(f => f.Id);
+
+            builder.Entity<FriendshipEntity>()
+                .HasOne(f => f.User1)
                 .WithMany()
                 .HasForeignKey(f => f.User1Id)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<Friendship>()
-                .HasOne<UserAccount>()
-                .WithMany()
-                .HasForeignKey(f => f.User2Id)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<FriendshipEntity>()
+                 .HasOne(f => f.User2)
+                 .WithMany()
+                 .HasForeignKey(f => f.User2Id)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<FriendshipEntity>()
+                .HasIndex(f => new { f.User1Id, f.User2Id })
+                .IsUnique();
 
             builder.Entity<FriendshipInvitationEntity>()
                 .HasOne(x => x.SenderUser)

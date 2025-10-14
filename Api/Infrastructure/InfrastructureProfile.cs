@@ -19,6 +19,12 @@ namespace Infrastructure
             CreateMap<FriendshipInvitationEntity, FriendshipInvitation>()
                 .ForMember(dest => dest.SenderUser, opt => opt.MapFrom(src => src.SenderUser))
                 .ForMember(dest => dest.RecipientUser, opt => opt.MapFrom(src => src.RecipientUser));
+            CreateMap<Friendship, FriendshipEntity>()
+                .ForMember(dest => dest.User1, opt => opt.MapFrom(src => src.User1))
+                .ForMember(dest => dest.User2, opt => opt.MapFrom(src => src.User2));
+            CreateMap<FriendshipEntity, Friendship>()
+                .ForMember(dest => dest.User1, opt => opt.MapFrom(src => src.User1))
+                .ForMember(dest => dest.User2, opt => opt.MapFrom(src => src.User2));
         }
 
     }
