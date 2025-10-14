@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Application.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
@@ -10,12 +11,14 @@ namespace Application.FriendInvitations.AcceptFriendInvtation
         private readonly IFriendInvitationsService _friendInvitationsService;
         private readonly IConversationService _conversationService;
         private readonly IFriendshipService _friendshipService;
+        private readonly IUserService _userService;
 
-        public AcceptFriendInvitationHandler(IFriendInvitationsService friendInvitationsService, IConversationService conversationService, IFriendshipService friendshipService)
+        public AcceptFriendInvitationHandler(IFriendInvitationsService friendInvitationsService, IConversationService conversationService, IFriendshipService friendshipService, IUserService userService)
         {
             _friendInvitationsService = friendInvitationsService;
             _conversationService = conversationService;
             _friendshipService = friendshipService;
+            _userService = userService;
         }
 
         public async Task<Result<AcceptFriendshipInviteDto>> Handle(AcceptFriendInvitationCommand request, CancellationToken cancellationToken)

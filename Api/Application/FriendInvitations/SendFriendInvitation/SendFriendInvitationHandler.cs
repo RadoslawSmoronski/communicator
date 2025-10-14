@@ -2,11 +2,8 @@
 using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Users;
-using Application.Users.Commands.DeleteAvatar;
-using Domain.Entities;
 using MediatR;
 using Shared.Result;
-using System.Net;
 
 namespace Application.FriendInvitations.SendFriendInvitation
 {

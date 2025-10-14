@@ -1,12 +1,8 @@
-﻿using Application.DTOs;
-using Application.Repositories;
+﻿using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Identity;
-using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using System.Linq;
 
 namespace Infrastructure.Repositories
 {
@@ -47,8 +43,9 @@ namespace Infrastructure.Repositories
 
 
         public async Task<bool> IsExistAsync(Guid user1Id, Guid user2Id)
-            => await _dbSet.AnyAsync(x => x.User1Id == user1Id && x.User2Id == user2Id ||
-            x.User1Id == user2Id && x.User2Id == user1Id);
+            => await _dbSet.AnyAsync(x => 
+                (x.User1Id == user1Id && x.User2Id == user2Id) ||
+                (x.User1Id == user2Id && x.User2Id == user1Id));
 
         public async Task DeleteAsync(Guid friendshipId)
         {

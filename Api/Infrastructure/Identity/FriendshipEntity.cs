@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Identity
 {
-    [Table("Friendship")]
+    [Table("Friendships")]
     public class FriendshipEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
