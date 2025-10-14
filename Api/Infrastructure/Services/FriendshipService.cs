@@ -120,5 +120,25 @@ namespace Infrastructure.Services
                 return Error.Failure("Friendship.DeleteFailed", "Failed to delete friendship due to an unexpected error.");
             }
         }
+
+        public async Task<Result> IsExistAsync(Guid user1Id, Guid user2Id)
+        {
+            try
+            {
+                if (await _unitOfWork.Friendships.IsExistAsync(user1Id, user2Id))
+                {
+                    return Result.Success();
+                }
+                else
+                {
+                    return Error.NotFound("Friendship.NotExist", "Friendship does not exist between the specified users.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking existence of friendship between User1Id: {User1Id} and User2Id: {User2Id}", user1Id, user2Id);
+                return Error.Failure("Friendship.IsExistFailed", "Failed to check friendship existence due to an unexpected error.");
+            }
+        }
     }
 }

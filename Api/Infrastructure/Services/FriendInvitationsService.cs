@@ -60,8 +60,6 @@ namespace Infrastructure.Services
                     return Error.Validation("FriendInvitation.RecipientEmailNotConfirmed", "Recipient user's email is not confirmed.");
                 }
 
-                // refactor: Check if friendship already exists
-
                 if (await _unitOfWork.FriendshipInvitations.IsExistAsync(senderId, recipientId))
                 {
                     _logger.LogWarning("Friend invitation already exists between users {SenderId} and {RecipientId}", senderUser.Id, recipientUser.Id);

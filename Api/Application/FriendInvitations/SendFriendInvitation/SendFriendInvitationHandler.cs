@@ -11,29 +11,35 @@ namespace Application.FriendInvitations.SendFriendInvitation
     {
         private readonly IUserService _userService;
         private readonly IFriendInvitationsService _friendInvitationsService;
+        private readonly IFriendshipService _friendshipService;
 
-        public SendFriendInvitationHandler(IUserService userService, IFriendInvitationsService friendInvitationsService)
+        public SendFriendInvitationHandler(IUserService userService, IFriendInvitationsService friendInvitationsService, IFriendshipService friendshipService)
         {
             _userService = userService;
             _friendInvitationsService = friendInvitationsService;
+            _friendshipService = friendshipService;
         }
 
         public async Task<Result<SendFriendInvitationDto>> Handle(SendFriendInvitationCommand request, CancellationToken cancellationToken)
         {
             if (!_userService.IsAuthorized(request.SenderId))
-            {
                 return Error.Unauthorized("Unauthorized", "User is not authorized.");
-            }
+
+            var isFriendshipExist = await _friendshipService.IsExistAsync(request.SenderId, request.RecipientId);
+
+            if (isFriendshipExist.IsSuccess)
+                return Error.Conflict("Friendship already exists", "Cannot send invitation.");
+
+            if (isFriendshipExist.Error is not null && isFriendshipExist.Error.ErrorType != ErrorType.NotFound)
+                return isFriendshipExist.Error;
 
             var result = await _friendInvitationsService.SendAsync(request.SenderId, request.RecipientId);
 
-            if(result.IsSuccess)
-            {
-                return new SendFriendInvitationDto()
+            if (result.IsSuccess)
+                return new SendFriendInvitationDto
                 {
                     FriendshipInvitationId = result.Value
                 };
-            }
 
             return result.Error!;
         }
