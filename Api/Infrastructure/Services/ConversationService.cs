@@ -1,9 +1,7 @@
-﻿using Application.DTOs;
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using Application.Repositories;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
 
@@ -48,7 +46,7 @@ namespace Infrastructure.Services
                     return Error.NotFound("Friend.NotFound", $"Friend with ID {friendId} not found.");
                 }
 
-                var conversation = await GetConversationAsync(userId, friendId);
+                var conversation = await _unitOfWork.Conversations.GetConversationAsync(userId, friendId);
 
                 if (conversation == null)
                 {
@@ -70,11 +68,6 @@ namespace Infrastructure.Services
             }
         }
 
-        private async Task<Conversation?> GetConversationAsync(Guid user1Id, Guid user2Id)
-            => await _unitOfWork.Conversations.FirstOrDefaultAsync(x =>
-                (x.User1Id == user1Id && x.User2Id == user2Id) ||
-                (x.User1Id == user2Id && x.User2Id == user1Id));
-
         private async Task<Conversation> CreateConversationAsync(UserAccount user1, UserAccount user2)
         {
             var conversation = new Conversation()
@@ -89,10 +82,18 @@ namespace Infrastructure.Services
             return conversation;
         }
 
-        //Task<Result<List<ConversationDto>>> GetAsync(Guid userId)
-        //{
-
-        //}
-
+        public async Task<Result<List<Conversation>>> GetAllAsync(Guid userId)
+        {
+            try
+            {
+                var result = await _unitOfWork.Conversations.GetUserAllAsync(userId);
+                return result.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get all conversations for user {UserId}.", userId);
+                return Error.Failure("Conversation.GetAll.Failure", "An unexpected error occurred while retrieving conversations.");
+            }
+        }
     }
 }

@@ -7,6 +7,6 @@ namespace Application.Interfaces
     public interface IConversationService
     {
         Task<Result<Conversation>> GetOrCreateAsync(Guid userId, Guid friendId);
-        //Task<Result<List<ConversationDto>>> GetAsync(Guid userId); //refactor: needs friendService to working properly
+        Task<Result<List<Conversation>>> GetAllAsync(Guid userId);
     }
 }

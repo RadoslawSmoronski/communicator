@@ -9,8 +9,8 @@ namespace Application.Repositories
         public IFriendshipInvitationRepository FriendshipInvitations { get; }
 
         //Chat
-        public IRepository<Conversation> Conversations { get; }
-        public IMessageRepository Messages { get; }
+        public IConversationRepository Conversations { get; }
+        //public IMessageRepository Messages { get; }
         Task<int> SaveAsync();
     }
 }

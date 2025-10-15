@@ -71,7 +71,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<Result<List<Friendship>>> GetAsync(Guid userId)
+        public async Task<Result<List<Friend>>> GetForUserAsync(Guid userId)
         {
             try
             {
@@ -87,7 +87,18 @@ namespace Infrastructure.Services
 
                 _logger.LogInformation("Fetched {Count} friendships for UserId: {UserId}", friends.Count, userId);
 
-                return friends.ToList();
+                return friends.Select(x => {
+                    var isUser1 = x.User1Id == userId;
+                    var friend = isUser1 ? x.User2 : x.User1;
+
+                    return new Friend()
+                    {
+                        Id = friend!.Id,
+                        UserName = friend.UserName,
+                        AvatarUrl = friend.AvatarUrl,
+                        FriendshipCreatedAt = x.CreatedAt,
+                    };
+                }).ToList();
             }
             catch (Exception ex)
             {

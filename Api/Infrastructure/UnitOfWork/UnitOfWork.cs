@@ -12,7 +12,7 @@ namespace Infrastructure.UnitOfWork
         private IRepository<RefreshToken>? _refreshTokens;
         private IFriendshipRepository? _friendships;
         private IFriendshipInvitationRepository? _friendshipInvitations;
-        private IRepository<Conversation>? _conversations;
+        private IConversationRepository? _conversations;
         private IMessageRepository? _messages;
         private IMapper _mapper;
 
@@ -25,7 +25,7 @@ namespace Infrastructure.UnitOfWork
         public IRepository<RefreshToken> RefreshTokens => _refreshTokens ??= new Repository<RefreshToken>(_context);
         public IFriendshipRepository Friendships => _friendships ??= new FriendshipRepository(_context, _mapper);
         public IFriendshipInvitationRepository FriendshipInvitations => _friendshipInvitations ??= new FriendshipInvitationRepository(_context, _mapper);
-        public IRepository<Conversation> Conversations => _conversations ??= new Repository<Conversation>(_context);
+        public IConversationRepository Conversations => _conversations ??= new ConversationRepository(_context, _mapper);
         public IMessageRepository Messages => _messages ??= new MessageRepository(_context);
 
 

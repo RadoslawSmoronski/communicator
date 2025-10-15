@@ -7,6 +7,7 @@ using Application.Users.Commands.ChangeUsername;
 using Application.Users.Commands.DeleteAvatar;
 using Application.Users.Commands.RegisterUser;
 using Application.Users.Commands.UploadAvatar;
+using Application.Users.Queries.GetChats;
 using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -119,7 +120,7 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpGet("{userId}/friend-invitations")] // refactor: docs
+        [HttpGet("{userId}/friend-invitations")] // refactor: docs, command to query, blad cqrs
         public async Task<IActionResult> GetFriendInvitationsAsync([FromRoute] Guid userId)
         {
             var command = new GetInvitationsCommand(userId);
@@ -131,6 +132,21 @@ namespace API.Controllers
             }
 
             return HandleError(result, "UsersController - GetFriendInvitationsAsync", _logger);
+        }
+
+        [Authorize]
+        [HttpGet("{userId}/chats")]
+        public async Task<IActionResult> GetChatsAsync([FromRoute] Guid userId, [FromQuery] bool onlyFriends)
+        {
+            var query = new GetChatsQuery(userId, onlyFriends);
+            var result = await _sender.Send(query);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "UsersController - GetChatsAsync", _logger);
         }
 
     }
