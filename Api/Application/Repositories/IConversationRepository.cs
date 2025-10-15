@@ -2,10 +2,9 @@
 
 namespace Application.Repositories
 {
-    public interface IConversationRepository
+    public interface IConversationRepository : IBaseRepository<Conversation>
     {
         Task<Conversation?> GetConversationAsync(Guid user1Id, Guid user2Id);
-        Task AddAsync(Conversation conversation);
-        Task<List<Conversation>> GetUserAllAsync(Guid userId);
+        List<Conversation> GetUserAll(Guid userId);
     }
 }

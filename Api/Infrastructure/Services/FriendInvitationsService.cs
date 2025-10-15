@@ -116,7 +116,7 @@ namespace Infrastructure.Services
                     return Error.Unauthorized("DeleteFriendInvitation.Unauthorized", "You are not authorized to delete this friend invitation.");
                 }
 
-                await _unitOfWork.FriendshipInvitations.DeleteAsync(invitation.Id);
+                _unitOfWork.FriendshipInvitations.Delete(invitation);
                 await _unitOfWork.SaveAsync();
 
                 _logger.LogInformation("Friend invitation {Action}d. InvitationId: {InvitationId}, UserId: {UserId}", loggerTag.ToLower(), InvitationId, _user.Id);

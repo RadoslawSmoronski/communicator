@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection

@@ -1,17 +1,16 @@
-﻿using Infrastructure.Services;
+﻿using Infrastructure.Database;
+using Infrastructure.Services;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Identity
 {
     [Table("FriendshipInvitations")]
-    public class FriendshipInvitationEntity
+    public class FriendshipInvitationEntity : BaseEntityInfrastructure
     {
-        public Guid Id { get; set; }
         public Guid SenderId { get; set; }
         public Guid RecipientId { get; set; }
         public DateTime CreatedAt { get; set; }
-
-        public UserAccount SenderUser { get; set; } = null!;
-        public UserAccount RecipientUser { get; set; } = null!;
-    }
+        public UserAccount? SenderUser { get; set; }
+        public UserAccount? RecipientUser { get; set; }
+    } 
 }

@@ -8,6 +8,7 @@ namespace Application.Repositories
         public IFriendshipRepository Friendships { get; }
         public IFriendshipInvitationRepository FriendshipInvitations { get; }
 
+
         //Chat
         public IConversationRepository Conversations { get; }
         //public IMessageRepository Messages { get; }

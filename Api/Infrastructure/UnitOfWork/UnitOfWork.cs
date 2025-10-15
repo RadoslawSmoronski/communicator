@@ -2,6 +2,7 @@
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Database;
+using Infrastructure.Identity;
 using Infrastructure.Repositories;
 
 namespace Infrastructure.UnitOfWork
@@ -27,7 +28,6 @@ namespace Infrastructure.UnitOfWork
         public IFriendshipInvitationRepository FriendshipInvitations => _friendshipInvitations ??= new FriendshipInvitationRepository(_context, _mapper);
         public IConversationRepository Conversations => _conversations ??= new ConversationRepository(_context, _mapper);
         public IMessageRepository Messages => _messages ??= new MessageRepository(_context);
-
 
         public async Task<int> SaveAsync()
         {

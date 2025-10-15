@@ -82,11 +82,11 @@ namespace Infrastructure.Services
             return conversation;
         }
 
-        public async Task<Result<List<Conversation>>> GetAllAsync(Guid userId)
+        public Result<List<Conversation>> GetAll(Guid userId)
         {
             try
             {
-                var result = await _unitOfWork.Conversations.GetUserAllAsync(userId);
+                var result = _unitOfWork.Conversations.GetUserAll(userId);
                 return result.ToList();
             }
             catch (Exception ex)

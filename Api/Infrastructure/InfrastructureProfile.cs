@@ -1,6 +1,4 @@
-﻿using Application.Common.Interfaces;
-using Application.DTOs;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Database;
 using Infrastructure.Identity;
@@ -31,6 +29,10 @@ namespace Infrastructure
                 .ForMember(dest => dest.User2, opt => opt.MapFrom(src => src.User2));
             CreateMap<ConversationEntity, Conversation>()
                 .ForMember(dest => dest.User1, opt => opt.MapFrom(src => src.User1))
+                .ForMember(dest => dest.User2, opt => opt.MapFrom(src => src.User2));
+            CreateMap<Friendship, FriendshipEntity>()
+                 .ForMember(dest => dest.User1, opt => opt.MapFrom(src => src.User1));
+            CreateMap<FriendshipEntity, Friendship>()
                 .ForMember(dest => dest.User2, opt => opt.MapFrom(src => src.User2));
         }
 

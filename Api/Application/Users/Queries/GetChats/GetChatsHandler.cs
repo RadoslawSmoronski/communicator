@@ -27,7 +27,7 @@ namespace Application.Users.Queries.GetChats
                 return Error.Unauthorized("Unauthorized", "User is not authorized.");
             }
 
-            var conversationsResult = await _conversationService.GetAllAsync(request.UserId);
+            var conversationsResult = _conversationService.GetAll(request.UserId);
             if (!conversationsResult.IsSuccess)
                 return conversationsResult.Error!;
 

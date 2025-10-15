@@ -2,23 +2,13 @@
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Database;
-using Infrastructure.Identity;
-using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using Shared.Result;
 
 namespace Infrastructure.Repositories
 {
-    public class ConversationRepository : IConversationRepository
+    public class ConversationRepository : BaseRepository<Conversation, ConversationEntity>, IConversationRepository
     {
-        private readonly DbSet<ConversationEntity> _dbSet;
-        private readonly IMapper _mapper;
-
-        public ConversationRepository(DbContext context, IMapper mapper)
-        {
-            _dbSet = context.Set<ConversationEntity>();
-            _mapper = mapper;
-        }
+        public ConversationRepository(DbContext context, IMapper mapper) : base(context, mapper) {}
 
         public async Task<Conversation?> GetConversationAsync(Guid user1Id, Guid user2Id)
         {
@@ -29,10 +19,7 @@ namespace Infrastructure.Repositories
             return _mapper.Map<Conversation>(result);
         }
 
-        public async Task AddAsync(Conversation conversation)
-            => await _dbSet.AddAsync(_mapper.Map<ConversationEntity>(conversation));
-
-        public async Task<List<Conversation>> GetUserAllAsync(Guid userId)
+        public List<Conversation> GetUserAll(Guid userId)
         {
             var conversations = _dbSet.Where(x => x.User1Id == userId || x.User2Id == userId);
 

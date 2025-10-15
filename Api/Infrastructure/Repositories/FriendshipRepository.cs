@@ -6,16 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class FriendshipRepository : IFriendshipRepository
+    public class FriendshipRepository : BaseRepository<Friendship, FriendshipEntity>, IFriendshipRepository
     {
-        private readonly DbSet<FriendshipEntity> _dbSet;
-        private readonly IMapper _mapper;
-
-        public FriendshipRepository(DbContext context, IMapper mapper)
-        {
-            _dbSet = context.Set<FriendshipEntity>();
-            _mapper = mapper;
-        }
+        public FriendshipRepository(DbContext context, IMapper mapper) : base(context, mapper) { }
 
         public async Task<List<Friendship>> GetAllAsync(Guid userId)
         {
@@ -38,19 +31,10 @@ namespace Infrastructure.Repositories
             return _mapper.Map<Friendship>(result);
         }
 
-        public async Task AddAsync(Friendship friendship)
-             => await _dbSet.AddAsync(_mapper.Map<FriendshipEntity>(friendship));
-
-
         public async Task<bool> IsExistAsync(Guid user1Id, Guid user2Id)
             => await _dbSet.AnyAsync(x => 
                 (x.User1Id == user1Id && x.User2Id == user2Id) ||
                 (x.User1Id == user2Id && x.User2Id == user1Id));
 
-        public async Task DeleteAsync(Guid friendshipId)
-        {
-            var friendship = await _dbSet.FirstAsync(x => x.Id == friendshipId);
-            _dbSet.Remove(friendship);
-        }
     }
 }
