@@ -11,7 +11,7 @@ namespace Application.Repositories
 
         //Chat
         public IConversationRepository Conversations { get; }
-        //public IMessageRepository Messages { get; }
+        public IMessageRepository Messages { get; }
         Task<int> SaveAsync();
     }
 }

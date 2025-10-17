@@ -10,7 +10,7 @@ namespace Infrastructure.Repositories
     {
         public ConversationRepository(DbContext context, IMapper mapper) : base(context, mapper) {}
 
-        public async Task<Conversation?> GetConversationAsync(Guid user1Id, Guid user2Id)
+        public async Task<Conversation?> GetConversationByUsersIdAsync(Guid user1Id, Guid user2Id)
         {
             var result = await _dbSet.FirstOrDefaultAsync(x =>
                 (x.User1Id == user1Id && x.User2Id == user2Id) ||
@@ -24,6 +24,12 @@ namespace Infrastructure.Repositories
             var conversations = _dbSet.Where(x => x.User1Id == userId || x.User2Id == userId);
 
             return _mapper.Map<List<Conversation>>(conversations);
+        }
+
+        public async Task<Conversation?> GetConversationByIdAsync(Guid conversationId)
+        {
+            var result = await _dbSet.FirstOrDefaultAsync(x => x.Id == conversationId);
+            return _mapper.Map<Conversation>(result);
         }
 
     }

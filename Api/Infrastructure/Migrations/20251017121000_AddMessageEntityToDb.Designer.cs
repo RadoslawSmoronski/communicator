@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251017121000_AddMessageEntityToDb")]
+    partial class AddMessageEntityToDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,30 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Entities.Conversation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("User1Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("User2Id")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("User1Id");
+
+                    b.HasIndex("User2Id");
+
+                    b.ToTable("Conversation");
+                });
 
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
@@ -44,6 +71,24 @@ namespace Infrastructure.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("User");
+                });
+
             modelBuilder.Entity("Infrastructure.Database.ConversationEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -53,28 +98,13 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("LastMessageId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("LastMessageTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Guid>("User1Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("User1LastReadMessageId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("User2Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("User2LastReadMessageId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("LastMessageId")
-                        .IsUnique();
 
                     b.HasIndex("User1Id");
 
@@ -148,12 +178,15 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("RecipientId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("RecipientUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RecipientId");
+                    b.HasIndex("RecipientUserId");
 
                     b.HasIndex("SenderId");
 
@@ -358,6 +391,25 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Conversation", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "User1")
+                        .WithMany()
+                        .HasForeignKey("User1Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", "User2")
+                        .WithMany()
+                        .HasForeignKey("User2Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User1");
+
+                    b.Navigation("User2");
+                });
+
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Infrastructure.Services.UserAccount", null)
@@ -369,11 +421,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Database.ConversationEntity", b =>
                 {
-                    b.HasOne("Infrastructure.Database.MessageEntity", "LastMessage")
-                        .WithOne()
-                        .HasForeignKey("Infrastructure.Database.ConversationEntity", "LastMessageId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("Infrastructure.Services.UserAccount", "User1")
                         .WithMany()
                         .HasForeignKey("User1Id")
@@ -386,8 +433,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("LastMessage");
-
                     b.Navigation("User1");
 
                     b.Navigation("User2");
@@ -395,8 +440,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Database.MessageEntity", b =>
                 {
-                    b.HasOne("Infrastructure.Database.ConversationEntity", "Conversation")
-                        .WithMany("Messages")
+                    b.HasOne("Domain.Entities.Conversation", "Conversation")
+                        .WithMany()
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -404,7 +449,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Services.UserAccount", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -435,9 +480,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Infrastructure.Services.UserAccount", "RecipientUser")
                         .WithMany()
-                        .HasForeignKey("RecipientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("RecipientUserId");
 
                     b.HasOne("Infrastructure.Services.UserAccount", "SenderUser")
                         .WithMany()
@@ -499,11 +542,6 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Infrastructure.Database.ConversationEntity", b =>
-                {
-                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Repositories;
+using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,14 @@ namespace Infrastructure.Services
         private readonly UserManager<UserAccount> _userManager;
         private readonly ILogger<ConversationService> _logger;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public ConversationService(UserManager<UserAccount> userManager, ILogger<ConversationService> logger, IUnitOfWork unitOfWork)
+        public ConversationService(UserManager<UserAccount> userManager, ILogger<ConversationService> logger, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _userManager = userManager;
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<Result<Conversation>> GetOrCreateAsync(Guid userId, Guid friendId)
@@ -46,7 +49,7 @@ namespace Infrastructure.Services
                     return Error.NotFound("Friend.NotFound", $"Friend with ID {friendId} not found.");
                 }
 
-                var conversation = await _unitOfWork.Conversations.GetConversationAsync(userId, friendId);
+                var conversation = await _unitOfWork.Conversations.GetConversationByUsersIdAsync(userId, friendId);
 
                 if (conversation == null)
                 {
@@ -73,7 +76,9 @@ namespace Infrastructure.Services
             var conversation = new Conversation()
             {
                 User1Id = user1.Id,
-                User2Id = user2.Id
+                User2Id = user2.Id,
+                User1 = _mapper.Map<User>(user1), // refactor: remove mapper, change method arguments to User
+                User2 = _mapper.Map<User>(user2) // refactor: remove mapper, change method arguments to User
             };
 
             await _unitOfWork.Conversations.AddAsync(conversation);
