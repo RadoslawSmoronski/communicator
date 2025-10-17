@@ -10,12 +10,12 @@ namespace Infrastructure.Repositories
     {
         public FriendshipInvitationRepository(DbContext context, IMapper mapper) : base(context, mapper){}
 
-        public async Task<IReadOnlyList<FriendshipInvitation>> GetAllAsync(Guid userId)
+        public async Task<List<FriendshipInvitation>> GetAllAsync(Guid userId)
         {
             var entities = await _dbSet
                 .Include(x => x.SenderUser)
                 .Include(x => x.RecipientUser)
-                .Where(x => x.RecipientId == userId)
+                .Where(x => x.RecipientId == userId || x.SenderId == userId)
                 .ToListAsync();
 
             return entities.Select(entity => _mapper.Map<FriendshipInvitation>(entity)).ToList();

@@ -36,7 +36,7 @@ namespace Application.Users.Queries.GetChats
             if (conversations.Count == 0)
                 return new List<ChatDto>();
 
-            var friendsResult = await _friendshipService.GetForUserAsync(request.UserId);
+            var friendsResult = await _friendshipService.GetUserFriendAsync(request.UserId);
             if (!friendsResult.IsSuccess)
                 return friendsResult.Error!;
 

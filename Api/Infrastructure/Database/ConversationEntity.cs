@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Database
 {
-    public class ConversationEntity : BaseEntityInfrastructure
+    public class ConversationEntity : BaseEntityInfrastructure, IInfraEntity
     {
         public required Guid User1Id { get; set; }
         public required Guid User2Id { get; set; }

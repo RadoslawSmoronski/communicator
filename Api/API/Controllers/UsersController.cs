@@ -1,6 +1,7 @@
 ﻿using API.DTOs;
 using Application.DTOs;
 using Application.FriendInvitations.GetInvitations;
+using Application.FriendInvitations.Queries.GetUsers;
 using Application.Users.Commands.ChangeAvatar;
 using Application.Users.Commands.ChangePassword;
 using Application.Users.Commands.ChangeUsername;
@@ -132,6 +133,21 @@ namespace API.Controllers
             }
 
             return HandleError(result, "UsersController - GetFriendInvitationsAsync", _logger);
+        }
+
+        [Authorize]
+        [HttpGet("")]
+        public async Task<IActionResult> GetUsersAsync([FromQuery] string search, [FromQuery] Guid? invitableFor)
+        {
+            var query = new GetUsersQuery(search, invitableFor);
+            var result = await _sender.Send(query);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+
+            return HandleError(result, "UsersController - GetUsersAsync", _logger);
         }
 
         [Authorize]

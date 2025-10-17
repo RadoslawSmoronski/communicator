@@ -25,7 +25,7 @@ namespace Application.FriendInvitations.GetInvitationsInvitation
                 return Error.Unauthorized("Unauthorized", "User is not authorized.");
 
             }
-            var result = await _friendInvitationsService.GetAsync(request.UserId);
+            var result = await _friendInvitationsService.GetInvitationsSendedToUserAsync(request.UserId);
 
             if (result.IsSuccess)
                 return result.Value;

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Infrastructure.Identity
 {
     [Table("Friendships")]
-    public class FriendshipEntity : BaseEntity
+    public class FriendshipEntity : BaseEntity, IInfraEntity
     {
         public required Guid User1Id { get; set; }
         public required Guid User2Id { get; set; }

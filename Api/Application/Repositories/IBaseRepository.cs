@@ -4,7 +4,7 @@
     {
         Task AddAsync(TEndity endity);
         void Update(TEndity endity);
-        void Delete(TEndity endity);
+        Task DeleteAsync(Guid id);
         //void DeleteRange(IEnumerable<T> entities);
     }
 }

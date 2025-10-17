@@ -116,7 +116,7 @@ namespace Infrastructure.Services
                     return Error.Unauthorized("DeleteFriendInvitation.Unauthorized", "You are not authorized to delete this friend invitation.");
                 }
 
-                _unitOfWork.FriendshipInvitations.Delete(invitation);
+                await _unitOfWork.FriendshipInvitations.DeleteAsync(invitation.Id);
                 await _unitOfWork.SaveAsync();
 
                 _logger.LogInformation("Friend invitation {Action}d. InvitationId: {InvitationId}, UserId: {UserId}", loggerTag.ToLower(), InvitationId, _user.Id);
@@ -158,7 +158,7 @@ namespace Infrastructure.Services
             return friendshipInvitation.RecipientId == _user.Id;
         } //refactor: remover from infrastruture
 
-        public async Task<Result<List<FriendshipInvitationDto>>> GetAsync(Guid userId)
+        public async Task<Result<List<FriendshipInvitationDto>>>    GetInvitationsSendedToUserAsync(Guid userId)
         {
             try
             {
@@ -171,7 +171,7 @@ namespace Infrastructure.Services
 
                 var invitations = await _unitOfWork.FriendshipInvitations.GetAllAsync(userId);
 
-                var senderIds = invitations.Select(x => x.SenderId).Distinct().ToList();
+                var senderIds = invitations.Where(x=> x.RecipientId == userId).Select(x => x.SenderId).Distinct().ToList();
 
                 var senders = await _userManager.Users
                     .Where(u => senderIds.Contains(u.Id))
@@ -199,6 +199,36 @@ namespace Infrastructure.Services
             {
                 _logger.LogError(ex, "An error occurred while retrieving friend invitations for user {UserId}", userId);
                 return Error.Failure("FriendInvitation.GetFailure", "An unexpected error occurred while retrieving friend invitations.");
+            }
+        }
+
+        public async Task<Result<List<FriendshipInvitation>>> GetUserInvitations(Guid userId)
+        {
+            if (userId == Guid.Empty)
+            {
+                _logger.LogWarning("GetUserInvitations: empty userId provided.");
+                return Error.Validation("FriendInvitation.InvalidUserId", "User ID cannot be empty.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user == null || user.UserName == null)
+                {
+                    _logger.LogWarning("GetUserInvitations: user not found or username is null. UserId: {UserId}", userId);
+                    return Error.NotFound("FriendInvitation.UserNotFound", "User was not found.");
+                }
+
+                var invitations = await _unitOfWork.FriendshipInvitations.GetAllAsync(userId);
+
+                _logger.LogInformation("GetUserInvitations: retrieved {InvitationCount} friend invitations for user {UserId}", invitations.Count, userId);
+
+                return invitations;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetUserInvitations: unexpected error while retrieving friend invitations for user {UserId}", userId);
+                return Error.Failure("FriendInvitation.GetUserInvitations.Failure", "An unexpected error occurred while retrieving friend invitations.");
             }
         }
     }

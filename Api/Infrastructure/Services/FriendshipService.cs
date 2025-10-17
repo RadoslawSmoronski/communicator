@@ -74,7 +74,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<Result<List<Friend>>> GetForUserAsync(Guid userId)
+        public async Task<Result<List<Friend>>> GetUserFriendAsync(Guid userId)
         {
             try
             {
@@ -122,7 +122,7 @@ namespace Infrastructure.Services
                     return Error.NotFound("Friendship.NotFound", "Friendship with the specified ID does not exist.");
                 }
 
-                _unitOfWork.Friendships.Delete(friendship);
+                _unitOfWork.Friendships.DeleteAsync(friendship.Id);
                 await _unitOfWork.SaveAsync();
 
                 _logger.LogInformation("Friendship deleted. FriendshipId: {FriendshipId}", friendshipId);

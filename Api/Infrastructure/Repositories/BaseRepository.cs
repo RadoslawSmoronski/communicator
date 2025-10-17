@@ -1,11 +1,12 @@
 ﻿using Application.Repositories;
 using AutoMapper;
+using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
     public class BaseRepository<TEntity, TDbEntity> : IBaseRepository<TEntity>
-        where TDbEntity : class
+        where TDbEntity : class, IInfraEntity
     {
         protected readonly DbContext _context;
         protected readonly DbSet<TDbEntity> _dbSet;
@@ -22,8 +23,11 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(TEntity entity)
                 => await _dbSet.AddAsync(_mapper.Map<TDbEntity>(entity));
 
-        public void Delete(TEntity entity)
-            => _dbSet.Remove(_mapper.Map<TDbEntity>(entity));
+        public async Task DeleteAsync(Guid id)
+        {
+            var elementToRemove = await _dbSet.FirstOrDefaultAsync(x => x.Id == id);
+            _dbSet.Remove(elementToRemove!);
+        }
 
         public void Update(TEntity entity)
             => _dbSet.Update(_mapper.Map<TDbEntity>(entity));

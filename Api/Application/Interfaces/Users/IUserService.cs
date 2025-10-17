@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Domain.Entities;
 using Shared.Result;
 
 namespace Application.Interfaces.Users
@@ -14,5 +15,6 @@ namespace Application.Interfaces.Users
         Task<Result<string>> GenerateEmailConfirmationTokenAsync(Guid userId);
         Task<Result> ChangePasswordAsync(Guid userId, string oldPassword, string newPassword);
         Task<Result<string>> ChangeUsernameAsync(Guid userId, string newUsername);
+        Task<Result<List<User>>> GetAllAsync();
     }
 }

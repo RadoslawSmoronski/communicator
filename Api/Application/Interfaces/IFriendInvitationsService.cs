@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Domain.Entities;
 using Shared.Result;
 
 namespace Application.Interfaces
@@ -8,7 +9,7 @@ namespace Application.Interfaces
         Task<Result<Guid>> SendAsync(Guid senderId, Guid recipientId);
         Task<Result<FriendshipInviteOperationDto>> DeleteAsync(Guid InvitationId);
         Task<Result<FriendshipInviteOperationDto>> AcceptAsync(Guid InvitationId);
-        Task<Result<List<FriendshipInvitationDto>>> GetAsync(Guid userId);
-        // Task<Result<List<UserToInviteDto>>> GetUsersToInviteByTextAsync(Guid userId, string text); // I need to finish friends service first
+        Task<Result<List<FriendshipInvitationDto>>> GetInvitationsSendedToUserAsync(Guid userId); //refactor
+        Task<Result<List<FriendshipInvitation>>> GetUserInvitations(Guid userId);
     }
 }

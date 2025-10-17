@@ -2,7 +2,10 @@
 using Application.DTOs;
 using Application.Interfaces.Users;
 using Application.Settings;
+using AutoMapper;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shared.Result;
@@ -18,8 +21,9 @@ namespace Infrastructure.Services.Users
         private readonly IUser _user;
         private readonly UserAvatarSettings _userAvatarSettings;
         private readonly IUserAvatarService _userAvatarService;
+        private readonly IMapper _mapper;
 
-        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger, IUser user, IOptions<UserAvatarSettings> userAvatarSettingsOption, IUserAvatarService userAvatarService)
+        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger, IUser user, IOptions<UserAvatarSettings> userAvatarSettingsOption, IUserAvatarService userAvatarService, IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -27,6 +31,7 @@ namespace Infrastructure.Services.Users
             _user = user;
             _userAvatarSettings = userAvatarSettingsOption.Value;
             _userAvatarService = userAvatarService;
+            _mapper = mapper;
         }
 
         public async Task<Result<LoggedUserDto>> LoginAsync(string email, string password)
@@ -101,7 +106,7 @@ namespace Infrastructure.Services.Users
                 }
 
                 _logger.LogInformation("[UserService - GeneratePasswordResetTokenAsync] Password reset token generated for user: {UserId}", user.Id);
-                
+
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
                 return new PasswordResetToken()
@@ -326,6 +331,7 @@ namespace Infrastructure.Services.Users
                 return Error.Unknown("ChangePasswordException", "An unexpected error occurred during password change.");
             }
         }
-
+        public async Task<Result<List<User>>> GetAllAsync()
+            => _mapper.Map<List<User>>(await _userManager.Users.ToListAsync());
     }
 }

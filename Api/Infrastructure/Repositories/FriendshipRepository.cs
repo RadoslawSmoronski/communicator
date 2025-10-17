@@ -18,8 +18,9 @@ namespace Infrastructure.Repositories
                 .Where(x => x.User1Id == userId || x.User2Id == userId)
                 .ToListAsync();
 
-            return result.Select(entity => _mapper.Map<Friendship>(result)).ToList();
+            return _mapper.Map<List<Friendship>>(result);
         }
+
 
         public async Task<Friendship?> Get(Guid friendshipId)
         {
