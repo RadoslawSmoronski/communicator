@@ -31,6 +31,7 @@ public static class DependencyInjection
             cfg.AddMaps(typeof(InfrastructureProfile).Assembly);
         });
 
+        builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
         builder.Services.AddScoped<IFriendInvitationsService, FriendInvitationsService>();

@@ -61,7 +61,6 @@ namespace Infrastructure.Services
                 };
 
                 await _unitOfWork.Friendships.AddAsync(friendship);
-                //await _unitOfWork.NewFriendshipRepository
                 await _unitOfWork.SaveAsync();
 
                 _logger.LogInformation("Friendship created between User1Id: {User1Id} and User2Id: {User2Id}", user1Id, user2Id);
@@ -122,7 +121,7 @@ namespace Infrastructure.Services
                     return Error.NotFound("Friendship.NotFound", "Friendship with the specified ID does not exist.");
                 }
 
-                _unitOfWork.Friendships.DeleteAsync(friendship.Id);
+                await _unitOfWork.Friendships.DeleteAsync(friendship.Id);
                 await _unitOfWork.SaveAsync();
 
                 _logger.LogInformation("Friendship deleted. FriendshipId: {FriendshipId}", friendshipId);
