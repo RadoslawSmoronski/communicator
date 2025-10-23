@@ -74,29 +74,29 @@ namespace ChatCommunicator.Application.Hubs
             }
         }
 
-        //public async Task ReadMessage(Guid recipientId, Guid conversationId)
-        //{
-        //    if (!TryGetUserId(out Guid userId))
-        //    {
-        //        _logger.LogWarning("ReadMessage called with invalid user ID. ConnectionId: {ConnectionId}", Context.ConnectionId);
-        //        return;
-        //    }
+        public async Task ReadMessage(Guid recipientId, Guid conversationId)
+        {
+            if (!TryGetUserId(out Guid userId))
+            {
+                _logger.LogWarning("ReadMessage called with invalid user ID. ConnectionId: {ConnectionId}", Context.ConnectionId);
+                return;
+            }
 
-        //    var result = await _chatService.SetAndGetUserLastReadMessageAsync(userId, conversationId);
+            var result = await _messageService.SetAndGetUserLastReadMessageAsync(userId, conversationId);
 
-        //    if (result.IsSuccess)
-        //    {
-        //        await NotifyClients(null, recipientId,
-        //            (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadDto { MessageId = result.Value, ConversationId = conversationId }),
-        //            "reading message");
-        //    }
-        //    else
-        //    {
-        //        _logger.LogWarning("Failed to set message as read. UserId: {UserId}, ConversationId: {ConversationId}, Error: {ErrorMessage}",
-        //            userId, conversationId, result.Error?.Description ?? "Unknown error");
-        //    }
+            if (result.IsSuccess)
+            {
+                await NotifyClients(null, recipientId,
+                    (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadDto { MessageId = result.Value, ConversationId = conversationId }),
+                    "reading message");
+            }
+            else
+            {
+                _logger.LogWarning("Failed to set message as read. UserId: {UserId}, ConversationId: {ConversationId}, Error: {ErrorMessage}",
+                    userId, conversationId, result.Error?.Description ?? "Unknown error");
+            }
 
-        //}
+        }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {

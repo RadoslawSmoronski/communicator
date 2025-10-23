@@ -29,6 +29,8 @@ public static class DependencyInjection
         builder.Services.Configure<ConfirmEmailMessageSettings>(
             builder.Configuration.GetSection("ConfirmEmailMessageSettings"));
         builder.Services.Configure<UserAvatarSettings>(
-    builder.Configuration.GetSection("UserAvatarSettings"));
+            builder.Configuration.GetSection("UserAvatarSettings"));
+        builder.Services.Configure<MessagesSettings>(
+            builder.Configuration.GetSection("MessagesSettings"));
     }
 }
