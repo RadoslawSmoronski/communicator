@@ -6,8 +6,8 @@
         public required Guid User1Id { get; set; }
         public required Guid User2Id { get; set; }
 
-        public required User User1 { get; set; }
-        public required User User2 { get; set; }
+        public User? User1 { get; set; }
+        public User? User2 { get; set; }
 
         public Guid? LastMessageId { get; set; }
         public Message? LastMessage { get; set; }

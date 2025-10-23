@@ -27,7 +27,7 @@ namespace Infrastructure.UnitOfWork
         public IFriendshipRepository Friendships => _friendships ??= new FriendshipRepository(_context, _mapper);
         public IFriendshipInvitationRepository FriendshipInvitations => _friendshipInvitations ??= new FriendshipInvitationRepository(_context, _mapper);
         public IConversationRepository Conversations => _conversations ??= new ConversationRepository(_context, _mapper);
-        public IMessageRepository Messages => _messages ??= new MessageRepository(_context);
+        public IMessageRepository Messages => _messages ??= new MessageRepository(_context, _mapper);
 
         public async Task<int> SaveAsync()
         {

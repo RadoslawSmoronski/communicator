@@ -13,15 +13,15 @@ namespace ChatCommunicator.Application.Hubs
     {
         private readonly IUsersConnectionService _usersConnectionService;
         private readonly IFriendshipService _friendshipService;
-        //private readonly IChatService _chatService;
-        //private readonly IFriendsService _friendsService;
+        private readonly IMessageService _messageService;
         private readonly ILogger<ChatHub> _logger;
 
-        public ChatHub(IUsersConnectionService usersConnectionManager, ILogger<ChatHub> logger, IFriendshipService friendshipService)
+        public ChatHub(IUsersConnectionService usersConnectionManager, ILogger<ChatHub> logger, IFriendshipService friendshipService, IMessageService messageService)
         {
             _usersConnectionService = usersConnectionManager;
             _logger = logger;
             _friendshipService = friendshipService;
+            _messageService = messageService;
         }
 
         public override async Task OnConnectedAsync()
@@ -50,28 +50,28 @@ namespace ChatCommunicator.Application.Hubs
             await base.OnConnectedAsync();
         }
 
-        //public async Task SendMessage(Guid recipientId, Guid conversationId, string content)
-        //{
-        //    if (!TryGetUserId(out Guid userId))
-        //    {
-        //        _logger.LogWarning("SendMessage called with invalid user ID. ConnectionId: {ConnectionId}", Context.ConnectionId);
-        //        return;
-        //    }
+        public async Task SendMessage(Guid recipientId, Guid conversationId, string content)
+        {
+            if (!TryGetUserId(out Guid userId))
+            {
+                _logger.LogWarning("SendMessage called with invalid user ID. ConnectionId: {ConnectionId}", Context.ConnectionId);
+                return;
+            }
 
-        //    var result = await _chatService.SendMessageAsync(userId, conversationId, content);
+            var result = await _messageService.SendMessageAsync(userId, conversationId, content);
 
-        //    if (result.IsSuccess)
-        //    {
-        //        await NotifyClients(userId, recipientId,
-        //            (clients, connections) => clients.Clients(connections).ReceiveMessage(result.Value),
-        //            "sending message");
-        //    }
-        //    else
-        //    {
-        //        _logger.LogWarning("Failed to send message. SenderId: {SenderId}, RecipientId: {RecipientId}, ConversationId: {ConversationId}, Error: {ErrorMessage}",
-        //            userId, recipientId, conversationId, result.Error?.Description ?? "Unknown error");
-        //    }
-        //}
+            if (result.IsSuccess)
+            {
+                await NotifyClients(userId, recipientId,
+                    (clients, connections) => clients.Clients(connections).ReceiveMessage(result.Value),
+                    "sending message");
+            }
+            else
+            {
+                _logger.LogWarning("Failed to send message. SenderId: {SenderId}, RecipientId: {RecipientId}, ConversationId: {ConversationId}, Error: {ErrorMessage}",
+                    userId, recipientId, conversationId, result.Error?.Description ?? "Unknown error");
+            }
+        }
 
         //public async Task ReadMessage(Guid recipientId, Guid conversationId)
         //{

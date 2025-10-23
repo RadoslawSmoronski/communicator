@@ -58,7 +58,7 @@ namespace Infrastructure.Services
                 {
                     Id = Guid.NewGuid(),
                     ConversationId = conversationId,
-                    Conversation = conversation,
+                    //Conversation = conversation,
                     SenderId = userId,
                     Sender = _mapper.Map<User>(user),
                     Content = content,

@@ -21,7 +21,11 @@ namespace Infrastructure.Repositories
 
         public List<Conversation> GetUserAll(Guid userId)
         {
-            var conversations = _dbSet.Where(x => x.User1Id == userId || x.User2Id == userId);
+            var conversations = _dbSet
+                .Include(x => x.User1)
+                .Include(x => x.User2)
+                .Include(x => x.LastMessage)
+                .Where(x => x.User1Id == userId || x.User2Id == userId);
 
             return _mapper.Map<List<Conversation>>(conversations);
         }

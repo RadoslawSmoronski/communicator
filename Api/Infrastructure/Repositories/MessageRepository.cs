@@ -1,15 +1,18 @@
 ﻿using Application.Repositories;
+using AutoMapper;
 using Domain.Entities;
+using Infrastructure.Database;
+using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class MessageRepository : Repository<Message>, IMessageRepository
+    public class MessageRepository : BaseRepository<Message, MessageEntity>, IMessageRepository
     {
         private readonly DbContext _context;
         private readonly DbSet<Message> _dbSet;
 
-        public MessageRepository(DbContext context) : base(context)
+        public MessageRepository(DbContext context, IMapper mapper) : base(context, mapper)
         {
             _context = context;
             _dbSet = context.Set<Message>();

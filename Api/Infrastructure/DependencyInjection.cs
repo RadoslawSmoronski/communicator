@@ -32,6 +32,8 @@ public static class DependencyInjection
         });
 
         builder.Services.AddSingleton<IUsersConnectionService, UsersConnectionService>();
+
+        builder.Services.AddScoped<IMessageService, MessageService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUserAvatarService, UserAvatarService>();
         builder.Services.AddScoped<IFriendInvitationsService, FriendInvitationsService>();

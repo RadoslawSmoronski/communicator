@@ -98,6 +98,7 @@ namespace Infrastructure.Services
                         Id = friend!.Id,
                         UserName = friend.UserName,
                         AvatarUrl = friend.AvatarUrl,
+                        FriendshipId = x.Id,
                         FriendshipCreatedAt = x.CreatedAt,
                     };
                 }).ToList();

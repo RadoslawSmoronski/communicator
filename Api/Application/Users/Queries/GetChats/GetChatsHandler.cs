@@ -47,7 +47,25 @@ namespace Application.Users.Queries.GetChats
 
             var friendIds = friends.Select(f => f.Id).ToList();
 
-            throw new Exception(); // refactor: after create new generic repository
+            var conversationsWithFriends = conversations.Where(c => friendIds.Contains(c.User1Id) || friendIds.Contains(c.User2Id));
+
+            var result = conversationsWithFriends.Select(c =>
+            {
+                var friend = c.User1Id == request.UserId ? c.User2 : c.User1;
+
+                return new ChatDto()
+                {
+                    FriendId = friend!.Id,
+                    FriendUserName = friend.UserName,
+                    FriendAvatarUrl = friend.AvatarUrl,
+                    ConversationId = c.Id,
+                    LastMessageId = c.LastMessageId,
+                    IsFriendSenderMessage = c.LastMessage?.SenderId == friend.Id,
+                    LastMessageTimestamp = c.LastMessage?.Timestamp
+                };
+            });
+
+            return result.ToList();
         }
     }
 }

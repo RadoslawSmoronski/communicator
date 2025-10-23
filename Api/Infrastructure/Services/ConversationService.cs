@@ -62,7 +62,7 @@ namespace Infrastructure.Services
                     _logger.LogInformation("Found existing conversation {ConversationId} between {UserId} and {FriendId}.", conversation.Id, userId, friendId);
                 }
 
-                return Result<Conversation>.Success(conversation);
+                return conversation;
             }
             catch (Exception ex)
             {
@@ -76,9 +76,7 @@ namespace Infrastructure.Services
             var conversation = new Conversation()
             {
                 User1Id = user1.Id,
-                User2Id = user2.Id,
-                User1 = _mapper.Map<User>(user1), // refactor: remove mapper, change method arguments to User
-                User2 = _mapper.Map<User>(user2) // refactor: remove mapper, change method arguments to User
+                User2Id = user2.Id
             };
 
             await _unitOfWork.Conversations.AddAsync(conversation);
