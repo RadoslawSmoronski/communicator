@@ -2,20 +2,22 @@
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Database;
-using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class MessageRepository : BaseRepository<Message, MessageEntity>, IMessageRepository
+    public class MessageRepository : IMessageRepository
     {
         private readonly DbContext _context;
-        private readonly DbSet<Message> _dbSet;
+        private readonly DbSet<MessageEntity> _dbSet;
 
-        public MessageRepository(DbContext context, IMapper mapper) : base(context, mapper)
+        private readonly IMapper _mapper;
+
+        public MessageRepository(DbContext context, IMapper mapper)
         {
             _context = context;
-            _dbSet = context.Set<Message>();
+            _dbSet = _context.Set<MessageEntity>();
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Message>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId, int pageSize)
@@ -25,18 +27,34 @@ namespace Infrastructure.Repositories
             if (fromMessage == null)
                 throw new Exception();
 
-            return _dbSet
+            var result = _dbSet
                 .Where(x => x.ConversationId == conversationId && x.Timestamp < fromMessage.Timestamp)
                 .OrderByDescending(x => x.Timestamp)
                 .Take(pageSize);
+
+            return _mapper.Map<List<Message>>(result);
         }
 
         public async Task<Message?> GetUserLastFriendMessageAsync(Guid conversationId, Guid userId)
         {
-            return await _dbSet
+            var result = await _dbSet
                 .Where(x => x.ConversationId == conversationId && x.SenderId != userId)
                 .OrderByDescending(x => x.Timestamp)
                 .FirstOrDefaultAsync();
+
+            return _mapper.Map<Message?>(result);
         }
+
+        public async Task AddAsync(Message entity)
+            => await _dbSet.AddAsync(_mapper.Map<MessageEntity>(entity));
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var elementToRemove = await _dbSet.FirstOrDefaultAsync(x => x.Id == id);
+            _dbSet.Remove(elementToRemove!);
+        }
+
+        public void Update(Message entity)
+            => _dbSet.Update(_mapper.Map<MessageEntity>(entity));
     }
 }

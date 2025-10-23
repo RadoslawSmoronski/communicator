@@ -1,14 +1,25 @@
 ﻿using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;
+using Infrastructure.Database;
 using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class FriendshipRepository : BaseRepository<Friendship, FriendshipEntity>, IFriendshipRepository
+    public class FriendshipRepository : IFriendshipRepository
     {
-        public FriendshipRepository(DbContext context, IMapper mapper) : base(context, mapper) { }
+        private readonly DbContext _context;
+        private readonly DbSet<FriendshipEntity> _dbSet;
+
+        private readonly IMapper _mapper;
+
+        public FriendshipRepository(DbContext context, IMapper mapper)
+        {
+            _context = context;
+            _dbSet = _context.Set<FriendshipEntity>();
+            _mapper = mapper;
+        }
 
         public async Task<List<Friendship>> GetAllAsync(Guid userId)
         {
@@ -37,5 +48,16 @@ namespace Infrastructure.Repositories
                 (x.User1Id == user1Id && x.User2Id == user2Id) ||
                 (x.User1Id == user2Id && x.User2Id == user1Id));
 
+        public async Task AddAsync(Friendship entity)
+            => await _dbSet.AddAsync(_mapper.Map<FriendshipEntity>(entity));
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var elementToRemove = await _dbSet.FirstOrDefaultAsync(x => x.Id == id);
+            _dbSet.Remove(elementToRemove!);
+        }
+
+        public void Update(Friendship entity)
+            => _dbSet.Update(_mapper.Map<FriendshipEntity>(entity));
     }
 }

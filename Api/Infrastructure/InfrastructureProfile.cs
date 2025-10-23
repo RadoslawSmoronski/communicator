@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Application.DTOs;
+using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Database;
 using Infrastructure.Identity;
@@ -38,6 +39,9 @@ namespace Infrastructure
                 .ForMember(dest => dest.Sender, opt => opt.MapFrom(src => src.Sender));
             CreateMap<MessageEntity, Message>()
                 .ForMember(dest => dest.Sender, opt => opt.MapFrom(src => src.Sender));
+
+            CreateMap<Message, MessageDto>()
+                .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.Id));
         }
     }
 }

@@ -58,19 +58,16 @@ namespace Infrastructure.Services
                 {
                     Id = Guid.NewGuid(),
                     ConversationId = conversationId,
-                    //Conversation = conversation,
                     SenderId = userId,
-                    Sender = _mapper.Map<User>(user),
                     Content = content,
                     Timestamp = DateTime.UtcNow
                 };
 
-                conversation.LastMessage = message;
-                conversation.LastMessageTime = message.Timestamp;
                 conversation.LastMessageId = message.Id;
+                conversation.LastMessageTime = message.Timestamp;
 
                 await _unitOfWork.Messages.AddAsync(message);
-                _unitOfWork.Conversations.Update(conversation);
+                await _unitOfWork.Conversations.UpdateAsync(conversation);
                 await _unitOfWork.SaveAsync();
 
                 _logger.LogInformation("Message sent successfully. messageId={MessageId}, conversationId={ConversationId}, userId={UserId}", message.Id, conversationId, userId);

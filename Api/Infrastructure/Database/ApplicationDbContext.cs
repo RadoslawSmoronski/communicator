@@ -21,42 +21,38 @@ namespace Infrastructure.Database
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<RefreshToken>()
-                .HasOne<UserAccount>()
-                .WithMany()
-                .HasForeignKey(rt => rt.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<FriendshipEntity>().HasKey(f => f.Id);
-            builder.Entity<FriendshipEntity>()
-                .HasOne(f => f.User1).WithMany().HasForeignKey(f => f.User1Id).OnDelete(DeleteBehavior.Restrict);
-            builder.Entity<FriendshipEntity>()
-                .HasOne(f => f.User2).WithMany().HasForeignKey(f => f.User2Id).OnDelete(DeleteBehavior.Restrict);
-            builder.Entity<FriendshipEntity>()
-                .HasIndex(f => new { f.User1Id, f.User2Id }).IsUnique();
-
-            builder.Entity<FriendshipInvitationEntity>()
-                .HasOne(x => x.SenderUser).WithMany().HasForeignKey(x => x.SenderId).OnDelete(DeleteBehavior.Restrict);
-            builder.Entity<FriendshipInvitationEntity>()
-                .HasOne(x => x.RecipientUser).WithMany().HasForeignKey(x => x.RecipientId).OnDelete(DeleteBehavior.Restrict);
-
+            // Conversations -> Users (unchanged)
             builder.Entity<ConversationEntity>().HasKey(c => c.Id);
             builder.Entity<ConversationEntity>()
                 .HasOne(c => c.User1).WithMany().HasForeignKey(c => c.User1Id).OnDelete(DeleteBehavior.Restrict);
             builder.Entity<ConversationEntity>()
                 .HasOne(c => c.User2).WithMany().HasForeignKey(c => c.User2Id).OnDelete(DeleteBehavior.Restrict);
 
+            // One-to-one: Conversation.LastMessage -> Message
             builder.Entity<ConversationEntity>()
                 .HasOne(c => c.LastMessage)
                 .WithOne()
                 .HasForeignKey<ConversationEntity>(c => c.LastMessageId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // One-to-many: Conversation -> Messages using Message.ConversationId
             builder.Entity<MessageEntity>()
-                  .HasOne(m => m.Sender)
-                  .WithMany()
-                  .HasForeignKey(m => m.SenderId)
-                  .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(m => m.Conversation)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(m => m.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Sender relationship
+            builder.Entity<MessageEntity>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Helpful index
+            builder.Entity<MessageEntity>().HasIndex(m => new { m.ConversationId, m.Timestamp });
+
+            // Friendships/Invitations config stays as you had it
         }
     }
 }

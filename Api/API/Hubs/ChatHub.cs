@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using API.DTOs;
+using Application.Interfaces;
 using ChatCommunicator.Application.Hubs.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -86,7 +87,7 @@ namespace ChatCommunicator.Application.Hubs
         //    if (result.IsSuccess)
         //    {
         //        await NotifyClients(null, recipientId,
-        //            (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadDto { MessageId = result.Value, ConversationId = conversationId}),
+        //            (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadDto { MessageId = result.Value, ConversationId = conversationId }),
         //            "reading message");
         //    }
         //    else
