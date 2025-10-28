@@ -1,3 +1,4 @@
+using API.Extensions;
 using ChatCommunicator.Application.Hubs;
 
 namespace API
@@ -14,8 +15,11 @@ namespace API
             builder.AddInfrastructureServices();
             builder.AddApplicationServices();
             builder.AddApiServices();
+            builder.Services.AddApiProblemDetails();
 
             var app = builder.Build();
+
+            app.UseExceptionHandler();
 
             if (app.Environment.IsDevelopment())
             {

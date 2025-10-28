@@ -16,13 +16,6 @@ namespace Application.Users.Commands.DeleteAvatar
         }
 
         public async Task<Result> Handle(DeleteAvatarCommand request, CancellationToken cancellationToken)
-        {
-            if (!_userService.IsAuthorized(request.UserId))
-            {
-                return Error.Unauthorized("Unauthorized", "User is not authorized.");
-            }
-
-            return await _userAvatarService.DeleteAvatarAsync(request.UserId);
-        }
+            => await _userAvatarService.DeleteAvatarAsync(request.UserId);
     }
 }

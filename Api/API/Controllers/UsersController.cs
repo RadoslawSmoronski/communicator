@@ -1,6 +1,5 @@
 ﻿using API.DTOs;
-using Application.DTOs;
-using Application.FriendInvitations.GetInvitations;
+using Application.FriendInvitations.Queries.GetInvitations;
 using Application.FriendInvitations.Queries.GetUsers;
 using Application.Users.Commands.ChangeAvatar;
 using Application.Users.Commands.ChangePassword;
@@ -9,7 +8,6 @@ using Application.Users.Commands.DeleteAvatar;
 using Application.Users.Commands.RegisterUser;
 using Application.Users.Commands.UploadAvatar;
 using Application.Users.Queries.GetChats;
-using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,11 +1,10 @@
 ﻿using Application.DTOs;
-using Application.FriendInvitations.GetInvitations;
 using Application.Interfaces;
 using Application.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
-namespace Application.FriendInvitations.GetInvitationsInvitation
+namespace Application.FriendInvitations.Queries.GetInvitations
 {
     public class GetInvitationsHandler : IRequestHandler<GetInvitationsCommand, Result<List<FriendshipInvitationDto>>>
     {

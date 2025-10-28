@@ -20,13 +20,13 @@ namespace ChatCommunicator.Application.Controllers
         private readonly IHubContext<ChatHub, IChatClient> _chatHubContext;
         private readonly ILogger<ChatsController> _logger;
         private readonly ISender _sender;
-        private readonly IUser _user;
+        private readonly ICurrentUser _user;
 
         public ChatsController(
             IHubContext<ChatHub, IChatClient> chatHubContext,
             ILogger<ChatsController> logger,
             ISender sender,
-            IUser user)
+            ICurrentUser user)
         {
             _chatHubContext = chatHubContext;
             _logger = logger;

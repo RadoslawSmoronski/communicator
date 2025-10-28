@@ -17,9 +17,9 @@ namespace Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<FriendInvitationsService> _logger;
         private readonly IUserAvatarService _userAvatarService;
-        private readonly IUser _user;
+        private readonly ICurrentUser _user;
 
-        public FriendInvitationsService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, ILogger<FriendInvitationsService> logger, IUser user, IUserAvatarService userAvatarService)
+        public FriendInvitationsService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, ILogger<FriendInvitationsService> logger, ICurrentUser user, IUserAvatarService userAvatarService)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
@@ -104,18 +104,6 @@ namespace Infrastructure.Services
                     return Error.NotFound($"{loggerTag}InviteAsync.NotFound", "Friend invitation was not found.");
                 }
 
-                if (IsAcceptInvitation && _IsAuthorizedToAcceptInvitation(invitation) is false)
-                {
-                    _logger.LogWarning("Unauthorized attempt to accept invitation. InvitationId: {InvitationId}, UserId: {UserId}", InvitationId, _user.Id);
-                    return Error.Unauthorized("AcceptFriendInvitation.Unauthorized", "You are not authorized to accept this friend invitation.");
-                }
-
-                if (!IsAcceptInvitation && _IsAuthorizedToDeleteInvitation(invitation) is false)
-                {
-                    _logger.LogWarning("Unauthorized attempt to delete invitation. InvitationId: {InvitationId}, UserId: {UserId}", InvitationId, _user.Id);
-                    return Error.Unauthorized("DeleteFriendInvitation.Unauthorized", "You are not authorized to delete this friend invitation.");
-                }
-
                 await _unitOfWork.FriendshipInvitations.DeleteAsync(invitation.Id);
                 await _unitOfWork.SaveAsync();
 
@@ -132,31 +120,6 @@ namespace Infrastructure.Services
                 return Error.Failure($"AcceptFriendInvitation.Failure", $"An unexpected error occurred while {loggerTag.ToLower()}ing the friend invitation.");
             }
         }
-
-        private bool _IsAuthorizedToDeleteInvitation(FriendshipInvitation friendshipInvitation)
-        {
-            var isAdmin = _user.Roles?.Contains("Admin") ?? false;
-
-            if (isAdmin)
-                return true;
-
-            if (friendshipInvitation.SenderId == _user.Id || friendshipInvitation.RecipientId == _user.Id)
-            {
-                return true;
-            }
-
-            return false;
-        } //refactor: remover from infrastruture
-
-        private bool _IsAuthorizedToAcceptInvitation(FriendshipInvitation friendshipInvitation)
-        {
-            var isAdmin = _user.Roles?.Contains("Admin") ?? false;
-
-            if (isAdmin)
-                return true;
-
-            return friendshipInvitation.RecipientId == _user.Id;
-        } //refactor: remover from infrastruture
 
         public async Task<Result<List<FriendshipInvitationDto>>>    GetInvitationsSendedToUserAsync(Guid userId)
         {

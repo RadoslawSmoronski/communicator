@@ -1,4 +1,6 @@
-﻿using Application.Settings;
+﻿using Application.Common.Behaviors;
+using Application.Settings;
+using MediatR;
 using Microsoft.Extensions.Hosting;
 using System.Reflection;
 
@@ -15,7 +17,10 @@ public static class DependencyInjection
         builder.Services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            cfg.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
         });
+
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
 
         // configuration
         builder.Services.Configure<JWTTokenSettings>(

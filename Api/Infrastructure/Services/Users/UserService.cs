@@ -18,12 +18,12 @@ namespace Infrastructure.Services.Users
         private readonly UserManager<UserAccount> _userManager;
         private readonly SignInManager<UserAccount> _signInManager;
         private readonly ILogger<UserService> _logger;
-        private readonly IUser _user;
+        private readonly ICurrentUser _user;
         private readonly UserAvatarSettings _userAvatarSettings;
         private readonly IUserAvatarService _userAvatarService;
         private readonly IMapper _mapper;
 
-        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger, IUser user, IOptions<UserAvatarSettings> userAvatarSettingsOption, IUserAvatarService userAvatarService, IMapper mapper)
+        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger, ICurrentUser user, IOptions<UserAvatarSettings> userAvatarSettingsOption, IUserAvatarService userAvatarService, IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -228,14 +228,6 @@ namespace Infrastructure.Services.Users
 
         public bool IsAuthorized(Guid userId)
         {
-            var currentUserId = _user.Id;
-            var isAdmin = _user.Roles?.Contains("Admin") ?? false;
-
-            if (userId == currentUserId || isAdmin)
-            {
-                return true;
-            }
-
             return false;
         }
 

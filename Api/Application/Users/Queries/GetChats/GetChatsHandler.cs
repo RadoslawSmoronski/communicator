@@ -22,11 +22,6 @@ namespace Application.Users.Queries.GetChats
 
         public async Task<Result<List<ChatDto>>> Handle(GetChatsQuery request, CancellationToken cancellationToken)
         {
-            if (!_userService.IsAuthorized(request.UserId))
-            {
-                return Error.Unauthorized("Unauthorized", "User is not authorized.");
-            }
-
             var conversationsResult = _conversationService.GetAll(request.UserId);
             if (!conversationsResult.IsSuccess)
                 return conversationsResult.Error!;

@@ -5,7 +5,7 @@ using Application.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
-namespace Application.FriendInvitations.SendFriendInvitation
+namespace Application.FriendInvitations.Commands.SendFriendInvitation
 {
     public class SendFriendInvitationHandler : IRequestHandler<SendFriendInvitationCommand, Result<SendFriendInvitationDto>>
     {
@@ -22,9 +22,6 @@ namespace Application.FriendInvitations.SendFriendInvitation
 
         public async Task<Result<SendFriendInvitationDto>> Handle(SendFriendInvitationCommand request, CancellationToken cancellationToken)
         {
-            if (!_userService.IsAuthorized(request.SenderId))
-                return Error.Unauthorized("Unauthorized", "User is not authorized.");
-
             var isFriendshipExist = await _friendshipService.IsExistAsync(request.SenderId, request.RecipientId);
 
             if (isFriendshipExist.IsSuccess)

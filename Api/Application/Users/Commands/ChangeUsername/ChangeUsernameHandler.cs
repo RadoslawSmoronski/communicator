@@ -19,23 +19,6 @@ namespace Application.Users.Commands.ChangeUsername
         }
 
         public async Task<Result<string>> Handle(ChangeUsernameCommand request, CancellationToken cancellationToken)
-        {
-            if (!_userService.IsAuthorized(request.UserId))
-            {
-                _logger.LogWarning("Unauthorized attempt to change username for user {UserId}", request.UserId);
-                return Error.Unauthorized("Unauthorized", "User is not authorized.");
-            }
-
-            var result = await _userService.ChangeUsernameAsync(request.UserId, request.NewPassword);
-
-            if (result.IsSuccess)
-            {
-                _logger.LogInformation("Username changed successfully for user {UserId}", request.UserId);
-                return result.Value;
-            }
-
-            _logger.LogError("Failed to change username for user {UserId}: {Error}", request.UserId, result.Error?.Description);
-            return result.Error ?? Error.Unknown("UnknownError", "An unknown error occurred.");
-        }
+            => await _userService.ChangeUsernameAsync(request.UserId, request.NewPassword);
     }
 }

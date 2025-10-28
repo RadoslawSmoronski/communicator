@@ -7,14 +7,14 @@ using Serilog;
 using Serilog.Sinks.PostgreSQL;
 using System.Text;
 
-namespace API
+namespace API.Extensions
 {
     public static class DependencyInjection
     {
         public static void AddApiServices(this IHostApplicationBuilder builder)
         {
             builder.Services.AddOpenApi();
-            builder.Services.AddScoped<IUser, CurrentUser>();
+            builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
             // CORS (needed for SPA and SignalR)
             var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>() ?? [];

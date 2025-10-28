@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace API.Services
 {
-    public class CurrentUser : IUser
+    public class CurrentUser : ICurrentUser
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -23,8 +23,10 @@ namespace API.Services
                 return null;
             }
         }
+
         public List<string>? Roles => _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role).Select(x => x.Value).ToList();
 
+        public bool IsInRole(string role) => Roles?.Any(r => r == role) ?? false;
     }
 
 }
