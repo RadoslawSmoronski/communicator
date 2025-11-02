@@ -10,18 +10,18 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
 {
     private readonly ICurrentUser _currentUser;
     //private readonly IChatAccess _chatAccess;
-    //private readonly IFriendInvitationAccess _invitationAccess;
+    private readonly IFriendInvitationAccess _invitationAccess;
     //private readonly IFriendshipAccess _friendshipAccess;
 
     public AuthorizationBehavior(
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
         //IChatAccess chatAccess,
-        //IFriendInvitationAccess invitationAccess,
+        IFriendInvitationAccess invitationAccess)
         //IFriendshipAccess friendshipAccess)
     {
         _currentUser = currentUser;
         //_chatAccess = chatAccess;
-        //_invitationAccess = invitationAccess;
+        _invitationAccess = invitationAccess;
         //_friendshipAccess = friendshipAccess;
     }
 
@@ -46,11 +46,17 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
         //    if (!ok) throw new NotFoundException("Chat", chatReq.ChatId);
         //}
 
-        //if (request is IRequireInvitationRecipient invReq)
-        //{
-        //    var ok = await _invitationAccess.IsRecipientAsync(currentUserId, invReq.InvitationId, cancellationToken);
-        //    if (!ok) throw new NotFoundException("FriendInvitation", invReq.InvitationId);
-        //}
+        if (request is IRequireInvitationRecipient invReq)
+        {
+            var result = await _invitationAccess.IsRecipientAsync(currentUserId, invReq.FriendInvitationId, cancellationToken);
+            if (!result) throw new NotFoundException("FriendInvitation", invReq.FriendInvitationId);
+        }
+
+        if (request is IRequireInvitationParticipant inv)
+        {
+            var result = await _invitationAccess.IsUserInvitationParticipantAsync(currentUserId, inv.FriendInvitationId, cancellationToken);
+            if (!result) throw new NotFoundException("FriendInvitation", currentUserId);
+        }
 
         //if (request is IRequireFriendshipParticipant frReq)
         //{

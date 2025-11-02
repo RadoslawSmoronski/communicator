@@ -14,7 +14,12 @@ public interface IRequireChatMembership
 
 public interface IRequireInvitationRecipient
 {
-    Guid InvitationId { get; }
+    Guid FriendInvitationId { get; }
+}
+
+public interface IRequireInvitationParticipant
+{
+    Guid? FriendInvitationId { get; }
 }
 
 public interface IRequireFriendshipParticipant

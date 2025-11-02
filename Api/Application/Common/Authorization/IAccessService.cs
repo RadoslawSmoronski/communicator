@@ -9,7 +9,7 @@ public interface IChatAccess
 public interface IFriendInvitationAccess
 {
     Task<bool> IsRecipientAsync(Guid userId, Guid invitationId, CancellationToken ct);
-    Task<bool> IsSenderAsync(Guid userId, Guid invitationId, CancellationToken ct); // optional
+    Task<bool> IsUserInvitationParticipantAsync(Guid userId, Guid? invitationId, CancellationToken ct);
 }
 
 public interface IFriendshipAccess

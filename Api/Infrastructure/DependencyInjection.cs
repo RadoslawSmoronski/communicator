@@ -1,7 +1,9 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Authorization;
+using Application.Interfaces;
 using Application.Interfaces.Users;
 using Application.Repositories;
 using Infrastructure;
+using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Services;
 using Infrastructure.Services.Background;
@@ -43,6 +45,8 @@ public static class DependencyInjection
         builder.Services.AddScoped<IEmailService, SmtpEmailService>();
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
+        builder.Services.AddScoped<IFriendInvitationAccess, FriendInvitationAccess>();
 
         builder.Services.AddHostedService<RefreshTokenCleanUpService>();
 

@@ -1,8 +1,13 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Security;
+using Application.DTOs;
+using Domain.Entities;
 using MediatR;
 using Shared.Result;
 
 namespace Application.FriendInvitations.Commands.AcceptFriendInvtation
 {
-    public record AcceptFriendInvitationCommand(Guid InvitationId) : IRequest<Result<AcceptFriendshipInviteDto>>;
+    public record AcceptFriendInvitationCommand(Guid InvitationId) : IRequest<Result<AcceptFriendshipInviteDto>>, IRequireInvitationRecipient
+    {
+        public Guid FriendInvitationId => InvitationId;
+    }
 }
