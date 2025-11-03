@@ -5,7 +5,7 @@ using Application.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
-namespace Application.FriendInvitations.Commands.SendFriendInvitation
+namespace Application.Users.Commands.SendFriendInvitation
 {
     public class SendFriendInvitationHandler : IRequestHandler<SendFriendInvitationCommand, Result<SendFriendInvitationDto>>
     {

@@ -1,12 +1,10 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Users;
-using Application.Repositories;
-using Domain.Entities;
 using MediatR;
 using Shared.Result;
 
-namespace Application.FriendInvitations.Queries.GetUsers
+namespace Application.Users.Queries.GetUsers
 {
     public class GetUsersHandler : IRequestHandler<GetUsersQuery, Result<List<UserToInviteDto>>>
     {

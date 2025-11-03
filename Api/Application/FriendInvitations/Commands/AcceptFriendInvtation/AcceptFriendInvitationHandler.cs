@@ -4,7 +4,7 @@ using Application.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
-namespace Application.FriendInvitations.Commands.AcceptFriendInvtation
+namespace Application.Users.Commands.AcceptFriendInvtation
 {
     public class AcceptFriendInvitationHandler : IRequestHandler<AcceptFriendInvitationCommand, Result<AcceptFriendshipInviteDto>>
     {

@@ -4,7 +4,7 @@ using Application.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
-namespace Application.FriendInvitations.Queries.GetInvitations
+namespace Application.Users.Queries.GetInvitations
 {
     public class GetInvitationsHandler : IRequestHandler<GetInvitationsCommand, Result<List<FriendshipInvitationDto>>>
     {

@@ -1,7 +1,7 @@
 ﻿using API.DTOs;
-using Application.FriendInvitations.Commands.AcceptFriendInvtation;
-using Application.FriendInvitations.Commands.DecelineInvitation;
-using Application.FriendInvitations.Commands.SendFriendInvitation;
+using Application.Users.Commands.AcceptFriendInvtation;
+using Application.Users.Commands.DecelineInvitation;
+using Application.Users.Commands.SendFriendInvitation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

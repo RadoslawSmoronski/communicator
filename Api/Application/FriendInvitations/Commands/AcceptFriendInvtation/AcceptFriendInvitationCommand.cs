@@ -4,7 +4,7 @@ using Domain.Entities;
 using MediatR;
 using Shared.Result;
 
-namespace Application.FriendInvitations.Commands.AcceptFriendInvtation
+namespace Application.Users.Commands.AcceptFriendInvtation
 {
     public record AcceptFriendInvitationCommand(Guid InvitationId) : IRequest<Result<AcceptFriendshipInviteDto>>, IRequireInvitationRecipient
     {

@@ -1,6 +1,6 @@
 ﻿using API.DTOs;
-using Application.FriendInvitations.Queries.GetInvitations;
-using Application.FriendInvitations.Queries.GetUsers;
+using Application.Users.Queries.GetInvitations;
+using Application.Users.Queries.GetUsers;
 using Application.Users.Commands.ChangeAvatar;
 using Application.Users.Commands.ChangePassword;
 using Application.Users.Commands.ChangeUsername;

@@ -4,7 +4,7 @@ using Application.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
-namespace Application.FriendInvitations.Commands.DecelineInvitation
+namespace Application.Users.Commands.DecelineInvitation
 {
     public class DecelineInvitationHandler : IRequestHandler<DecelineInvitationCommand, Result>
     {
