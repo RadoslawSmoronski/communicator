@@ -1,9 +1,9 @@
 ﻿namespace API.Contracts.Users.GetFriendInvitations
 {
-    public sealed record FriendshipInvitationResponse(
+    public sealed record GetFriendshipInvitationResponse(
         Guid FriendInvitationId,
         Guid SenderId,
-        string SenderUserName,
+        string SenderUsername,
         string? SenderAvatarUrl
         );
 }

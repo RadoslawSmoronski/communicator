@@ -6,7 +6,7 @@ using Shared.Result;
 
 namespace Application.Users.Queries.GetInvitations
 {
-    public class GetInvitationsHandler : IRequestHandler<GetInvitationsCommand, Result<List<FriendshipInvitationDto>>>
+    public class GetInvitationsHandler : IRequestHandler<GetInvitationsCommand, Result<List<GetInvitationsReadModel>>>
     {
         private readonly IFriendInvitationsService _friendInvitationsService;
         private readonly IUserService _userService;
@@ -17,7 +17,7 @@ namespace Application.Users.Queries.GetInvitations
             _friendInvitationsService = friendInvitationsService;
         }
 
-        public async Task<Result<List<FriendshipInvitationDto>>> Handle(GetInvitationsCommand request, CancellationToken cancellationToken)
+        public async Task<Result<List<GetInvitationsReadModel>>> Handle(GetInvitationsCommand request, CancellationToken cancellationToken)
                 => await _friendInvitationsService.GetInvitationsSendedToUserAsync(request.UserId);
             
     }

@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Users;
 using Application.Repositories;
+using Application.Users.Queries.GetInvitations;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -121,7 +122,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<Result<List<FriendshipInvitationDto>>>    GetInvitationsSendedToUserAsync(Guid userId)
+        public async Task<Result<List<GetInvitationsReadModel>>> GetInvitationsSendedToUserAsync(Guid userId)
         {
             try
             {
@@ -145,13 +146,11 @@ namespace Infrastructure.Services
                 var dtos = invitations.Select(x =>
                 {
                     var senderUser = senderDict.TryGetValue(x.SenderId, out var userAcc) ? userAcc : null;
-                    return new FriendshipInvitationDto
-                    {
-                        FriendInvitationId = x.Id,
-                        SenderId = x.SenderId,
-                        SenderUserName = senderUser?.UserName ?? string.Empty,
-                        SenderAvatarUrl = senderUser?.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(senderUser.AvatarUrl) : null
-                    };
+                    return new GetInvitationsReadModel(FriendInvitationId: x.Id,
+                        SenderId: x.SenderId,
+                        SenderUserName: senderUser?.UserName ?? string.Empty,
+                        SenderAvatarUrl: senderUser?.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(senderUser.AvatarUrl) : null
+                        );
                 }).ToList();
 
                 _logger.LogInformation("Retrieved {Count} friend invitations for user {UserId}", dtos.Count, userId);
