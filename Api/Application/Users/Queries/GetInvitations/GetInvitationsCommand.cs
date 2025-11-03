@@ -5,8 +5,8 @@ using Shared.Result;
 
 namespace Application.Users.Queries.GetInvitations
 {
-    public record GetInvitationsCommand(Guid UserId) : IRequest<Result<List<FriendshipInvitationDto>>>, IRequireInvitationParticipant
+    public record GetInvitationsCommand(Guid UserId) : IRequest<Result<List<FriendshipInvitationDto>>>, IRequireSameUser
     {
-        public Guid? FriendInvitationId { get; }
+        public Guid TargetUserId => UserId;
     }
 }

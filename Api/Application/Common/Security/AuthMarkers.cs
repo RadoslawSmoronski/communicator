@@ -7,12 +7,12 @@ public interface IRequireSameUser
     Guid TargetUserId { get; }
 }
 
-public interface IRequireChatMembership
+public interface IRequireChatParticipant
 {
     Guid ChatId { get; }
 }
 
-public interface IRequireInvitationRecipient
+public interface IRequireFriendInvitationRecipient
 {
     Guid FriendInvitationId { get; }
 }

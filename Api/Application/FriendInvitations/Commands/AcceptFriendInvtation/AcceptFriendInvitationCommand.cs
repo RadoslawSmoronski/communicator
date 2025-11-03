@@ -6,7 +6,7 @@ using Shared.Result;
 
 namespace Application.Users.Commands.AcceptFriendInvtation
 {
-    public record AcceptFriendInvitationCommand(Guid InvitationId) : IRequest<Result<AcceptFriendshipInviteDto>>, IRequireInvitationRecipient
+    public record AcceptFriendInvitationCommand(Guid InvitationId) : IRequest<Result<AcceptFriendshipInviteDto>>, IRequireFriendInvitationRecipient
     {
         public Guid FriendInvitationId => InvitationId;
     }

@@ -9,18 +9,18 @@ namespace Application.Common.Behaviors;
 public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
 {
     private readonly ICurrentUser _currentUser;
-    //private readonly IChatAccess _chatAccess;
+    private readonly IChatAccess _chatAccess;
     private readonly IFriendInvitationAccess _invitationAccess;
     private readonly IFriendshipAccess _friendshipAccess;
 
     public AuthorizationBehavior(
         ICurrentUser currentUser,
-        //IChatAccess chatAccess,
+        IChatAccess chatAccess,
         IFriendInvitationAccess invitationAccess,
         IFriendshipAccess friendshipAccess)
     {
         _currentUser = currentUser;
-        //_chatAccess = chatAccess;
+        _chatAccess = chatAccess;
         _invitationAccess = invitationAccess;
         _friendshipAccess = friendshipAccess;
     }
@@ -40,13 +40,7 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
             throw new ForbiddenException("You are not allowed to act on another user's resource.");
         }
 
-        //if (request is IRequireChatMembership chatReq)
-        //{
-        //    var ok = await _chatAccess.IsMemberAsync(currentUserId, chatReq.ChatId, cancellationToken);
-        //    if (!ok) throw new NotFoundException("Chat", chatReq.ChatId);
-        //}
-
-        if (request is IRequireInvitationRecipient invReq)
+        if (request is IRequireFriendInvitationRecipient invReq)
         {
             var result = await _invitationAccess.IsRecipientAsync(currentUserId, invReq.FriendInvitationId, cancellationToken);
             if (!result) throw new NotFoundException("FriendInvitation", invReq.FriendInvitationId);
@@ -60,8 +54,14 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
 
         if (request is IRequireFriendshipParticipant frReq)
         {
-            var ok = await _friendshipAccess.IsParticipantAsync(currentUserId, frReq.FriendshipId, cancellationToken);
-            if (!ok) throw new NotFoundException("Friendship", frReq.FriendshipId);
+            var result = await _friendshipAccess.IsParticipantAsync(currentUserId, frReq.FriendshipId, cancellationToken);
+            if (!result) throw new NotFoundException("Friendship", frReq.FriendshipId);
+        }
+
+        if (request is IRequireChatParticipant chatReq)
+        {
+            var result = await _chatAccess.IsParticipantAsync(currentUserId, chatReq.ChatId, cancellationToken);
+            if (!result) throw new NotFoundException("Chat", chatReq.ChatId);
         }
 
         return await next();

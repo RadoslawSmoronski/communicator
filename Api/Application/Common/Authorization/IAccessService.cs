@@ -2,8 +2,7 @@
 
 public interface IChatAccess
 {
-    Task<bool> IsMemberAsync(Guid userId, Guid chatId, CancellationToken ct);
-    Task<bool> IsOwnerAsync(Guid userId, Guid chatId, CancellationToken ct); // optional
+    Task<bool> IsParticipantAsync(Guid userId, Guid chatId, CancellationToken ct);
 }
 
 public interface IFriendInvitationAccess
