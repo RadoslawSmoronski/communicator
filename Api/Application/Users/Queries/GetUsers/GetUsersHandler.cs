@@ -31,14 +31,6 @@ namespace Application.Users.Queries.GetUsers
 
             var invitableForId = request.InvitableFor.Value;
 
-            if (!_userService.IsAuthorized(invitableForId))
-            {
-                return Error.Unauthorized(
-                    "FriendInvitations.GetUsers.Unauthorized",
-                    "The current user is not authorized to get invitable users for the specified account."
-                );
-            }
-
             var usersResult = await _userService.GetAllAsync();
             if (!usersResult.IsSuccess)
                 return usersResult.Error!;

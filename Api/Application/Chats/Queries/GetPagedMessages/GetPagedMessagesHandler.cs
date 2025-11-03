@@ -19,13 +19,6 @@ namespace Application.Chats.Queries.GetPagedMessages
         }
 
         public async Task<Result<ExtendedPagedMessagesDto>> Handle(GetPagedMessagesQuery request, CancellationToken cancellationToken)
-        {
-            if (!_userService.IsAuthorized(request.UserId))
-            {
-                return Error.Unauthorized("Unauthorized", "User is not authorized.");
-            }
-
-            return await _messageService.GetPagedMessagesFromMessageIdAsync(request.ConversationId, request.UserId, request.FromMessageId);
-        }
+                => await _messageService.GetPagedMessagesFromMessageIdAsync(request.ConversationId, request.UserId, request.FromMessageId);
     }
 }

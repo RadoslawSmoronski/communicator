@@ -7,6 +7,7 @@ using MediatR;
 namespace Application.Common.Behaviors;
 
 public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : notnull
 {
     private readonly ICurrentUser _currentUser;
     private readonly IChatAccess _chatAccess;
@@ -35,33 +36,31 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
 
         var currentUserId = _currentUser.Id ?? throw new UnauthorizedAccessException();
 
-        if (request is IRequireSameUser sameUser && !(currentUserId == sameUser.TargetUserId))
-        {
+        if (request is IRequireSameUser sameUser && currentUserId != sameUser.TargetUserId)
             throw new ForbiddenException("You are not allowed to act on another user's resource.");
-        }
 
         if (request is IRequireFriendInvitationRecipient invReq)
         {
             var result = await _invitationAccess.IsRecipientAsync(currentUserId, invReq.FriendInvitationId, cancellationToken);
-            if (!result) throw new NotFoundException("FriendInvitation", invReq.FriendInvitationId);
+            if (!result) throw new ForbiddenException("You are not the recipient of this invitation.");
         }
 
         if (request is IRequireInvitationParticipant inv)
         {
             var result = await _invitationAccess.IsUserInvitationParticipantAsync(currentUserId, inv.FriendInvitationId, cancellationToken);
-            if (!result) throw new NotFoundException("FriendInvitation", currentUserId);
+            if (!result) throw new ForbiddenException("You are not a participant of this invitation.");
         }
 
         if (request is IRequireFriendshipParticipant frReq)
         {
             var result = await _friendshipAccess.IsParticipantAsync(currentUserId, frReq.FriendshipId, cancellationToken);
-            if (!result) throw new NotFoundException("Friendship", frReq.FriendshipId);
+            if (!result) throw new ForbiddenException("You are not a participant of this friendship.");
         }
 
         if (request is IRequireChatParticipant chatReq)
         {
             var result = await _chatAccess.IsParticipantAsync(currentUserId, chatReq.ChatId, cancellationToken);
-            if (!result) throw new NotFoundException("Chat", chatReq.ChatId);
+            if (!result) throw new ForbiddenException("You are not a participant of this chat.");
         }
 
         return await next();

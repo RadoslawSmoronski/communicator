@@ -18,19 +18,7 @@ namespace Application.Users.Queries.GetInvitations
         }
 
         public async Task<Result<List<FriendshipInvitationDto>>> Handle(GetInvitationsCommand request, CancellationToken cancellationToken)
-        {
-            if (!_userService.IsAuthorized(request.UserId))
-            {
-                return Error.Unauthorized("Unauthorized", "User is not authorized.");
-
-            }
-            var result = await _friendInvitationsService.GetInvitationsSendedToUserAsync(request.UserId);
-
-            if (result.IsSuccess)
-                return result.Value;
-
-            return result.Error!;
-        }
+                => await _friendInvitationsService.GetInvitationsSendedToUserAsync(request.UserId);
             
     }
 }
