@@ -33,7 +33,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<Friendship?> Get(Guid friendshipId)
+        public async Task<Friendship?> GetAsync(Guid friendshipId)
         {
             var result = await _dbSet
                 .Include(x => x.User1)

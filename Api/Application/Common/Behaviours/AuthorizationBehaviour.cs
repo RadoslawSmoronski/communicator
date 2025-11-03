@@ -11,18 +11,18 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
     private readonly ICurrentUser _currentUser;
     //private readonly IChatAccess _chatAccess;
     private readonly IFriendInvitationAccess _invitationAccess;
-    //private readonly IFriendshipAccess _friendshipAccess;
+    private readonly IFriendshipAccess _friendshipAccess;
 
     public AuthorizationBehavior(
         ICurrentUser currentUser,
         //IChatAccess chatAccess,
-        IFriendInvitationAccess invitationAccess)
-        //IFriendshipAccess friendshipAccess)
+        IFriendInvitationAccess invitationAccess,
+        IFriendshipAccess friendshipAccess)
     {
         _currentUser = currentUser;
         //_chatAccess = chatAccess;
         _invitationAccess = invitationAccess;
-        //_friendshipAccess = friendshipAccess;
+        _friendshipAccess = friendshipAccess;
     }
 
     public async Task<TResponse> Handle(
@@ -58,11 +58,11 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
             if (!result) throw new NotFoundException("FriendInvitation", currentUserId);
         }
 
-        //if (request is IRequireFriendshipParticipant frReq)
-        //{
-        //    var ok = await _friendshipAccess.IsParticipantAsync(currentUserId, frReq.FriendshipId, cancellationToken);
-        //    if (!ok) throw new NotFoundException("Friendship", frReq.FriendshipId);
-        //}
+        if (request is IRequireFriendshipParticipant frReq)
+        {
+            var ok = await _friendshipAccess.IsParticipantAsync(currentUserId, frReq.FriendshipId, cancellationToken);
+            if (!ok) throw new NotFoundException("Friendship", frReq.FriendshipId);
+        }
 
         return await next();
     }

@@ -114,7 +114,7 @@ namespace Infrastructure.Services
         {
             try
             {
-                var friendship = await _unitOfWork.Friendships.Get(friendshipId);
+                var friendship = await _unitOfWork.Friendships.GetAsync(friendshipId);
 
                 if (friendship == null)
                 {

@@ -47,6 +47,7 @@ public static class DependencyInjection
         builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
         builder.Services.AddScoped<IFriendInvitationAccess, FriendInvitationAccess>();
+        builder.Services.AddScoped<IFriendshipAccess, FriendshipAccess>();
 
         builder.Services.AddHostedService<RefreshTokenCleanUpService>();
 
