@@ -11,6 +11,8 @@ using Application.Users.Queries.GetChats;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
+using API.Contracts.Users.Register;
 
 namespace API.Controllers
 {
@@ -20,22 +22,24 @@ namespace API.Controllers
     {
         private readonly ISender _sender;
         private readonly ILogger<UsersController> _logger;
+        private readonly IMapper _mapper;
 
-        public UsersController(ISender sender, ILogger<UsersController> logger)
+        public UsersController(ISender sender, ILogger<UsersController> logger, IMapper mapper)
         {
             _sender = sender;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost()] // refactor: docs
-        public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest registerReq)
         {
-            var command = new RegisterUserCommand(registerDto.Email, registerDto.Username, registerDto.Password);
+            var command = new RegisterUserCommand(registerReq.Email, registerReq.Username, registerReq.Password);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(_mapper.Map<RegisterResponse>(result.Value));
             }
 
             return HandleError(result, "UsersController - RegisterAsync", _logger);

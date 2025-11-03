@@ -48,6 +48,7 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<IFriendInvitationAccess, FriendInvitationAccess>();
         builder.Services.AddScoped<IFriendshipAccess, FriendshipAccess>();
+        builder.Services.AddScoped<IChatAccess, ChatAccess>();
 
         builder.Services.AddHostedService<RefreshTokenCleanUpService>();
 

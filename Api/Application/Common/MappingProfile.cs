@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using Application.Users.Commands.RegisterUser;
+using AutoMapper;
+using Domain.Entities;
 
 namespace Application.Common
 {
@@ -6,7 +8,11 @@ namespace Application.Common
     {
         public MappingProfile()
         {
-            //CreateMap<UserAccount, SimpleUserDto>();
+            CreateMap<User, RegisterUserReadModel>()
+                .ForCtorParam("Id", opt => opt.MapFrom(s => s.Id))
+                .ForCtorParam("Email", opt => opt.MapFrom(s => s.Email))
+                .ForCtorParam("UserName", opt => opt.MapFrom(s => s.UserName))
+                .ForCtorParam("ConfirmToken", opt => opt.MapFrom(_ => (string?)null));
         }
     }
 }

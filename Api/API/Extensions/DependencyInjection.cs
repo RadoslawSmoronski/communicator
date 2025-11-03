@@ -1,5 +1,7 @@
 ﻿using API.Services;
+using Application.Common;
 using Application.Common.Interfaces;
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using NpgsqlTypes;
@@ -115,6 +117,11 @@ namespace API.Extensions
                 .CreateLogger();
 
             builder.Logging.AddSerilog();
+
+            builder.Services.AddAutoMapper(cfg =>
+            {
+                cfg.AddMaps(typeof(ApiProfile).Assembly);
+            });
         }
     }
 }

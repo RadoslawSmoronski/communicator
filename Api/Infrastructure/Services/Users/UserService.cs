@@ -155,7 +155,7 @@ namespace Infrastructure.Services.Users
             }
         }
 
-        public async Task<Result<RegisteredDto>> RegisterAsync(string email, string username, string password)
+        public async Task<Result<User>> RegisterAsync(string email, string username, string password)
         {
             _logger.LogInformation("[UserService - RegisterAsync] Registration attempt for email: {Email}, username: {Username}", email, username);
 
@@ -167,12 +167,7 @@ namespace Infrastructure.Services.Users
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("[UserService - RegisterAsync] Registration succeeded for user: {UserId}", user.Id);
-                    return new RegisteredDto()
-                    {
-                        Id = user.Id,
-                        Email = email,
-                        Username = username
-                    };
+                    return _mapper.Map<User>(user);
                 }
 
                 var conflictEmailError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateEmail");
