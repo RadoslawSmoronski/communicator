@@ -1,10 +1,10 @@
 ﻿using API.Contracts.Users.ChangePassword;
 using API.Contracts.Users.ChangeUsername;
 using API.Contracts.Users.GetChats;
+using API.Contracts.Users.GetFriendInvitations;
 using API.Contracts.Users.GetUsers;
 using API.Contracts.Users.Register;
 using API.Contracts.Users.UploadAvatar;
-using API.DTOs;
 using Application.Users.Commands.ChangeAvatar;
 using Application.Users.Commands.ChangePassword;
 using Application.Users.Commands.ChangeUsername;
@@ -128,7 +128,7 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpGet("{userId}/friend-invitations")] // refactor: docs, command to query, blad cqrs
+        [HttpGet("{userId}/friend-invitations")] // refactor: docs
         public async Task<IActionResult> GetFriendInvitationsAsync([FromRoute] Guid userId)
         {
             var command = new GetInvitationsCommand(userId);
@@ -136,7 +136,7 @@ namespace API.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(_mapper.Map<List<GetFriendshipInvitationResponse>>(result.Value));
             }
 
             return HandleError(result, "UsersController - GetFriendInvitationsAsync", _logger);
