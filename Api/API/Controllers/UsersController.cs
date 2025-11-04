@@ -1,5 +1,7 @@
 ﻿using API.Contracts.Users.ChangePassword;
 using API.Contracts.Users.ChangeUsername;
+using API.Contracts.Users.GetChats;
+using API.Contracts.Users.GetUsers;
 using API.Contracts.Users.Register;
 using API.Contracts.Users.UploadAvatar;
 using API.DTOs;
@@ -149,7 +151,7 @@ namespace API.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(_mapper.Map<List<GetUsersResponse>>(result.Value));
             }
 
             return HandleError(result, "UsersController - GetUsersAsync", _logger);
@@ -164,7 +166,7 @@ namespace API.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(_mapper.Map<List<GetChatsResponse>>(result.Value));
             }
 
             return HandleError(result, "UsersController - GetChatsAsync", _logger);

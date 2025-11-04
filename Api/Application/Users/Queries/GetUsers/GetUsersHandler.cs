@@ -6,7 +6,7 @@ using Shared.Result;
 
 namespace Application.Users.Queries.GetUsers
 {
-    public class GetUsersHandler : IRequestHandler<GetUsersQuery, Result<List<UserToInviteDto>>>
+    public class GetUsersHandler : IRequestHandler<GetUsersQuery, Result<List<GetUsersReadModel>>>
     {
         private readonly IUserService _userService;
         private readonly IFriendshipService _friendshipService;
@@ -19,7 +19,7 @@ namespace Application.Users.Queries.GetUsers
             _friendInvitationsService = friendInvitationsService;
         }
 
-        public async Task<Result<List<UserToInviteDto>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<GetUsersReadModel>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
         {
             if (request.InvitableFor is null || request.InvitableFor.Value == Guid.Empty)
             {
@@ -37,7 +37,7 @@ namespace Application.Users.Queries.GetUsers
 
             var users = usersResult.Value;
             if (users.Count < 1)
-                return new List<UserToInviteDto>();
+                return new List<GetUsersReadModel>();
 
 
             var userFriendsResult = await _friendshipService.GetUserFriendAsync(invitableForId);
@@ -56,13 +56,11 @@ namespace Application.Users.Queries.GetUsers
 
             var addableUsers = users
                 .Where(u => u.Id != invitableForId && !usersFriendsIds.Contains(u.Id))
-                .Select(x => new UserToInviteDto
-                {
-                    Id = x.Id,
-                    AvatarUrl = x.AvatarUrl,
-                    UserName = x.UserName,
-                    IsInvited = userInvitationsIds.Contains(x.Id)
-                })
+                .Select(x => new GetUsersReadModel(
+                    Id: x.Id,
+                    AvatarUrl: x.AvatarUrl,
+                    UserName: x.UserName,
+                    IsInvited: userInvitationsIds.Contains(x.Id)))
                 .ToList();
 
             return addableUsers;

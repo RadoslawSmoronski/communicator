@@ -1,13 +1,14 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Users;
+using Domain.Entities;
 using MediatR;
 using Shared.Result;
 using System;
 
 namespace Application.Users.Queries.GetChats
 {
-    public class GetChatsHandler : IRequestHandler<GetChatsQuery, Result<List<ChatDto>>>
+    public class GetChatsHandler : IRequestHandler<GetChatsQuery, Result<List<GetChatsReadModel>>>
     {
         private readonly IConversationService _conversationService;
         private readonly IFriendshipService _friendshipService;
@@ -20,7 +21,7 @@ namespace Application.Users.Queries.GetChats
             _userService = userService;
         }
 
-        public async Task<Result<List<ChatDto>>> Handle(GetChatsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<GetChatsReadModel>>> Handle(GetChatsQuery request, CancellationToken cancellationToken)
         {
             var conversationsResult = _conversationService.GetAll(request.UserId);
             if (!conversationsResult.IsSuccess)
@@ -29,7 +30,7 @@ namespace Application.Users.Queries.GetChats
             var conversations = conversationsResult.Value;
 
             if (conversations.Count == 0)
-                return new List<ChatDto>();
+                return new List<GetChatsReadModel>();
 
             var friendsResult = await _friendshipService.GetUserFriendAsync(request.UserId);
             if (!friendsResult.IsSuccess)
@@ -38,7 +39,7 @@ namespace Application.Users.Queries.GetChats
             var friends = friendsResult.Value;
 
             if (friends.Count == 0)
-                return new List<ChatDto>();
+                return new List<GetChatsReadModel>();
 
             var friendIds = friends.Select(f => f.Id).ToList();
 
@@ -48,16 +49,15 @@ namespace Application.Users.Queries.GetChats
             {
                 var friend = c.User1Id == request.UserId ? c.User2 : c.User1;
 
-                return new ChatDto()
-                {
-                    FriendId = friend!.Id,
-                    FriendUserName = friend.UserName,
-                    FriendAvatarUrl = friend.AvatarUrl,
-                    ConversationId = c.Id,
-                    LastMessageId = c.LastMessageId,
-                    IsFriendSenderMessage = c.LastMessage?.SenderId == friend.Id,
-                    LastMessageTimestamp = c.LastMessage?.Timestamp
-                };
+                return new GetChatsReadModel(
+                    FriendId: friend!.Id,
+                    FriendUserName: friend.UserName,
+                    FriendAvatarUrl: friend.AvatarUrl,
+                    ConversationId: c.Id,
+                    LastMessageId: c.LastMessageId,
+                    IsFriendSenderMessage: c.LastMessage?.SenderId == friend.Id,
+                    LastMessageTimestamp: c.LastMessage?.Timestamp
+                );
             });
 
             return result.ToList();
