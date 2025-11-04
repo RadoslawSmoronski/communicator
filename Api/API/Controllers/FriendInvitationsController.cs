@@ -1,7 +1,9 @@
-﻿using API.DTOs;
+﻿using API.Contracts.FriendInvitations;
+using API.DTOs;
 using Application.Users.Commands.AcceptFriendInvtation;
 using Application.Users.Commands.DecelineInvitation;
 using Application.Users.Commands.SendFriendInvitation;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,23 +16,25 @@ namespace API.Controllers
     {
         private readonly ISender _sender;
         private readonly ILogger<FriendInvitationsController> _logger;
+        private readonly IMapper _mapper;
 
-        public FriendInvitationsController(ISender sender, ILogger<FriendInvitationsController> logger)
+        public FriendInvitationsController(ISender sender, ILogger<FriendInvitationsController> logger, IMapper mapper)
         {
             _sender = sender;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [Authorize]  // refactor: docs
         [HttpPost()]
-        public async Task<IActionResult> SendFriendInvitationAsync([FromBody] FriendInvitationDto friendInvitationDto)
+        public async Task<IActionResult> SendFriendInvitationAsync([FromBody] SendFriendInvitationRequest req)
         {
-            var command = new SendFriendInvitationCommand(friendInvitationDto.SenderId, friendInvitationDto.RecipientId);
+            var command = new SendFriendInvitationCommand(req.SenderId, req.RecipientId);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(new SendFriendInvitationResponse(FriendshipInvitationId: result.Value));
             }
 
             return HandleError(result, "FriendInvitationsController - SendFriendInvitationAsync", _logger);
@@ -62,7 +66,7 @@ namespace API.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(_mapper.Map<AcceptInvitationResponse>(result.Value));
             }
 
             return HandleError(result, "FriendInvitationsController - AcceptInvitationAsync", _logger);

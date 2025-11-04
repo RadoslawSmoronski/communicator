@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.FriendInvitations.Commands.AcceptFriendInvtation;
 using Application.Interfaces;
 using Application.Interfaces.Users;
 using MediatR;
@@ -6,7 +7,7 @@ using Shared.Result;
 
 namespace Application.Users.Commands.AcceptFriendInvtation
 {
-    public class AcceptFriendInvitationHandler : IRequestHandler<AcceptFriendInvitationCommand, Result<AcceptFriendshipInviteDto>>
+    public class AcceptFriendInvitationHandler : IRequestHandler<AcceptFriendInvitationCommand, Result<AcceptFriendInvitationReadModel>>
     {
         private readonly IFriendInvitationsService _friendInvitationsService;
         private readonly IConversationService _conversationService;
@@ -21,7 +22,7 @@ namespace Application.Users.Commands.AcceptFriendInvtation
             _userService = userService;
         }
 
-        public async Task<Result<AcceptFriendshipInviteDto>> Handle(AcceptFriendInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AcceptFriendInvitationReadModel>> Handle(AcceptFriendInvitationCommand request, CancellationToken cancellationToken)
         {
             var friendshipInviteAcceptResult = await _friendInvitationsService.AcceptAsync(request.InvitationId);
             if (!friendshipInviteAcceptResult.IsSuccess)
@@ -38,11 +39,10 @@ namespace Application.Users.Commands.AcceptFriendInvtation
             if (!addFriendshipResult.IsSuccess)
                 return addFriendshipResult.Error!;
 
-            return new AcceptFriendshipInviteDto()
-            {
-                ConversationId = createConversationResult.Value.Id,
-                FriendshipId = addFriendshipResult.Value
-            };
+            return new AcceptFriendInvitationReadModel(
+                    ConversationId: createConversationResult.Value.Id,
+                    FriendshipId: addFriendshipResult.Value
+                );
         }
     }
 }

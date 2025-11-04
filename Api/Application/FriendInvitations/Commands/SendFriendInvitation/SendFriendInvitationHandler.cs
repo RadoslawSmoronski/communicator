@@ -7,7 +7,7 @@ using Shared.Result;
 
 namespace Application.Users.Commands.SendFriendInvitation
 {
-    public class SendFriendInvitationHandler : IRequestHandler<SendFriendInvitationCommand, Result<SendFriendInvitationDto>>
+    public class SendFriendInvitationHandler : IRequestHandler<SendFriendInvitationCommand, Result<Guid>>
     {
         private readonly IUserService _userService;
         private readonly IFriendInvitationsService _friendInvitationsService;
@@ -20,7 +20,7 @@ namespace Application.Users.Commands.SendFriendInvitation
             _friendshipService = friendshipService;
         }
 
-        public async Task<Result<SendFriendInvitationDto>> Handle(SendFriendInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(SendFriendInvitationCommand request, CancellationToken cancellationToken)
         {
             var isFriendshipExist = await _friendshipService.IsExistAsync(request.SenderId, request.RecipientId);
 
@@ -33,10 +33,7 @@ namespace Application.Users.Commands.SendFriendInvitation
             var result = await _friendInvitationsService.SendAsync(request.SenderId, request.RecipientId);
 
             if (result.IsSuccess)
-                return new SendFriendInvitationDto
-                {
-                    FriendshipInvitationId = result.Value
-                };
+                return result.Value;
 
             return result.Error!;
         }
