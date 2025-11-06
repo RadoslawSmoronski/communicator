@@ -44,7 +44,7 @@ namespace Application.Auth.Commands.RequestPasswordReset
             }
 
             _logger.LogError("Failed to send password reset email to: {Email}. Error: {Error}", request.Email, emailResult.Error?.Description);
-            return Result<string>.Failure(emailResult.Error ?? Error.Failure("EmailSend", "Failed to send password reset email."));
+            return emailResult.Error ?? Error.Failure("EmailSend", "Failed to send password reset email.");
         }
 
         private string CreateEmailContent(string token, Guid userId)

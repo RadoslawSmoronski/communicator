@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace API.DTOs
+namespace API.Contracts.Auth.RequestPasswordReset
 {
-    public class RequestPasswordResetDto
+    public sealed record RequestPasswordResetRequest
     {
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
-        public required string Email { get; set; }
+        public string Email { get; init; } = default!;
     }
 }

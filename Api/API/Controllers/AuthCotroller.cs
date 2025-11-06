@@ -1,6 +1,8 @@
 ﻿using API.Contracts.Auth.ConfirmEmail;
 using API.Contracts.Auth.Login;
 using API.Contracts.Auth.RefreshAccessToken;
+using API.Contracts.Auth.RequestPasswordReset;
+using API.Contracts.ResetPassword;
 using API.DTOs;
 using Application.Auth.Commands.ConfirmEmail;
 using Application.Auth.Commands.LoginUser;
@@ -78,32 +80,32 @@ namespace API.Controllers
         }
 
         [HttpPost("request-password-reset")] // refactor: docs
-        public async Task<IActionResult> RequestPasswordResetAsync([FromBody] RequestPasswordResetDto requestPasswordResetDto)
+        public async Task<IActionResult> RequestPasswordResetAsync([FromBody] RequestPasswordResetRequest req)
         {
-            _logger.LogInformation("[AuthController - RequestPasswordResetAsync] Password reset requested for email: {Email}", requestPasswordResetDto.Email);
+            _logger.LogInformation("[AuthController - RequestPasswordResetAsync] Password reset requested for email: {Email}", req.Email);
 
-            var command = new RequestPasswordResetCommand(requestPasswordResetDto.Email);
+            var command = new RequestPasswordResetCommand(req.Email);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("[AuthController - RequestPasswordResetAsync] Password reset request successful for email: {Email}", requestPasswordResetDto.Email);
-                return Ok(result.Value);
+                _logger.LogInformation("[AuthController - RequestPasswordResetAsync] Password reset request successful for email: {Email}", req.Email);
+                return Ok(result.Value); // refactor: delete if not development mode
             }
 
-            _logger.LogWarning("[AuthController - RequestPasswordResetAsync] Password reset request failed for email: {Email}. Error: {Error}", requestPasswordResetDto.Email, result.Error?.Description);
+            _logger.LogWarning("[AuthController - RequestPasswordResetAsync] Password reset request failed for email: {Email}. Error: {Error}", req.Email, result.Error?.Description);
             return HandleError(result, "AuthController - RequestPasswordResetAsync", _logger);
         }
 
         [HttpPost("password-reset")] // refactor: docs
-        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordDto resetPasswordResetDto)
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest req)
         {
-            var command = new ResetPasswordCommand(resetPasswordResetDto.UserId, resetPasswordResetDto.CodedToken, resetPasswordResetDto.NewPassword);
+            var command = new ResetPasswordCommand(req.UserId, req.CodedToken, req.NewPassword);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)
             {
-                return Ok(result.Value);
+                return Ok(result.Value); // refactor: delete if not development mode
             }
 
             return HandleError(result, "ResetPasswordAsync - RequestPasswordResetAsync", _logger);
