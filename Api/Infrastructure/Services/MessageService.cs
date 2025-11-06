@@ -17,18 +17,16 @@ namespace Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<MessageService> _logger;
-        private readonly IUsersConnectionService _usersConnectionService;
 
         private readonly MessagesSettings _messagesSettings;
 
-        public MessageService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, IMapper mapper, ILogger<MessageService> logger, IOptions<MessagesSettings> options, IUsersConnectionService usersConnectionService)
+        public MessageService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, IMapper mapper, ILogger<MessageService> logger, IOptions<MessagesSettings> options)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _messagesSettings = options.Value;
-            _usersConnectionService = usersConnectionService;
         }
 
         public async Task<Result<MessageDto>> SendMessageAsync(Guid userId, Guid conversationId, string content)
@@ -143,95 +141,61 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<Result<ExtendedPagedMessagesDto>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid userId, Guid? fromMessageId)
+        public async Task<Result<List<Message>>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid userId, Guid? fromMessageId)
         {
+            _logger.LogDebug("GetPagedMessagesFromMessageIdAsync started. conversationId={ConversationId}, userId={UserId}, fromMessageId={FromMessageId}",
+                conversationId, userId, fromMessageId);
 
             if (fromMessageId is null || fromMessageId == Guid.Empty)
-            { 
-                var pagedMessagesDto = new PagedMessagesDto
-                {
-                    Messages = Enumerable.Empty<MessageDto>(),
-                    LastFriendReadMessageId = null
-                };
-
-                return new ExtendedPagedMessagesDto
-                {
-                    PagedMessagesDto = pagedMessagesDto,
-                    RecipientConnectionsId = null
-                };
+            {
+                _logger.LogWarning("GetPagedMessagesFromMessageIdAsync validation failed: fromMessageId missing. conversationId={ConversationId}, userId={UserId}",
+                    conversationId, userId);
+                return Error.Validation("Message.Paging.StartId.Required", "Start message id must be provided.");
             }
 
-            var convId = conversationId;
-            var msgId = fromMessageId.Value;
+            var startMessageId = fromMessageId.Value;
 
             try
             {
-                var conversation = await _unitOfWork.Conversations.GetConversationByIdAsync(convId);
-                if (conversation == null)
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                if (user is null)
                 {
-                    return Error.NotFound("", "");
+                    _logger.LogWarning("GetPagedMessagesFromMessageIdAsync user not found. userId={UserId}", userId);
+                    return Error.NotFound("User.NotFound", "The specified user was not found.");
                 }
 
-               
-                var messages = await _GetPagedMessagesFromMessageIdAsync(convId, msgId);
-
-                var messageDtos = _mapper.Map<List<MessageDto>>(messages);
-
-                var lastFriendReadMessageId = _GetFriendLastReadMessage(userId, conversation);
-
-                var setUserLastMessageResult = await SetAndGetUserLastReadMessageAsync(userId, conversationId);
-                Guid? userReadMessageId = null;
-
-                if (setUserLastMessageResult.IsSuccess)
+                var conversation = await _unitOfWork.Conversations.GetConversationByIdAsync(conversationId);
+                if (conversation is null)
                 {
-                    userReadMessageId = setUserLastMessageResult.Value;
-                }
-                else
-                {
-                    var error = setUserLastMessageResult.Error;
-
-                    if (error == null)
-                    {
-                        throw new Exception("An unknown error occurred while setting and retrieving the last friend read message.");
-                    }
-
-                    if (error.Code != "LAST_FRIEND_MESSAGE_NOT_FOUND")
-                    {
-                        return error;
-                    }
+                    _logger.LogWarning("GetPagedMessagesFromMessageIdAsync conversation not found. conversationId={ConversationId}", conversationId);
+                    return Error.NotFound("Conversation.NotFound", "The specified conversation was not found.");
                 }
 
-                _logger.LogInformation("Returning {Count} messages", messageDtos.Count);
-
-                var pagedMessagesDto = new PagedMessagesDto
+                if (conversation.User1Id != userId && conversation.User2Id != userId)
                 {
-                    Messages = messageDtos,
-                    LastFriendReadMessageId = lastFriendReadMessageId
-                };
-
-
-               var recipientId = conversation.User1Id == userId ? conversation.User2Id : conversation.User1Id;
-                var recipientConnectionsId = _usersConnectionService.GetUserConnectionsId(recipientId);
-
-                if (recipientConnectionsId != null && recipientConnectionsId.Count < 1)
-                {
-                    recipientConnectionsId = null;
-                    userReadMessageId = null;
+                    _logger.LogWarning("GetPagedMessagesFromMessageIdAsync forbidden: user not participant. userId={UserId}, conversationId={ConversationId}",
+                        userId, conversationId);
+                    return Error.Forbidden("Conversation.AccessDenied", "You are not a participant of this conversation.");
                 }
 
-                return new ExtendedPagedMessagesDto
-                {
-                    PagedMessagesDto = pagedMessagesDto,
-                    RecipientConnectionsId = recipientConnectionsId,
-                    UserReadMessageId = userReadMessageId
-                };
+                var messages = await _GetPagedMessagesFromMessageIdAsync(conversationId, startMessageId);
 
-                throw new Exception();
+                _logger.LogInformation("GetPagedMessagesFromMessageIdAsync succeeded. conversationId={ConversationId}, userId={UserId}, returnedMessages={Count}",
+                    conversationId, userId, messages.Count);
+
+                return messages;
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "GetPagedMessagesFromMessageIdAsync message start id not found. conversationId={ConversationId}, fromMessageId={FromMessageId}",
+                    conversationId, startMessageId);
+                return Error.NotFound("Message.NotFound", ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An exception occurred in GetPagedMessagesFromMessageIdAsync for conversationId: {ConversationId}, fromMessageId: {FromMessageId}", convId, msgId);
-                return Error.Unknown("INTERNAL_SERVER_ERROR", "An internal server error occurred.");
+                _logger.LogError(ex, "GetPagedMessagesFromMessageIdAsync failed. conversationId={ConversationId}, fromMessageId={FromMessageId}, userId={UserId}",
+                    conversationId, startMessageId, userId);
+                return Error.Unknown("Message.Paging.Failed", "An internal server error occurred.");
             }
         }
 
@@ -244,11 +208,6 @@ namespace Infrastructure.Services
                 );
 
             return messages.ToList();
-        }
-
-        private Guid? _GetFriendLastReadMessage(Guid userId, Conversation conversation)
-        {
-            return conversation.User1Id == userId ? conversation.User2LastReadMessageId : conversation.User1LastReadMessageId;
         }
     }
 }

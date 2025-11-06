@@ -98,5 +98,28 @@ namespace Infrastructure.Services
                 return Error.Failure("Conversation.GetAll.Failure", "An unexpected error occurred while retrieving conversations.");
             }
         }
+
+        public async Task<Result<Conversation>> GetByIdAsync(Guid conversationId)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching conversation by id {ConversationId}.", conversationId);
+
+                var result = await _unitOfWork.Conversations.GetConversationByIdAsync(conversationId);
+
+                if (result is null)
+                {
+                    _logger.LogWarning("Conversation not found: {ConversationId}", conversationId);
+                    return Error.NotFound("Conversation.NotFound", $"Conversation with ID {conversationId} not found.");
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get conversation by id {ConversationId}.", conversationId);
+                return Error.Failure("Conversation.GetById.Failure", "An unexpected error occurred while retrieving the conversation.");
+            }
+        }
     }
 }

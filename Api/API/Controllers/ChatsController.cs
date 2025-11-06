@@ -1,4 +1,5 @@
-﻿using API.Controllers;
+﻿using API.Contracts.Chats;
+using API.Controllers;
 using API.DTOs;
 using Application.Chats.Queries.GetPagedMessages;
 using Application.Common.Interfaces;
@@ -50,10 +51,10 @@ namespace ChatCommunicator.Application.Controllers
                 return Ok();
             }
 
-            var query = new GetPagedMessagesQuery(conversationId, userId, fromMessageId.Value);
+            var query = new GetPagedMessagesQuery(conversationId, userId, fromMessageId);
             var result = await _sender.Send(query);
 
-            if (result.IsSuccess && result.Value != null && result.Value.PagedMessagesDto != null)
+            if (result.IsSuccess && result.Value != null && result.Value.Messages != null)
             {
 
                 if (result.Value.RecipientConnectionsId != null &&
@@ -64,7 +65,10 @@ namespace ChatCommunicator.Application.Controllers
                         .MessageRead(new MessageReadDto { MessageId = result.Value.UserReadMessageId.Value, ConversationId = conversationId });
                 }
 
-                return Ok(result.Value.PagedMessagesDto);
+                return Ok(new GetPagedMessagesResponse(
+                    Messages: result.Value.Messages,
+                    LastFriendReadMessageId: result.Value.LastFriendReadMessageId
+                ));
             }
 
             return HandleError(result, "GetPagedMessagesAsync", _logger);

@@ -24,8 +24,11 @@ namespace Infrastructure.Repositories
         {
             var fromMessage = await _dbSet.FirstOrDefaultAsync(x => x.Id == fromMessageId);
 
-            if (fromMessage == null)
-                throw new Exception();
+            if (fromMessage is null)
+                throw new KeyNotFoundException($"Message '{fromMessageId}' for conversation '{conversationId}' was not found.");
+
+            if (fromMessage.ConversationId != conversationId)
+                throw new InvalidOperationException($"Message '{fromMessageId}' does not belong to conversation '{conversationId}'.");
 
             var result = _dbSet
                 .Where(x => x.ConversationId == conversationId && x.Timestamp < fromMessage.Timestamp)

@@ -8,5 +8,6 @@ namespace Application.Interfaces
     {
         Task<Result<Conversation>> GetOrCreateAsync(Guid userId, Guid friendId);
         Result<List<Conversation>> GetAll(Guid userId);
+        Task<Result<Conversation>> GetByIdAsync(Guid conversationId);
     }
 }
