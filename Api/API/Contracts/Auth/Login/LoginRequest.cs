@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace API.DTOs
+namespace API.Contracts.Auth.Login
 {
-    public class LoginDto
+    public sealed record LoginRequest
     {
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
-        public required string Email { get; set; }
+        public string Email { get; init; } = default!;
+
         [Required(ErrorMessage = "Password is required.")]
         [StringLength(50, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]
-        public required string Password { get; set; }
+        public string Password { get; init; } = default!;
     }
 }

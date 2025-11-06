@@ -34,7 +34,7 @@ namespace Infrastructure.Services.Users
             _mapper = mapper;
         }
 
-        public async Task<Result<LoggedUserDto>> LoginAsync(string email, string password)
+        public async Task<Result<User>> LoginAsync(string email, string password)
         {
             _logger.LogInformation("[UserService - LoginAsync] Login attempt for email: {Email}", email);
 
@@ -56,12 +56,7 @@ namespace Infrastructure.Services.Users
 
                     var avatarUrl = user.AvatarUrl != null ? _userAvatarService.GetPublicAvatarUrl(user.AvatarUrl) : null;
 
-                    return new LoggedUserDto()
-                    {
-                        Id = user.Id,
-                        UserName = user.UserName!,
-                        AvatarUrl = avatarUrl
-                    };
+                    return _mapper.Map<User>(user);
                 }
 
                 _logger.LogWarning("[UserService - LoginAsync] Invalid credentials for email: {Email}", email);

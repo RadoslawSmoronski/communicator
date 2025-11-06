@@ -1,9 +1,13 @@
-﻿using API.DTOs;
+﻿using API.Contracts.Auth.ConfirmEmail;
+using API.Contracts.Auth.Login;
+using API.Contracts.Auth.RefreshAccessToken;
+using API.DTOs;
 using Application.Auth.Commands.ConfirmEmail;
 using Application.Auth.Commands.LoginUser;
 using Application.Auth.Commands.RefreshAccessToken;
 using Application.Auth.Commands.RequestPasswordReset;
 using Application.Auth.Commands.ResetPassword;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -16,51 +20,53 @@ namespace API.Controllers
     {
         private readonly ISender _sender;
         private readonly ILogger<AuthController> _logger;
+        private readonly IMapper _mapper;
 
-        public AuthController(ISender sender, ILogger<AuthController> logger)
+        public AuthController(ISender sender, ILogger<AuthController> logger, IMapper mapper)
         {
             _sender = sender;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("login")] // refactor: docs
-        public async Task<IActionResult> LoginAsync([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest req)
         {
-            _logger.LogInformation("[AuthController - LoginAsync] Login attempt for email: {Email}", loginDto.Email);
+            _logger.LogInformation("[AuthController - LoginAsync] Login attempt for email: {Email}", req.Email);
 
-            var command = new LoginUserCommand(loginDto.Email, loginDto.Password);
+            var command = new LoginUserCommand(req.Email, req.Password);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("[AuthController - LoginAsync] Login successful for email: {Email}", loginDto.Email);
-                return Ok(result.Value);
+                _logger.LogInformation("[AuthController - LoginAsync] Login successful for email: {Email}", req.Email);
+                return Ok(_mapper.Map<LoginResponse>(result.Value));
             }
 
             return HandleError(result, "AuthController - LoginAsync", _logger);
         }
 
         [HttpPost("refresh-token")] // refactor: docs
-        public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshAccessTokenDto refreshAccessTokenDto)
+        public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshAccessTokenRequest req)
         {
-            _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token attempt: {RefreshToken}", refreshAccessTokenDto.RefreshToken);
+            _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token attempt: {RefreshToken}", req.RefreshToken);
 
-            var command = new RefreshAccessTokenCommand(refreshAccessTokenDto.RefreshToken);
+            var command = new RefreshAccessTokenCommand(req.RefreshToken);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token successful for: {RefreshToken}", refreshAccessTokenDto.RefreshToken);
-                return Ok(result.Value);
+                _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token successful for: {RefreshToken}", req.RefreshToken);
+                return Ok(_mapper.Map<RefreshAccessTokenResponse>(result.Value));
             }
 
             return HandleError(result, "AuthController - RefreshAccessTokenAsync", _logger);
         }
 
         [HttpPost("confirm-email")] // refactor: docs, test after register endpoint will have done
-        public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailDto confirmEmailDto)
+        public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest req)
         {
-            var command = new ConfirmEmailCommand(confirmEmailDto.UserId, WebUtility.UrlDecode(confirmEmailDto.ConfirmationToken));
+            var command = new ConfirmEmailCommand(req.UserId, WebUtility.UrlDecode(req.ConfirmationToken));
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)

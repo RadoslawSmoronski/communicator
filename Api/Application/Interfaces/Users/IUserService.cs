@@ -6,7 +6,7 @@ namespace Application.Interfaces.Users
 {
     public interface IUserService
     {
-        Task<Result<LoggedUserDto>> LoginAsync(string email, string password);
+        Task<Result<User>> LoginAsync(string email, string password);
         Task<Result> ConfirmEmailAsync(Guid userId, string confirmationToken);
         Task<Result<PasswordResetToken>> GeneratePasswordResetTokenAsync(string email);
         Task<Result<string>> ResetPasswordAsync(Guid userId, string token, string newPassword);

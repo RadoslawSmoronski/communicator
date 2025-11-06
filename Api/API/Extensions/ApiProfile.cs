@@ -1,8 +1,12 @@
-﻿using API.Contracts.FriendInvitations;
+﻿using API.Contracts.Auth.Login;
+using API.Contracts.Auth.RefreshAccessToken;
+using API.Contracts.FriendInvitations;
 using API.Contracts.Users.GetChats;
 using API.Contracts.Users.GetFriendInvitations;
 using API.Contracts.Users.GetUsers;
 using API.Contracts.Users.Register;
+using Application.Auth.Commands.LoginUser;
+using Application.Auth.Commands.RefreshAccessToken;
 using Application.FriendInvitations.Commands.AcceptFriendInvtation;
 using Application.Users.Commands.RegisterUser;
 using Application.Users.Queries.GetChats;
@@ -29,6 +33,11 @@ namespace Application.Common
                 .ForMember(d => d.Username, o => o.MapFrom(s => s.UserName));
 
             CreateMap<AcceptFriendInvitationReadModel, AcceptInvitationResponse>();
+
+            CreateMap<LoginUserReadModel, LoginResponse>()
+                .ForMember(d => d.Username, o => o.MapFrom(s => s.UserName));
+
+            CreateMap<RefreshAccessTokenReadModel, RefreshAccessTokenResponse>();
         }
     }
 }

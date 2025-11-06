@@ -5,5 +5,5 @@ using Shared.Result;
 
 namespace Application.Auth.Commands.LoginUser
 {
-    public record LoginUserCommand(string Email, string Password) : IRequest<Result<LoggedUserDto>>, IAllowAnonymous;
+    public record LoginUserCommand(string Email, string Password) : IRequest<Result<LoginUserReadModel>>, IAllowAnonymous;
 }

@@ -3,7 +3,6 @@ using Application.Interfaces;
 using Application.Repositories;
 using Application.Settings;
 using Domain.Entities;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -92,46 +91,33 @@ namespace Infrastructure.Services
             return writtenToken;
         }
 
-        public async Task<Result<RefreshAccessTokenResponseDto>> RefreshAccessTokenAsync(Guid refreshToken)
+        public async Task<Result<RefreshToken>> UpdateRefreshToken(RefreshToken refreshToken)
         {
             _logger.LogInformation("[TokenService - RefreshAccessTokenAsync] Attempting to refresh access token with refresh token: {RefreshToken}", refreshToken);
 
             try
             {
-                var refreshTokenFromDb = await GetRefreshTokenAsync(refreshToken);
-
-                if (refreshTokenFromDb == null)
-                {
-                    _logger.LogWarning("[TokenService - RefreshAccessTokenAsync] Refresh token not found or expired: {RefreshToken}", refreshToken);
-                    return Error.Unauthorized("RefreshTokenUnauthorized", $"Refresh token '{refreshToken}' was not found or is expired.");
-                }
-
-                var user = await _userManager.FindByIdAsync(refreshTokenFromDb.UserId.ToString());
+                var user = await _userManager.FindByIdAsync(refreshToken.UserId.ToString());
 
                 if (user == null)
                 {
-                    _logger.LogWarning("[TokenService - RefreshAccessTokenAsync] User not found for refresh token: {RefreshToken}, userId: {UserId}", refreshToken, refreshTokenFromDb.UserId);
-                    return Error.NotFound("UserNotFound", $"User with id '{refreshTokenFromDb.UserId}' was not found.");
+                    _logger.LogWarning("[TokenService - RefreshAccessTokenAsync] User not found for refresh token: {RefreshToken}, userId: {UserId}", refreshToken, refreshToken.UserId);
+                    return Error.NotFound("UserNotFound", $"User with id '{refreshToken.UserId}' was not found.");
                 }
 
                 _logger.LogInformation("[TokenService - RefreshAccessTokenAsync] User found. Creating new access token for user: {UserName}, userId: {UserId}", user.UserName, user.Id);
 
-                var accessToken = CreateJwtToken(user);
                 var newRefreshToken = Guid.NewGuid();
 
-                refreshTokenFromDb.Token = newRefreshToken;
-                refreshTokenFromDb.Expiration = DateTime.UtcNow; // refactor: Consider renaming 'Expiration' to 'CreatedAt' if this is creation time.
+                refreshToken.Token = newRefreshToken;
+                refreshToken.Expiration = DateTime.UtcNow; // refactor: Consider renaming 'Expiration' to 'CreatedAt' if this is creation time.
 
-                _unitOfWork.RefreshTokens.Update(refreshTokenFromDb);
+                _unitOfWork.RefreshTokens.Update(refreshToken);
                 await _unitOfWork.SaveAsync();
 
                 _logger.LogInformation("[TokenService - RefreshAccessTokenAsync] Access token and refresh token refreshed successfully for userId: {UserId}", user.Id);
 
-                return new RefreshAccessTokenResponseDto()
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = newRefreshToken
-                };
+                return refreshToken;
             }
             catch (Exception ex)
             {
@@ -140,13 +126,35 @@ namespace Infrastructure.Services
             }
         }
 
-        private async Task<RefreshToken?> GetRefreshTokenAsync(Guid refreshToken)
+        public async Task<Result<RefreshToken>> GetRefreshTokenAsync(Guid refreshToken)
         {
-            var expirationTimeSpan = TimeSpan.FromSeconds(_refreshTokenSettings.RefreshTokenLifeInSeconds);
-            var expirationTime = DateTime.UtcNow - expirationTimeSpan;
+            _logger.LogInformation("[TokenService - GetRefreshTokenAsync] Attempting to retrieve refresh token: {RefreshToken}", refreshToken);
 
-            return await _unitOfWork.RefreshTokens
-                .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.Expiration > expirationTime);
+            try
+            {
+                var expirationTimeSpan = TimeSpan.FromSeconds(_refreshTokenSettings.RefreshTokenLifeInSeconds);
+                var expirationThreshold = DateTime.UtcNow - expirationTimeSpan;
+
+                _logger.LogDebug("[TokenService - GetRefreshTokenAsync] Calculated expiration threshold: {ExpirationThreshold} (lifetime seconds: {LifeSeconds})",
+                    expirationThreshold, _refreshTokenSettings.RefreshTokenLifeInSeconds);
+
+                var result = await _unitOfWork.RefreshTokens
+                    .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.Expiration > expirationThreshold);
+
+                if (result is null)
+                {
+                    _logger.LogWarning("[TokenService - GetRefreshTokenAsync] Refresh token not found or expired: {RefreshToken}", refreshToken);
+                    return Error.NotFound("RefreshTokenNotFound", $"Refresh token '{refreshToken}' was not found or has expired.");
+                }
+
+                _logger.LogInformation("[TokenService - GetRefreshTokenAsync] Refresh token found for userId: {UserId}", result.UserId);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[TokenService - GetRefreshTokenAsync] Exception occurred while retrieving refresh token: {RefreshToken}", refreshToken);
+                return Error.Failure("RefreshTokenRetrievalFailed", "An unexpected error occurred while retrieving the refresh token.");
+            }
         }
 
         public async Task<Result<Guid>> CreateRefreshTokenAsync(Guid userId)
