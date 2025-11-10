@@ -10,57 +10,28 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Authenticates user",
-        "description": "Validates the provided login credentials. On success, returns a JWT access token and a refresh token.\r\nIf authentication fails, a detailed error is returned.",
         "requestBody": {
-          "description": "The login credentials, including email and password.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginDto"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginDto"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginDto"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "User successfully authenticated. Tokens returned.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoggedUserDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid login request (e.g., malformed input)."
-          },
-          "401": {
-            "description": "Invalid email or password."
-          },
-          "500": {
-            "description": "An unexpected server error occurred."
+            "description": "OK"
           }
         }
       }
@@ -70,57 +41,28 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Refresh access token",
-        "description": "Validates the provided refresh token and, if valid, issues a new access token and refresh token.",
         "requestBody": {
-          "description": "The DTO containing the refresh token.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshTokenDto"
+                "$ref": "#/components/schemas/RefreshAccessTokenRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshTokenDto"
+                "$ref": "#/components/schemas/RefreshAccessTokenRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshTokenDto"
+                "$ref": "#/components/schemas/RefreshAccessTokenRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Access token successfully refreshed.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshAccessTokenDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or malformed refresh token."
-          },
-          "401": {
-            "description": "Unauthorized or expired refresh token."
-          },
-          "500": {
-            "description": "An unexpected server error occurred."
+            "description": "OK"
           }
         }
       }
@@ -130,37 +72,28 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Confirms user's email address",
-        "description": "Validates the provided confirmation token for the specified user and confirms their email address.\r\n<b>Note:</b> This endpoint is currently not fully finished, but is functional.",
         "requestBody": {
-          "description": "The DTO containing the user's ID and confirmation token.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConfirmEmailDto"
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConfirmEmailDto"
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/ConfirmEmailDto"
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Email confirmed successfully."
-          },
-          "400": {
-            "description": "Invalid confirmation token or user ID."
-          },
-          "500": {
-            "description": "An unexpected server error occurred."
+            "description": "OK"
           }
         }
       }
@@ -170,34 +103,28 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Requests a password reset email",
-        "description": "This endpoint sends a password reset email to the user with the provided email address. \r\n\r\n If the email exists in the system, a password reset email will be sent containing a link with further instructions.\r\nThe link inside the email content is: `[client address]/?userId={userId}&token={resetToken}`\r\n Settings for the link and email message are located in `appsettings` under the section `RecoveryPasswordMessageSettings`.",
         "requestBody": {
-          "description": "The DTO containing the user's email address.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RequestPasswordResetDto"
+                "$ref": "#/components/schemas/RequestPasswordResetRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RequestPasswordResetDto"
+                "$ref": "#/components/schemas/RequestPasswordResetRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RequestPasswordResetDto"
+                "$ref": "#/components/schemas/RequestPasswordResetRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Password reset email sent successfully."
-          },
-          "400": {
-            "description": "Error"
+            "description": "OK"
           }
         }
       }
@@ -207,55 +134,25 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Resets the user's password",
-        "description": "This endpoint allows a user to reset their password by providing their user ID, a valid reset token, and a new password.",
         "requestBody": {
-          "description": "The DTO containing the user's ID, reset token, and new password.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ResetPasswordDto"
+                "$ref": "#/components/schemas/ResetPasswordRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/ResetPasswordDto"
+                "$ref": "#/components/schemas/ResetPasswordRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/ResetPasswordDto"
+                "$ref": "#/components/schemas/ResetPasswordRequest"
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Password reset successfully."
-          },
-          "400": {
-            "description": "Invalid token, user ID, or password."
-          }
-        }
-      }
-    },
-    "/api/Basic/test": {
-      "get": {
-        "tags": [
-          "Basic"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Basic/test3": {
-      "get": {
-        "tags": [
-          "Basic"
-        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -268,13 +165,10 @@
         "tags": [
           "Chats"
         ],
-        "summary": "Get a paginated list of messages",
-        "description": "This endpoint returns a paginated list of messages for a given conversation.\r\nIf `fromMessageId` is provided, it returns messages after that ID.\r\nIf `fromMessageId` is null, it returns an empty list (with 200 OK).\r\nRequires a valid JWT token in the Authorization header.\r\nIf `conversationId` is missing, empty, or invalid, an error response is returned.\r\n\r\n\r\n\r\nIf messages are successfully retrieved and both the recipient is online\r\n(has active connections) and there's a last read message ID from the friend,\r\na SignalR notification is sent to the recipient with the MessageRead event containing\r\nthe last read message ID.",
         "parameters": [
           {
             "name": "conversationId",
             "in": "path",
-            "description": "The ID of the conversation (GUID). Required.",
             "required": true,
             "schema": {
               "type": "string",
@@ -284,7 +178,6 @@
           {
             "name": "fromMessageId",
             "in": "query",
-            "description": "The ID of the message after which to start fetching (GUID). Optional.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -293,36 +186,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved the paged messages (can be empty if `fromMessageId` is null).",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagedMessagesDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagedMessagesDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PagedMessagesDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input or validation error."
-          },
-          "401": {
-            "description": "Unauthorized – missing or invalid JWT token."
-          },
-          "404": {
-            "description": "Conversation not found or access denied."
-          },
-          "500": {
-            "description": "Internal server error."
+            "description": "OK"
           }
         }
       }
@@ -332,63 +196,28 @@
         "tags": [
           "FriendInvitations"
         ],
-        "summary": "Send Invite",
-        "description": "Allows an authenticated user to send a friend invitation by providing the sender's and recipient's GUIDs.\r\nReturns a ChatCommunicator.Contracts.Dtos.Friendships.SendInviteDto object containing the invitation ID on success, or an error response on failure.",
         "requestBody": {
-          "description": "Invitation data including sender and recipient GUIDs.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/InviteDto"
+                "$ref": "#/components/schemas/SendFriendInvitationRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/InviteDto"
+                "$ref": "#/components/schemas/SendFriendInvitationRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/InviteDto"
+                "$ref": "#/components/schemas/SendFriendInvitationRequest"
               }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "Invitation sent successfully. Returns ChatCommunicator.Contracts.Dtos.Friendships.SendInviteDto.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendInviteDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendInviteDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendInviteDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid invitation data (e.g., malformed or missing GUIDs)."
-          },
-          "401": {
-            "description": "Unauthorized - JWT token required."
-          },
-          "404": {
-            "description": "Recipient user not found."
-          },
-          "409": {
-            "description": "Conflict (e.g., invitation already exists)."
-          },
-          "500": {
-            "description": "Unexpected server error."
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -398,13 +227,10 @@
         "tags": [
           "FriendInvitations"
         ],
-        "summary": "Decline Invite",
-        "description": "Allows an authenticated user to decline a friend invitation by providing the invitation ID, sender and recipient GUIDs.\r\nReturns appropriate errors if the invitation is invalid, already handled, or missing.",
         "parameters": [
           {
             "name": "friendInvitationId",
             "in": "path",
-            "description": "The unique identifier of the friend invitation to decline.",
             "required": true,
             "schema": {
               "type": "string",
@@ -412,41 +238,9 @@
             }
           }
         ],
-        "requestBody": {
-          "description": "Invitation data with sender and recipient GUIDs.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
-            "description": "Invitation declined successfully."
-          },
-          "400": {
-            "description": "Invalid data (e.g., malformed GUIDs)."
-          },
-          "401": {
-            "description": "Unauthorized - JWT token required."
-          },
-          "404": {
-            "description": "Invitation not found or already declined."
-          },
-          "500": {
-            "description": "Unexpected server error."
+            "description": "OK"
           }
         }
       },
@@ -454,13 +248,10 @@
         "tags": [
           "FriendInvitations"
         ],
-        "summary": "Decline Invite",
-        "description": "Allows an authenticated user to decline a friend invitation by providing the invitation ID, sender and recipient GUIDs.\r\nReturns appropriate errors if the invitation is invalid, already handled, or missing.",
         "parameters": [
           {
             "name": "friendInvitationId",
             "in": "path",
-            "description": "The unique identifier of the friend invitation to decline.",
             "required": true,
             "schema": {
               "type": "string",
@@ -468,41 +259,9 @@
             }
           }
         ],
-        "requestBody": {
-          "description": "Invitation data with sender and recipient GUIDs.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
-            "description": "Invitation declined successfully."
-          },
-          "400": {
-            "description": "Invalid data (e.g., malformed GUIDs)."
-          },
-          "401": {
-            "description": "Unauthorized - JWT token required."
-          },
-          "404": {
-            "description": "Invitation not found or already declined."
-          },
-          "500": {
-            "description": "Unexpected server error."
+            "description": "OK"
           }
         }
       }
@@ -512,13 +271,10 @@
         "tags": [
           "FriendInvitations"
         ],
-        "summary": "Accept Friend Invitation",
-        "description": "Allows an authenticated user to accept a friend invitation by providing the invitation ID, sender's and recipient's GUIDs.\r\nOn success, both users are added to each other's friend lists and a conversation is created between them.\r\nReturns an ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto object containing the friendship ID and the conversation ID.\r\nReturns errors for invalid input, not found invitations, or conflicts (e.g., already friends).",
         "parameters": [
           {
             "name": "friendInvitationId",
             "in": "path",
-            "description": "The unique identifier of the friend invitation to accept.",
             "required": true,
             "schema": {
               "type": "string",
@@ -526,61 +282,9 @@
             }
           }
         ],
-        "requestBody": {
-          "description": "Invitation data including sender and recipient GUIDs.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            }
-          }
-        },
         "responses": {
-          "201": {
-            "description": "Invitation accepted; users are now friends and a conversation is created. Returns ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid data provided (e.g., malformed or missing GUIDs)."
-          },
-          "401": {
-            "description": "Unauthorized - JWT token required."
-          },
-          "404": {
-            "description": "Invitation not found."
-          },
-          "409": {
-            "description": "Conflict - users already friends or invitation already accepted."
-          },
-          "500": {
-            "description": "Unexpected server error."
+          "200": {
+            "description": "OK"
           }
         }
       },
@@ -588,13 +292,10 @@
         "tags": [
           "FriendInvitations"
         ],
-        "summary": "Accept Friend Invitation",
-        "description": "Allows an authenticated user to accept a friend invitation by providing the invitation ID, sender's and recipient's GUIDs.\r\nOn success, both users are added to each other's friend lists and a conversation is created between them.\r\nReturns an ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto object containing the friendship ID and the conversation ID.\r\nReturns errors for invalid input, not found invitations, or conflicts (e.g., already friends).",
         "parameters": [
           {
             "name": "friendInvitationId",
             "in": "path",
-            "description": "The unique identifier of the friend invitation to accept.",
             "required": true,
             "schema": {
               "type": "string",
@@ -602,61 +303,9 @@
             }
           }
         ],
-        "requestBody": {
-          "description": "Invitation data including sender and recipient GUIDs.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/InviteDto"
-              }
-            }
-          }
-        },
         "responses": {
-          "201": {
-            "description": "Invitation accepted; users are now friends and a conversation is created. Returns ChatCommunicator.Contracts.Dtos.Friendships.AcceptFriendshipInviteDto.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcceptFriendshipInviteDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid data provided (e.g., malformed or missing GUIDs)."
-          },
-          "401": {
-            "description": "Unauthorized - JWT token required."
-          },
-          "404": {
-            "description": "Invitation not found."
-          },
-          "409": {
-            "description": "Conflict - users already friends or invitation already accepted."
-          },
-          "500": {
-            "description": "Unexpected server error."
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -664,15 +313,12 @@
     "/api/friendships/{friendshipId}": {
       "delete": {
         "tags": [
-          "Friends"
+          "Friendships"
         ],
-        "summary": "Delete friendship",
-        "description": "This endpoint deletes a friendship relationship identified by `friendshipId`.\r\nRequires a valid JWT token in the Authorization header.\r\nIf the friendship does not exist or the user does not have permission, an error response is returned.",
         "parameters": [
           {
             "name": "friendshipId",
             "in": "path",
-            "description": "The ID of the friendship (GUID). Required.",
             "required": true,
             "schema": {
               "type": "string",
@@ -681,20 +327,20 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Successfully deleted the friendship."
-          },
-          "400": {
-            "description": "Invalid input or validation error."
-          },
-          "401": {
-            "description": "Unauthorized – missing or invalid JWT token."
-          },
-          "404": {
-            "description": "Friendship not found or access denied."
-          },
-          "500": {
-            "description": "Internal server error."
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/test": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -705,53 +351,53 @@
           "Users"
         ],
         "summary": "Register user",
-        "description": "This endpoint creates a new user using an email, username, and password. If the email already exists, a conflict response is returned. On success, basic user data is returned. \r\n\r\n After registration, an email will be sent to the user with a link containing additional information.\r\nThe link inside the email content is: `[client address]/userId={userId}?token={activationToken}`\r\n Settings for the link and email message are located in `appsettings` under the section `ConfirmEmailMessageSettings`.",
+        "description": "Route: POST api/users\r\nAuthentication: Not required.",
         "requestBody": {
-          "description": "The registration data including email, username, and password.",
+          "description": "The registration payload containing email, username, and password.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "User successfully created.",
+          "200": {
+            "description": "Registration succeeded and returns the created user.",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisteredDto"
+                  "$ref": "#/components/schemas/RegisterRequest"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisteredDto"
+                  "$ref": "#/components/schemas/RegisterRequest"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisteredDto"
+                  "$ref": "#/components/schemas/RegisterRequest"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid registration data (e.g., password policy not met)."
+            "description": "The request payload failed validation."
           },
           "409": {
-            "description": "Email already exists."
+            "description": "A user with the same email or username already exists."
           },
           "500": {
             "description": "An unexpected server error occurred."
@@ -762,13 +408,13 @@
         "tags": [
           "Users"
         ],
-        "summary": "Get Users",
-        "description": "Authenticated users can search for other users by username or display name.\r\nResults exclude users who are already friends with, or already invited by, the specified user.\r\nRequires a valid JWT token.",
+        "summary": "Get users",
+        "description": "Route: GET api/users\r\nAuthorization: Required.\r\nQuery parameters:\r\n  - search: string\r\n  - invitableFor: Guid (required)\r\n            \r\nNote: Currently, only retrieval using the invitableFor filter is supported by the application, as it is the only required scenario.\r\nSearch-only queries may be ignored or have limited behavior depending on the current implementation.",
         "parameters": [
           {
             "name": "search",
             "in": "query",
-            "description": "Optional text to search users by (e.g., username or display name).",
+            "description": "The free-text search term used to match users (e.g. username or email fragments). Required; pass empty string to return no results or default set (implementation-defined).",
             "schema": {
               "type": "string"
             }
@@ -776,7 +422,7 @@
           {
             "name": "invitableFor",
             "in": "query",
-            "description": "The GUID of the user for whom to find invitable users (required).",
+            "description": "Required user identifier. When provided, only users that can receive a friendship invitation from the specified user are returned (e.g. excluding already friends, pending invitations, self).",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -791,7 +437,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
+                    "$ref": "#/components/schemas/GetUsersResponse"
                   }
                 }
               },
@@ -799,7 +445,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
+                    "$ref": "#/components/schemas/GetUsersResponse"
                   }
                 }
               },
@@ -807,17 +453,20 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/UserToInviteDto"
+                    "$ref": "#/components/schemas/GetUsersResponse"
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid request (e.g., missing or malformed 'invitableFor' GUID)."
+            "description": "Validation or business rule failure (e.g. invalid GUID format)."
           },
           "401": {
-            "description": "Unauthorized - JWT token missing or invalid."
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Not authorized to perform this operation."
           },
           "500": {
             "description": "Unexpected server error."
@@ -830,13 +479,13 @@
         "tags": [
           "Users"
         ],
-        "summary": "Change Username",
-        "description": "Authenticated users can change their username. The new username must be unique.",
+        "summary": "Change user username",
+        "description": "Route: PATCH api/users/{userId}/username\r\nAuthorization: Required.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The ID of the user whose username is to be changed (from query).",
+            "description": "The identifier of the user whose username will be changed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -845,54 +494,60 @@
           }
         ],
         "requestBody": {
-          "description": "The new username to assign (from body).",
+          "description": "The payload containing the new username.",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ChangeUsernameRequest"
               }
             },
             "text/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ChangeUsernameRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ChangeUsernameRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Username successfully updated.",
+            "description": "Username changed successfully and the new username is returned.",
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/RegisterRequest"
                 }
               },
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/RegisterRequest"
                 }
               },
               "text/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/RegisterRequest"
                 }
               }
             }
           },
           "400": {
-            "description": "Invalid or missing username."
+            "description": "Invalid request payload or business rule violation."
           },
           "401": {
-            "description": "User is not authenticated or token is invalid."
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Not authorized to change this user's username."
+          },
+          "404": {
+            "description": "User not found."
           },
           "409": {
-            "description": "The username is already taken."
+            "description": "The requested username is already taken."
           },
           "500": {
             "description": "An unexpected server error occurred."
@@ -905,13 +560,13 @@
         "tags": [
           "Users"
         ],
-        "summary": "Change Password",
-        "description": "Authenticated users can change their password by providing the old password and a new password.\r\nThe new password must meet the required criteria.",
+        "summary": "Change user password",
+        "description": "Route: PATCH api/users/{userId}/password\r\nAuthorization: Required.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The ID of the user whose password is to be changed (from query).",
+            "description": "The identifier of the user whose password will be changed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -920,34 +575,40 @@
           }
         ],
         "requestBody": {
-          "description": "The DTO containing the old and new passwords.",
+          "description": "The payload containing the current password and the new password.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ChangePasswordDto"
+                "$ref": "#/components/schemas/ChangePasswordRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/ChangePasswordDto"
+                "$ref": "#/components/schemas/ChangePasswordRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/ChangePasswordDto"
+                "$ref": "#/components/schemas/ChangePasswordRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Password successfully changed."
+            "description": "Password changed successfully."
           },
           "400": {
-            "description": "Invalid input (e.g., missing user ID, invalid old or new password)."
+            "description": "Invalid request payload or password policy violation."
           },
           "401": {
-            "description": "User is not authenticated, token is invalid, or old password is incorrect."
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Not authorized to change this user's password."
+          },
+          "404": {
+            "description": "User not found."
           },
           "500": {
             "description": "An unexpected server error occurred."
@@ -960,13 +621,13 @@
         "tags": [
           "Users"
         ],
-        "summary": "Upload Avatar",
-        "description": "Authenticated users can upload a new avatar image.\r\n\r\nThe uploaded file must meet the following requirements:\r\n<ul><li>Maximum file size: 5 MB</li><li>Maximum dimensions: 500x500 pixels</li><li>Supported formats: JPEG, PNG, etc.</li></ul>\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
+        "summary": "Upload user avatar",
+        "description": "Route: POST api/users/{userId}/avatar\r\nAuthorization: Required.\r\nConsumes: multipart/form-data.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The ID of the user uploading the avatar (from query).",
+            "description": "Identifier of the user whose avatar will be uploaded.",
             "required": true,
             "schema": {
               "type": "string",
@@ -979,18 +640,18 @@
             "multipart/form-data": {
               "schema": {
                 "required": [
-                  "file"
+                  "File"
                 ],
                 "type": "object",
                 "properties": {
-                  "file": {
+                  "File": {
                     "type": "string",
                     "format": "binary"
                   }
                 }
               },
               "encoding": {
-                "file": {
+                "File": {
                   "style": "form"
                 }
               }
@@ -999,39 +660,25 @@
         },
         "responses": {
           "200": {
-            "description": "Avatar successfully uploaded and URL returned.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "description": "Avatar uploaded successfully."
           },
           "400": {
-            "description": "Invalid file (e.g., empty, too big, wrong format, too large, too small)."
+            "description": "Invalid file provided (missing, zero length, unsupported type, exceeds size limit)."
           },
           "401": {
-            "description": "User is not authenticated or token is invalid."
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Not authorized to upload avatar for this user."
           },
           "404": {
-            "description": "User not found in the system."
+            "description": "User not found."
           },
-          "409": {
-            "description": "User already has an avatar set."
+          "415": {
+            "description": "Unsupported media type."
           },
           "500": {
-            "description": "An unexpected server error occurred."
+            "description": "Unexpected server error."
           }
         }
       },
@@ -1039,13 +686,13 @@
         "tags": [
           "Users"
         ],
-        "summary": "Delete Avatar",
-        "description": "Authenticated users can delete their avatar.\r\n\r\nThis action removes the avatar associated with the user account.\r\n\r\n\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
+        "summary": "Delete user avatar",
+        "description": "Route: DELETE api/users/{userId}/avatar\r\nAuthorization: Required.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The ID of the user whose avatar is to be deleted (from query).",
+            "description": "The identifier of the user whose avatar will be deleted.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1055,36 +702,16 @@
         ],
         "responses": {
           "200": {
-            "description": "Avatar successfully deleted.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or missing user ID."
+            "description": "Avatar deleted successfully."
           },
           "401": {
-            "description": "User is not authenticated or token is invalid."
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Not authorized to delete avatar for this user."
           },
           "404": {
-            "description": "User not found in the system."
-          },
-          "409": {
-            "description": "No avatar is set for this user, so there is nothing to delete."
+            "description": "User not found."
           },
           "500": {
             "description": "An unexpected server error occurred."
@@ -1095,13 +722,13 @@
         "tags": [
           "Users"
         ],
-        "summary": "Change Avatar",
-        "description": "Authenticated users can change their avatar by uploading a new image.\r\n\r\nThe uploaded file must meet the following requirements:\r\n<ul><li>Maximum file size: 5 MB</li><li>Maximum dimensions: 500x500 pixels</li><li>Supported formats: JPEG, PNG, etc.</li></ul>\r\n<b>Note:</b> The `userId` parameter is required and should be provided as a query parameter (e.g., `?userId=...`).",
+        "summary": "Change user avatar",
+        "description": "Route: PUT api/users/{userId}/avatar\r\nAuthorization: Required.\r\nConsumes: multipart/form-data.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The ID of the user whose avatar is to be changed (from query).",
+            "description": "Identifier of the user whose avatar will be replaced.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1114,18 +741,18 @@
             "multipart/form-data": {
               "schema": {
                 "required": [
-                  "file"
+                  "File"
                 ],
                 "type": "object",
                 "properties": {
-                  "file": {
+                  "File": {
                     "type": "string",
                     "format": "binary"
                   }
                 }
               },
               "encoding": {
-                "file": {
+                "File": {
                   "style": "form"
                 }
               }
@@ -1134,39 +761,25 @@
         },
         "responses": {
           "200": {
-            "description": "Avatar successfully updated and URL returned.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "description": "Avatar changed successfully."
           },
           "400": {
-            "description": "Invalid file (e.g., empty, too big, wrong format, too large, too small)."
+            "description": "Invalid file provided (missing, zero length, unsupported type, exceeds size limit)."
           },
           "401": {
-            "description": "User is not authenticated or token is invalid."
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Not authorized to change avatar for this user."
           },
           "404": {
-            "description": "User not found in the system."
+            "description": "User not found."
           },
-          "409": {
-            "description": "User does not have an avatar set to change."
+          "415": {
+            "description": "Unsupported media type."
           },
           "500": {
-            "description": "An unexpected server error occurred."
+            "description": "Unexpected server error."
           }
         }
       }
@@ -1176,13 +789,13 @@
         "tags": [
           "Users"
         ],
-        "summary": "Get Friend Invitations",
-        "description": "Returns all pending friend invitations for the specified user.\r\nIf the user does not exist or the input is invalid, appropriate error responses are returned.",
+        "summary": "Get user's friendship invitations",
+        "description": "Route: GET api/users/{userId}/friend-invitations\r\nAuthorization: Required.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The GUID of the user whose invitations are to be retrieved (from route).",
+            "description": "The identifier of the user whose friendship invitations will be retrieved.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1192,13 +805,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Invitations retrieved successfully.",
+            "description": "Friendship invitations retrieved successfully.",
             "content": {
               "text/plain": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/FriendshipInvitationDto"
+                    "$ref": "#/components/schemas/GetFriendshipInvitationResponse"
                   }
                 }
               },
@@ -1206,7 +819,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/FriendshipInvitationDto"
+                    "$ref": "#/components/schemas/GetFriendshipInvitationResponse"
                   }
                 }
               },
@@ -1214,84 +827,23 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/FriendshipInvitationDto"
+                    "$ref": "#/components/schemas/GetFriendshipInvitationResponse"
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid user ID (e.g., malformed GUID)."
-          },
           "401": {
-            "description": "Unauthorized - JWT token required."
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Not authorized to access this user's invitations."
           },
           "404": {
             "description": "User not found."
           },
           "500": {
-            "description": "Unexpected server error."
-          }
-        }
-      }
-    },
-    "/api/users/{userId}/friends": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Get Friends",
-        "description": "Fetches all users marked as friends of the specified user GUID.\r\nReturns errors for invalid input or unexpected issues.",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "description": "The GUID of the user whose friends are to be retrieved (from query).",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Friends list retrieved successfully.",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FriendDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FriendDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FriendDto"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid user ID."
-          },
-          "401": {
-            "description": "Unauthorized - JWT token required."
-          },
-          "500": {
-            "description": "Unexpected server error."
+            "description": "An unexpected server error occurred."
           }
         }
       }
@@ -1301,13 +853,13 @@
         "tags": [
           "Users"
         ],
-        "summary": "Get User Chats",
-        "description": "Retrieves all chat conversations for the specified user.\r\nRequires a valid JWT token in the Authorization header.\r\n\r\n\r\n<b>Note:</b> The `onlyFriends` query parameter is currently <b>required</b> and must be set to `true`.\r\nThere is no implementation for retrieving chats with `onlyFriends` set to `false`.\r\n            \r\nReturns 401 Unauthorized if the user ID is missing or invalid.\r\nReturns appropriate error responses for validation failures or internal errors.",
+        "summary": "Get user's chats",
+        "description": "Route: GET api/users/{userId}/chats\r\nAuthorization: Required.\r\nQuery parameters:\r\n  - onlyFriends: bool",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
-            "description": "The ID of the user whose chats are being retrieved (from route).",
+            "description": "The identifier of the user whose chats will be retrieved.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1317,7 +869,7 @@
           {
             "name": "onlyFriends",
             "in": "query",
-            "description": "Currently required. Must be set to `true`.",
+            "description": "When true, returns chats that are with friends only; when false, returns all chats available to the user.",
             "schema": {
               "type": "boolean"
             }
@@ -1325,13 +877,13 @@
         ],
         "responses": {
           "200": {
-            "description": "List of chats successfully retrieved.",
+            "description": "Chats retrieved successfully.",
             "content": {
               "text/plain": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ChatDto"
+                    "$ref": "#/components/schemas/GetChatsResponse"
                   }
                 }
               },
@@ -1339,7 +891,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ChatDto"
+                    "$ref": "#/components/schemas/GetChatsResponse"
                   }
                 }
               },
@@ -1347,20 +899,23 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ChatDto"
+                    "$ref": "#/components/schemas/GetChatsResponse"
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid input or validation error."
-          },
           "401": {
-            "description": "Unauthorized – missing or invalid JWT token."
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Not authorized to access this user's chats."
+          },
+          "404": {
+            "description": "User not found."
           },
           "500": {
-            "description": "Internal server error."
+            "description": "An unexpected server error occurred."
           }
         }
       }
@@ -1368,25 +923,7 @@
   },
   "components": {
     "schemas": {
-      "AcceptFriendshipInviteDto": {
-        "required": [
-          "conversationId",
-          "friendshipId"
-        ],
-        "type": "object",
-        "properties": {
-          "friendshipId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "conversationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ChangePasswordDto": {
+      "ChangePasswordRequest": {
         "required": [
           "newPassword",
           "oldPassword"
@@ -1394,47 +931,73 @@
         "type": "object",
         "properties": {
           "oldPassword": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 50,
+            "minLength": 6,
+            "type": "string"
           },
           "newPassword": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 50,
+            "minLength": 6,
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
-      "ChatDto": {
+      "ChangeUsernameRequest": {
         "required": [
-          "conversationId",
-          "friendId",
-          "friendUserName"
+          "newUsername"
         ],
+        "type": "object",
+        "properties": {
+          "newUsername": {
+            "maxLength": 25,
+            "minLength": 3,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConfirmEmailRequest": {
+        "required": [
+          "confirmationToken",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmationToken": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetChatsResponse": {
         "type": "object",
         "properties": {
           "friendId": {
             "type": "string",
             "format": "uuid"
           },
-          "friendUserName": {
+          "friendUsername": {
             "type": "string",
-            "nullable": true
-          },
-          "friendAvatarUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "isFriendOnline": {
-            "type": "boolean"
-          },
-          "friendshipId": {
-            "type": "string",
-            "format": "uuid",
             "nullable": true
           },
           "conversationId": {
             "type": "string",
             "format": "uuid"
+          },
+          "friendAvatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "friendshipId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "lastMessageId": {
             "type": "string",
@@ -1456,57 +1019,7 @@
         },
         "additionalProperties": false
       },
-      "ConfirmEmailDto": {
-        "required": [
-          "token",
-          "userId"
-        ],
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "FriendDto": {
-        "required": [
-          "friendshipId",
-          "id",
-          "userName"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "friendshipId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userName": {
-            "type": "string",
-            "nullable": true
-          },
-          "avatarUrl": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "FriendshipInvitationDto": {
-        "required": [
-          "friendInvitationId",
-          "senderId",
-          "senderUserName"
-        ],
+      "GetFriendshipInvitationResponse": {
         "type": "object",
         "properties": {
           "friendInvitationId": {
@@ -1517,7 +1030,7 @@
             "type": "string",
             "format": "uuid"
           },
-          "senderUserName": {
+          "senderUsername": {
             "type": "string",
             "nullable": true
           },
@@ -1528,57 +1041,28 @@
         },
         "additionalProperties": false
       },
-      "InviteDto": {
-        "required": [
-          "recipientId",
-          "senderId"
-        ],
+      "GetUsersResponse": {
         "type": "object",
         "properties": {
-          "senderId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "recipientId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "additionalProperties": false
-      },
-      "LoggedUserDto": {
-        "required": [
-          "accessToken",
-          "id",
-          "refreshToken",
-          "userName"
-        ],
-        "type": "object",
-        "properties": {
-          "userName": {
-            "type": "string",
-            "nullable": true
-          },
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
           },
           "avatarUrl": {
             "type": "string",
             "nullable": true
           },
-          "accessToken": {
-            "type": "string",
-            "nullable": true
-          },
-          "refreshToken": {
-            "type": "string",
-            "format": "uuid"
+          "isInvited": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
       },
-      "LoginDto": {
+      "LoginRequest": {
         "required": [
           "email",
           "password"
@@ -1598,78 +1082,7 @@
         },
         "additionalProperties": false
       },
-      "MessageDto": {
-        "required": [
-          "content",
-          "conversationId",
-          "messageId",
-          "senderId"
-        ],
-        "type": "object",
-        "properties": {
-          "messageId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "conversationId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "senderId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "content": {
-            "type": "string",
-            "nullable": true
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
-      "PagedMessagesDto": {
-        "required": [
-          "messages"
-        ],
-        "type": "object",
-        "properties": {
-          "messages": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MessageDto"
-            },
-            "nullable": true
-          },
-          "lastFriendReadMessageId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RefreshAccessTokenDto": {
-        "required": [
-          "accessToken",
-          "refreshToken"
-        ],
-        "type": "object",
-        "properties": {
-          "accessToken": {
-            "type": "string",
-            "nullable": true
-          },
-          "refreshToken": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "additionalProperties": false
-      },
-      "RefreshTokenDto": {
+      "RefreshAccessTokenRequest": {
         "required": [
           "refreshToken"
         ],
@@ -1682,7 +1095,7 @@
         },
         "additionalProperties": false
       },
-      "RegisterDto": {
+      "RegisterRequest": {
         "required": [
           "email",
           "password",
@@ -1708,51 +1121,24 @@
         },
         "additionalProperties": false
       },
-      "RegisteredDto": {
-        "required": [
-          "confirmToken",
-          "email",
-          "id",
-          "username"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "username": {
-            "type": "string",
-            "nullable": true
-          },
-          "confirmToken": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RequestPasswordResetDto": {
+      "RequestPasswordResetRequest": {
         "required": [
           "email"
         ],
         "type": "object",
         "properties": {
           "email": {
+            "minLength": 1,
             "type": "string",
-            "nullable": true
+            "format": "email"
           }
         },
         "additionalProperties": false
       },
-      "ResetPasswordDto": {
+      "ResetPasswordRequest": {
         "required": [
+          "codedToken",
           "newPassword",
-          "token",
           "userId"
         ],
         "type": "object",
@@ -1761,51 +1147,32 @@
             "type": "string",
             "format": "uuid"
           },
-          "token": {
-            "type": "string",
-            "nullable": true
+          "codedToken": {
+            "minLength": 1,
+            "type": "string"
           },
           "newPassword": {
-            "type": "string",
-            "nullable": true
+            "maxLength": 50,
+            "minLength": 6,
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
-      "SendInviteDto": {
+      "SendFriendInvitationRequest": {
         "required": [
-          "friendshipInvitationId"
+          "recipientId",
+          "senderId"
         ],
         "type": "object",
         "properties": {
-          "friendshipInvitationId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "additionalProperties": false
-      },
-      "UserToInviteDto": {
-        "required": [
-          "id",
-          "userName"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
+          "senderId": {
             "type": "string",
             "format": "uuid"
           },
-          "userName": {
+          "recipientId": {
             "type": "string",
-            "nullable": true
-          },
-          "avatarUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "isInvited": {
-            "type": "boolean"
+            "format": "uuid"
           }
         },
         "additionalProperties": false
