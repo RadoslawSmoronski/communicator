@@ -1,5 +1,5 @@
-﻿using Application.Common.Interfaces;
-using Application.DTOs;
+﻿using Application.Auth.Commands.RequestPasswordReset;
+using Application.Common.Interfaces;
 using Application.Interfaces.Users;
 using Application.Settings;
 using AutoMapper;
@@ -86,7 +86,7 @@ namespace Infrastructure.Services.Users
             return Error.Failure("", "");
         }
 
-        public async Task<Result<PasswordResetToken>> GeneratePasswordResetTokenAsync(string email)
+        public async Task<Result<RequestPasswordResetReadModel>> GeneratePasswordResetTokenAsync(string email)
         {
             _logger.LogInformation("[UserService - GeneratePasswordResetTokenAsync] Password reset token request for email: {Email}", email);
 
@@ -104,11 +104,9 @@ namespace Infrastructure.Services.Users
 
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-                return new PasswordResetToken()
-                {
-                    UserId = user.Id,
-                    Token = token
-                };
+                return new RequestPasswordResetReadModel(
+                    UserId: user.Id,
+                    Token: token);
             }
             catch (Exception ex)
             {

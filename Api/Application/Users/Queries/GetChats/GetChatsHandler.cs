@@ -1,10 +1,7 @@
-﻿using Application.DTOs;
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using Application.Interfaces.Users;
-using Domain.Entities;
 using MediatR;
 using Shared.Result;
-using System;
 
 namespace Application.Users.Queries.GetChats
 {

@@ -1,5 +1,4 @@
-﻿using Application.DTOs;
-using Application.FriendInvitations.Commands.AcceptFriendInvtation;
+﻿using Application.FriendInvitations.Commands.AcceptFriendInvtation;
 using Application.Interfaces;
 using Application.Interfaces.Users;
 using MediatR;

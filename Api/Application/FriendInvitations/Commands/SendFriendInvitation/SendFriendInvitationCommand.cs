@@ -1,5 +1,4 @@
-﻿using Application.DTOs;
-using MediatR;
+﻿using MediatR;
 using Shared.Result;
 
 namespace Application.Users.Commands.SendFriendInvitation

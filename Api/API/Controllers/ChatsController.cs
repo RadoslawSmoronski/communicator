@@ -1,9 +1,8 @@
-﻿using API.Contracts.Auth.Login;
-using API.Contracts.Chats;
+﻿using API.Contracts.Chats;
 using API.Controllers;
-using API.DTOs;
 using Application.Chats.Queries.GetPagedMessages;
 using Application.Common.Interfaces;
+using Application.Contracts.Chat;
 using ChatCommunicator.Application.Hubs;
 using ChatCommunicator.Application.Hubs.Interfaces;
 using MediatR;
@@ -79,11 +78,8 @@ namespace ChatCommunicator.Application.Controllers
                     result.Value.UserReadMessageId != null)
                 {
                     await _chatHubContext.Clients.Clients(result.Value.RecipientConnectionsId)
-                        .MessageRead(new MessageReadDto
-                        {
-                            MessageId = result.Value.UserReadMessageId.Value,
-                            ConversationId = conversationId
-                        });
+                        .MessageRead(new MessageReadEvent(MessageId: result.Value.UserReadMessageId.Value, ConversationId: conversationId));
+
                 }
 
                 return Ok(new GetPagedMessagesResponse(

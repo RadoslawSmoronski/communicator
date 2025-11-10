@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+﻿using Application.Auth.Commands.RequestPasswordReset;
 using Domain.Entities;
 using Shared.Result;
 
@@ -8,7 +8,7 @@ namespace Application.Interfaces.Users
     {
         Task<Result<User>> LoginAsync(string email, string password);
         Task<Result> ConfirmEmailAsync(Guid userId, string confirmationToken);
-        Task<Result<PasswordResetToken>> GeneratePasswordResetTokenAsync(string email);
+        Task<Result<RequestPasswordResetReadModel>> GeneratePasswordResetTokenAsync(string email);
         Task<Result<string>> ResetPasswordAsync(Guid userId, string token, string newPassword);
         Task<Result<User>> RegisterAsync(string email, string username, string password);
         Task<Result<string>> GenerateEmailConfirmationTokenAsync(Guid userId);

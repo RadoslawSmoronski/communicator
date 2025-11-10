@@ -1,10 +1,6 @@
-﻿using Application.DTOs;
-using Application.Interfaces;
-using Application.Interfaces.Users;
+﻿using Application.Interfaces;
 using Application.Repositories;
 using Domain.Entities;
-using Infrastructure.Identity;
-using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Shared.Result;

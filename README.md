@@ -1,69 +1,60 @@
 # Chat Communicator - API
 
-A real-time chat application built with .NET 9 and C# 13.0, providing secure and efficient communication between users.
+A real-time chat backend built on .NET 9 and C# 13 using Clean Architecture, SignalR, ASP.NET Core Identity, and EF Core (PostgreSQL).
 
 ---
 
 ## Overview
 
-ChatCommunicator is a full-featured chat platform that enables users to connect, manage friendships, and exchange messages in real-time. The application is built using a clean architecture approach with distinct layers for API, application logic, and infrastructure.
+Chat Communicator enables users to register, authenticate, manage friendships, and exchange messages in real-time. The solution is split into layers:
 
-## Technologies
+- API: HTTP endpoints, SignalR `ChatHub`, OpenAPI/Swagger, exception handling.
+- Application: CQRS with MediatR, authorization pipeline, mapping.
+- Infrastructure: EF Core + PostgreSQL, ASP.NET Core Identity, email/avatars/files, Serilog, background jobs.
+- Domain: Core entities and models.
+- Shared: Result/Errors and common primitives.
 
-- .NET 9
-- C# 13.0
-- ASP.NET Core
-- SignalR for real-time communication
-- Entity Framework Core with PostgreSQL
-- JWT Authentication
-- Serilog for structured logging
-- AutoMapper for object mapping
-- Swagger/ReDoc for API
-- xUnit, FluentAssertions, FakeItEasy (unit testing)
+## Tech Stack
+
+- .NET 9, C# 13
+- ASP.NET Core, MediatR
+- SignalR (real-time)
+- EF Core + Npgsql (PostgreSQL)
+- ASP.NET Core Identity (JWT auth)
+- Serilog (console + PostgreSQL sink)
+- AutoMapper
+- Swagger/OpenAPI (dev), optional ReDoc bundle
 
 ## Features
 
-#### Authentication
+- Authentication
+  - Email/password login
+  - JWT access tokens, DB-backed refresh tokens (rotation + cleanup job)
+  - Email confirmation
+  - Password reset (SMTP)
+- Users
+  - Registration
+  - Change username/password
+  - Avatar upload/change/delete (stored under `wwwroot`)
+- Friendships
+  - Invitations (send/accept/decline)
+  - Friends list, searchable users (with "invitable" filter)
+- Chat
+  - Conversation create/get
+  - Send messages, pagination from message id
+  - Read receipts (per-user last read)
+  - Last message tracking
+  - Presence and multi-device connections
 
-- User registration and login
-- JWT token-based authentication
-- Refresh token mechanism for extended sessions
+## Solution Structure
 
-#### User Management
+- `API`: Controllers, `ChatHub`, DI, OpenAPI/Swagger, ProblemDetails
+- `Application`: Commands/Queries (MediatR), pipeline behaviors (authorization), settings, mappings
+- `Infrastructure`: `ApplicationDbContext`, Identity, repositories/UoW, services (email, files, messages, conversations, friendships), Serilog, background services
+- `Domain`: Entities
+- `Shared`: `Result<T>`, errors, helpers
 
-- Profile management
-- Username customization
-- Password changes
-- Avatar upload, change, and deletion
-
-#### Friendship
-
-- Send, accept, and decline friend invitations
-- View pending invitations
-- Search for users to add as friends
-- View friend list
-- Messaging
-- Real-time chat between friends
-- Message history with pagination
-- Read receipts for messages
-- Last message tracking for conversations
-
-## Project Structure
-
-- ChatCommunicator.API: API endpoints and controllers
-- ChatCommunicator.Application: Business logic and services
-- ChatCommunicator.Infrastructure: Data access, persistence, and external services
-- ChatCommunicator.Contracts: DTOs and shared models
-- ChatCommunicator.Shared: Utilities and helper classes
-
-## Configuration and Running Locally
-
-#### Requirements
-
-- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
-- PostgreSQL
-
-#### Configuration
+## Configuration
 
 Configure your application settings in appsettings.json:
 
@@ -78,13 +69,43 @@ Configure your application settings in appsettings.json:
   "ConnectionStrings": {
     "DefaultConnection": "Host=<INSERT_HOST_HERE>;Database=<INSERT_DATABASE_HERE>;Port=<INSERT_PORT_HERE>;Username=<INSERT_USERNAME_HERE>;Password=<INSERT_PASSWORD_HERE>"
   },
-  "JWT": {
+  "JWTTokenSettings": {
     "Issuer": "<INSERT_ISSUER_HERE>",
     "Audience": "<INSERT_AUDIENCE_HERE>",
-    "SigningKey": "<INSERT_SIGNING_KEY_HERE>"
+    "SigningKey": "<INSERT_SIGNING_KEY_HERE>",
+    "AccessTokenLifeInSeconds": 900
+  },
+  "RefreshTokenSettings": {
+    "RefreshTokenLifeInSeconds": 604800,
+    "RefreshTokenCleanUpIntercalInSeconds": 604800
   },
   "CORS": {
-    "AllowedOrigins": ["<INSERT_ALLOW_ORIGIN_HERE>"]
+    "AllowedOrigins": [
+      "<INSERT_ALLOW_ORIGIN_HERE>"
+    ]
+  },
+  "SmtpEmailSettings": {
+    "SmtpHost": "<INSERT_SMTP_HOST_HERE>",
+    "SmtpPort": "<INSERT_SMTP_PORT_HERE>",
+    "Username": "<INSERT_SMTP_USERNAME_HERE>",
+    "Password": "<INSERT_SMTP_PASSWORD_HERE>",
+    "FromAddress": "<INSERT_FROM_ADDRESS_HERE>"
+  },
+  "ConfirmEmailMessageSettings": {
+    "Content": "<INSERT_MESSAGE_CONTENT_HERE>", // Address is locate at [address] tag place. For example: "Click to confirm: [address]"
+    "Address": "<INSERT_WEBSITE_ADDRESS_HERE>"
+  },
+  "RecoveryPasswordMessageSettings": {
+    "Content": "<INSERT_MESSAGE_CONTENT_HERE>", // Address is locate at [address] tag place. For example: "Password recovery link: [address]"
+    "Address": "<INSERT_WEBSITE_ADDRESS_HERE>"
+  },
+  "UserAvatarSettings": {
+    "MaxFileSizeBytes": 5242880,
+    "MaxImageWidth": 500,
+    "MaxImageHeight": 500,
+    "MinImageWidth": 100,
+    "MinImageHeight": 100,
+    "AllowedExtensions": [ ".jpg", ".jpeg", ".png", ".bmp", ".gif" ]
   },
   "Identity": {
     "Password": {
@@ -163,38 +184,27 @@ The application tracks user connections using the UsersConnectionService:
 - When a user disconnects, their connection is automatically removed
 - Messages are delivered to all active connections of the recipient
 
-## Logging with Serilog
+## Logging
 
-The project uses Serilog for structured logging. Logs are saved to the console and to a PostgreSQL database (table Logs).
-
-Additionally, an automatic cleanup service runs periodically to delete log entries older than 30 days.
-
-The table is created automatically if it does not exist.
+- Serilog writes to console and PostgreSQL table `Logs` (auto-created).
+- Adjust sink settings in `API/Extensions/DependencyInjection.cs`.
+- A background service periodically removes expired refresh tokens (not logs).
 
 ## Testing
 
-Unit tests are located in the `ChatCommunicator.Tests` project.
+in development
 
-#### Testing tools used:
+## Notes
 
-- **xUnit** – testing framework
-- **FakeItEasy** – mocking dependencies
-- **FluentAssertions** – expressive assertions
+- Admin role bypass: requests marked with authorization interfaces are permitted when the caller has the `Admin` role.
+- Static files: avatars are stored under `wwwroot/<UserAvatarSettings:Folder>`.
+- HTTPS redirection is enabled by default.
 
-#### Running tests
+## Project Status
 
-Run all tests using the command:
+Active development. Next steps:
+- Containerization (Docker)
+- Performance and UX improvements
+- Further API hardening and tooling
 
-`dotnet test`
-
-## Project Status & Future Work
-
-This project is currently **under active development** and not yet complete. There are still several important features and improvements planned, including:
-
-- Potential Docker integration for easier deployment and environment management
-- Additional enhancements to improve performance and user experience
-- General refactor to clean architecture
-
-We welcome feedback, ideas, and contributions to help make **Chat Communicator** even better!
-
-Stay tuned for updates as the project evolves. 🚀
+Contributions and feedback are welcome.

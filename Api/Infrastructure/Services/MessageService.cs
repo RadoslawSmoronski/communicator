@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+﻿using Application.Contracts.Chat;
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Settings;
@@ -29,7 +29,7 @@ namespace Infrastructure.Services
             _messagesSettings = options.Value;
         }
 
-        public async Task<Result<MessageDto>> SendMessageAsync(Guid userId, Guid conversationId, string content)
+        public async Task<Result<MessageReceivedEvent>> SendMessageAsync(Guid userId, Guid conversationId, string content)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace Infrastructure.Services
 
                 _logger.LogInformation("Message sent successfully. messageId={MessageId}, conversationId={ConversationId}, userId={UserId}", message.Id, conversationId, userId);
 
-                return _mapper.Map<MessageDto>(message);
+                return _mapper.Map<MessageReceivedEvent>(message);
             }
             catch (Exception ex)
             {
