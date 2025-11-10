@@ -10,7 +10,10 @@
         "tags": [
           "Auth"
         ],
+        "summary": "Login user",
+        "description": "Route: POST api/auth/login\r\nAuthorization: Anonymous (no bearer token required).\r\nRequest body:\r\n{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Secret123\"\r\n}",
         "requestBody": {
+          "description": "The login request payload containing the user's email and password. Both fields are required and validated for format and length.",
           "content": {
             "application/json": {
               "schema": {
@@ -31,7 +34,26 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Login successful. Authentication data returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure (e.g. malformed email, missing fields) or business rule violation."
+          },
+          "401": {
+            "description": "Invalid credentials."
+          },
+          "403": {
+            "description": "Access forbidden (unlikely for this endpoint unless additional constraints apply)."
+          },
+          "500": {
+            "description": "Unexpected server error."
           }
         }
       }
@@ -41,7 +63,10 @@
         "tags": [
           "Auth"
         ],
+        "summary": "Refresh user's accessToken",
+        "description": "Route: POST api/auth/refresh-token\r\nThis endpoint logs refresh attempts and results. Authentication is not required to call this endpoint because the refresh token is supplied in the request body.",
         "requestBody": {
+          "description": "The refresh token request containing the refresh token to be exchanged. See API.Contracts.Auth.RefreshAccessToken.RefreshAccessTokenRequest.",
           "content": {
             "application/json": {
               "schema": {
@@ -62,7 +87,23 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Refresh succeeded and returns new tokens in a API.Contracts.Auth.RefreshAccessToken.RefreshAccessTokenResponse.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshAccessTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid."
+          },
+          "401": {
+            "description": "The provided refresh token is invalid, expired, or revoked."
+          },
+          "500": {
+            "description": "An unexpected server error occurred."
           }
         }
       }
@@ -72,7 +113,10 @@
         "tags": [
           "Auth"
         ],
+        "summary": "Confirm user's email",
+        "description": "Route: POST api/auth/confirm-email\r\nThe `ConfirmationToken` is URL-decoded before processing.\r\nAuthentication: Not required.",
         "requestBody": {
+          "description": "The request payload containing the API.Contracts.Auth.ConfirmEmail.ConfirmEmailRequest.UserId and the raw (possibly URL-encoded) confirmation token.",
           "content": {
             "application/json": {
               "schema": {
@@ -93,7 +137,19 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Email confirmed successfully."
+          },
+          "400": {
+            "description": "Invalid request payload or malformed/invalid token."
+          },
+          "404": {
+            "description": "User not found."
+          },
+          "410": {
+            "description": "Token expired or already used."
+          },
+          "500": {
+            "description": "An unexpected server error occurred."
           }
         }
       }
@@ -103,7 +159,10 @@
         "tags": [
           "Auth"
         ],
+        "summary": "Request user's password reset",
+        "description": "Route: POST api/auth/request-password-reset\r\nAuthentication: Not required.\r\nThis endpoint does not disclose whether the email exists to prevent account enumeration.",
         "requestBody": {
+          "description": "The request containing the email address to initiate the password reset.",
           "content": {
             "application/json": {
               "schema": {
@@ -124,7 +183,16 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Request accepted. If an account exists for the email, a reset message is sent."
+          },
+          "400": {
+            "description": "Invalid request payload."
+          },
+          "429": {
+            "description": "Too many requests. The operation is rate-limited."
+          },
+          "500": {
+            "description": "An unexpected server error occurred."
           }
         }
       }
@@ -134,7 +202,10 @@
         "tags": [
           "Auth"
         ],
+        "summary": "Reset user's password",
+        "description": "Route: POST api/auth/password-reset\r\nAuthentication: Not required (token-based validation).\r\nThe value returned in development mode is for debugging only and will be removed in production.",
         "requestBody": {
+          "description": "The request containing the API.Contracts.ResetPassword.ResetPasswordRequest.UserId, the coded (encoded/hashed) reset token,\r\nand the new password to set.",
           "content": {
             "application/json": {
               "schema": {
@@ -155,7 +226,22 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Password reset succeeded."
+          },
+          "400": {
+            "description": "Invalid request payload or password policy violation."
+          },
+          "401": {
+            "description": "Invalid or malformed reset token."
+          },
+          "404": {
+            "description": "User not found."
+          },
+          "410": {
+            "description": "Reset token expired or already used."
+          },
+          "500": {
+            "description": "Unexpected server error."
           }
         }
       }
@@ -165,10 +251,13 @@
         "tags": [
           "Chats"
         ],
+        "summary": "Get paged messages",
+        "description": "Route: GET api/chats/{conversationId}/messages\r\nAuthorization: Required.\r\nSide effects: May emit a \"message read\" notification to recipients via SignalR when applicable.",
         "parameters": [
           {
             "name": "conversationId",
             "in": "path",
+            "description": "The identifier of the conversation to fetch messages from.",
             "required": true,
             "schema": {
               "type": "string",
@@ -178,6 +267,7 @@
           {
             "name": "fromMessageId",
             "in": "query",
+            "description": "Optional anchor message identifier. When provided, the page of messages is returned relative to this message\r\n(typically older messages). When omitted, the latest page may be returned depending on implementation.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -186,7 +276,29 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "The requested page of messages is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPagedMessagesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters."
+          },
+          "401": {
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "The user is not authorized to access the conversation."
+          },
+          "404": {
+            "description": "The user or conversation was not found."
+          },
+          "500": {
+            "description": "An unexpected server error occurred."
           }
         }
       }
@@ -196,7 +308,10 @@
         "tags": [
           "FriendInvitations"
         ],
+        "summary": "Send friendship invitation",
+        "description": "Route: POST api/friend-invitations\r\nAuthorization: Required.\r\nDuplicate or conflicting invitations are handled by domain logic.",
         "requestBody": {
+          "description": "The request payload containing the sender and recipient identifiers.",
           "content": {
             "application/json": {
               "schema": {
@@ -217,20 +332,48 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Invitation created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendFriendInvitationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request payload or business rule violation."
+          },
+          "401": {
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "Sender not authorized to perform this action."
+          },
+          "404": {
+            "description": "Sender or recipient user not found."
+          },
+          "409": {
+            "description": "An active invitation or friendship already exists."
+          },
+          "500": {
+            "description": "Unexpected server error."
           }
         }
       }
     },
-    "/api/friend-invitations/{friendInvitationId}/decline": {
-      "post": {
+    "/api/friend-invitations/{friendInvitationId}": {
+      "delete": {
         "tags": [
           "FriendInvitations"
         ],
+        "summary": "Delete friendship invitation",
+        "description": "Route: PATCH api/friend-invitations/{friendInvitationId}/decline\r\nAuthorization: Required.\r\nThe operation changes the status of the invitation to \"Delete\" and may be idempotent depending on domain rules.",
         "parameters": [
           {
             "name": "friendInvitationId",
             "in": "path",
+            "description": "The identifier of the friend invitation to decline.",
             "required": true,
             "schema": {
               "type": "string",
@@ -240,62 +383,41 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "FriendInvitations"
-        ],
-        "parameters": [
-          {
-            "name": "friendInvitationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
+            "description": "The invitation has been deleted."
+          },
+          "400": {
+            "description": "Invalid request or the invitation cannot be deleted due to its current state."
+          },
+          "401": {
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "The user is not authorized to delete this invitation."
+          },
+          "404": {
+            "description": "Invitation not found."
+          },
+          "409": {
+            "description": "A conflict occurred (e.g., invitation already accepted or otherwise finalized)."
+          },
+          "500": {
+            "description": "Unexpected server error."
           }
         }
       }
     },
     "/api/friend-invitations/{friendInvitationId}/accept": {
-      "post": {
-        "tags": [
-          "FriendInvitations"
-        ],
-        "parameters": [
-          {
-            "name": "friendInvitationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
       "patch": {
         "tags": [
           "FriendInvitations"
         ],
+        "summary": "Accept friendship invitation",
+        "description": "Route: POST api/friend-invitations/{friendInvitationId}/accept\r\nAuthorization: Required.\r\nSide effects: Creates a new friendship and consumes (removes or finalizes) the invitation.",
         "parameters": [
           {
             "name": "friendInvitationId",
             "in": "path",
+            "description": "The identifier of the friend invitation to accept.",
             "required": true,
             "schema": {
               "type": "string",
@@ -305,7 +427,35 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "The invitation was accepted and a friendship was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptInvitationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or the invitation cannot be accepted in its current state."
+          },
+          "401": {
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "The user is not authorized to accept this invitation."
+          },
+          "404": {
+            "description": "Invitation not found."
+          },
+          "409": {
+            "description": "A conflict occurred (e.g., invitation already handled or friendship already exists)."
+          },
+          "410": {
+            "description": "The invitation has expired."
+          },
+          "500": {
+            "description": "Unexpected server error."
           }
         }
       }
@@ -315,10 +465,13 @@
         "tags": [
           "Friendships"
         ],
+        "summary": "Delete friendship",
+        "description": "Route: DELETE api/friendships/{friendshipId}\r\nAuthorization: Required.\r\nThe operation removes the friendship relationship between the users.",
         "parameters": [
           {
             "name": "friendshipId",
             "in": "path",
+            "description": "The identifier of the friendship to delete.",
             "required": true,
             "schema": {
               "type": "string",
@@ -328,19 +481,25 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/test": {
-      "get": {
-        "tags": [
-          "Test"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
+            "description": "The friendship was deleted."
+          },
+          "400": {
+            "description": "Invalid identifier or request cannot be processed."
+          },
+          "401": {
+            "description": "Authentication is required."
+          },
+          "403": {
+            "description": "The user is not authorized to delete this friendship."
+          },
+          "404": {
+            "description": "Friendship not found."
+          },
+          "409": {
+            "description": "Conflict occurred (e.g., pending operations prevent deletion)."
+          },
+          "500": {
+            "description": "Unexpected server error."
           }
         }
       }
@@ -376,17 +535,7 @@
           "200": {
             "description": "Registration succeeded and returns the created user.",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegisterRequest"
-                }
-              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegisterRequest"
-                }
-              },
-              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RegisterRequest"
                 }
@@ -433,23 +582,7 @@
           "200": {
             "description": "Users retrieved successfully.",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GetUsersResponse"
-                  }
-                }
-              },
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GetUsersResponse"
-                  }
-                }
-              },
-              "text/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -517,17 +650,7 @@
           "200": {
             "description": "Username changed successfully and the new username is returned.",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegisterRequest"
-                }
-              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegisterRequest"
-                }
-              },
-              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RegisterRequest"
                 }
@@ -807,23 +930,7 @@
           "200": {
             "description": "Friendship invitations retrieved successfully.",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GetFriendshipInvitationResponse"
-                  }
-                }
-              },
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GetFriendshipInvitationResponse"
-                  }
-                }
-              },
-              "text/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -879,23 +986,7 @@
           "200": {
             "description": "Chats retrieved successfully.",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GetChatsResponse"
-                  }
-                }
-              },
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GetChatsResponse"
-                  }
-                }
-              },
-              "text/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -923,6 +1014,20 @@
   },
   "components": {
     "schemas": {
+      "AcceptInvitationResponse": {
+        "type": "object",
+        "properties": {
+          "friendshipId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
       "ChangePasswordRequest": {
         "required": [
           "newPassword",
@@ -1041,6 +1146,24 @@
         },
         "additionalProperties": false
       },
+      "GetPagedMessagesResponse": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageReadModel"
+            },
+            "nullable": true
+          },
+          "lastFriendReadMessageId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "GetUsersResponse": {
         "type": "object",
         "properties": {
@@ -1082,12 +1205,79 @@
         },
         "additionalProperties": false
       },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "accessToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "refreshToken": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MessageReadModel": {
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "conversationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "senderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
       "RefreshAccessTokenRequest": {
         "required": [
           "refreshToken"
         ],
         "type": "object",
         "properties": {
+          "refreshToken": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RefreshAccessTokenResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "nullable": true
+          },
           "refreshToken": {
             "type": "string",
             "format": "uuid"
@@ -1171,6 +1361,16 @@
             "format": "uuid"
           },
           "recipientId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendFriendInvitationResponse": {
+        "type": "object",
+        "properties": {
+          "friendshipInvitationId": {
             "type": "string",
             "format": "uuid"
           }

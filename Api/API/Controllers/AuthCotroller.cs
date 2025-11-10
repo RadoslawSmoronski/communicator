@@ -55,6 +55,7 @@ namespace API.Controllers
         /// <response code="500">Unexpected server error.</response>
         [HttpPost("login")] 
         [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginRequest req)
         {
             _logger.LogInformation("[AuthController - LoginAsync] Login attempt for email: {Email}", req.Email);
@@ -89,6 +90,7 @@ namespace API.Controllers
         /// <response code="500">An unexpected server error occurred.</response>
         [HttpPost("refresh-token")]
         [ProducesResponseType(typeof(RefreshAccessTokenResponse), StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshAccessTokenRequest req)
         {
             _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token attempt: {RefreshToken}", req.RefreshToken);
@@ -126,6 +128,7 @@ namespace API.Controllers
         /// <response code="500">An unexpected server error occurred.</response>
         [HttpPost("confirm-email")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest req)
         {
             var command = new ConfirmEmailCommand(req.UserId, WebUtility.UrlDecode(req.ConfirmationToken));
@@ -157,6 +160,7 @@ namespace API.Controllers
         /// <response code="500">An unexpected server error occurred.</response>
         [HttpPost("request-password-reset")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> RequestPasswordResetAsync([FromBody] RequestPasswordResetRequest req)
         {
             _logger.LogInformation("[AuthController - RequestPasswordResetAsync] Password reset requested for email: {Email}", req.Email);
@@ -195,6 +199,7 @@ namespace API.Controllers
         /// <response code="500">Unexpected server error.</response>
         [HttpPost("password-reset")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest req)
         {
             var command = new ResetPasswordCommand(req.UserId, req.CodedToken, req.NewPassword);

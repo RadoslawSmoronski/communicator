@@ -53,6 +53,7 @@ namespace API.Controllers
         /// <response code="500">An unexpected server error occurred.</response>
         [HttpPost()]
         [ProducesResponseType(typeof(RegisterRequest), StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest req)
         {
             var command = new RegisterUserCommand(req.Email, req.Username, req.Password);
@@ -88,6 +89,7 @@ namespace API.Controllers
         [Authorize]
         [HttpPatch("{userId}/username")]
         [ProducesResponseType(typeof(RegisterRequest), StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> ChangeUsernameAsync([FromRoute] Guid userId, [FromBody] ChangeUsernameRequest req)
         {
             var command = new ChangeUsernameCommand(userId, req.NewUsername);
@@ -122,6 +124,7 @@ namespace API.Controllers
         [Authorize]
         [HttpPatch("{userId}/password")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> ChangePasswordAsync([FromRoute] Guid userId, [FromBody] ChangePasswordRequest req)
         {
             var command = new ChangePasswordCommand(userId, req.OldPassword, req.NewPassword);
@@ -159,6 +162,7 @@ namespace API.Controllers
         [HttpPost("{userId}/avatar")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> UploadAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarRequest req)
         {
             var command = new UploadAvatarCommand(userId, req.File);
@@ -191,6 +195,7 @@ namespace API.Controllers
         [Authorize]
         [HttpDelete("{userId}/avatar")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> DeleteAvatarAsync([FromRoute] Guid userId)
         {
             var command = new DeleteAvatarCommand(userId);
@@ -229,6 +234,7 @@ namespace API.Controllers
         [HttpPut("{userId}/avatar")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> ChangeAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarRequest req)
         {
             var command = new ChangeAvatarCommand(userId, req.File);
@@ -262,6 +268,7 @@ namespace API.Controllers
         [Authorize]
         [HttpGet("{userId}/friend-invitations")]
         [ProducesResponseType(typeof(List<GetFriendshipInvitationResponse>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> GetFriendInvitationsAsync([FromRoute] Guid userId)
         {
             var command = new GetInvitationsCommand(userId);
@@ -305,6 +312,7 @@ namespace API.Controllers
         [Authorize]
         [HttpGet("")]
         [ProducesResponseType(typeof(List<GetUsersResponse>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> GetUsersAsync([FromQuery] string search, [FromQuery] Guid? invitableFor)
         {
             var query = new GetUsersQuery(search, invitableFor);
@@ -343,6 +351,7 @@ namespace API.Controllers
         [Authorize]
         [HttpGet("{userId}/chats")]
         [ProducesResponseType(typeof(List<GetChatsResponse>), StatusCodes.Status200OK)]
+        [Produces("application/json")]
         public async Task<IActionResult> GetChatsAsync([FromRoute] Guid userId, [FromQuery] bool onlyFriends)
         {
             var query = new GetChatsQuery(userId, onlyFriends);
