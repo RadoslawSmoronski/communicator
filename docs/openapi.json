@@ -1095,6 +1095,9 @@
             "type": "string",
             "format": "uuid"
           },
+          "isFriendOnline": {
+            "type": "boolean"
+          },
           "friendAvatarUrl": {
             "type": "string",
             "nullable": true

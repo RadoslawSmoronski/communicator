@@ -4,6 +4,7 @@
         Guid FriendId,
         string FriendUsername,
         Guid ConversationId,
+        bool IsFriendOnline,
         string? FriendAvatarUrl = null,
         Guid? FriendshipId = null,
         Guid? LastMessageId = null,
