@@ -7,6 +7,5 @@
         public required Guid SenderId { get; set; }
         public User? Sender { get; set; }
         public required string Content { get; set; }
-        public required DateTime Timestamp { get; set; }
     }
 }

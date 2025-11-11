@@ -1,6 +1,5 @@
 ﻿using Application.Common.Interfaces;
-using Application.Interfaces;
-using Application.Interfaces.Users;
+using Application.Common.Interfaces.Users;
 using Application.Repositories;
 using Application.Users.Queries.GetInvitations;
 using Domain.Entities;

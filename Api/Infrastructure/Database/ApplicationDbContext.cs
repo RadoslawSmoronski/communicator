@@ -50,7 +50,7 @@ namespace Infrastructure.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Helpful index
-            builder.Entity<MessageEntity>().HasIndex(m => new { m.ConversationId, m.Timestamp });
+            builder.Entity<MessageEntity>().HasIndex(m => new { m.ConversationId, m.CreatedAt });
 
             // Friendships/Invitations config stays as you had it
         }

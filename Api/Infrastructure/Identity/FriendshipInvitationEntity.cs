@@ -9,7 +9,6 @@ namespace Infrastructure.Identity
     {
         public Guid SenderId { get; set; }
         public Guid RecipientId { get; set; }
-        public DateTime CreatedAt { get; set; }
         [ForeignKey(nameof(SenderId))]
         public UserAccount? SenderUser { get; set; }
         [ForeignKey(nameof(RecipientId))]

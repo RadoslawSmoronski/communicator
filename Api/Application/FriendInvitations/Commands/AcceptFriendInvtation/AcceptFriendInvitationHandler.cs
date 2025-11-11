@@ -1,6 +1,6 @@
-﻿using Application.FriendInvitations.Commands.AcceptFriendInvtation;
-using Application.Interfaces;
-using Application.Interfaces.Users;
+﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces.Users;
+using Application.FriendInvitations.Commands.AcceptFriendInvtation;
 using MediatR;
 using Shared.Result;
 

@@ -1,7 +1,5 @@
 ﻿using Application.Common.Authorization;
-using Application.Interfaces;
 using Application.Repositories;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace Infrastructure.Authorization
 {

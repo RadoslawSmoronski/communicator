@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using Infrastructure.Services;
+﻿using Infrastructure.Services;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Database
@@ -21,8 +20,6 @@ namespace Infrastructure.Database
 
         public Guid? User1LastReadMessageId { get; set; }
         public Guid? User2LastReadMessageId { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastMessageTime { get; set; }
     }
 }

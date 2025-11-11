@@ -1,5 +1,5 @@
 ﻿using Application.Common.Authorization;
-using Application.Interfaces;
+using Application.Common.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using MediatR;

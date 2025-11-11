@@ -1,10 +1,11 @@
-﻿using Application.Common.Behaviors;
+﻿using Application.Common.Behaviours;
 using Application.Settings;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Reflection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Application.Common;
 public static class DependencyInjection
 {
     public static void AddApplicationServices(this IHostApplicationBuilder builder)

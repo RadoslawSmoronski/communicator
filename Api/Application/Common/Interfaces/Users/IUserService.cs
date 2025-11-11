@@ -2,7 +2,7 @@
 using Domain.Entities;
 using Shared.Result;
 
-namespace Application.Interfaces.Users
+namespace Application.Common.Interfaces.Users
 {
     public interface IUserService
     {

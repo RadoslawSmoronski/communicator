@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Shared.Result;
 
-namespace Application.Interfaces.Users
+namespace Application.Common.Interfaces.Users
 {
     public interface IUserAvatarService
     {

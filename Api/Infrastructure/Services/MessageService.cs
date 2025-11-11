@@ -1,5 +1,5 @@
-﻿using Application.Contracts.Chat;
-using Application.Interfaces;
+﻿using Application.Common.Interfaces;
+using Application.Contracts.Chat;
 using Application.Repositories;
 using Application.Settings;
 using AutoMapper;
@@ -65,11 +65,11 @@ namespace Infrastructure.Services
                     ConversationId = conversationId,
                     SenderId = userId,
                     Content = content,
-                    Timestamp = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 conversation.LastMessageId = message.Id;
-                conversation.LastMessageTime = message.Timestamp;
+                conversation.LastMessageTime = message.CreatedAt;
 
                 await _unitOfWork.Messages.AddAsync(message);
                 await _unitOfWork.Conversations.UpdateAsync(conversation);

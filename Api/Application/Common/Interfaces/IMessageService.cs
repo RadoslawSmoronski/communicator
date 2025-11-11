@@ -2,7 +2,7 @@
 using Domain.Entities;
 using Shared.Result;
 
-namespace Application.Interfaces
+namespace Application.Common.Interfaces
 {
     public interface IMessageService
     {

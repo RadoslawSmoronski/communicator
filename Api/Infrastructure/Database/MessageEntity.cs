@@ -13,6 +13,5 @@ namespace Infrastructure.Database
         [ForeignKey(nameof(SenderId))]
         public UserAccount? Sender { get; set; }
         public required string Content { get; set; }
-        public required DateTime Timestamp { get; set; }
     }
 }

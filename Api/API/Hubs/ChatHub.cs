@@ -1,5 +1,5 @@
-﻿using Application.Contracts.Chat;
-using Application.Interfaces;
+﻿using Application.Common.Interfaces;
+using Application.Contracts.Chat;
 using ChatCommunicator.Application.Hubs.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

@@ -1,6 +1,6 @@
 ﻿using Application.Auth.Commands.RequestPasswordReset;
 using Application.Common.Interfaces;
-using Application.Interfaces.Users;
+using Application.Common.Interfaces.Users;
 using Application.Settings;
 using AutoMapper;
 using Domain.Entities;

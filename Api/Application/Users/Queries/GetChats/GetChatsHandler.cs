@@ -1,5 +1,5 @@
-﻿using Application.Interfaces;
-using Application.Interfaces.Users;
+﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 using System.Diagnostics.CodeAnalysis;
@@ -61,7 +61,7 @@ namespace Application.Users.Queries.GetChats
                     IsFriendOnline: friendIsOnline,
                     LastMessageId: c.LastMessageId,
                     IsFriendSenderMessage: c.LastMessage?.SenderId == friend.Id,
-                    LastMessageTimestamp: c.LastMessage?.Timestamp
+                    LastMessageTimestamp: c.LastMessage?.CreatedAt
                 );
             });
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Shared.Result;
 
-namespace Application.Interfaces
+namespace Application.Common.Interfaces
 {
     public interface IFileStorageService
     {

@@ -4,7 +4,7 @@ using Application.Common.Interfaces;
 using Application.Common.Security;
 using MediatR;
 
-namespace Application.Common.Behaviors;
+namespace Application.Common.Behaviours;
 
 public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull

@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.Users;
+﻿using Application.Common.Interfaces.Users;
 using Application.Users.Commands.UploadAvatar;
 using MediatR;
 using Microsoft.Extensions.Logging;

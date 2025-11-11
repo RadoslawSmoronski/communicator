@@ -20,7 +20,7 @@ namespace Application.Common
                 .ForCtorParam("ConversationId", opt => opt.MapFrom(s => s.ConversationId))
                 .ForCtorParam("SenderId", opt => opt.MapFrom(s => s.SenderId))
                 .ForCtorParam("Content", opt => opt.MapFrom(s => s.Content))
-                .ForCtorParam("Timestamp", opt => opt.MapFrom(s => s.Timestamp));
+                .ForCtorParam("Timestamp", opt => opt.MapFrom(s => s.CreatedAt));
         }
     }
 }

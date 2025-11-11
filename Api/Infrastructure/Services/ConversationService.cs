@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Interfaces;
 using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;

@@ -61,7 +61,7 @@ namespace Infrastructure.Services.Background
             var expirationTimeSpan = TimeSpan.FromSeconds(_settings.RefreshTokenLifeInSeconds);
             var expirationTime = DateTime.UtcNow - expirationTimeSpan;
 
-            var result = await unitOfWork.RefreshTokens.WhereAsync(x => x.Expiration < expirationTime);
+            var result = await unitOfWork.RefreshTokens.WhereAsync(x => x.CreatedAt < expirationTime);
 
             if (result.Count() > 0)
             {

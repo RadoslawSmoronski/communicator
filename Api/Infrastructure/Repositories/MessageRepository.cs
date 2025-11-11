@@ -31,8 +31,8 @@ namespace Infrastructure.Repositories
                 throw new InvalidOperationException($"Message '{fromMessageId}' does not belong to conversation '{conversationId}'.");
 
             var result = _dbSet
-                .Where(x => x.ConversationId == conversationId && x.Timestamp < fromMessage.Timestamp)
-                .OrderByDescending(x => x.Timestamp)
+                .Where(x => x.ConversationId == conversationId && x.CreatedAt < fromMessage.CreatedAt)
+                .OrderByDescending(x => x.CreatedAt)
                 .Take(pageSize);
 
             return _mapper.Map<List<Message>>(result);
@@ -42,7 +42,7 @@ namespace Infrastructure.Repositories
         {
             var result = await _dbSet
                 .Where(x => x.ConversationId == conversationId && x.SenderId != userId)
-                .OrderByDescending(x => x.Timestamp)
+                .OrderByDescending(x => x.CreatedAt)
                 .FirstOrDefaultAsync();
 
             return _mapper.Map<Message?>(result);

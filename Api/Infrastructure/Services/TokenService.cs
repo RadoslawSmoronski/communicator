@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Interfaces;
 using Application.Repositories;
 using Application.Settings;
 using Domain.Entities;
@@ -109,7 +109,7 @@ namespace Infrastructure.Services
                 var newRefreshToken = Guid.NewGuid();
 
                 refreshToken.Token = newRefreshToken;
-                refreshToken.Expiration = DateTime.UtcNow; // refactor: Consider renaming 'Expiration' to 'CreatedAt' if this is creation time.
+                refreshToken.CreatedAt = DateTime.UtcNow; // refactor: Consider renaming 'Expiration' to 'CreatedAt' if this is creation time.
 
                 _unitOfWork.RefreshTokens.Update(refreshToken);
                 await _unitOfWork.SaveAsync();
@@ -138,7 +138,7 @@ namespace Infrastructure.Services
                     expirationThreshold, _refreshTokenSettings.RefreshTokenLifeInSeconds);
 
                 var result = await _unitOfWork.RefreshTokens
-                    .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.Expiration > expirationThreshold);
+                    .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.CreatedAt > expirationThreshold);
 
                 if (result is null)
                 {

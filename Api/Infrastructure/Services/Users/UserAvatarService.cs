@@ -1,5 +1,5 @@
-﻿using Application.Interfaces;
-using Application.Interfaces.Users;
+﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces.Users;
 using Application.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

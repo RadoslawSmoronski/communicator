@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Interfaces;
 using Application.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
