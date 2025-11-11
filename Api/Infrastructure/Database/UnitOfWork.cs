@@ -1,27 +1,20 @@
 ﻿using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Database;
-using Infrastructure.Identity;
 using Infrastructure.Repositories;
 
-namespace Infrastructure.UnitOfWork
+namespace Infrastructure.Database
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork(ApplicationDbContext context, IMapper mapper) : IUnitOfWork
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
+
         private IRepository<RefreshToken>? _refreshTokens;
         private IFriendshipRepository? _friendships;
         private IFriendshipInvitationRepository? _friendshipInvitations;
         private IConversationRepository? _conversations;
         private IMessageRepository? _messages;
-        private IMapper _mapper;
-
-        public UnitOfWork(ApplicationDbContext context, IMapper mapper)
-        {
-            _context = context;
-            _mapper = mapper;
-        }
 
         public IRepository<RefreshToken> RefreshTokens => _refreshTokens ??= new Repository<RefreshToken>(_context);
         public IFriendshipRepository Friendships => _friendships ??= new FriendshipRepository(_context, _mapper);
@@ -37,6 +30,7 @@ namespace Infrastructure.UnitOfWork
         public void Dispose()
         {
             _context.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

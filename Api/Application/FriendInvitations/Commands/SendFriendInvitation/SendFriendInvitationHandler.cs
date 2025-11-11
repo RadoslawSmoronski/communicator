@@ -3,20 +3,15 @@ using Application.Common.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
-namespace Application.Users.Commands.SendFriendInvitation
+namespace Application.FriendInvitations.Commands.SendFriendInvitation
 {
-    public class SendFriendInvitationHandler : IRequestHandler<SendFriendInvitationCommand, Result<Guid>>
+    public class SendFriendInvitationHandler(
+        IFriendInvitationsService friendInvitationsService,
+        IFriendshipService friendshipService)
+        : IRequestHandler<SendFriendInvitationCommand, Result<Guid>>
     {
-        private readonly IUserService _userService;
-        private readonly IFriendInvitationsService _friendInvitationsService;
-        private readonly IFriendshipService _friendshipService;
-
-        public SendFriendInvitationHandler(IUserService userService, IFriendInvitationsService friendInvitationsService, IFriendshipService friendshipService)
-        {
-            _userService = userService;
-            _friendInvitationsService = friendInvitationsService;
-            _friendshipService = friendshipService;
-        }
+        private readonly IFriendInvitationsService _friendInvitationsService = friendInvitationsService;
+        private readonly IFriendshipService _friendshipService = friendshipService;
 
         public async Task<Result<Guid>> Handle(SendFriendInvitationCommand request, CancellationToken cancellationToken)
         {

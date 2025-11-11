@@ -1,7 +1,6 @@
-﻿using Infrastructure.Services;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Infrastructure.Database
+namespace Infrastructure.Entities
 {
     [Table("Messages")]
     public class MessageEntity : BaseEntityInfrastructure

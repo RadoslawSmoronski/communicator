@@ -10,29 +10,23 @@ using Shared.Result;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Infrastructure.Entities;
 
 namespace Infrastructure.Services
 {
-    public class TokenService : ITokenService
+    public class TokenService(
+        UserManager<UserAccount> userManager,
+        IOptions<JWTTokenSettings> accessTokenOptions,
+        IOptions<RefreshTokenSettings> refreshTokenOptions,
+        ILogger<TokenService> logger,
+        IUnitOfWork unitOfWork
+    ) : ITokenService
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly JWTTokenSettings _accessTokenSettings;
-        private readonly RefreshTokenSettings _refreshTokenSettings;
-        private readonly ILogger<TokenService> _logger;
-        private readonly IUnitOfWork _unitOfWork;
-
-        public TokenService(UserManager<UserAccount> userManager,
-            IOptions<JWTTokenSettings> accessTokenOptions,
-            IOptions<RefreshTokenSettings> refreshTokenOptions,
-            ILogger<TokenService> logger,
-            IUnitOfWork unitOfWork)
-        {
-            _userManager = userManager;
-            _accessTokenSettings = accessTokenOptions.Value;
-            _refreshTokenSettings = refreshTokenOptions.Value;
-            _logger = logger;
-            _unitOfWork = unitOfWork;
-        }
+        private readonly UserManager<UserAccount> _userManager = userManager;
+        private readonly JWTTokenSettings _accessTokenSettings = accessTokenOptions.Value;
+        private readonly RefreshTokenSettings _refreshTokenSettings = refreshTokenOptions.Value;
+        private readonly ILogger<TokenService> _logger = logger;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result<string>> CreateAccessTokenAsync(Guid userId)
         {

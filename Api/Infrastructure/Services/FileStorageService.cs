@@ -5,15 +5,10 @@ using Shared.Result;
 
 namespace Infrastructure.Services
 {
-    public class FileStorageService : IFileStorageService
+    public class FileStorageService(ILogger<FileStorageService> logger) : IFileStorageService
     {
         private readonly string _basePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-        private readonly ILogger<FileStorageService> _logger;
-
-        public FileStorageService(ILogger<FileStorageService> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<FileStorageService> _logger = logger;
 
         public async Task<Result> SaveFileAsync(IFormFile file, string directory, string filename)
         {

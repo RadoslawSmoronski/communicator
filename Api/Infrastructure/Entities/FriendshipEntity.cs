@@ -1,8 +1,7 @@
 ﻿using Domain.Entities;
-using Infrastructure.Services;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Infrastructure.Identity
+namespace Infrastructure.Entities
 {
     [Table("Friendships")]
     public class FriendshipEntity : BaseEntity

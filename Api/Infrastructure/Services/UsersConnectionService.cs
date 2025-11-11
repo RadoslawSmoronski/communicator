@@ -4,15 +4,10 @@ using System.Collections.Concurrent;
 
 namespace Infrastructure.Services
 {
-    public class UsersConnectionService : IUsersConnectionService
+    public class UsersConnectionService(ILogger<UsersConnectionService> logger) : IUsersConnectionService
     {
         private readonly ConcurrentDictionary<Guid, HashSet<string>> _usersOnline = new();
-        private readonly ILogger<UsersConnectionService> _logger;
-
-        public UsersConnectionService(ILogger<UsersConnectionService> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<UsersConnectionService> _logger = logger;
 
         public Task AddUpdateAsync(string connectionId, Guid userId)
         {

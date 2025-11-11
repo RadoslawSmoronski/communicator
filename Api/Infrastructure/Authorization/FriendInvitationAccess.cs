@@ -3,14 +3,9 @@ using Application.Repositories;
 
 namespace Infrastructure.Authorization
 {
-    public class FriendInvitationAccess : IFriendInvitationAccess
+    public class FriendInvitationAccess(IUnitOfWork unitOfWork) : IFriendInvitationAccess
     {
-        private IUnitOfWork _unitOfWork;
-
-        public FriendInvitationAccess(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<bool> IsRecipientAsync(Guid userId, Guid invitationId, CancellationToken ct)
         {

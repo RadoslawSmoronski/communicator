@@ -8,16 +8,10 @@ using System.Net.Mail;
 
 namespace Infrastructure.Services
 {
-    public class SmtpEmailService : IEmailService
+    public class SmtpEmailService(IOptions<SmtpEmailSettings> settings, ILogger<SmtpEmailService> logger) : IEmailService
     {
-        private readonly SmtpEmailSettings _settings;
-        private readonly ILogger<SmtpEmailService> _logger;
-
-        public SmtpEmailService(IOptions<SmtpEmailSettings> settings, ILogger<SmtpEmailService> logger)
-        {
-            _settings = settings.Value;
-            _logger = logger;
-        }
+        private readonly SmtpEmailSettings _settings = settings.Value;
+        private readonly ILogger<SmtpEmailService> _logger = logger;
 
         public async Task<Result> SendAsync(string to, string subject, string body)
         {

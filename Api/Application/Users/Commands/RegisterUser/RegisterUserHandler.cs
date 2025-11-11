@@ -10,27 +10,19 @@ using System.Net;
 
 namespace Application.Users.Commands.RegisterUser
 {
-    public class RegisterUserHandler : IRequestHandler<RegisterUserCommand, Result<RegisterUserReadModel>>
+    public class RegisterUserHandler(
+        IUserService userService,
+        IEmailService emailService,
+        ILogger<RegisterUserHandler> logger,
+        IOptions<ConfirmEmailMessageSettings> confirmEmailMessageOptions,
+        IMapper mapper)
+        : IRequestHandler<RegisterUserCommand, Result<RegisterUserReadModel>>
     {
-        private readonly IUserService _userService;
-        private readonly IEmailService _emailService;
-        private readonly ILogger<RegisterUserHandler> _logger;
-        private readonly IMapper _mapper;
-
-        private readonly ConfirmEmailMessageSettings _confirmEmailMessageSettings;
-
-        public RegisterUserHandler(IUserService userService,
-            IEmailService emailService,
-            ILogger<RegisterUserHandler> logger,
-            IOptions<ConfirmEmailMessageSettings> confirmEmailMessageOptions,
-            IMapper mapper)
-        {
-            _userService = userService;
-            _emailService = emailService;
-            _logger = logger;
-            _confirmEmailMessageSettings = confirmEmailMessageOptions.Value;
-            _mapper = mapper;
-        }
+        private readonly IUserService _userService = userService;
+        private readonly IEmailService _emailService = emailService;
+        private readonly ILogger<RegisterUserHandler> _logger = logger;
+        private readonly IMapper _mapper = mapper;
+        private readonly ConfirmEmailMessageSettings _confirmEmailMessageSettings = confirmEmailMessageOptions.Value;
 
         public async Task<Result<RegisterUserReadModel>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
@@ -70,7 +62,7 @@ namespace Application.Users.Commands.RegisterUser
 
         private string CreateEmailContent(Guid userId, string token)
         {
-            var address = $"{_confirmEmailMessageSettings.Address}userId={userId.ToString()}&token={token}";
+            var address = _confirmEmailMessageSettings.Address + "userId=" + userId + "&token=" + token;
             return _confirmEmailMessageSettings.Content.Replace("[address]", address);
         }
     }

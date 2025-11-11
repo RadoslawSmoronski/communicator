@@ -1,7 +1,7 @@
 ﻿using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Identity;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories

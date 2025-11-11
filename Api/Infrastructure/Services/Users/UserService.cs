@@ -4,6 +4,7 @@ using Application.Common.Interfaces.Users;
 using Application.Common.Settings;
 using AutoMapper;
 using Domain.Entities;
+using Infrastructure.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,26 +14,19 @@ using Shared.Result;
 
 namespace Infrastructure.Services.Users
 {
-    public class UserService : IUserService
+    public class UserService(
+        UserManager<UserAccount> userManager,
+        SignInManager<UserAccount> signInManager,
+        ILogger<UserService> logger,
+        IUserAvatarService userAvatarService,
+        IMapper mapper
+    ) : IUserService
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly SignInManager<UserAccount> _signInManager;
-        private readonly ILogger<UserService> _logger;
-        private readonly ICurrentUser _user;
-        private readonly UserAvatarSettings _userAvatarSettings;
-        private readonly IUserAvatarService _userAvatarService;
-        private readonly IMapper _mapper;
-
-        public UserService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, ILogger<UserService> logger, ICurrentUser user, IOptions<UserAvatarSettings> userAvatarSettingsOption, IUserAvatarService userAvatarService, IMapper mapper)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
-            _user = user;
-            _userAvatarSettings = userAvatarSettingsOption.Value;
-            _userAvatarService = userAvatarService;
-            _mapper = mapper;
-        }
+        private readonly UserManager<UserAccount> _userManager = userManager;
+        private readonly SignInManager<UserAccount> _signInManager = signInManager;
+        private readonly ILogger<UserService> _logger = logger;
+        private readonly IUserAvatarService _userAvatarService = userAvatarService;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<Result<User>> LoginAsync(string email, string password)
         {
@@ -212,11 +206,6 @@ namespace Infrastructure.Services.Users
                 _logger.LogError(ex, "[UserService - GenerateEmailConfirmationTokenAsync] Unexpected error for userId: {UserId}", userId);
                 return Error.Failure("EmailConfirmationTokenFailed", "An unexpected error occurred while generating the email confirmation token.");
             }
-        }
-
-        public bool IsAuthorized(Guid userId)
-        {
-            return false;
         }
 
         public async Task<Result<string>> ChangeUsernameAsync(Guid userId, string newUsername)

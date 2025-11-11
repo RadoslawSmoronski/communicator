@@ -1,23 +1,14 @@
 ﻿using Application.Common.Interfaces;
-using Application.Common.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
 namespace Application.Users.Queries.GetInvitations
 {
-    public class GetInvitationsHandler : IRequestHandler<GetInvitationsCommand, Result<List<GetInvitationsReadModel>>>
+    public class GetInvitationsHandler(IFriendInvitationsService friendInvitationsService) : IRequestHandler<GetInvitationsCommand, Result<List<GetInvitationsReadModel>>>
     {
-        private readonly IFriendInvitationsService _friendInvitationsService;
-        private readonly IUserService _userService;
-
-        public GetInvitationsHandler(IUserService userService, IFriendInvitationsService friendInvitationsService)
-        {
-            _userService = userService;
-            _friendInvitationsService = friendInvitationsService;
-        }
+        private readonly IFriendInvitationsService _friendInvitationsService = friendInvitationsService;
 
         public async Task<Result<List<GetInvitationsReadModel>>> Handle(GetInvitationsCommand request, CancellationToken cancellationToken)
-                => await _friendInvitationsService.GetInvitationsSendedToUserAsync(request.UserId);
-            
+                => await _friendInvitationsService.GetInvitationsSendedToUserAsync(request.UserId);  
     }
 }

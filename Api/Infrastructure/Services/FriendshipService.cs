@@ -1,24 +1,22 @@
 ﻿using Application.Common.Interfaces;
 using Application.Repositories;
 using Domain.Entities;
+using Infrastructure.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
 
 namespace Infrastructure.Services
 {
-    public class FriendshipService : IFriendshipService
+    public class FriendshipService(
+        UserManager<UserAccount> userManager,
+        IUnitOfWork unitOfWork,
+        ILogger<FriendshipService> logger
+    ) : IFriendshipService
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<FriendshipService> _logger;
-
-        public FriendshipService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, ILogger<FriendshipService> logger)
-        {
-            _userManager = userManager;
-            _unitOfWork = unitOfWork;
-            _logger = logger;
-        }
+        private readonly UserManager<UserAccount> _userManager = userManager;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger<FriendshipService> _logger = logger;
 
         public async Task<Result<Guid>> AddAsync(Guid user1Id, Guid user2Id)
         {

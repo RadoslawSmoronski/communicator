@@ -1,8 +1,6 @@
-﻿using Infrastructure.Database;
-using Infrastructure.Services;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Infrastructure.Identity
+namespace Infrastructure.Entities
 {
     [Table("FriendshipInvitations")]
     public class FriendshipInvitationEntity : BaseEntityInfrastructure

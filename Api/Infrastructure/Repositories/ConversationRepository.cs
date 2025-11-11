@@ -1,7 +1,7 @@
 ﻿using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Database;
+using Infrastructure.Entities;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;

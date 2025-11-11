@@ -1,7 +1,6 @@
-﻿using Infrastructure.Services;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Infrastructure.Database
+namespace Infrastructure.Entities
 {
     [Table("Conversations")]
     public class ConversationEntity : BaseEntityInfrastructure
@@ -16,7 +15,7 @@ namespace Infrastructure.Database
         public Guid? LastMessageId { get; set; }
         [ForeignKey(nameof(LastMessageId))]
         public MessageEntity? LastMessage { get; set; }
-        public ICollection<MessageEntity> Messages { get; set; } = new List<MessageEntity>();
+        public ICollection<MessageEntity> Messages { get; set; } = [];
 
         public Guid? User1LastReadMessageId { get; set; }
         public Guid? User2LastReadMessageId { get; set; }

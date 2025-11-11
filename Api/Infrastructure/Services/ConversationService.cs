@@ -2,26 +2,24 @@
 using Application.Repositories;
 using AutoMapper;
 using Domain.Entities;
+using Infrastructure.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Shared.Result;
 
 namespace Infrastructure.Services
 {
-    public class ConversationService : IConversationService
+    public class ConversationService(
+        UserManager<UserAccount> userManager,
+        ILogger<ConversationService> logger,
+        IUnitOfWork unitOfWork,
+        IMapper mapper
+    ) : IConversationService
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly ILogger<ConversationService> _logger;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public ConversationService(UserManager<UserAccount> userManager, ILogger<ConversationService> logger, IUnitOfWork unitOfWork, IMapper mapper)
-        {
-            _userManager = userManager;
-            _logger = logger;
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-        }
+        private readonly UserManager<UserAccount> _userManager = userManager;
+        private readonly ILogger<ConversationService> _logger = logger;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<Result<Conversation>> GetOrCreateAsync(Guid userId, Guid friendId)
         {

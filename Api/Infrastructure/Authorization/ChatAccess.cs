@@ -3,14 +3,9 @@ using Application.Repositories;
 
 namespace Infrastructure.Authorization
 {
-    public class ChatAccess : IChatAccess
+    public class ChatAccess(IUnitOfWork unitOfWork) : IChatAccess
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public ChatAccess(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<bool> IsParticipantAsync(Guid userId, Guid chatId, CancellationToken ct)
         {

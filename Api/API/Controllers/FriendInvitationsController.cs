@@ -1,7 +1,7 @@
 ﻿using API.Contracts.FriendInvitations;
 using Application.FriendInvitations.Commands.AcceptFriendInvtation;
-using Application.FriendInvitations.Commands.DecelineInvitation;
-using Application.Users.Commands.SendFriendInvitation;
+using Application.FriendInvitations.Commands.DeclineInvitation;
+using Application.FriendInvitations.Commands.SendFriendInvitation;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -83,7 +83,7 @@ namespace API.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> DeclineInvitationAsync([FromRoute] Guid friendInvitationId)
         {
-            var command = new DecelineInvitationCommand(friendInvitationId);
+            var command = new DeclineInvitationCommand(friendInvitationId);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)

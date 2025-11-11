@@ -3,6 +3,7 @@ using Application.Common.Interfaces.Users;
 using Application.Repositories;
 using Application.Users.Queries.GetInvitations;
 using Domain.Entities;
+using Infrastructure.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -10,22 +11,19 @@ using Shared.Result;
 
 namespace Infrastructure.Services
 {
-    public class FriendInvitationsService : IFriendInvitationsService
+    public class FriendInvitationsService(
+        UserManager<UserAccount> userManager,
+        IUnitOfWork unitOfWork,
+        ILogger<FriendInvitationsService> logger,
+        ICurrentUser user,
+        IUserAvatarService userAvatarService
+    ) : IFriendInvitationsService
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<FriendInvitationsService> _logger;
-        private readonly IUserAvatarService _userAvatarService;
-        private readonly ICurrentUser _user;
-
-        public FriendInvitationsService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, ILogger<FriendInvitationsService> logger, ICurrentUser user, IUserAvatarService userAvatarService)
-        {
-            _userManager = userManager;
-            _unitOfWork = unitOfWork;
-            _logger = logger;
-            _user = user;
-            _userAvatarService = userAvatarService;
-        }
+        private readonly UserManager<UserAccount> _userManager = userManager;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger<FriendInvitationsService> _logger = logger;
+        private readonly IUserAvatarService _userAvatarService = userAvatarService;
+        private readonly ICurrentUser _user = user;
 
         public async Task<Result<Guid>> SendAsync(Guid senderId, Guid recipientId)
         {
@@ -85,11 +83,11 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<Result> DeleteAsync(Guid invitationId) => await _AcceptDeleteInviteAsync(invitationId, false);
+        public async Task<Result> DeleteAsync(Guid invitationId) => await AcceptDeleteInviteAsync(invitationId, false);
 
-        public async Task<Result<FriendshipInvitation>> AcceptAsync(Guid invitationId) => await _AcceptDeleteInviteAsync(invitationId, true);
+        public async Task<Result<FriendshipInvitation>> AcceptAsync(Guid invitationId) => await AcceptDeleteInviteAsync(invitationId, true);
 
-        private async Task<Result<FriendshipInvitation>> _AcceptDeleteInviteAsync(Guid InvitationId, bool IsAcceptInvitation)
+        private async Task<Result<FriendshipInvitation>> AcceptDeleteInviteAsync(Guid InvitationId, bool IsAcceptInvitation)
         {
             var loggerTag = IsAcceptInvitation ? "Accept" : "Delete";
 

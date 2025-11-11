@@ -1,21 +1,18 @@
 ﻿using Domain.Entities;
-using Infrastructure.Identity;
-using Infrastructure.Services;
+using Infrastructure.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Database
 {
-    public class ApplicationDbContext : IdentityDbContext<UserAccount, ApplicationRole, Guid>
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : IdentityDbContext<UserAccount, ApplicationRole, Guid>(options)
     {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<FriendshipEntity> Friendships { get; set; }
         public DbSet<FriendshipInvitationEntity> FriendshipInvitations { get; set; }
         public DbSet<ConversationEntity> Conversations { get; set; }
         public DbSet<MessageEntity> Messages { get; set; }
-
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

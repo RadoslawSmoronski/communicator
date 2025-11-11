@@ -5,30 +5,27 @@ using Shared.Result;
 
 namespace Application.Users.Queries.GetUsers
 {
-    public class GetUsersHandler : IRequestHandler<GetUsersQuery, Result<List<GetUsersReadModel>>>
+    public class GetUsersHandler(
+        IUserService userService,
+        IFriendshipService friendshipService,
+        IFriendInvitationsService friendInvitationsService)
+        : IRequestHandler<GetUsersQuery, Result<List<GetUsersReadModel>>>
     {
-        private readonly IUserService _userService;
-        private readonly IFriendshipService _friendshipService;
-        private readonly IFriendInvitationsService _friendInvitationsService;
-
-        public GetUsersHandler(IUserService userService, IFriendshipService friendshipService, IFriendInvitationsService friendInvitationsService)
-        {
-            _userService = userService;
-            _friendshipService = friendshipService;
-            _friendInvitationsService = friendInvitationsService;
-        }
+        private readonly IUserService _userService = userService;
+        private readonly IFriendshipService _friendshipService = friendshipService;
+        private readonly IFriendInvitationsService _friendInvitationsService = friendInvitationsService;
 
         public async Task<Result<List<GetUsersReadModel>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
         {
-            if (request.InvitableFor is null || request.InvitableFor.Value == Guid.Empty)
+            if (request.CanBeInvitedByUserId is null || request.CanBeInvitedByUserId.Value == Guid.Empty)
             {
                 return Error.Validation(
-                    "FriendInvitations.GetUsers.InvalidInvitableFor",
-                    "The 'InvitableFor' user id is required and cannot be an empty GUID."
+                    "FriendInvitations.GetUsers.InvalidCanBeInvitedByUserId",
+                    "The 'CanBeInvitedByUserId' user id is required and cannot be an empty GUID."
                 );
             }
 
-            var invitableForId = request.InvitableFor.Value;
+            var canBeInvitedByUserId = request.CanBeInvitedByUserId.Value;
 
             var usersResult = await _userService.GetAllAsync();
             if (!usersResult.IsSuccess)
@@ -39,22 +36,22 @@ namespace Application.Users.Queries.GetUsers
                 return new List<GetUsersReadModel>();
 
 
-            var userFriendsResult = await _friendshipService.GetUserFriendAsync(invitableForId);
+            var userFriendsResult = await _friendshipService.GetUserFriendAsync(canBeInvitedByUserId);
             if (!userFriendsResult.IsSuccess)
                 return userFriendsResult.Error!;
 
             var userFriends = userFriendsResult.Value;
             var usersFriendsIds = new HashSet<Guid>(userFriends.Select(x => x.Id));
 
-            var userInvitationsResult = await _friendInvitationsService.GetUserInvitations(invitableForId);
+            var userInvitationsResult = await _friendInvitationsService.GetUserInvitations(canBeInvitedByUserId);
             if (!userInvitationsResult.IsSuccess)
                 return userInvitationsResult.Error!;
 
             var userInvitations = userInvitationsResult.Value;
-            var userInvitationsIds = new HashSet<Guid>(userInvitations.Select(x => x.SenderId == invitableForId ? x.RecipientId : x.SenderId));
+            var userInvitationsIds = new HashSet<Guid>(userInvitations.Select(x => x.SenderId == canBeInvitedByUserId ? x.RecipientId : x.SenderId));
 
             var addableUsers = users
-                .Where(u => u.Id != invitableForId && !usersFriendsIds.Contains(u.Id))
+                .Where(u => u.Id != canBeInvitedByUserId && !usersFriendsIds.Contains(u.Id))
                 .Select(x => new GetUsersReadModel(
                     Id: x.Id,
                     AvatarUrl: x.AvatarUrl,

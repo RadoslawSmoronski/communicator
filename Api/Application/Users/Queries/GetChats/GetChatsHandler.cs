@@ -1,26 +1,18 @@
 ﻿using Application.Common.Interfaces;
-using Application.Common.Interfaces.Users;
 using MediatR;
 using Shared.Result;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace Application.Users.Queries.GetChats
 {
-    public class GetChatsHandler : IRequestHandler<GetChatsQuery, Result<List<GetChatsReadModel>>>
+    public class GetChatsHandler(
+        IConversationService conversationService,
+        IFriendshipService friendshipService,
+        IUsersConnectionService usersConnectionService)
+        : IRequestHandler<GetChatsQuery, Result<List<GetChatsReadModel>>>
     {
-        private readonly IConversationService _conversationService;
-        private readonly IFriendshipService _friendshipService;
-        private readonly IUserService _userService;
-        private readonly IUsersConnectionService _usersConnectionService;
-
-        public GetChatsHandler(IConversationService conversationService, IFriendshipService friendshipService, IUserService userService, IUsersConnectionService usersConnectionService)
-        {
-            _conversationService = conversationService;
-            _friendshipService = friendshipService;
-            _userService = userService;
-            _usersConnectionService = usersConnectionService;
-        }
+        private readonly IConversationService _conversationService = conversationService;
+        private readonly IFriendshipService _friendshipService = friendshipService;
+        private readonly IUsersConnectionService _usersConnectionService = usersConnectionService;
 
         public async Task<Result<List<GetChatsReadModel>>> Handle(GetChatsQuery request, CancellationToken cancellationToken)
         {

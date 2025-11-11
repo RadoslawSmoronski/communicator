@@ -1,9 +1,7 @@
 ﻿using Application.Contracts.Chat;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Database;
-using Infrastructure.Identity;
-using Infrastructure.Services;
+using Infrastructure.Entities;
 
 namespace Infrastructure
 {

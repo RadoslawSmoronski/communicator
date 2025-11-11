@@ -8,26 +8,23 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shared.Result;
+using Infrastructure.Entities;
 
 namespace Infrastructure.Services
 {
-    public class MessageService : IMessageService
+    public class MessageService(
+        UserManager<UserAccount> userManager,
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ILogger<MessageService> logger,
+        IOptions<MessagesSettings> options)
+        : IMessageService
     {
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly ILogger<MessageService> _logger;
-
-        private readonly MessagesSettings _messagesSettings;
-
-        public MessageService(UserManager<UserAccount> userManager, IUnitOfWork unitOfWork, IMapper mapper, ILogger<MessageService> logger, IOptions<MessagesSettings> options)
-        {
-            _userManager = userManager;
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _logger = logger;
-            _messagesSettings = options.Value;
-        }
+        private readonly UserManager<UserAccount> _userManager = userManager;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
+        private readonly ILogger<MessageService> _logger = logger;
+        private readonly MessagesSettings _messagesSettings = options.Value;
 
         public async Task<Result<MessageReceivedEvent>> SendMessageAsync(Guid userId, Guid conversationId, string content)
         {
@@ -178,7 +175,7 @@ namespace Infrastructure.Services
                     return Error.Forbidden("Conversation.AccessDenied", "You are not a participant of this conversation.");
                 }
 
-                var messages = await _GetPagedMessagesFromMessageIdAsync(conversationId, startMessageId);
+                var messages = await GetPagedMessagesFromMessageIdAsync(conversationId, startMessageId);
 
                 _logger.LogInformation("GetPagedMessagesFromMessageIdAsync succeeded. conversationId={ConversationId}, userId={UserId}, returnedMessages={Count}",
                     conversationId, userId, messages.Count);
@@ -199,7 +196,7 @@ namespace Infrastructure.Services
             }
         }
 
-        private async Task<List<Message>> _GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId)
+        private async Task<List<Message>> GetPagedMessagesFromMessageIdAsync(Guid conversationId, Guid fromMessageId)
         {
             var messages = await _unitOfWork.Messages.GetPagedMessagesFromMessageIdAsync(
                 conversationId,

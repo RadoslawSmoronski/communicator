@@ -7,18 +7,15 @@ using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Services.Background
 {
-    public class RefreshTokenCleanUpService : BackgroundService
+    public class RefreshTokenCleanUpService(
+        IServiceProvider serviceProvider,
+        ILogger<RefreshTokenCleanUpService> logger,
+        IOptions<RefreshTokenSettings> settings)
+        : BackgroundService
     {
-        private readonly RefreshTokenSettings _settings;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<RefreshTokenCleanUpService> _logger;
-
-        public RefreshTokenCleanUpService(IServiceProvider serviceProvider, ILogger<RefreshTokenCleanUpService> logger, IOptions<RefreshTokenSettings> settings)
-        {
-            _serviceProvider = serviceProvider;
-            _logger = logger;
-            _settings = settings.Value;
-        }
+        private readonly RefreshTokenSettings _settings = settings.Value;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        private readonly ILogger<RefreshTokenCleanUpService> _logger = logger;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -63,7 +60,7 @@ namespace Infrastructure.Services.Background
 
             var result = await unitOfWork.RefreshTokens.WhereAsync(x => x.CreatedAt < expirationTime);
 
-            if (result.Count() > 0)
+            if (result.Any())
             {
                 unitOfWork.RefreshTokens.DeleteRange(result);
                 await unitOfWork.SaveAsync();

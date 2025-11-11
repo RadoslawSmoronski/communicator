@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Database
+﻿namespace Infrastructure.Entities
 {
     public class BaseEntityInfrastructure
     {

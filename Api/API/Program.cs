@@ -1,6 +1,6 @@
 using API.Extensions;
+using API.Hubs;
 using Application.Common;
-using ChatCommunicator.Application.Hubs;
 
 namespace API
 {

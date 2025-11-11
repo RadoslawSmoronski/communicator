@@ -7,23 +7,20 @@ using Microsoft.AspNetCore.SignalR;
 using Shared.Result;
 using System.Security.Claims;
 
-namespace ChatCommunicator.Application.Hubs
+namespace API.Hubs
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ChatHub : Hub<IChatClient>
+    public class ChatHub(
+        IUsersConnectionService usersConnectionManager,
+        ILogger<ChatHub> logger,
+        IFriendshipService friendshipService,
+        IMessageService messageService
+    ) : Hub<IChatClient>
     {
-        private readonly IUsersConnectionService _usersConnectionService;
-        private readonly IFriendshipService _friendshipService;
-        private readonly IMessageService _messageService;
-        private readonly ILogger<ChatHub> _logger;
-
-        public ChatHub(IUsersConnectionService usersConnectionManager, ILogger<ChatHub> logger, IFriendshipService friendshipService, IMessageService messageService)
-        {
-            _usersConnectionService = usersConnectionManager;
-            _logger = logger;
-            _friendshipService = friendshipService;
-            _messageService = messageService;
-        }
+        private readonly IUsersConnectionService _usersConnectionService = usersConnectionManager;
+        private readonly ILogger<ChatHub> _logger = logger;
+        private readonly IFriendshipService _friendshipService = friendshipService;
+        private readonly IMessageService _messageService = messageService;
 
         public override async Task OnConnectedAsync()
         {
@@ -36,7 +33,7 @@ namespace ChatCommunicator.Application.Hubs
 
                 await _usersConnectionService.AddUpdateAsync(Context.ConnectionId, userId);
 
-                var onlineFriends = await _GetUserOnlineFriendsConnectionsIdAsync(userId);
+                var onlineFriends = await GetUserOnlineFriendsConnectionsIdAsync(userId);
 
                 if (onlineFriends.IsSuccess)
                 {
@@ -173,7 +170,7 @@ namespace ChatCommunicator.Application.Hubs
                 return Error.Failure("UserStillOnline", "User is still online.");
             }
 
-            var friendsConnectionsResult = await _GetUserOnlineFriendsConnectionsIdAsync(userId);
+            var friendsConnectionsResult = await GetUserOnlineFriendsConnectionsIdAsync(userId);
             if (!friendsConnectionsResult.IsSuccess)
             {
                 _logger.LogWarning(
@@ -189,7 +186,7 @@ namespace ChatCommunicator.Application.Hubs
             return friendsConnectionsResult.Value;
         }
 
-        private async Task<Result<List<string>>> _GetUserOnlineFriendsConnectionsIdAsync(Guid userId)
+        private async Task<Result<List<string>>> GetUserOnlineFriendsConnectionsIdAsync(Guid userId)
         {
             if (userId == Guid.Empty)
             {
