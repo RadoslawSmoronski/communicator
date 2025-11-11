@@ -558,7 +558,7 @@
           "Users"
         ],
         "summary": "Get users",
-        "description": "Route: GET api/users\r\nAuthorization: Required.\r\nQuery parameters:\r\n  - search: string\r\n  - invitableFor: Guid (required)\r\n            \r\nNote: Currently, only retrieval using the invitableFor filter is supported by the application, as it is the only required scenario.\r\nSearch-only queries may be ignored or have limited behavior depending on the current implementation.",
+        "description": "Route: GET api/users\r\nAuthorization: Required.\r\nQuery parameters:\r\n  - search: string\r\n  - canBeInvitedByUserId: Guid (required)\r\n            \r\nNote: Currently, only retrieval using the canBeInvitedByUserId filter is supported by the application, as it is the only required scenario.\r\nSearch-only queries may be ignored or have limited behavior depending on the current implementation.",
         "parameters": [
           {
             "name": "search",
@@ -569,7 +569,7 @@
             }
           },
           {
-            "name": "invitableFor",
+            "name": "canBeInvitedByUserId",
             "in": "query",
             "description": "Required user identifier. When provided, only users that can receive a friendship invitation from the specified user are returned (e.g. excluding already friends, pending invitations, self).",
             "schema": {

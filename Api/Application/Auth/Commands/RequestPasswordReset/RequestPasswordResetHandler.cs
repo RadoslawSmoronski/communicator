@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces;
 using Application.Common.Interfaces.Users;
-using Application.Settings;
+using Application.Common.Settings;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -10,24 +10,17 @@ using System.Net;
 
 namespace Application.Auth.Commands.RequestPasswordReset
 {
-    public class RequestPasswordResetHandler : IRequestHandler<RequestPasswordResetCommand, Result<string>>
+    public sealed class RequestPasswordResetHandler(
+        IUserService userService,
+        IEmailService emailService,
+        IOptions<RecoveryPasswordMessageSettings> options,
+        ILogger<RequestPasswordResetHandler> logger)
+        : IRequestHandler<RequestPasswordResetCommand, Result<string>>
     {
-        private readonly IUserService _userService;
-        private readonly IEmailService _emailService;
-        private readonly RecoveryPasswordMessageSettings _recoveryPasswordMessageSettings;
-        private readonly ILogger<RequestPasswordResetHandler> _logger;
-
-        public RequestPasswordResetHandler(
-            IUserService userService,
-            IEmailService emailService,
-            IOptions<RecoveryPasswordMessageSettings> options,
-            ILogger<RequestPasswordResetHandler> logger)
-        {
-            _userService = userService;
-            _emailService = emailService;
-            _recoveryPasswordMessageSettings = options.Value;
-            _logger = logger;
-        }
+        private readonly IUserService _userService = userService;
+        private readonly IEmailService _emailService = emailService;
+        private readonly RecoveryPasswordMessageSettings _recoveryPasswordMessageSettings = options.Value;
+        private readonly ILogger<RequestPasswordResetHandler> _logger = logger;
 
         public async Task<Result<string>> Handle(RequestPasswordResetCommand request, CancellationToken cancellationToken)
         {

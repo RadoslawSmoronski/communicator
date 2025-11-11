@@ -5,16 +5,10 @@ using Shared.Result;
 
 namespace Application.Auth.Commands.LoginUser
 {
-    public class LoginUserHandler : IRequestHandler<LoginUserCommand, Result<LoginUserReadModel>>
+    public class LoginUserHandler(IUserService userService, ITokenService tokenService) : IRequestHandler<LoginUserCommand, Result<LoginUserReadModel>>
     {
-        private readonly IUserService _userService;
-        private readonly ITokenService _tokenService;
-
-        public LoginUserHandler(IUserService userService, ITokenService tokenService)
-        {
-            _userService = userService;
-            _tokenService = tokenService;
-        }
+        private readonly IUserService _userService = userService;
+        private readonly ITokenService _tokenService = tokenService;
 
         public async Task<Result<LoginUserReadModel>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {

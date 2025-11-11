@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces;
 using Application.Common.Interfaces.Users;
-using Application.Settings;
+using Application.Common.Settings;
 using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;

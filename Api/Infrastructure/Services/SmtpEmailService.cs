@@ -1,5 +1,5 @@
 ﻿using Application.Common.Interfaces;
-using Application.Settings;
+using Application.Common.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shared.Result;

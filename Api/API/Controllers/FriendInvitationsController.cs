@@ -1,7 +1,6 @@
-﻿using API.Contracts.Chats;
-using API.Contracts.FriendInvitations;
-using Application.Users.Commands.AcceptFriendInvtation;
-using Application.Users.Commands.DecelineInvitation;
+﻿using API.Contracts.FriendInvitations;
+using Application.FriendInvitations.Commands.AcceptFriendInvtation;
+using Application.FriendInvitations.Commands.DecelineInvitation;
 using Application.Users.Commands.SendFriendInvitation;
 using AutoMapper;
 using MediatR;
@@ -12,18 +11,13 @@ namespace API.Controllers
 {
     [Route("api/friend-invitations")]
     [ApiController]
-    public class FriendInvitationsController : BaseController
+    public class FriendInvitationsController(
+        ISender sender,
+        ILogger<FriendInvitationsController> logger,
+        IMapper mapper)
+        : BaseController(mapper, sender)
     {
-        private readonly ISender _sender;
-        private readonly ILogger<FriendInvitationsController> _logger;
-        private readonly IMapper _mapper;
-
-        public FriendInvitationsController(ISender sender, ILogger<FriendInvitationsController> logger, IMapper mapper)
-        {
-            _sender = sender;
-            _logger = logger;
-            _mapper = mapper;
-        }
+        private readonly ILogger<FriendInvitationsController> _logger = logger;
 
         /// <summary>
         /// Send friendship invitation
@@ -87,7 +81,7 @@ namespace API.Controllers
         [HttpDelete("{friendInvitationId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Produces("application/json")]
-        public async Task<IActionResult> DecelineInvitationAsync([FromRoute] Guid friendInvitationId)
+        public async Task<IActionResult> DeclineInvitationAsync([FromRoute] Guid friendInvitationId)
         {
             var command = new DecelineInvitationCommand(friendInvitationId);
             var result = await _sender.Send(command);
@@ -97,7 +91,7 @@ namespace API.Controllers
                 return Ok();
             }
 
-            return HandleError(result, "FriendInvitationsController - DecelineInvitationAsync", _logger);
+            return HandleError(result, "FriendInvitationsController - DeclineInvitationAsync", _logger);
         }
 
         /// <summary>

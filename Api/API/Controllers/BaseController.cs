@@ -1,10 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Shared.Result;
 
 namespace API.Controllers
 {
-    public abstract class BaseController : Controller
+    public abstract class BaseController(IMapper mapper, ISender sender) : Controller
     {
+        protected readonly IMapper _mapper = mapper;
+        protected readonly ISender _sender = sender;
+
         protected IActionResult HandleError(Result result, string logContext, ILogger logger, Guid? userId = null)
         {
             if (result.Error != null)

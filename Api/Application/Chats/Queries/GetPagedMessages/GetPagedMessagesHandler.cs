@@ -1,26 +1,21 @@
-﻿using Application.Common.Authorization;
-using Application.Common.Interfaces;
+﻿using Application.Common.Interfaces;
 using AutoMapper;
-using Domain.Entities;
 using MediatR;
 using Shared.Result;
 
 namespace Application.Chats.Queries.GetPagedMessages
 {
-    public class GetPagedMessagesHandler : IRequestHandler<GetPagedMessagesQuery, Result<GetPagedMessagesReadModel>>
+    public class GetPagedMessagesHandler(
+        IMessageService messageService,
+        IMapper mapper,
+        IUsersConnectionService usersConnectionService,
+        IConversationService conversationService
+    ) : IRequestHandler<GetPagedMessagesQuery, Result<GetPagedMessagesReadModel>>
     {
-        private readonly IMessageService _messageService;
-        private readonly IMapper _mapper;
-        private readonly IUsersConnectionService _usersConnectionService;
-        private readonly IConversationService _conversationService;
-
-        public GetPagedMessagesHandler(IMessageService messageService, IMapper mapper, IUsersConnectionService usersConnectionService, IConversationService conversationService)
-        {
-            _messageService = messageService;
-            _mapper = mapper;
-            _usersConnectionService = usersConnectionService;
-            _conversationService = conversationService;
-        }
+        private readonly IMessageService _messageService = messageService;
+        private readonly IMapper _mapper = mapper;
+        private readonly IUsersConnectionService _usersConnectionService = usersConnectionService;
+        private readonly IConversationService _conversationService = conversationService;
 
         public async Task<Result<GetPagedMessagesReadModel>> Handle(GetPagedMessagesQuery request, CancellationToken cancellationToken)
         {

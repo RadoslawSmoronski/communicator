@@ -1,7 +1,7 @@
 ﻿using Application.Common.Interfaces;
 using Application.Contracts.Chat;
 using Application.Repositories;
-using Application.Settings;
+using Application.Common.Settings;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;

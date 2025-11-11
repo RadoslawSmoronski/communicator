@@ -1,12 +1,10 @@
 ﻿namespace Application.Common.Exceptions;
 
-public class ForbiddenException : Exception
+public class ForbiddenException(string message) : Exception(message)
 {
-    public ForbiddenException(string message) : base(message) { }
 }
 
-public class NotFoundException : Exception
+public class NotFoundException(string resource, object key)
+    : Exception($"{resource} '{key}' was not found.")
 {
-    public NotFoundException(string resource, object key)
-        : base($"{resource} '{key}' was not found.") { }
 }

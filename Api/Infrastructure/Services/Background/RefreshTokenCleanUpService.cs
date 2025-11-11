@@ -1,5 +1,5 @@
 ﻿using Application.Repositories;
-using Application.Settings;
+using Application.Common.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

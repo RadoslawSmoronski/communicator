@@ -4,27 +4,20 @@ using Application.Common.Interfaces;
 using Application.Common.Security;
 using MediatR;
 
-namespace Application.Common.Behaviours;
+namespace Application.Common.Behaviors;
 
-public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class AuthorizationBehavior<TRequest, TResponse>(
+    ICurrentUser currentUser,
+    IChatAccess chatAccess,
+    IFriendInvitationAccess invitationAccess,
+    IFriendshipAccess friendshipAccess
+) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    private readonly ICurrentUser _currentUser;
-    private readonly IChatAccess _chatAccess;
-    private readonly IFriendInvitationAccess _invitationAccess;
-    private readonly IFriendshipAccess _friendshipAccess;
-
-    public AuthorizationBehavior(
-        ICurrentUser currentUser,
-        IChatAccess chatAccess,
-        IFriendInvitationAccess invitationAccess,
-        IFriendshipAccess friendshipAccess)
-    {
-        _currentUser = currentUser;
-        _chatAccess = chatAccess;
-        _invitationAccess = invitationAccess;
-        _friendshipAccess = friendshipAccess;
-    }
+    private readonly ICurrentUser _currentUser = currentUser;
+    private readonly IChatAccess _chatAccess = chatAccess;
+    private readonly IFriendInvitationAccess _invitationAccess = invitationAccess;
+    private readonly IFriendshipAccess _friendshipAccess = friendshipAccess;
 
     public async Task<TResponse> Handle(
         TRequest request,
@@ -32,7 +25,7 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
         CancellationToken cancellationToken)
     {
         if (request is IAllowAnonymous || _currentUser.IsInRole("Admin"))
-            return await next();
+            return await next(cancellationToken);
 
         var currentUserId = _currentUser.Id ?? throw new UnauthorizedAccessException();
 
@@ -63,6 +56,6 @@ public sealed class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavi
             if (!result) throw new ForbiddenException("You are not a participant of this chat.");
         }
 
-        return await next();
+        return await next(cancellationToken);
     }
 }

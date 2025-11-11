@@ -1,5 +1,4 @@
 ﻿using API.Contracts.Chats;
-using API.Controllers;
 using Application.Chats.Queries.GetPagedMessages;
 using Application.Common.Interfaces;
 using Application.Contracts.Chat;
@@ -9,29 +8,23 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using AutoMapper;
 
-namespace ChatCommunicator.Application.Controllers
+namespace API.Controllers
 {
     [Route("api/chats")]
     [ApiController]
-    public class ChatsController : BaseController
+    public class ChatsController(
+        IMapper mapper,
+        IHubContext<ChatHub, IChatClient> chatHubContext,
+        ILogger<ChatsController> logger,
+        ISender sender,
+        ICurrentUser user)
+        : BaseController(mapper, sender)
     {
-        private readonly IHubContext<ChatHub, IChatClient> _chatHubContext;
-        private readonly ILogger<ChatsController> _logger;
-        private readonly ISender _sender;
-        private readonly ICurrentUser _user;
-
-        public ChatsController(
-            IHubContext<ChatHub, IChatClient> chatHubContext,
-            ILogger<ChatsController> logger,
-            ISender sender,
-            ICurrentUser user)
-        {
-            _chatHubContext = chatHubContext;
-            _logger = logger;
-            _sender = sender;
-            _user = user;
-        }
+        private readonly IHubContext<ChatHub, IChatClient> _chatHubContext = chatHubContext;
+        private readonly ILogger<ChatsController> _logger = logger;
+        private readonly ICurrentUser _user = user;
 
         /// <summary>
         /// Get paged messages

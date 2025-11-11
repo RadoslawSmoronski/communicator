@@ -6,14 +6,9 @@ using System.Net;
 
 namespace Application.Auth.Commands.ConfirmEmail
 {
-    public class ConfirmEmailHandler : IRequestHandler<ConfirmEmailCommand, Result>
+    public class ConfirmEmailHandler(IUserService userService) : IRequestHandler<ConfirmEmailCommand, Result>
     {
-        private IUserService _userService;
-
-        public ConfirmEmailHandler(IUserService userService)
-        {
-            _userService = userService;
-        }
+        private readonly IUserService _userService = userService;
 
         public async Task<Result> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
             => await _userService.ConfirmEmailAsync(request.UserId, request.ConfirmationToken);

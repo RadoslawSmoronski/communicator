@@ -4,14 +4,9 @@ using Shared.Result;
 
 namespace Application.Auth.Commands.RefreshAccessToken
 {
-    public class RefreshAccessTokenHandler : IRequestHandler<RefreshAccessTokenCommand, Result<RefreshAccessTokenReadModel>>
+    public class RefreshAccessTokenHandler(ITokenService tokenService) : IRequestHandler<RefreshAccessTokenCommand, Result<RefreshAccessTokenReadModel>>
     {
-        private readonly ITokenService _tokenService;
-
-        public RefreshAccessTokenHandler(ITokenService tokenService)
-        {
-            _tokenService = tokenService;
-        }
+        private readonly ITokenService _tokenService = tokenService;
 
         public async Task<Result<RefreshAccessTokenReadModel>> Handle(RefreshAccessTokenCommand request, CancellationToken cancellationToken)
         {

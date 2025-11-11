@@ -2,21 +2,15 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace API.Controllers
 {
     [Route("api/friendships")]
     [ApiController]
-    public class FriendshipsController : BaseController
+    public class FriendshipsController(IMapper mapper, ISender sender, ILogger<FriendshipsController> logger) : BaseController(mapper, sender)
     {
-        private readonly ISender _sender;
-        private readonly ILogger<FriendshipsController> _logger;
-
-        public FriendshipsController(ISender sender, ILogger<FriendshipsController> logger)
-        {
-            _sender = sender;
-            _logger = logger;
-        }
+        private readonly ILogger<FriendshipsController> _logger = logger;
 
         /// <summary>
         /// Delete friendship

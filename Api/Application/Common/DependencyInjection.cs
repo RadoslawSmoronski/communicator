@@ -1,5 +1,5 @@
-﻿using Application.Common.Behaviours;
-using Application.Settings;
+﻿using Application.Common.Behaviors;
+using Application.Common.Settings;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

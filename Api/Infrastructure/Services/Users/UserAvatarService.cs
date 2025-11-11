@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces;
 using Application.Common.Interfaces.Users;
-using Application.Settings;
+using Application.Common.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -11,22 +11,19 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace Infrastructure.Services.Users
 {
-    public class UserAvatarService : IUserAvatarService
+    public class UserAvatarService(
+        ILogger<UserAvatarService> logger,
+        UserManager<UserAccount> userManager,
+        IOptions<UserAvatarSettings> userAvatarSettings,
+        IFileStorageService fileStorageService,
+        IHttpContextAccessor httpContextAccessor)
+        : IUserAvatarService
     {
-        private readonly ILogger<UserAvatarService> _logger;
-        private readonly UserManager<UserAccount> _userManager;
-        private readonly UserAvatarSettings _userAvatarSettings;
-        private readonly IFileStorageService _fileStorageService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public UserAvatarService(ILogger<UserAvatarService> logger, UserManager<UserAccount> userManager, IOptions<UserAvatarSettings> userAvatarSettings, IFileStorageService fileStorageService, IHttpContextAccessor httpContextAccessor)
-        {
-            _logger = logger;
-            _userManager = userManager;
-            _userAvatarSettings = userAvatarSettings.Value;
-            _fileStorageService = fileStorageService;
-            _httpContextAccessor = httpContextAccessor;
-        }
+        private readonly ILogger<UserAvatarService> _logger = logger;
+        private readonly UserManager<UserAccount> _userManager = userManager;
+        private readonly UserAvatarSettings _userAvatarSettings = userAvatarSettings.Value;
+        private readonly IFileStorageService _fileStorageService = fileStorageService;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<Result<string>> UploadAvatarAsync(Guid userId, IFormFile file)
         {
@@ -47,7 +44,7 @@ namespace Infrastructure.Services.Users
                     return Error.Conflict("AvatarAlreadyExists", "User already has an avatar.");
                 }
 
-                return await _UploadAvatarAsync(user, file, "UploadAvatarAsync");
+                return await UploadAvatarAsync(user, file, "UploadAvatarAsync");
             }
             catch (Exception ex)
             {
@@ -69,7 +66,7 @@ namespace Infrastructure.Services.Users
                     return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
                 }
 
-                return await _DeleteAvatarAsync(user, "DeleteAvatarAsync");
+                return await DeleteAvatarAsync(user, "DeleteAvatarAsync");
             }
             catch (Exception ex)
             {
@@ -97,14 +94,14 @@ namespace Infrastructure.Services.Users
                     return Error.Conflict("AvatarNotFound", "User does not have an avatar to change.");
                 }
 
-                var deleteAvatarResult = await _DeleteAvatarAsync(user, "ChangeAvatarAsync");
+                var deleteAvatarResult = await DeleteAvatarAsync(user, "ChangeAvatarAsync");
                 if (!deleteAvatarResult.IsSuccess)
                 {
                     _logger.LogWarning("[UserAvatarService - ChangeAvatarAsync] Failed to delete existing avatar for userId: {UserId}. Error: {ErrorDescription}", userId, deleteAvatarResult.Error?.Description);
                     return deleteAvatarResult.Error!;
                 }
 
-                var uploadResult = await _UploadAvatarAsync(user, file, "ChangeAvatarAsync");
+                var uploadResult = await UploadAvatarAsync(user, file, "ChangeAvatarAsync");
                 return uploadResult;
             }
             catch (Exception ex)
@@ -120,7 +117,7 @@ namespace Infrastructure.Services.Users
             return $"{request.Scheme}://{request.Host}/avatars/{fileName}";
         }
 
-        private async Task<Result<string>> _UploadAvatarAsync(UserAccount user, IFormFile file, string loggerTag)
+        private async Task<Result<string>> UploadAvatarAsync(UserAccount user, IFormFile file, string loggerTag)
         {
             var isAvatarFileValidAsync = await IsAvatarFileValidAsync(file);
 
@@ -199,7 +196,7 @@ namespace Infrastructure.Services.Users
             return Result.Success();
         }
 
-        private async Task<Result> _DeleteAvatarAsync(UserAccount user, string loggerTag)
+        private async Task<Result> DeleteAvatarAsync(UserAccount user, string loggerTag)
         {
 
             if (string.IsNullOrEmpty(user.AvatarUrl))

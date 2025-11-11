@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces;
 using Application.Repositories;
-using Application.Settings;
+using Application.Common.Settings;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

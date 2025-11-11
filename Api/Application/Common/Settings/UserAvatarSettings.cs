@@ -1,4 +1,4 @@
-﻿namespace Application.Settings
+﻿namespace Application.Common.Settings
 {
     public class UserAvatarSettings
     {

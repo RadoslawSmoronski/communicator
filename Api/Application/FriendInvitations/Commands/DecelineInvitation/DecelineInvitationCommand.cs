@@ -2,10 +2,9 @@
 using MediatR;
 using Shared.Result;
 
-namespace Application.Users.Commands.DecelineInvitation
+namespace Application.FriendInvitations.Commands.DecelineInvitation;
+
+public record DecelineInvitationCommand(Guid InvitationId) : IRequest<Result>, IRequireInvitationParticipant
 {
-    public record DecelineInvitationCommand(Guid InvitationId) : IRequest<Result>, IRequireInvitationParticipant
-    {
-        public Guid? FriendInvitationId => InvitationId;
-    };
-}
+    public Guid? FriendInvitationId => InvitationId;
+};

@@ -1,25 +1,21 @@
 ﻿using Application.Common.Interfaces;
 using Application.Common.Interfaces.Users;
-using Application.FriendInvitations.Commands.AcceptFriendInvtation;
 using MediatR;
 using Shared.Result;
 
-namespace Application.Users.Commands.AcceptFriendInvtation
+namespace Application.FriendInvitations.Commands.AcceptFriendInvtation
 {
-    public class AcceptFriendInvitationHandler : IRequestHandler<AcceptFriendInvitationCommand, Result<AcceptFriendInvitationReadModel>>
+    public class AcceptFriendInvitationHandler(
+        IFriendInvitationsService friendInvitationsService,
+        IConversationService conversationService,
+        IFriendshipService friendshipService,
+        IUserService userService)
+        : IRequestHandler<AcceptFriendInvitationCommand, Result<AcceptFriendInvitationReadModel>>
     {
-        private readonly IFriendInvitationsService _friendInvitationsService;
-        private readonly IConversationService _conversationService;
-        private readonly IFriendshipService _friendshipService;
-        private readonly IUserService _userService;
-
-        public AcceptFriendInvitationHandler(IFriendInvitationsService friendInvitationsService, IConversationService conversationService, IFriendshipService friendshipService, IUserService userService)
-        {
-            _friendInvitationsService = friendInvitationsService;
-            _conversationService = conversationService;
-            _friendshipService = friendshipService;
-            _userService = userService;
-        }
+        private readonly IFriendInvitationsService _friendInvitationsService = friendInvitationsService;
+        private readonly IConversationService _conversationService = conversationService;
+        private readonly IFriendshipService _friendshipService = friendshipService;
+        private readonly IUserService _userService = userService;
 
         public async Task<Result<AcceptFriendInvitationReadModel>> Handle(AcceptFriendInvitationCommand request, CancellationToken cancellationToken)
         {
