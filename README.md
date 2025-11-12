@@ -24,6 +24,9 @@ Chat Communicator enables users to register, authenticate, manage friendships, a
 - Serilog (console + PostgreSQL sink)
 - AutoMapper
 - Swagger/OpenAPI (dev), optional ReDoc bundle
+- xUnit  
+- FluentAssertions
+- FakeItEasy
 
 ## Features
 
@@ -192,7 +195,9 @@ The application tracks user connections using the UsersConnectionService:
 
 ## Testing
 
-in development
+Current unit test status (early stage):
+
+Location: `Application.UnitTests/Common/Behaviors/AuthorizationBehaviorTests`  
 
 ## Notes
 
