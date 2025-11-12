@@ -43,6 +43,14 @@ namespace API.Controllers
                             detail: errorMessage
                         );
 
+                    case ErrorType.Forbidden:
+                        logger.LogWarning("[{LogContext}] Forbidden access. UserId: {UserId}. Message: {ErrorMessage}", logContext, userId, errorMessage);
+                        return Problem(
+                            statusCode: 403,
+                            title: "Forbidden",
+                            detail: errorMessage
+                        );
+
                     case ErrorType.Conflict:
                         logger.LogWarning("[{LogContext}] Conflict error. UserId: {UserId}. Message: {ErrorMessage}", logContext, userId, errorMessage);
                         return Problem(
@@ -68,6 +76,5 @@ namespace API.Controllers
                 detail: "An unexpected error occurred."
             );
         }
-
     }
 }

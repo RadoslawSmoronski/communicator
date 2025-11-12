@@ -85,8 +85,11 @@ namespace Infrastructure.Services
         {
             if (_usersOnline.TryGetValue(userId, out var connections))
             {
-                _logger.LogDebug("GetUserConnectionsId: UserId {UserId} has {Count} connections", userId, connections.Count);
-                return connections.ToList();
+                lock (connections)
+                {
+                    _logger.LogDebug("GetUserConnectionsId: UserId {UserId} has {Count} connections", userId, connections.Count);
+                    return connections.ToList();
+                }
             }
 
             _logger.LogDebug("GetUserConnectionsId: UserId {UserId} not found online", userId);

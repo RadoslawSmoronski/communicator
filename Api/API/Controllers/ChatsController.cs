@@ -2,13 +2,13 @@
 using Application.Chats.Queries.GetPagedMessages;
 using Application.Common.Interfaces;
 using Application.Contracts.Chat;
-using ChatCommunicator.Application.Hubs.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using AutoMapper;
 using API.Hubs;
+using API.Hubs.Interfaces;
 
 namespace API.Controllers
 {
