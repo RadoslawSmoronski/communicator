@@ -364,3 +364,14 @@ FodyWeavers.xsd
 
 # Ignore appsettings.development with secrets
 API/appsettings.Development.json
+
+# macOS
+.DS_Store
+
+# Rider / JetBrains
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
