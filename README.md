@@ -57,6 +57,13 @@ Chat Communicator enables users to register, authenticate, manage friendships, a
 - `Domain`: Entities
 - `Shared`: `Result<T>`, errors, helpers
 
+## Testing
+
+This solution uses xUnit with `FluentAssertions` and `FakeItEasy`. Tests are split by layer:
+
+- `tests/Application.UnitTests` — unit tests for CQRS handlers, pipeline behaviors and application logic (example: `AuthorizationBehaviorTests`).
+- `tests/Infrastructure.Tests` — infrastructure-focused tests (example: `TokenServiceTests`); a mix of focused unit tests and small integration tests touching persistence/cleanup.
+
 ## Configuration
 
 Configure your application settings in appsettings.json:
@@ -95,11 +102,11 @@ Configure your application settings in appsettings.json:
     "FromAddress": "<INSERT_FROM_ADDRESS_HERE>"
   },
   "ConfirmEmailMessageSettings": {
-    "Content": "<INSERT_MESSAGE_CONTENT_HERE>", // Address is locate at [address] tag place. For example: "Click to confirm: [address]"
+    "Content": "Click to confirm an email: [address]",
     "Address": "<INSERT_WEBSITE_ADDRESS_HERE>"
   },
   "RecoveryPasswordMessageSettings": {
-    "Content": "<INSERT_MESSAGE_CONTENT_HERE>", // Address is locate at [address] tag place. For example: "Password recovery link: [address]"
+    "Content": "PasswordRecovery Link: [address]",
     "Address": "<INSERT_WEBSITE_ADDRESS_HERE>"
   },
   "UserAvatarSettings": {
