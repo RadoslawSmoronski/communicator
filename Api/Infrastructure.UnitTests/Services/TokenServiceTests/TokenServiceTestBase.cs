@@ -49,9 +49,6 @@ namespace Infrastructure.UnitTests.Services.TokenServiceTests
                 Token = Guid.NewGuid(),
                 CreatedAt = DateTime.UtcNow
             };
-
-            //A.CallTo(() => UnitOfWork.RefreshTokens).Returns(RefreshTokenRepo);
-            //A.CallTo(() => UnitOfWork.SaveAsync()).Returns(Task.CompletedTask);
         }
 
         protected TokenService CreateService()
