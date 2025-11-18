@@ -42,7 +42,7 @@ namespace Infrastructure.UnitTests.Services.TokenServiceTests
             // Act
             var res = await svc.UpdateRefreshToken(refreshToken);
         
-            // Assert
+            // Asserta
             res.IsSuccess.Should().BeFalse();
             res.Error!.Code.Should().Be("UserNotFound");
         }
