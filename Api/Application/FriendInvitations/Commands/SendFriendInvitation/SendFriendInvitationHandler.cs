@@ -1,5 +1,4 @@
 ﻿using Application.Common.Interfaces;
-using Application.Common.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
