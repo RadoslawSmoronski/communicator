@@ -9,14 +9,6 @@ namespace Application.FriendInvitations.Commands.DeclineInvitation
         private readonly IFriendInvitationsService _friendInvitationsService = friendInvitationsService;
 
         public async Task<Result> Handle(DeclineInvitationCommand request, CancellationToken cancellationToken)
-        {
-            var result = await _friendInvitationsService.DeleteAsync(request.InvitationId);
-
-            if (result.IsSuccess)
-                return Result.Success();
-
-            return result.Error!;
-        }
-            
+            => await _friendInvitationsService.DeleteAsync(request.InvitationId);
     }
 }
