@@ -19,6 +19,7 @@ namespace Infrastructure.UnitTests.Services.TokenServiceTests
         
         protected readonly Guid SampleUserId = Guid.NewGuid();
         protected readonly UserAccount SampleUserAccount;
+        protected readonly RefreshToken SampleRefreshToken;
         
         protected readonly JWTTokenSettings AccessTokenSettings = new()
         {
@@ -41,6 +42,12 @@ namespace Infrastructure.UnitTests.Services.TokenServiceTests
             Logger = A.Fake<ILogger<TokenService>>();
 
             SampleUserAccount = new UserAccount { Id = SampleUserId, UserName = "tester" };
+            SampleRefreshToken = new RefreshToken
+            {
+                UserId = SampleUserId,
+                Token = Guid.NewGuid(),
+                CreatedAt = DateTime.UtcNow
+            };
 
             //A.CallTo(() => UnitOfWork.RefreshTokens).Returns(RefreshTokenRepo);
             //A.CallTo(() => UnitOfWork.SaveAsync()).Returns(Task.CompletedTask);
