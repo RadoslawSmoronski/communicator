@@ -19,6 +19,7 @@ namespace Infrastructure.UnitTests.Services.TokenServiceTests
         
         protected readonly Guid SampleUserId = Guid.NewGuid();
         protected readonly UserAccount SampleUserAccount;
+        protected readonly Guid SampleTokenId = Guid.NewGuid();
         protected readonly RefreshToken SampleRefreshToken;
         
         protected readonly JWTTokenSettings AccessTokenSettings = new()

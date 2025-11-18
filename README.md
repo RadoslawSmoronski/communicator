@@ -95,11 +95,11 @@ Configure your application settings in appsettings.json:
     "FromAddress": "<INSERT_FROM_ADDRESS_HERE>"
   },
   "ConfirmEmailMessageSettings": {
-    "Content": "<INSERT_MESSAGE_CONTENT_HERE>", // Address is locate at [address] tag place. For example: "Click to confirm: [address]"
+    "Content": "Click to confirm an email: [address]",
     "Address": "<INSERT_WEBSITE_ADDRESS_HERE>"
   },
   "RecoveryPasswordMessageSettings": {
-    "Content": "<INSERT_MESSAGE_CONTENT_HERE>", // Address is locate at [address] tag place. For example: "Password recovery link: [address]"
+    "Content": "PasswordRecovery Link: [address]",
     "Address": "<INSERT_WEBSITE_ADDRESS_HERE>"
   },
   "UserAvatarSettings": {
@@ -193,11 +193,10 @@ The application tracks user connections using the UsersConnectionService:
 - Adjust sink settings in `API/Extensions/DependencyInjection.cs`.
 - A background service periodically removes expired refresh tokens (not logs).
 
-## Testing
+This project uses xUnit with FluentAssertions and FakeItEasy. Tests are split by layer:
 
-Current unit test status (early stage):
-
-Location: `Application.UnitTests/Common/Behaviors/AuthorizationBehaviorTests`  
+- `Application.UnitTests` — unit tests for CQRS handlers, behaviors, and application logic.
+- `Infrastructure.Tests` — tests for infrastructure services (example: `TokenService`), can be integration or focused unit tests that touch DB/IO.
 
 ## Notes
 
