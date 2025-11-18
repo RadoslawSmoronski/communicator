@@ -57,6 +57,13 @@ Chat Communicator enables users to register, authenticate, manage friendships, a
 - `Domain`: Entities
 - `Shared`: `Result<T>`, errors, helpers
 
+## Testing
+
+This solution uses xUnit with `FluentAssertions` and `FakeItEasy`. Tests are split by layer:
+
+- `Application.UnitTests` — unit tests for CQRS handlers, pipeline behaviors and application logic (example: `AuthorizationBehaviorTests`).
+- `Infrastructure.Tests` — infrastructure-focused tests (example: `TokenServiceTests`); a mix of focused unit tests and small integration tests touching persistence/cleanup.
+
 ## Configuration
 
 Configure your application settings in appsettings.json:
