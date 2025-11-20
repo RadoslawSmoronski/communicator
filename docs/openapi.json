@@ -11,7 +11,7 @@
           "Auth"
         ],
         "summary": "Login user",
-        "description": "Route: POST api/auth/login\r\nAuthorization: Anonymous (no bearer token required).\r\nRequest body:\r\n{\r\n  \"email\": \"user@example.com\",\r\n  \"password\": \"Secret123\"\r\n}",
+        "description": "Route: POST api/auth/login\nAuthorization: Anonymous (no bearer token required).\nRequest body:\n{\n  \"email\": \"user@example.com\",\n  \"password\": \"Secret123\"\n}",
         "requestBody": {
           "description": "The login request payload containing the user's email and password. Both fields are required and validated for format and length.",
           "content": {
@@ -64,7 +64,7 @@
           "Auth"
         ],
         "summary": "Refresh user's accessToken",
-        "description": "Route: POST api/auth/refresh-token\r\nThis endpoint logs refresh attempts and results. Authentication is not required to call this endpoint because the refresh token is supplied in the request body.",
+        "description": "Route: POST api/auth/refresh-token\nThis endpoint logs refresh attempts and results. Authentication is not required to call this endpoint because the refresh token is supplied in the request body.",
         "requestBody": {
           "description": "The refresh token request containing the refresh token to be exchanged. See API.Contracts.Auth.RefreshAccessToken.RefreshAccessTokenRequest.",
           "content": {
@@ -114,7 +114,7 @@
           "Auth"
         ],
         "summary": "Confirm user's email",
-        "description": "Route: POST api/auth/confirm-email\r\nThe `ConfirmationToken` is URL-decoded before processing.\r\nAuthentication: Not required.",
+        "description": "Route: POST api/auth/confirm-email\nThe `ConfirmationToken` is URL-decoded before processing.\nAuthentication: Not required.",
         "requestBody": {
           "description": "The request payload containing the API.Contracts.Auth.ConfirmEmail.ConfirmEmailRequest.UserId and the raw (possibly URL-encoded) confirmation token.",
           "content": {
@@ -160,7 +160,7 @@
           "Auth"
         ],
         "summary": "Request user's password reset",
-        "description": "Route: POST api/auth/request-password-reset\r\nAuthentication: Not required.\r\nThis endpoint does not disclose whether the email exists to prevent account enumeration.",
+        "description": "Route: POST api/auth/request-password-reset\nAuthentication: Not required.\nThis endpoint does not disclose whether the email exists to prevent account enumeration.",
         "requestBody": {
           "description": "The request containing the email address to initiate the password reset.",
           "content": {
@@ -203,9 +203,9 @@
           "Auth"
         ],
         "summary": "Reset user's password",
-        "description": "Route: POST api/auth/password-reset\r\nAuthentication: Not required (token-based validation).\r\nThe value returned in development mode is for debugging only and will be removed in production.",
+        "description": "Route: POST api/auth/password-reset\nAuthentication: Not required (token-based validation).\nThe value returned in development mode is for debugging only and will be removed in production.",
         "requestBody": {
-          "description": "The request containing the API.Contracts.ResetPassword.ResetPasswordRequest.UserId, the coded (encoded/hashed) reset token,\r\nand the new password to set.",
+          "description": "The request containing the API.Contracts.ResetPassword.ResetPasswordRequest.UserId, the coded (encoded/hashed) reset token,\nand the new password to set.",
           "content": {
             "application/json": {
               "schema": {
@@ -252,7 +252,7 @@
           "Chats"
         ],
         "summary": "Get paged messages",
-        "description": "Route: GET api/chats/{conversationId}/messages\r\nAuthorization: Required.\r\nSide effects: May emit a \"message read\" notification to recipients via SignalR when applicable.",
+        "description": "Route: GET api/chats/{conversationId}/messages\nAuthorization: Required.\nSide effects: May emit a \"message read\" notification to recipients via SignalR when applicable.",
         "parameters": [
           {
             "name": "conversationId",
@@ -267,7 +267,7 @@
           {
             "name": "fromMessageId",
             "in": "query",
-            "description": "Optional anchor message identifier. When provided, the page of messages is returned relative to this message\r\n(typically older messages). When omitted, the latest page may be returned depending on implementation.",
+            "description": "Optional anchor message identifier. When provided, the page of messages is returned relative to this message\n(typically older messages). When omitted, the latest page may be returned depending on implementation.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -309,7 +309,7 @@
           "FriendInvitations"
         ],
         "summary": "Send friendship invitation",
-        "description": "Route: POST api/friend-invitations\r\nAuthorization: Required.\r\nDuplicate or conflicting invitations are handled by domain logic.",
+        "description": "Route: POST api/friend-invitations\nAuthorization: Required.\nDuplicate or conflicting invitations are handled by domain logic.",
         "requestBody": {
           "description": "The request payload containing the sender and recipient identifiers.",
           "content": {
@@ -368,7 +368,7 @@
           "FriendInvitations"
         ],
         "summary": "Delete friendship invitation",
-        "description": "Route: PATCH api/friend-invitations/{friendInvitationId}/decline\r\nAuthorization: Required.\r\nThe operation changes the status of the invitation to \"Delete\" and may be idempotent depending on domain rules.",
+        "description": "Route: PATCH api/friend-invitations/{friendInvitationId}/decline\nAuthorization: Required.\nThe operation changes the status of the invitation to \"Delete\" and may be idempotent depending on domain rules.",
         "parameters": [
           {
             "name": "friendInvitationId",
@@ -412,7 +412,7 @@
           "FriendInvitations"
         ],
         "summary": "Accept friendship invitation",
-        "description": "Route: POST api/friend-invitations/{friendInvitationId}/accept\r\nAuthorization: Required.\r\nSide effects: Creates a new friendship and consumes (removes or finalizes) the invitation.",
+        "description": "Route: POST api/friend-invitations/{friendInvitationId}/accept\nAuthorization: Required.\nSide effects: Creates a new friendship and consumes (removes or finalizes) the invitation.",
         "parameters": [
           {
             "name": "friendInvitationId",
@@ -466,7 +466,7 @@
           "Friendships"
         ],
         "summary": "Delete friendship",
-        "description": "Route: DELETE api/friendships/{friendshipId}\r\nAuthorization: Required.\r\nThe operation removes the friendship relationship between the users.",
+        "description": "Route: DELETE api/friendships/{friendshipId}\nAuthorization: Required.\nThe operation removes the friendship relationship between the users.",
         "parameters": [
           {
             "name": "friendshipId",
@@ -510,7 +510,7 @@
           "Users"
         ],
         "summary": "Register user",
-        "description": "Route: POST api/users\r\nAuthentication: Not required.",
+        "description": "Route: POST api/users\nAuthentication: Not required.",
         "requestBody": {
           "description": "The registration payload containing email, username, and password.",
           "content": {
@@ -558,7 +558,7 @@
           "Users"
         ],
         "summary": "Get users",
-        "description": "Route: GET api/users\r\nAuthorization: Required.\r\nQuery parameters:\r\n  - search: string\r\n  - canBeInvitedByUserId: Guid (required)\r\n            \r\nNote: Currently, only retrieval using the canBeInvitedByUserId filter is supported by the application, as it is the only required scenario.\r\nSearch-only queries may be ignored or have limited behavior depending on the current implementation.",
+        "description": "Route: GET api/users\nAuthorization: Required.\nQuery parameters:\n  - search: string\n  - canBeInvitedByUserId: Guid (required)\n            \nNote: Currently, only retrieval using the canBeInvitedByUserId filter is supported by the application, as it is the only required scenario.\nSearch-only queries may be ignored or have limited behavior depending on the current implementation.",
         "parameters": [
           {
             "name": "search",
@@ -613,7 +613,7 @@
           "Users"
         ],
         "summary": "Change user username",
-        "description": "Route: PATCH api/users/{userId}/username\r\nAuthorization: Required.",
+        "description": "Route: PATCH api/users/{userId}/username\nAuthorization: Required.",
         "parameters": [
           {
             "name": "userId",
@@ -652,7 +652,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisterRequest"
+                  "$ref": "#/components/schemas/ChangeUsernameResponse"
                 }
               }
             }
@@ -684,7 +684,7 @@
           "Users"
         ],
         "summary": "Change user password",
-        "description": "Route: PATCH api/users/{userId}/password\r\nAuthorization: Required.",
+        "description": "Route: PATCH api/users/{userId}/password\nAuthorization: Required.",
         "parameters": [
           {
             "name": "userId",
@@ -745,7 +745,7 @@
           "Users"
         ],
         "summary": "Upload user avatar",
-        "description": "Route: POST api/users/{userId}/avatar\r\nAuthorization: Required.\r\nConsumes: multipart/form-data.",
+        "description": "Route: POST api/users/{userId}/avatar\nAuthorization: Required.\nConsumes: multipart/form-data.",
         "parameters": [
           {
             "name": "userId",
@@ -783,7 +783,14 @@
         },
         "responses": {
           "200": {
-            "description": "Avatar uploaded successfully."
+            "description": "Avatar uploaded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadAvatarResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid file provided (missing, zero length, unsupported type, exceeds size limit)."
@@ -810,7 +817,7 @@
           "Users"
         ],
         "summary": "Delete user avatar",
-        "description": "Route: DELETE api/users/{userId}/avatar\r\nAuthorization: Required.",
+        "description": "Route: DELETE api/users/{userId}/avatar\nAuthorization: Required.",
         "parameters": [
           {
             "name": "userId",
@@ -846,7 +853,7 @@
           "Users"
         ],
         "summary": "Change user avatar",
-        "description": "Route: PUT api/users/{userId}/avatar\r\nAuthorization: Required.\r\nConsumes: multipart/form-data.",
+        "description": "Route: PUT api/users/{userId}/avatar\nAuthorization: Required.\nConsumes: multipart/form-data.",
         "parameters": [
           {
             "name": "userId",
@@ -884,7 +891,14 @@
         },
         "responses": {
           "200": {
-            "description": "Avatar changed successfully."
+            "description": "Avatar changed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadAvatarResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid file provided (missing, zero length, unsupported type, exceeds size limit)."
@@ -913,7 +927,7 @@
           "Users"
         ],
         "summary": "Get user's friendship invitations",
-        "description": "Route: GET api/users/{userId}/friend-invitations\r\nAuthorization: Required.",
+        "description": "Route: GET api/users/{userId}/friend-invitations\nAuthorization: Required.",
         "parameters": [
           {
             "name": "userId",
@@ -961,7 +975,7 @@
           "Users"
         ],
         "summary": "Get user's chats",
-        "description": "Route: GET api/users/{userId}/chats\r\nAuthorization: Required.\r\nQuery parameters:\r\n  - onlyFriends: bool",
+        "description": "Route: GET api/users/{userId}/chats\nAuthorization: Required.\nQuery parameters:\n  - onlyFriends: bool",
         "parameters": [
           {
             "name": "userId",
@@ -1058,6 +1072,16 @@
             "maxLength": 25,
             "minLength": 3,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ChangeUsernameResponse": {
+        "type": "object",
+        "properties": {
+          "newUsername": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1376,6 +1400,16 @@
           "friendshipInvitationId": {
             "type": "string",
             "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UploadAvatarResponse": {
+        "type": "object",
+        "properties": {
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

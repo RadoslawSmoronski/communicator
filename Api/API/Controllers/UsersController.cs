@@ -83,7 +83,7 @@ namespace API.Controllers
         /// <response code="500">An unexpected server error occurred.</response>
         [Authorize]
         [HttpPatch("{userId}/username")]
-        [ProducesResponseType(typeof(RegisterRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ChangeUsernameResponse), StatusCodes.Status200OK)]
         [Produces("application/json")]
         public async Task<IActionResult> ChangeUsernameAsync([FromRoute] Guid userId, [FromBody] ChangeUsernameRequest req)
         {
@@ -156,7 +156,7 @@ namespace API.Controllers
         [Authorize]
         [HttpPost("{userId}/avatar")]
         [Consumes("multipart/form-data")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UploadAvatarResponse),StatusCodes.Status200OK)]
         [Produces("application/json")]
         public async Task<IActionResult> UploadAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarRequest req)
         {
@@ -165,7 +165,7 @@ namespace API.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok();
+                return Ok(new UploadAvatarResponse(AvatarUrl: result.Value));
             }
 
             return HandleError(result, "UsersController - UploadAvatarAsync", _logger);
@@ -227,7 +227,7 @@ namespace API.Controllers
         [Authorize]
         [HttpPut("{userId}/avatar")]
         [Consumes("multipart/form-data")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UploadAvatarResponse),StatusCodes.Status200OK)]
         [Produces("application/json")]
         public async Task<IActionResult> ChangeAvatarAsync([FromRoute] Guid userId, [FromForm] UploadAvatarRequest req)
         {
@@ -236,7 +236,7 @@ namespace API.Controllers
 
             if (result.IsSuccess)
             {
-                return Ok();
+                return Ok(new UploadAvatarResponse(AvatarUrl: result.Value));
             }
 
             return HandleError(result, "UsersController - ChangeAvatarAsync", _logger);
