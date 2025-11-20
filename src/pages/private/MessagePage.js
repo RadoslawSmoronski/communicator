@@ -748,8 +748,8 @@ const MessagePage = () => {
                                 .map(f => (
                                     <FriendTile
                                         key={f.friendId}
-                                        username={f.friendUserName}
-                                        onClick={() => handleClickingOnChat(f.conversationId, f.friendId, f.friendUserName, f.friendAvatarUrl, f.friendshipId)}
+                                        username={f.friendUsername}
+                                        onClick={() => handleClickingOnChat(f.conversationId, f.friendId, f.friendUsername, f.friendAvatarUrl, f.friendshipId)}
                                         author={f.isFriendSenderMessage ? '' : 'You: '}
                                         mess={f.lastMessageContent}
                                         messTimestamp={f.lastMessageTimestamp}
@@ -774,7 +774,7 @@ const MessagePage = () => {
                         user.list.map(u => (
                             <PersonTile
                                 key={u.id}
-                                username={u.userName}
+                                username={u.username}
                                 recipientId={u.id}
                                 isInvited={u.isInvited}
                                 avatarUrl={u.avatarUrl}

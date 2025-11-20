@@ -33,7 +33,7 @@ const FriendDetailsPanel = ({
                 }
             );
 
-            if (res.status === 204) {
+            if (res.status === 200) {
                 console.log("Friendship removed");
                 // after friendship removal actions
                 afterRemovalActions();

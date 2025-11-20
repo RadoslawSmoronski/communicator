@@ -78,11 +78,25 @@ const Layout = () => {
     // Invitation list
     // Handles actions for accepting or decelining invitation
     const invitationActions = async (action, invitationId, senderId) => {
-        const API_URL = action === "accept" ? APIs.ACCEPT_INVITE(invitationId) : APIs.DECELINE_INVITE(invitationId);
+        // const API_URL = action === "accept" ? APIs.ACCEPT_INVITE(invitationId) : APIs.DECELINE_INVITE(invitationId);
 
         try {
-            const data = await axios.post(
-                API_URL,
+            const data = action === "accept" ? await axios.patch(
+                APIs.ACCEPT_INVITE(invitationId),
+                JSON.stringify({
+                    senderId: senderId,
+                    recipientId: userId,
+                }),
+                {
+                    withCredentials: true,
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            ) :
+            await axios.delete(
+                APIs.DECELINE_INVITE(invitationId),
                 JSON.stringify({
                     senderId: senderId,
                     recipientId: userId,
@@ -95,7 +109,8 @@ const Layout = () => {
                     },
                 }
             );
-
+;
+            
             if (data.status === 200 || data.status === 201) {
                 // delete invitation
                 setFriend(prev => ({
@@ -153,7 +168,7 @@ const Layout = () => {
                                 key={inv.friendInvitationId}
                                 invitationId={inv.friendInvitationId}
                                 senderId={inv.senderId}
-                                username={inv.senderUserName}
+                                username={inv.senderUsername}
                                 avatarUrl={inv.senderAvatarUrl}
                                 invitationAction={invitationActions}
                             />

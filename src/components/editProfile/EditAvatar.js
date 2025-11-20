@@ -55,7 +55,7 @@ const EditAvatar = () => {
         if (!file) return;
 
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("File", file);
 
         try {
             const res = await axios.post(APIs.AVATAR(userId),
@@ -89,7 +89,7 @@ const EditAvatar = () => {
         if (!file) return;
 
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("File", file);
 
         try {
             const res = await axios.put(APIs.AVATAR(userId),

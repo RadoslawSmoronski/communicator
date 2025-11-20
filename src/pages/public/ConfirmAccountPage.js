@@ -34,7 +34,7 @@ const ConfirmAccountPage = () => {
             const response = await axios.post(APIs.CONFIRM_ACCOUNT,
                 JSON.stringify({
                     userId: userId,
-                    token: token
+                    confirmationToken: token
                 }),
                 {
                     headers: {

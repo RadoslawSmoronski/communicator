@@ -28,7 +28,7 @@ const PersonTile = ({ recipientId, username, isInvited, avatarUrl }) => {
                 }
             );
 
-            if (data.status === 201) {
+            if (data.status === 200) {
                 setSendBtnIsActive(false);
             }
 

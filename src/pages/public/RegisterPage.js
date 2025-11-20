@@ -99,7 +99,7 @@ const RegisterPage = () => {
         { headers: { 'Content-Type': 'application/json' } }
       );
 
-      if (data.status === 201) {
+      if (data.status === 200) {
         popUpRef.current?.show("User successfully created.");
       }
     } catch (err) {

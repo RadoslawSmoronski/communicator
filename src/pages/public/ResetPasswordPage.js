@@ -88,7 +88,7 @@ const ResetPasswordPage = () => {
             const data = await axios.post(APIs.RESET_PASSWORD,
                 JSON.stringify({
                     userId: userId,
-                    token: token,
+                    codedToken: token,
                     newPassword: password
                 }),
                 { headers: { 'Content-Type': 'application/json' } }

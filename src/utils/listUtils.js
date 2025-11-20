@@ -4,7 +4,7 @@ const listUtils = {
     returnFilteredFriends: (friendList, searchValue) => {
         if (friendList) {
             return friendList.filter(user =>
-                user.friendUserName.toLowerCase().includes(searchValue.toLowerCase())
+                user.friendUsername.toLowerCase().includes(searchValue.toLowerCase())
             );
         }
         return [];

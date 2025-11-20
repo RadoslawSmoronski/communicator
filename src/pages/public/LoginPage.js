@@ -59,7 +59,7 @@ const LoginPage = () => {
                 console.log("userData: ", userData);
                 let role = 'user';
 
-                setAuth(userData.avatarUrl, formState.email, userData.userName, userData.id, role, userData.accessToken);
+                setAuth(userData.avatarUrl, formState.email, userData.username, userData.id, role, userData.accessToken);
 
                 // refreshToken
                 sessionStorage.setItem('refreshToken', userData.refreshToken);
@@ -68,7 +68,7 @@ const LoginPage = () => {
                 let userInfo = {
                     avatarUrl: userData.avatarUrl,
                     email: formState.email,
-                    username: userData.userName,
+                    username: userData.username,
                     userID: userData.id,
                     role: role,
                     currentChat: ''

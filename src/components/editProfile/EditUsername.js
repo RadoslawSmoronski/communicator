@@ -69,7 +69,9 @@ const EditUsername = () => {
 
         try {
             const res = await axios.patch(APIs.CHANGE_USERNAME(userId),
-                formData,
+            {
+                newUsername: formData
+            },
                 {
                     withCredentials: true,
                     headers: {
@@ -80,7 +82,7 @@ const EditUsername = () => {
             );
 
             if (res.status === 200) {
-                let newUsername = res.data;
+                let newUsername = res.data.username;
                 afterSaveAction(newUsername, "Username changed successfully!");
             }
         } catch (err) {
