@@ -21,8 +21,6 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
         });
 
-        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
-
         // configuration
         builder.Services.Configure<JWTTokenSettings>(
             builder.Configuration.GetSection("JWTTokenSettings"));

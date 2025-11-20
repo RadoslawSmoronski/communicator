@@ -1,72 +1,180 @@
-# Chat Communicator - API
+🌐 [English](README.md) | 🇵🇱 [Polski](README-pl.md)
+# Chat Communicator – Backend (.NET 9)
 
-A real-time chat backend built on .NET 9 and C# 13 using Clean Architecture, SignalR, ASP.NET Core Identity, and EF Core (PostgreSQL).
+Real-time backend for a chat application (1-to-1 conversations) with user registration, JWT authentication, friends, invitations and live messages. 
+Built with .NET 9, C# 13 and a Clean Architecture style.
 
 ---
 
-## Overview
+## Table of contents
 
-Chat Communicator enables users to register, authenticate, manage friendships, and exchange messages in real-time. The solution is split into layers:
+1. [Project overview](#project-overview)  
+2. [Technologies](#technologies)  
+3. [Architecture](#architecture)  
+4. [Features](#features)  
+5. [Solution structure](#solution-structure)  
+6. [Configuration](#configuration)  
+7. [How to run locally](#how-to-run-locally)  
+8. [Tests](#tests)  
+9. [API / Documentation](#api--documentation)  
+10. [SignalR and real-time communication](#signalr-and-real-time-communication)  
+11. [Logging](#logging)  
+12. [Project status](#project-status)
 
-- API: HTTP endpoints, SignalR `ChatHub`, OpenAPI/Swagger, exception handling.
-- Application: CQRS with MediatR, authorization pipeline, mapping.
-- Infrastructure: EF Core + PostgreSQL, ASP.NET Core Identity, email/avatars/files, Serilog, background jobs.
-- Domain: Core entities and models.
-- Shared: Result/Errors and common primitives.
+---
 
-## Tech Stack
+## Project overview
 
-- .NET 9, C# 13
-- ASP.NET Core, MediatR
-- SignalR (real-time)
-- EF Core + Npgsql (PostgreSQL)
-- ASP.NET Core Identity (JWT auth)
-- Serilog (console + PostgreSQL sink)
-- AutoMapper
-- Swagger/OpenAPI (dev), optional ReDoc bundle
+**Chat Communicator** is a backend for a chat application that allows users to:
+
+- create an account, confirm their email, log in and refresh tokens,
+- send and accept friend invitations,
+- chat in real time using SignalR,
+- manage their profile (for example user avatar).
+
+The project was created to learn and show good backend practices:
+
+- clear layers (API, Application, Domain, Infrastructure, Shared),
+- CQRS with MediatR,
+- ASP.NET Core Identity,
+- EF Core with migrations,
+- separate unit tests for Application and Infrastructure.
+
+---
+
+## Technologies
+
+- .NET 9, C# 13  
+- ASP.NET Core Web API  
+- MediatR (CQRS: Commands/Queries)  
+- SignalR (real-time communication)  
+- EF Core + Npgsql (PostgreSQL)  
+- ASP.NET Core Identity (JWT auth)  
+- Serilog (console + PostgreSQL sink)  
+- AutoMapper  
+- Swagger / OpenAPI (in Development)  
 - xUnit  
-- FluentAssertions
+- FluentAssertions  
 - FakeItEasy
+
+---
+
+## Architecture
+
+The project follows a style close to **Clean Architecture**:
+
+- **API**  
+  - Controllers, `ChatHub` for SignalR.  
+  - Handles HTTP, routing, input validation, mapping to commands/queries.  
+  - Configures Swagger/OpenAPI, exception handling (ProblemDetails), CORS and authentication.
+
+- **Application**  
+  - Application logic as **command/query handlers** (MediatR).  
+  - Pipeline behaviors (for example authorization).  
+  - Service interfaces (ports), mapping profiles, configuration (typed settings).
+
+- **Domain**  
+  - Domain entities (`User`, `Friendship`, `FriendshipInvitation`, `Conversation`, `Message`, `RefreshToken`, etc.).  
+  - Domain rules and relationships between entities.
+
+- **Infrastructure**  
+  - `ApplicationDbContext` (EF Core + Identity).  
+  - Implementations of repositories and services (email, files, messages, friends, tokens).  
+  - Database migrations.  
+  - Serilog integration (logs to console and PostgreSQL).
+
+- **Shared**  
+  - `Result<T>` and error types.  
+  - Common primitives shared between layers.
+
+---
 
 ## Features
 
-- Authentication
-  - Email/password login
-  - JWT access tokens, DB-backed refresh tokens (rotation + cleanup job)
-  - Email confirmation
-  - Password reset (SMTP)
-- Users
-  - Registration
-  - Change username/password
-  - Avatar upload/change/delete (stored under `wwwroot`)
-- Friendships
-  - Invitations (send/accept/decline)
-  - Friends list, searchable users (with "invitable" filter)
-- Chat
-  - Conversation create/get
-  - Send messages, pagination from message id
-  - Read receipts (per-user last read)
-  - Last message tracking
-  - Presence and multi-device connections
+### Authentication and users
 
-## Solution Structure
+- User registration (email + password).
+- Login:
+  - JWT access token.
+  - Refresh token stored in the database (rotation, lifetime, cleanup job).
+- Email confirmation (confirmation link with token).
+- Password reset (link sent by email, set new password).
+- User management:
+  - Change username / password.
+  - Manage avatar (upload / change / delete, files in `wwwroot`).
 
-- `API`: Controllers, `ChatHub`, DI, OpenAPI/Swagger, ProblemDetails
-- `Application`: Commands/Queries (MediatR), pipeline behaviors (authorization), settings, mappings
-- `Infrastructure`: `ApplicationDbContext`, Identity, repositories/UoW, services (email, files, messages, conversations, friendships), Serilog, background services
-- `Domain`: Entities
-- `Shared`: `Result<T>`, errors, helpers
+### Friends
 
-## Testing
+- Send friend invitations.
+- Accept / reject invitations.
+- Friends list.
+- Search users with an "invitable" filter (who can still be invited).
 
-This solution uses xUnit with `FluentAssertions` and `FakeItEasy`. Tests are split by layer:
+### Chat / conversations
 
-- `Application.UnitTests` — unit tests for CQRS handlers, pipeline behaviors and application logic (example: `AuthorizationBehaviorTests`).
-- `Infrastructure.Tests` — infrastructure-focused tests (example: `TokenServiceTests`); a mix of focused unit tests and small integration tests touching persistence/cleanup.
+- Create and get 1-to-1 conversations.
+- Send messages.
+- Paginate messages (from a given `messageId` backwards).
+- Track the last message in a conversation.
+- Read receipts:
+  - For each user, track the last read message.
+
+### Real-time (SignalR)
+
+- Send and receive messages in real time.
+- Read receipt notifications.
+- Support for multiple connections per user (multi-device).
+- Notifications when a friend connects or disconnects.
+
+---
+
+## Solution structure
+
+In the root folder:
+
+- `ChatCommunicator.sln` – main solution file.
+
+Main projects:
+
+- `API/`  
+  - Controllers (Auth, Users, Chats, Friendships, Invitations).  
+  - `ChatHub` and SignalR interfaces.  
+  - DI configuration (extension methods), Swagger, ProblemDetails.  
+  - Static files (`wwwroot` – for example avatars).
+
+- `Application/`  
+  - `Auth`, `Chats`, `FriendInvitations`, `Friendships`, `Users` – commands/queries.  
+  - `Common` – behaviors, interfaces, security, settings, mapping profile.  
+  - `Repositories` – repository interfaces used by Application.
+
+- `Domain/`  
+  - `Entities` – domain entities (`User`, `Friendship`, `FriendshipInvitation`, `Conversation`, `Message`, `RefreshToken`, etc.).
+
+- `Infrastructure/`  
+  - `Database` – `ApplicationDbContext`, `UnitOfWork`.  
+  - `Entities` – database mapping entities (if separated).  
+  - `Migrations` – EF Core migrations.  
+  - `Repositories` – repository implementations.  
+  - `Services` – infrastructure services (for example email, files, tokens, user connections).  
+  - `Authorization` – integration with ASP.NET Core Authorization.  
+  - `InfrastructureProfile` – mapping profiles for infrastructure.
+
+- `Shared/`  
+  - `Result/` – result types (`Result<T>`, `Error`, etc.).
+
+Test projects:
+
+- `Application.UnitTests/`  
+  - Tests for handlers, behaviors and Application logic.
+
+- `Infrastructure.UnitTests/`  
+  - Tests for services and parts of the Infrastructure layer (including database / InMemory).
+
+---
 
 ## Configuration
 
-Configure your application settings in appsettings.json:
+Main application configuration is in `API/appsettings.json`. Example:
 
 ```json
 {
@@ -138,84 +246,142 @@ Configure your application settings in appsettings.json:
 }
 ```
 
-#### Running the Application
+Before running the app, set:
 
-1.  Clone the repository
-2.  Apply migrations to your database:
-    `dotnet ef database update`
-3.  Run the application:
-    `dotnet run --project ChatCommunicator.API`
+- `ConnectionStrings.DefaultConnection` – PostgreSQL connection string.  
+- `JWTTokenSettings` – `Issuer`, `Audience`, `SigningKey`.  
+- `CORS.AllowedOrigins` – frontend origin(s).  
+- `SmtpEmailSettings` – if you want to test emails.
 
-## API Documentation
+---
 
-You can access the full API documentation here:  
-🔗 **[https://radoslawsmoronski.github.io/communicator/](https://radoslawsmoronski.github.io/communicator/)**
+## How to run locally
 
-The documentation provides details on endpoints, models, responses, and authentication.
+You need:
 
-## SignalR Integration
+- .NET 9 SDK  
+- PostgreSQL (locally or in Docker)
 
-ChatCommunicator leverages SignalR for real-time communication between clients. This enables instant message delivery, typing indicators, and read receipts.
+1. **Clone the repository**
 
-##### Chat Hub
+```bash
+git clone https://github.com/<YOUR_ACCOUNT>/communicator.git
+cd communicator
+```
 
-The application exposes a ChatHub that handles real-time messaging:
-`/ChatHub`
+2. **Configure `appsettings.Development.json` / `appsettings.json`**
 
-##### Authentication
+- Set database connection and JWT settings.
+- Make sure `DefaultConnection` points to a working database.
 
-All SignalR connections require authentication. Clients must provide a valid JWT token as a query parameter:
+3. **Apply database migrations**
 
-`/ChatHub?access_token=your_jwt_token_here`
+```bash
+cd Api
+dotnet ef database update
+```
 
-#### Available Methods
+4. **Run the API**
 
-| Method      | Parameters                           | Description                                                     |
-| ----------- | ------------------------------------ | --------------------------------------------------------------- |
-| SendMessage | recipientId, conversationId, content | Sends a message to a specific recipient in a conversation       |
-| ReadMessage | recipientId, conversationId          | Marks messages as read up to the last message in a conversation |
+```bash
+dotnet run --project API/API.csproj
+```
 
-#### Client Callbacks
+By default, the API will be available at the URL from `launchSettings.json` (for example `https://localhost:5001`).
 
-The server invokes these methods on connected clients:
+---
 
-| Method           | Parameters                                              | Description                                                    |
-| ---------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
-| ReceiveMessage   | messageId, conversationId, senderId, content, timestamp | Notifies clients when a new message is received                |
-| MessageRead      | messageId, conversationId                               | Notifies clients when a message has been read by the recipient |
-| FriendConnect    | friendId                                                | Notifies clients when friend has been connected                |
-| FriendDisconnect | friendId                                                | Notifies clients when friend has been disconnected             |
+## Tests
 
-#### Connection Management
+The project has unit tests for **Application** and **Infrastructure** layers.
 
-The application tracks user connections using the UsersConnectionService:
+To run all tests:
 
-- Users can be connected from multiple devices simultaneously
-- When a user disconnects, their connection is automatically removed
-- Messages are delivered to all active connections of the recipient
+```bash
+cd Api
+dotnet test ChatCommunicator.sln
+```
+
+Current status:
+
+- 72 tests passing (xUnit + FluentAssertions + FakeItEasy).
+
+---
+
+## API / Documentation
+
+A snapshot of the API documentation is available here:
+
+**https://radoslawsmoronski.github.io/communicator/**
+
+It contains:
+
+- list of endpoints,  
+- request/response models,  
+- auth requirements (Bearer JWT),  
+- response codes.
+
+In the Development environment, Swagger/OpenAPI is also exposed directly by the API.
+
+---
+
+## SignalR and real-time communication
+
+The backend exposes a SignalR hub:
+
+- Hub endpoint: `/ChatHub` (usually mapped as `/chathub`).
+
+### Connection authorization
+
+SignalR connections require a valid JWT. The token is passed as a query parameter:
+
+```text
+/ChatHub?access_token=your_jwt_token_here
+```
+
+### Hub methods (called by clients)
+
+| Method       | Parameters                                 | Description                                                  |
+|-------------|---------------------------------------------|--------------------------------------------------------------|
+| `SendMessage` | `recipientId`, `conversationId`, `content`  | Sends a message to a specific recipient in a conversation    |
+| `ReadMessage` | `recipientId`, `conversationId`             | Marks messages as read up to the last message in the conversation |
+
+### Client callbacks (called by server)
+
+| Method            | Parameters                                                          | Description                                      |
+|------------------|---------------------------------------------------------------------|--------------------------------------------------|
+| `ReceiveMessage` | `messageId`, `conversationId`, `senderId`, `content`, `timestamp`   | Notifies about a new message                     |
+| `MessageRead`    | `messageId`, `conversationId`                                       | Notifies that the recipient read the message     |
+| `FriendConnect`  | `friendId`                                                          | Notifies that a friend connected                 |
+| `FriendDisconnect` | `friendId`                                                        | Notifies that a friend disconnected              |
+
+### Connection management
+
+- One user can have many active connections (multi-device).
+- The app tracks active connectionIds for each user.
+- Messages and notifications are sent to all active connections of the user.
+
+---
 
 ## Logging
 
-- Serilog writes to console and PostgreSQL table `Logs` (auto-created).
-- Adjust sink settings in `API/Extensions/DependencyInjection.cs`.
-- A background service periodically removes expired refresh tokens (not logs).
+- Serilog writes logs to the console and to a `Logs` table in PostgreSQL (created automatically).
+- Sink configuration is in DI extensions in the `API` project.
+- There is also a background service that removes expired refresh tokens.
 
-This project uses xUnit with FluentAssertions and FakeItEasy. Tests are split by layer:
+---
 
-- `Application.UnitTests` — unit tests for CQRS handlers, behaviors, and application logic.
-- `Infrastructure.Tests` — tests for infrastructure services (example: `TokenService`), can be integration or focused unit tests that touch DB/IO.
+## Project status
 
-## Notes
+The project is **in Beta**:
 
-- Admin role bypass: requests marked with authorization interfaces are permitted when the caller has the `Admin` role.
-- Static files: avatars are stored under `wwwroot/<UserAvatarSettings:Folder>`.
-- HTTPS redirection is enabled by default.
+- layered architecture,  
+- real-time chat, auth, friends, password reset, avatars,  
+- unit tests for Application and Infrastructure,  
+- full local run with migrations and API documentation.
 
-## Project Status
+Possible next steps (optional):
 
-Active development. Next steps:
-- Containerization (Docker)
-- Performance and UX improvements
-- Further API hardening and tooling
-
-Contributions and feedback are welcome.
+- containerization (Docker + docker-compose with PostgreSQL),  
+- additional API integration tests,
+- more features.
