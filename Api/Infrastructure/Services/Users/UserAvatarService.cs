@@ -44,7 +44,7 @@ namespace Infrastructure.Services.Users
                     _logger.LogWarning("[UserAvatarService - UploadAvatarAsync] User already has an avatar. userId: {UserId}", userId);
                     return Error.Conflict("AvatarAlreadyExists", "User already has an avatar.");
                 }
-
+                
                 return await UploadAvatarAsync(user, file, "UploadAvatarAsync");
             }
             catch (Exception ex)
@@ -142,7 +142,7 @@ namespace Infrastructure.Services.Users
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("[UserAvatarService - {LoggerTag}] Avatar uploaded successfully for userId: {UserId}", loggerTag, user.Id);
-                    return filename;
+                    return GetPublicAvatarUrl(filename);
                 }
 
                 var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));

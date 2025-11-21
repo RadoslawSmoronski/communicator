@@ -1,4 +1,5 @@
-﻿using API.Contracts.Auth.ConfirmEmail;
+﻿using System.ComponentModel.DataAnnotations;
+using API.Contracts.Auth.ConfirmEmail;
 using API.Contracts.Auth.Login;
 using API.Contracts.Auth.RefreshAccessToken;
 using API.Contracts.Auth.RequestPasswordReset;
@@ -11,7 +12,6 @@ using Application.Auth.Commands.ResetPassword;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace API.Controllers
 {
@@ -96,19 +96,22 @@ namespace API.Controllers
 
             return HandleError(result, "AuthController - RefreshAccessTokenAsync", _logger);
         }
-
+        
         /// <summary>
-        /// Confirm user's email
+        /// Confirm user's email.
         /// </summary>
-        /// <param name="req">
-        /// The request payload containing the <see cref="ConfirmEmailRequest.UserId"/> and the raw (possibly URL-encoded) confirmation token.
+        /// <param name="userId">
+        /// The identifier of the user whose email should be confirmed. This value is supplied as a query parameter.
+        /// </param>
+        /// <param name="confirmationToken">
+        /// The raw (possibly URL-encoded) confirmation token provided to the user. This value is supplied as a query parameter and will be decoded/validated by the handler.
         /// </param>
         /// <returns>
         /// Returns 200 OK when the email is successfully confirmed; otherwise an error response produced by <c>HandleError</c>.
         /// </returns>
         /// <remarks>
         /// Route: POST api/auth/confirm-email
-        /// The <c>ConfirmationToken</c> is URL-decoded before processing.
+        /// Both <c>userId</c> and <c>confirmationToken</c> are expected as query parameters (not in the request body).
         /// Authentication: Not required.
         /// </remarks>
         /// <response code="200">Email confirmed successfully.</response>
@@ -119,9 +122,11 @@ namespace API.Controllers
         [HttpPost("confirm-email")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Produces("application/json")]
-        public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest req)
+        public async Task<IActionResult> ConfirmEmailAsync(
+            [FromQuery, Required] Guid userId,
+            [FromQuery, Required] string confirmationToken)
         {
-            var command = new ConfirmEmailCommand(req.UserId, WebUtility.UrlDecode(req.ConfirmationToken));
+            var command = new ConfirmEmailCommand(userId, confirmationToken);
             var result = await _sender.Send(command);
 
             if (result.IsSuccess)
