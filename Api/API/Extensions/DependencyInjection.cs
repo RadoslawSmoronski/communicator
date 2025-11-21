@@ -1,7 +1,6 @@
 ﻿using API.Services;
 using Application.Common;
 using Application.Common.Interfaces;
-using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;

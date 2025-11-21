@@ -224,21 +224,24 @@ Główna konfiguracja aplikacji znajduje się w `API/appsettings.json`. Przykła
     "MinImageHeight": 100,
     "AllowedExtensions": [ ".jpg", ".jpeg", ".png", ".bmp", ".gif" ]
   },
-  "Identity": {
-    "Password": {
+  "IdentitySettings": {
+    "PasswordSettings": {
       "RequireDigit": false,
       "RequiredLength": 6,
       "RequireLowercase": false,
       "RequireUppercase": false,
       "RequireNonAlphanumeric": false
     },
-    "Lockout": {
+    "LockoutSettings": {
       "AllowedForNewUsers": true,
       "MaxFailedAccessAttempts": 5,
       "DefaultLockoutTimeSpan": 5
     },
-    "User": {
-      "RequireUniqueEmail": false
+    "UserSettings": {
+      "RequireUniqueEmail": true
+    },
+    "SignInSettings": {
+      "RequireConfirmedEmail": true
     }
   },
   "AllowedHosts": "*"

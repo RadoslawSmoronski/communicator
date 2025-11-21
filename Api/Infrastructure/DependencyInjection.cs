@@ -1,6 +1,8 @@
-﻿using Application.Common.Authorization;
+﻿using System.Globalization;
+using Application.Common.Authorization;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Users;
+using Application.Common.Settings.Identity;
 using Application.Repositories;
 using Infrastructure;
 using Infrastructure.Authorization;
@@ -20,11 +22,11 @@ public static class DependencyInjection
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        if (connectionString == null || connectionString.Length == 0)
+        if (connectionString is null || connectionString.Length == 0)
         {
-            //Log.Fatal("[Program settings] ConnectionString is not configured or empty. Please check your configuration.");
             Environment.Exit(1);
-        }
+        };
+        
         builder.Services.AddDbContext<ApplicationDbContext>
             (options => options.UseNpgsql(connectionString));
 
@@ -51,21 +53,27 @@ public static class DependencyInjection
         builder.Services.AddScoped<IChatAccess, ChatAccess>();
 
         builder.Services.AddHostedService<RefreshTokenCleanUpService>();
-
+        
+        var identitySettings = new IdentitySettings();
+        
+        builder.Configuration
+            .GetSection("IdentitySettings")
+            .Bind(identitySettings);
+        
         builder.Services.AddIdentity<UserAccount, ApplicationRole>(options =>
         {
-            options.Password.RequireDigit = false;
-            options.Password.RequiredLength = 6;
-            options.Password.RequireLowercase = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireNonAlphanumeric = false;
-
-            options.Lockout.AllowedForNewUsers = true;
-            options.Lockout.MaxFailedAccessAttempts = 5;
-            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-
-            options.User.RequireUniqueEmail = false;
-            options.SignIn.RequireConfirmedEmail = true;
+             options.Password.RequireDigit = identitySettings.PasswordSettings.RequireDigit;
+             options.Password.RequiredLength = identitySettings.PasswordSettings.RequiredLength;
+             options.Password.RequireLowercase = identitySettings.PasswordSettings.RequireLowercase;
+             options.Password.RequireUppercase = identitySettings.PasswordSettings.RequireUppercase;
+             options.Password.RequireNonAlphanumeric = identitySettings.PasswordSettings.RequireNonAlphanumeric;
+            
+             options.Lockout.AllowedForNewUsers = identitySettings.LockoutSettings.AllowedForNewUsers;
+             options.Lockout.MaxFailedAccessAttempts = identitySettings.LockoutSettings.MaxFailedAccessAttempts;
+             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromSeconds(identitySettings.LockoutSettings.DefaultLockoutTimeSpan);
+            
+            options.User.RequireUniqueEmail = identitySettings.UserSettings.RequireUniqueEmail;
+             options.SignIn.RequireConfirmedEmail = identitySettings.SignInSettings.RequireConfirmedAccount;
         }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
     }
