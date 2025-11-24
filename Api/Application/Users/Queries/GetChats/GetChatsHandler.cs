@@ -1,4 +1,5 @@
 ﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces.Users;
 using MediatR;
 using Shared.Result;
 
@@ -7,12 +8,14 @@ namespace Application.Users.Queries.GetChats
     public class GetChatsHandler(
         IConversationService conversationService,
         IFriendshipService friendshipService,
-        IUsersConnectionService usersConnectionService)
+        IUsersConnectionService usersConnectionService,
+        IUserAvatarService avatarService)
         : IRequestHandler<GetChatsQuery, Result<List<GetChatsReadModel>>>
     {
         private readonly IConversationService _conversationService = conversationService;
         private readonly IFriendshipService _friendshipService = friendshipService;
         private readonly IUsersConnectionService _usersConnectionService = usersConnectionService;
+        private readonly IUserAvatarService _avatarService = avatarService;
 
         public async Task<Result<List<GetChatsReadModel>>> Handle(GetChatsQuery request, CancellationToken cancellationToken)
         {
@@ -48,7 +51,7 @@ namespace Application.Users.Queries.GetChats
                 return new GetChatsReadModel(
                     FriendId: friend!.Id,
                     FriendUserName: friend.UserName,
-                    FriendAvatarUrl: friend.AvatarUrl,
+                    FriendAvatarUrl: friend.AvatarUrl is not null ? _avatarService.GetPublicAvatarUrl(friend.AvatarUrl) : null,
                     ConversationId: c.Id,
                     IsFriendOnline: friendIsOnline,
                     LastMessageId: c.LastMessageId,

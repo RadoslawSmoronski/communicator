@@ -135,7 +135,7 @@ namespace Infrastructure.Services
 
                 var senderDict = senders.ToDictionary(u => u.Id);
 
-                var dtos = invitations.Select(x =>
+                var dtos = invitations.Where(x=> x.SenderId != userId).Select(x =>
                 {
                     var senderUser = senderDict.TryGetValue(x.SenderId, out var userAcc) ? userAcc : null;
                     return new GetInvitationsReadModel(FriendInvitationId: x.Id,

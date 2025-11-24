@@ -1,7 +1,6 @@
 using Application.Auth.Commands.LoginUser;
 using Application.Common.Interfaces;
 using Application.Common.Interfaces.Users;
-using AutoMapper;
 using Domain.Entities;
 using FakeItEasy;
 using FluentAssertions;
@@ -13,13 +12,14 @@ namespace Application.UnitTests.Auth.Commands.LoginUser
     {
         private readonly IUserService _userService = A.Fake<IUserService>();
         private readonly ITokenService _tokenService = A.Fake<ITokenService>();
+        private readonly IUserAvatarService _userAvatarService = A.Fake<IUserAvatarService>();
         private readonly LoginUserHandler _handler;
         
         private readonly User _sampleUser;
 
         public LoginUserHandlerTests()
         {
-            _handler = new LoginUserHandler(_userService, _tokenService);
+            _handler = new LoginUserHandler(_userService, _tokenService, _userAvatarService);
             
             _sampleUser = new User
             {
@@ -52,7 +52,6 @@ namespace Application.UnitTests.Auth.Commands.LoginUser
             result.IsSuccess.Should().BeTrue();
             result.Value.Id.Should().Be(_sampleUser.Id);
             result.Value.UserName.Should().Be("TestUser");
-            result.Value.AvatarUrl.Should().Be("avatar.png");
             result.Value.AccessToken.Should().Be("access-token");
             result.Value.RefreshToken.Should().NotBe(Guid.Empty);
         }

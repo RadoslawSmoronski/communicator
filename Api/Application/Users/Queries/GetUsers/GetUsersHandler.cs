@@ -8,12 +8,14 @@ namespace Application.Users.Queries.GetUsers
     public class GetUsersHandler(
         IUserService userService,
         IFriendshipService friendshipService,
-        IFriendInvitationsService friendInvitationsService)
+        IFriendInvitationsService friendInvitationsService,
+        IUserAvatarService avatarService)
         : IRequestHandler<GetUsersQuery, Result<List<GetUsersReadModel>>>
     {
         private readonly IUserService _userService = userService;
         private readonly IFriendshipService _friendshipService = friendshipService;
         private readonly IFriendInvitationsService _friendInvitationsService = friendInvitationsService;
+        private readonly IUserAvatarService _avatarService = avatarService;
 
         public async Task<Result<List<GetUsersReadModel>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
         {
@@ -54,7 +56,7 @@ namespace Application.Users.Queries.GetUsers
                 .Where(u => u.Id != canBeInvitedByUserId && !usersFriendsIds.Contains(u.Id))
                 .Select(x => new GetUsersReadModel(
                     Id: x.Id,
-                    AvatarUrl: x.AvatarUrl,
+                    AvatarUrl: x.AvatarUrl is not null ? _avatarService.GetPublicAvatarUrl(x.AvatarUrl) : null,
                     UserName: x.UserName,
                     IsInvited: userInvitationsIds.Contains(x.Id)))
                 .ToList();

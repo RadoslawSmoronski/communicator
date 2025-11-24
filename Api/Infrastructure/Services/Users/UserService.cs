@@ -1,14 +1,11 @@
 ﻿using Application.Auth.Commands.RequestPasswordReset;
-using Application.Common.Interfaces;
 using Application.Common.Interfaces.Users;
-using Application.Common.Settings;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Shared.Result;
 
 

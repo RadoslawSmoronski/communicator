@@ -116,7 +116,7 @@ namespace API.Controllers
         /// <response code="410">The invitation has expired.</response>
         /// <response code="500">Unexpected server error.</response>
         [Authorize]
-        [HttpPatch("{friendInvitationId}/accept")]
+        [HttpPost("{friendInvitationId}/accept")]
         [ProducesResponseType(typeof(AcceptInvitationResponse), StatusCodes.Status200OK)]
         [Produces("application/json")]
         public async Task<IActionResult> AcceptInvitationAsync([FromRoute] Guid friendInvitationId)

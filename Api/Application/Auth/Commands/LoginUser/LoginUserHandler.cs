@@ -5,10 +5,11 @@ using Shared.Result;
 
 namespace Application.Auth.Commands.LoginUser
 {
-    public class LoginUserHandler(IUserService userService, ITokenService tokenService) : IRequestHandler<LoginUserCommand, Result<LoginUserReadModel>>
+    public class LoginUserHandler(IUserService userService, ITokenService tokenService, IUserAvatarService avatarService) : IRequestHandler<LoginUserCommand, Result<LoginUserReadModel>>
     {
         private readonly IUserService _userService = userService;
         private readonly ITokenService _tokenService = tokenService;
+        private readonly IUserAvatarService _avatarService = avatarService;
 
         public async Task<Result<LoginUserReadModel>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
@@ -29,7 +30,7 @@ namespace Application.Auth.Commands.LoginUser
             return new LoginUserReadModel(
                 Id: user.Id,
                 UserName: user.UserName,
-                AvatarUrl: user.AvatarUrl,
+                AvatarUrl: user.AvatarUrl is not null ? _avatarService.GetPublicAvatarUrl(user.AvatarUrl) : null,
                 AccessToken: accessToken.Value,
                 RefreshToken: refreshToken.Value
                 );

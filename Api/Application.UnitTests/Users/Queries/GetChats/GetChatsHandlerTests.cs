@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Application.Common.Interfaces.Users;
 using Application.Users.Queries.GetChats;
 using Domain.Entities;
 using FakeItEasy;
@@ -12,6 +13,7 @@ namespace Application.UnitTests.Users.Queries.GetChats
         private readonly IConversationService _conversationService;
         private readonly IFriendshipService _friendshipService;
         private readonly IUsersConnectionService _usersConnectionService;
+        private readonly IUserAvatarService _userAvatarService;
         private readonly GetChatsHandler _handler;
         private readonly Guid _userId = Guid.NewGuid();
         private readonly Guid _friendId = Guid.NewGuid();
@@ -22,8 +24,9 @@ namespace Application.UnitTests.Users.Queries.GetChats
             _conversationService = A.Fake<IConversationService>();
             _friendshipService = A.Fake<IFriendshipService>();
             _usersConnectionService = A.Fake<IUsersConnectionService>();
+            _userAvatarService = A.Fake<IUserAvatarService>();
 
-            _handler = new GetChatsHandler(_conversationService, _friendshipService, _usersConnectionService);
+            _handler = new GetChatsHandler(_conversationService, _friendshipService, _usersConnectionService, _userAvatarService);
         }
 
         [Fact]
