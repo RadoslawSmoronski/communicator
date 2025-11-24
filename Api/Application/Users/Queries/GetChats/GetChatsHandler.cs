@@ -37,9 +37,9 @@ namespace Application.Users.Queries.GetChats
             if (friends.Count == 0)
                 return new List<GetChatsReadModel>();
 
-            var friendIds = friends.Select(f => f.Id).ToList();
+            var friendIds = friends.ToDictionary(f => f.Id, f => f.FriendshipId); // dodac tutaj friendship id
 
-            var conversationsWithFriends = conversations.Where(c => friendIds.Contains(c.User1Id) || friendIds.Contains(c.User2Id));
+            var conversationsWithFriends = conversations.Where(c => friendIds.ContainsKey(c.User1Id) || friendIds.ContainsKey(c.User2Id));
 
             var onlineUsers = await _usersConnectionService.GetOnlineUsersIdAsync();
 
@@ -51,10 +51,14 @@ namespace Application.Users.Queries.GetChats
                 return new GetChatsReadModel(
                     FriendId: friend!.Id,
                     FriendUserName: friend.UserName,
-                    FriendAvatarUrl: friend.AvatarUrl is not null ? _avatarService.GetPublicAvatarUrl(friend.AvatarUrl) : null,
+                    FriendAvatarUrl: friend.AvatarUrl is not null
+                        ? _avatarService.GetPublicAvatarUrl(friend.AvatarUrl)
+                        : null,
                     ConversationId: c.Id,
+                    FriendshipId: friendIds[friend.Id],
                     IsFriendOnline: friendIsOnline,
                     LastMessageId: c.LastMessageId,
+                    LastMessageContent: c.LastMessage?.Content,
                     IsFriendSenderMessage: c.LastMessage?.SenderId == friend.Id,
                     LastMessageTimestamp: c.LastMessage?.CreatedAt
                 );

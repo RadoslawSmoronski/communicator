@@ -408,7 +408,7 @@
       }
     },
     "/api/friend-invitations/{friendInvitationId}/accept": {
-      "patch": {
+      "post": {
         "tags": [
           "FriendInvitations"
         ],
