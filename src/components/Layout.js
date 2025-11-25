@@ -81,12 +81,8 @@ const Layout = () => {
         // const API_URL = action === "accept" ? APIs.ACCEPT_INVITE(invitationId) : APIs.DECELINE_INVITE(invitationId);
 
         try {
-            const data = action === "accept" ? await axios.patch(
+            const data = action === "accept" ? await axios.post(
                 APIs.ACCEPT_INVITE(invitationId),
-                JSON.stringify({
-                    senderId: senderId,
-                    recipientId: userId,
-                }),
                 {
                     withCredentials: true,
                     headers: {
@@ -97,10 +93,6 @@ const Layout = () => {
             ) :
             await axios.delete(
                 APIs.DECELINE_INVITE(invitationId),
-                JSON.stringify({
-                    senderId: senderId,
-                    recipientId: userId,
-                }),
                 {
                     withCredentials: true,
                     headers: {
