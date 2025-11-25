@@ -11,6 +11,9 @@ namespace Application.Auth.Commands.ConfirmEmail
         private readonly IUserService _userService = userService;
 
         public async Task<Result> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
-            => await _userService.ConfirmEmailAsync(request.UserId, request.ConfirmationToken);
+        {
+            var decodedToken = WebUtility.UrlDecode(request.ConfirmationToken);
+            return await _userService.ConfirmEmailAsync(request.UserId, decodedToken);
+        }
     }
 }

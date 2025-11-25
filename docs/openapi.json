@@ -114,28 +114,27 @@
           "Auth"
         ],
         "summary": "Confirm user's email.",
-        "description": "Route: POST api/auth/confirm-email\nBoth `userId` and `confirmationToken` are expected as query parameters (not in the request body).\nAuthentication: Not required.",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "description": "The identifier of the user whose email should be confirmed. This value is supplied as a query parameter.",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "confirmationToken",
-            "in": "query",
-            "description": "The raw (possibly URL-encoded) confirmation token provided to the user. This value is supplied as a query parameter and will be decoded/validated by the handler.",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "description": "Route: POST api/auth/confirm-email\nBoth `userId` and `confirmationToken` are expected in the JSON request body (see API.Contracts.Auth.ConfirmEmail.ConfirmEmailRequest).\nAuthentication: Not required.",
+        "requestBody": {
+          "description": "The request body containing the user's identifier and confirmation token.\nSee API.Contracts.Auth.ConfirmEmail.ConfirmEmailRequest. Expected JSON:\n{\n  \"userId\": \"user-id\",\n  \"confirmationToken\": \"token\"\n}",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmailRequest"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Email confirmed successfully."
@@ -1083,6 +1082,24 @@
           "newUsername": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConfirmEmailRequest": {
+        "required": [
+          "confirmationToken",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmationToken": {
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false

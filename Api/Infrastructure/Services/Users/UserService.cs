@@ -62,19 +62,39 @@ namespace Infrastructure.Services.Users
 
         public async Task<Result> ConfirmEmailAsync(Guid userId, string confirmationToken)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
+            _logger.LogInformation("[UserService - ConfirmEmailAsync] Email confirmation attempt for userId: {UserId}", userId);
 
-            if (user == null)
-                return Error.NotFound("", "");
-
-            var result = await _userManager.ConfirmEmailAsync(user, confirmationToken);
-
-            if (result.Succeeded)
+            try
             {
-                return Result.Success();
-            }
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
-            return Error.Failure("", "");
+                if (user == null)
+                {
+                    _logger.LogWarning("[UserService - ConfirmEmailAsync] User not found for userId: {UserId}", userId);
+                    return Error.NotFound("UserNotFound", $"User with id '{userId}' was not found.");
+                }
+
+                var result = await _userManager.ConfirmEmailAsync(user, confirmationToken);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("[UserService - ConfirmEmailAsync] Email confirmed for userId: {UserId}", userId);
+                    return Result.Success();
+                }
+
+                var errorDescription = string.Join("; ", result.Errors.Select(e => e.Description));
+                _logger.LogWarning("[UserService - ConfirmEmailAsync] Email confirmation failed for userId: {UserId}. Errors: {Errors}", userId, errorDescription);
+                return Error.Failure("EmailConfirmationFailed", errorDescription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UserService - ConfirmEmailAsync] Unexpected error for userId: {UserId}", userId);
+                return Error.Failure("ConfirmEmailException", "An unexpected error occurred while confirming the email.");
+            }
+            finally
+            {
+                _logger.LogDebug("[UserService - ConfirmEmailAsync] Finished processing email confirmation for userId: {UserId}", userId);
+            }
         }
 
         public async Task<Result<RequestPasswordResetReadModel>> GeneratePasswordResetTokenAsync(string email)

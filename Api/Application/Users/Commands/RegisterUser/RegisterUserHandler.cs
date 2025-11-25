@@ -62,7 +62,7 @@ namespace Application.Users.Commands.RegisterUser
 
         private string CreateEmailContent(Guid userId, string token)
         {
-            var address = _confirmEmailMessageSettings.Address + "userId=" + userId + "&token=" + token;
+            var address = _confirmEmailMessageSettings.Address + "?userId=" + userId + "&token=" + token;
             return _confirmEmailMessageSettings.Content.Replace("[address]", address);
         }
     }
