@@ -189,8 +189,8 @@
           "400": {
             "description": "Invalid request payload."
           },
-          "429": {
-            "description": "Too many requests. The operation is rate-limited."
+          "403": {
+            "description": "The user account is not activated."
           },
           "500": {
             "description": "An unexpected server error occurred."

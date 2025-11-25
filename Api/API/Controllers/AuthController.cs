@@ -151,7 +151,7 @@ namespace API.Controllers
         /// </remarks>
         /// <response code="200">Request accepted. If an account exists for the email, a reset message is sent.</response>
         /// <response code="400">Invalid request payload.</response>
-        /// <response code="429">Too many requests. The operation is rate-limited.</response>
+        /// <response code="403">The user account is not activated.</response>
         /// <response code="500">An unexpected server error occurred.</response>
         [HttpPost("request-password-reset")]
         [ProducesResponseType(StatusCodes.Status200OK)]

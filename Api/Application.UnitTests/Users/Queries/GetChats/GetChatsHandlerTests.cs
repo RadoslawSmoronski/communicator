@@ -89,7 +89,7 @@ namespace Application.UnitTests.Users.Queries.GetChats
         public async Task Handle_Should_ReturnChats_WhenConversationsAndFriendsExist()
         {
             // Arrange
-            var friend = new Friend { Id = _friendId, UserName = "FriendUser", Email = "FriendUser@mail.com",FriendshipId =  Guid.NewGuid(), FriendshipCreatedAt =  DateTime.Now };
+            var friend = new Friend { Id = _friendId, UserName = "FriendUser", Email = "FriendUser@mail.com",FriendshipId =  Guid.NewGuid(), FriendshipCreatedAt =  DateTime.Now, EmailConfirmed = true };
             var conversations = new List<Conversation>
             {
                 new Conversation
@@ -97,8 +97,8 @@ namespace Application.UnitTests.Users.Queries.GetChats
                     Id = Guid.NewGuid(),
                     User1Id = _userId,
                     User2Id = _friendId,
-                    User1 = new User { Id = _userId, UserName = "Me", Email = "Me@mail.com"},
-                    User2 = new User { Id = _friendId, UserName = "FriendUser", Email = "Me@mail.com"}
+                    User1 = new User { Id = _userId, UserName = "Me", Email = "Me@mail.com", EmailConfirmed = true },
+                    User2 = new User { Id = _friendId, UserName = "FriendUser", Email = "Me@mail.com", EmailConfirmed = true },
                 }
             };
         

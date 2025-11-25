@@ -26,6 +26,7 @@ namespace Application.UnitTests.Auth.Commands.LoginUser
                 Id = Guid.NewGuid(),
                 UserName = "TestUser",
                 Email = "TestUser@mail.com",
+                EmailConfirmed = true,
                 AvatarUrl = "avatar.png"
             };
         }

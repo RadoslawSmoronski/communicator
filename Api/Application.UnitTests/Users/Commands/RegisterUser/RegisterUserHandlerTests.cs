@@ -40,7 +40,7 @@ namespace Application.UnitTests.Users.Commands.RegisterUser
             // Arrange
             var command = new RegisterUserCommand("test@example.com", "TestUser", "Password123!");
             var userId = Guid.NewGuid();
-            var user = new User { Id = userId, Email = command.Email, UserName =  command.Username };
+            var user = new User { Id = userId, Email = command.Email, UserName =  command.Username, EmailConfirmed = false };
 
             A.CallTo(() => _userService.RegisterAsync(command.Email, command.Username, command.Password))
                 .Returns(Result<User>.Success(user));
@@ -88,7 +88,7 @@ namespace Application.UnitTests.Users.Commands.RegisterUser
             // Arrange
             var command = new RegisterUserCommand("test@example.com", "TestUser", "Password123!");
             var userId = Guid.NewGuid();
-            var user = new User { Id = userId, Email = command.Email, UserName =  command.Username };
+            var user = new User { Id = userId, Email = command.Email, UserName =  command.Username, EmailConfirmed = false };
 
             A.CallTo(() => _userService.RegisterAsync(command.Email, command.Username, command.Password))
                 .Returns(Result<User>.Success(user));
@@ -114,7 +114,7 @@ namespace Application.UnitTests.Users.Commands.RegisterUser
             // Arrange
             var command = new RegisterUserCommand("test@example.com", "TestUser", "Password123!");
             var userId = Guid.NewGuid();
-            var user = new User { Id = userId, Email = command.Email, UserName =  command.Username };
+            var user = new User { Id = userId, Email = command.Email, UserName =  command.Username, EmailConfirmed = false };
 
             A.CallTo(() => _userService.RegisterAsync(command.Email, command.Username, command.Password))
                 .Returns(Result<User>.Success(user));

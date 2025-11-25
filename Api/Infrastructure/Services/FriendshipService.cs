@@ -92,6 +92,7 @@ namespace Infrastructure.Services
                         Id = friend!.Id,
                         UserName = friend.UserName,
                         Email = friend.Email,
+                        EmailConfirmed =  friend.EmailConfirmed,
                         AvatarUrl = friend.AvatarUrl,
                         FriendshipId = x.Id,
                         FriendshipCreatedAt = x.CreatedAt,

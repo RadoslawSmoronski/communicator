@@ -57,8 +57,8 @@ namespace Infrastructure.UnitTests.Services.FriendshipServiceTests
                 Id = Guid.NewGuid(),
                 User1Id = SampleUser1Id,
                 User2Id = SampleUser2Id,
-                User1 = new User() {Id = SampleUser1Id, UserName = SampleUserAccount1.UserName!, Email = SampleUserAccount1.Email!},
-                User2 = new User() {Id = SampleUser2Id, UserName = SampleUserAccount2.UserName!, Email = SampleUserAccount2.Email!},
+                User1 = new User() {Id = SampleUser1Id, UserName = SampleUserAccount1.UserName!, Email = SampleUserAccount1.Email!, EmailConfirmed = true},
+                User2 = new User() {Id = SampleUser2Id, UserName = SampleUserAccount2.UserName!, Email = SampleUserAccount2.Email!, EmailConfirmed = true},
                 CreatedAt = DateTime.UtcNow
             };
         

@@ -4,6 +4,7 @@
     {
         public required string UserName { get; set; }
         public required string Email { get; set; }
+        public required bool EmailConfirmed { get; set; }
         public string? AvatarUrl { get; set; }
     }
 }

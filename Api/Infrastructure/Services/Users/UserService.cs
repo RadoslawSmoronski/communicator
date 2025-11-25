@@ -87,8 +87,14 @@ namespace Infrastructure.Services.Users
 
                 if (user == null)
                 {
-                    _logger.LogWarning("[UserService - GeneratePasswordResetTokenAsync] User not found for email: {Email}", email);
+                    _logger.LogWarning(
+                        "[UserService - GeneratePasswordResetTokenAsync] User not found for email: {Email}", email);
                     return Error.NotFound("UserNotFound", $"User with email '{email}' was not found.");
+                }
+                else if (!user.EmailConfirmed)
+                {
+                    _logger.LogWarning("[UserService - GeneratePasswordResetTokenAsync] Email not confirmed for email: {Email}", email);
+                    return Error.Forbidden("EmailNotConfirmed", "Email address has not been confirmed.");
                 }
 
                 _logger.LogInformation("[UserService - GeneratePasswordResetTokenAsync] Password reset token generated for user: {UserId}", user.Id);

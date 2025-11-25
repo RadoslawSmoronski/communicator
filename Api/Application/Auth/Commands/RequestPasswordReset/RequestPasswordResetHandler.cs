@@ -25,6 +25,9 @@ namespace Application.Auth.Commands.RequestPasswordReset
         public async Task<Result<string>> Handle(RequestPasswordResetCommand request, CancellationToken cancellationToken)
         {
             var passwordToken = await _userService.GeneratePasswordResetTokenAsync(request.Email);
+            if(!passwordToken.IsSuccess)
+                return passwordToken.Error!;
+            
             var encodedToken = WebUtility.UrlEncode(passwordToken.Value.Token);
 
             var content = CreateEmailContent(encodedToken, passwordToken.Value.UserId);
