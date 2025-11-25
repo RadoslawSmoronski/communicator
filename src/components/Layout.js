@@ -83,6 +83,7 @@ const Layout = () => {
         try {
             const data = action === "accept" ? await axios.post(
                 APIs.ACCEPT_INVITE(invitationId),
+                {},
                 {
                     withCredentials: true,
                     headers: {
