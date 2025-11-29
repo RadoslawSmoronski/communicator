@@ -1,114 +1,49 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import React, { useContext, useRef } from "react";
+import { Link, useNavigate } from 'react-router-dom';
+
 import PopUp from "../../components/PopUp";
-import axios from "../../api/axios";
+import NonValidatedInput from "../../features/auth/components/NonValidatedInput";
 
 import { AuthContext } from "../../app/providers/AuthProvider";
-import APIs from "../../api/ApiURL";
 
+import { useNonValidatedForm } from "../../shared/hooks/forms/useNonValidatedForm";
+import { useUserData } from "../../features/auth/hooks/useUserData";
+import { submitLoginService } from "../../features/auth/services/loginService";
 
 
 const LoginPage = () => {
     const navigate = useNavigate();
     const popUpRef = useRef();
     const { setAuth } = useContext(AuthContext);
-    const [formState, setFormState] = useState({
-        email: "",
-        password: ""
-    });
+    const [formData, handleChange ,setFormData] = useNonValidatedForm(
+        { email: "", password: ""},
+        () => popUpRef.current?.hide()
+    );
+    const {save: saveUserData} = useUserData(setAuth);
 
 
-    const handleChange = (event) => {
-        popUpRef.current?.hide();
-
-        const { name, value } = event.target;
-        setFormState(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const submitLogin = async (event) => {
-        event.preventDefault();
-
-        if (formState.email === "" || formState.password === "") {
-            popUpRef.current?.show("Nazwa użytkownika lub hasło nie może być puste");
-            return;
-        }
-
-        try {
-            const response = await axios.post(APIs.LOGIN,
-                JSON.stringify({
-                    Email: formState.email,
-                    Password: formState.password
-                }),
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    withCredentials: true
-                }
-            );
-
-            const userData = response.data;
-
-            console.log(userData);
-
-            if (response.status === 200) {
-
-                console.log("userData: ", userData);
-                let role = 'user';
-
-                setAuth(userData.avatarUrl, formState.email, userData.username, userData.id, role, userData.accessToken);
-
-                // refreshToken
-                sessionStorage.setItem('refreshToken', userData.refreshToken);
-
-                // user info
-                let userInfo = {
-                    avatarUrl: userData.avatarUrl,
-                    email: formState.email,
-                    username: userData.username,
-                    userID: userData.id,
-                    role: role,
-                    currentChat: ''
-                };
-                sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
-
-                navigate("/message");
-            }
-
-        } catch (err) {
-            console.log(err);
-            let mess = err.response?.data.title || "Invalid login request";
-            popUpRef.current?.show(mess);
-        }
-
-        setFormState({ email: "", password: "" });
-    };
+    const submitLogin = async (event) => submitLoginService(
+        event, formData, setFormData, saveUserData, popUpRef.current?.show, navigate
+    );
 
 
     return (
         <div id="mainloginPage">
             <form className="loginPanel">
-                <label htmlFor="email">Email: </label>
-                <input
-                    value={formState.email}
-                    onChange={handleChange}
-                    name="email"
-                    id="email"
-                    autoComplete="off"
-                    type="email"
-                    className="textInput"
-                /><br /><br />
-                <label htmlFor="password">Password: </label>
-                <input
-                    value={formState.password}
-                    onChange={handleChange}
-                    name="password"
-                    id="password"
-                    type="password"
-                    className="textInput"
+                <NonValidatedInput
+                    htmlName="email"
+                    labelText="Email"
+                    formData={formData.email}
+                    handleChange={handleChange}
+                    inputType="email"
+                />
+                <br /><br />
+                <NonValidatedInput
+                    htmlName="password"
+                    labelText="Password"
+                    formData={formData.password}
+                    handleChange={handleChange}
+                    inputType="password"
                 /><br />
 
                 <PopUp ref={popUpRef} />
