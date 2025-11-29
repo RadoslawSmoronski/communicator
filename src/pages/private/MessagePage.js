@@ -6,6 +6,8 @@ import * as signalR from "@microsoft/signalr";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleInfo, faMagnifyingGlass, faMessage, faPaperPlane, faPhone, faBell } from "@fortawesome/free-solid-svg-icons";
 
+import useSearchPeople from '../../features/users/hooks/useSearchPeople';
+
 import APIs from '../../api/ApiURL';
 import SIGNALR_HUBS from '../../context/SignalRHubs';
 import eventBus from '../../shared/utils/eventBus';
@@ -27,10 +29,15 @@ const MessagePage = () => {
 
     const [searchBar, setSearchBar] = useState('');
 
-    const [user, setUser] = useState({
-        list: [],
-        findStatus: 'not typed'
-    });
+    // const [user, setUser] = useState({
+    //     list: [],
+    //     findStatus: 'not typed'
+    // });
+    const { peopleResult, searchPeople } = useSearchPeople(userId);
+
+    // zamiast useState:
+    const user = peopleResult;  
+
 
     const [friend, setFriend] = useState({
         list: [],
@@ -89,10 +96,10 @@ const MessagePage = () => {
 
             if (!display.yourChatIsActive) {
                 // Find friends
-                setUser(prev => ({
-                    ...prev,
-                    findUsersStatus: 'searching...'
-                }));
+                // setUser(prev => ({
+                //     ...prev,
+                //     findStatus: 'searching...'
+                // }));
                 searchPeople(value);
             } else {
                 // Your chats
@@ -119,10 +126,10 @@ const MessagePage = () => {
                 yourChatIsActive: flag,
             }));
 
-            setUser(prev => ({
-                ...prev,
-                findStatus: 'not typed',
-            }));
+            // setUser(prev => ({
+            //     ...prev,
+            //     findStatus: 'not typed',
+            // }));
 
             setFriend(prev => ({
                 ...prev,
@@ -135,65 +142,64 @@ const MessagePage = () => {
 
     // People list
     // Searches people to invite
-    const searchPeople = async (searchText) => {
-        // AbortController for canceling old requests
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-        }
+    // const searchPeople = async (searchText) => {
+    //     // AbortController for canceling old requests
+    //     if (abortControllerRef.current) {
+    //         abortControllerRef.current.abort();
+    //     }
 
-        const abortCtr = new AbortController();
-        abortControllerRef.current = abortCtr;
+    //     const abortCtr = new AbortController();
+    //     abortControllerRef.current = abortCtr;
 
-        if (searchText.trim() === '') {
-            setUser(prev => ({
-                ...prev,
-                findStatus: 'not typed',
-                list: [],
-            }));
-            return;
-        }
+    //     if (searchText.trim() === '') {
+    //         setUser(prev => ({
+    //             ...prev,
+    //             findStatus: 'not typed',
+    //             list: [],
+    //         }));
+    //         return;
+    //     }
+
+        // try {
+        //     const data = await axios.get(APIs.FIND_PEOPLE_TO_INVITE(searchText, userId), {
+        //         withCredentials: true,
+        //         headers: {
+        //             Authorization: `Bearer ${accessToken}`
+        //         },
+        //         signal: abortCtr.signal
+        //     });
+
+        //     if (data.status === 200) {
+
+        //         if (data.data?.length) {
+        //             setUser(prev => ({
+        //                 ...prev,
+        //                 findStatus: 'found',
+        //                 list: data.data,
+        //             }));
+        //         } else {
+        //             setUser(prev => ({ ...prev, list: [], findStatus: 'not found' }));
+        //         }
 
 
-        try {
-            const data = await axios.get(APIs.FIND_PEOPLE_TO_INVITE(searchText, userId), {
-                withCredentials: true,
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                },
-                signal: abortCtr.signal
-            });
+        //     }
+        // } catch (err) {
+        //     if (err.name === 'CanceledError') { // cancel the request
+        //         return;
+        //     }
 
-            if (data.status === 200) {
-
-                if (data.data?.length) {
-                    setUser(prev => ({
-                        ...prev,
-                        findStatus: 'found',
-                        list: data.data,
-                    }));
-                } else {
-                    setUser(prev => ({ ...prev, list: [], findStatus: 'not found' }));
-                }
-
-
-            }
-        } catch (err) {
-            if (err.name === 'CanceledError') { // cancel the request
-                return;
-            }
-
-            if (err.response?.status === 401) {
-                await refreshAccessToken();
-                await searchPeople(searchText);
-            } else if (err.response?.status === 400) {
-                setUser(prev => ({ ...prev, findStatus: 'not typed' }));
-            } else if (err.response?.status === 404) {
-                // setUser(prev => ({ ...prev, findStatus: 'not found' }));
-            } else {
-                // console.error(err);
-            }
-        }
-    };
+        //     if (err.response?.status === 401) {
+        //         await refreshAccessToken();
+        //         await searchPeople(searchText);
+        //     } else if (err.response?.status === 400) {
+        //         setUser(prev => ({ ...prev, findStatus: 'not typed' }));
+        //     } else if (err.response?.status === 404) {
+        //         // setUser(prev => ({ ...prev, findStatus: 'not found' }));
+        //     } else {
+        //         // console.error(err);
+        //     }
+        // }
+    // };
 
     // Friend list
     // Fetches the user friend list
@@ -273,6 +279,7 @@ const MessagePage = () => {
             }
         }
     };
+
 
     // Send message box
     // It sends message to friend if the chat is selected
