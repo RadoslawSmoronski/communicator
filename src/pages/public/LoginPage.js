@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import PopUp from "../../components/PopUp";
 import axios from "../../api/axios";
 
-import { AuthContext } from "../../context/AuthProvider";
+import { AuthContext } from "../../app/providers/AuthProvider";
 import APIs from "../../api/ApiURL";
 
 

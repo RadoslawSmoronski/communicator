@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { AuthContext } from '../context/AuthProvider';
+import { AuthContext } from '../app/providers/AuthProvider';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 import axios from "../api/axios";
 import APIs from "../api/ApiURL";
-import eventBus from "../utils/eventBus";
+import eventBus from "../shared/utils/eventBus";
 
 import InvitationTile from './tiles/InvitationTile';
 import UserInfoPanel from './UserInfoPanel';

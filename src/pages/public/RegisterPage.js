@@ -6,7 +6,7 @@ import PopUp from "../../components/PopUp";
 import ValidatedInput from "../../components/form/ValidatedInput";
 import axios from "../../api/axios";
 import APIs from "../../api/ApiURL";
-import regexUtils from "../../utils/regexUtils";
+import regexUtils from "../../shared/utils/regexUtils";
 
 const RegisterPage = () => {
   const popUpRef = useRef();

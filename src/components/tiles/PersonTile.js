@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 
-import { AuthContext } from '../../context/AuthProvider';
+import { AuthContext } from '../../app/providers/AuthProvider';
 import axios from '../../api/axios';
 import APIs from '../../api/ApiURL';
 import Avatar from '../Avatar';

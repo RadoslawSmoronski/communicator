@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../context/AuthProvider';
+import { AuthContext } from '../../../app/providers/AuthProvider';
 
 const RequireAuth = ({ allowedRoles }) => {
   const { login, role, userId, loading } = useContext(AuthContext);

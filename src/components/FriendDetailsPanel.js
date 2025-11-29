@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
-import { AuthContext } from "../context/AuthProvider";
+import { AuthContext } from "../app/providers/AuthProvider";
 
 import axios from "../api/axios";
 import APIs from "../api/ApiURL";
-import cookieUtils from "../utils/cookieUtils";
+import cookieUtils from "../shared/utils/cookieUtils";
 
 const FriendDetailsPanel = ({
     friendName, friendshipId, setDisplay, showConfirmationBox, closeConfirmationBox, friendState, setFriend, setChat

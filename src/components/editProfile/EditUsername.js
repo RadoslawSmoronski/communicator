@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from '../../context/AuthProvider';
+import { AuthContext } from '../../app/providers/AuthProvider';
 
 import axios from "../../api/axios";
 import APIs from "../../api/ApiURL";
 
 import ValidatedInput from "../form/ValidatedInput";
-import regexUtils from "../../utils/regexUtils";
+import regexUtils from "../../shared/utils/regexUtils";
 import FeedbackText from "../form/FeedbackText";
 
 const EditUsername = () => {

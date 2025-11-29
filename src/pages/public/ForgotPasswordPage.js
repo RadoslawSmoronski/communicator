@@ -4,7 +4,7 @@ import axios from "../../api/axios";
 
 import APIs from "../../api/ApiURL";
 import ValidatedInput from "../../components/form/ValidatedInput";
-import regexUtils from "../../utils/regexUtils";
+import regexUtils from "../../shared/utils/regexUtils";
 import PopUp from "../../components/PopUp";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

@@ -5,8 +5,8 @@ import PopUp from "../../components/PopUp";
 import ValidatedInput from "../../components/form/ValidatedInput";
 import axios from "../../api/axios";
 import APIs from "../../api/ApiURL";
-import regexUtils from "../../utils/regexUtils";
-import useRawQueryParam from "../../hooks/useRawQueryParam";
+import regexUtils from "../../shared/utils/regexUtils";
+import useRawQueryParam from "../../shared/hooks/useRawQueryParam";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUnlock } from "@fortawesome/free-solid-svg-icons";

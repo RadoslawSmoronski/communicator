@@ -8,7 +8,7 @@ import './style/pages/EditProfile.scss';
 import './style/pages/ConfirmResetAccount.scss';
 import './style/pages/message/Main.scss';
 
-import App from './App.js';
+import App from './app/App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);

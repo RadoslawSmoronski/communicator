@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import axios from "../../api/axios";
 
 import APIs from "../../api/ApiURL";
-import useRawQueryParam from "../../hooks/useRawQueryParam";
+import useRawQueryParam from "../../shared/hooks/useRawQueryParam";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark, faCircleCheck, faChampagneGlasses } from "@fortawesome/free-solid-svg-icons";

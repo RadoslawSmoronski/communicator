@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthProvider';
+import { AuthContext } from '../../app/providers/AuthProvider';
 import axios from '../../api/axios';
 import * as signalR from "@microsoft/signalr";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,10 +8,10 @@ import { faCircleInfo, faMagnifyingGlass, faMessage, faPaperPlane, faPhone, faBe
 
 import APIs from '../../api/ApiURL';
 import SIGNALR_HUBS from '../../context/SignalRHubs';
-import eventBus from '../../utils/eventBus';
-import listUtils from '../../utils/listUtils';
-import eventUtils from '../../utils/eventUtils';
-import cookieUtils from '../../utils/cookieUtils';
+import eventBus from '../../shared/utils/eventBus';
+import listUtils from '../../shared/utils/listUtils';
+import eventUtils from '../../shared/utils/eventUtils';
+import cookieUtils from '../../shared/utils/cookieUtils';
 import Avatar from '../../components/Avatar';
 
 import FriendTile from '../../components/tiles/FriendTile';
