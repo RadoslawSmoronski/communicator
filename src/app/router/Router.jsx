@@ -2,19 +2,22 @@ import React from 'react';
 
 import { BrowserRouter, Routes } from "react-router-dom";
 import AuthProvider from "../providers/AuthProvider";
+import UserProvider from '../providers/UserProvider';
 import PublicRoutes from "./PublicRoutes";
 import PrivateRoutes from "./PrivateRoutes";
 
 const Router = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {PublicRoutes()}
-          {PrivateRoutes()}
-        </Routes>
-      </BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <UserProvider>
+            <Routes>
+              {PublicRoutes()}
+              {PrivateRoutes()}
+            </Routes>
+        </UserProvider>
     </AuthProvider>
+    </BrowserRouter>
   );
 };
 

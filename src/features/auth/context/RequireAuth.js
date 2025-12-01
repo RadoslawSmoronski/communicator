@@ -1,22 +1,28 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext} from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../../app/providers/AuthProvider';
+import { UserContext } from '../../../app/providers/UserProvider';
 
 const RequireAuth = ({ allowedRoles }) => {
-  const { login, role, userId, loading } = useContext(AuthContext);
+  const { accessToken, loading: authLoading } = useContext(AuthContext);
+  const { user, loading: userLoading } = useContext(UserContext);
   const location = useLocation();
 
-  if (loading) return null; // wczytanie Session storage...
+  if (authLoading || userLoading) return null; // waiting for data ...
 
-  // sprawdzanie rule:
-  if (allowedRoles.includes(role)) {
-    return <Outlet />;
-  } else if (userId) {
-    // unauthorized
-    return <Navigate to="/home" state={{ from: location }} replace />;
-  } else {
+  // 1. If user == null → is not logged
+  // or error refresh token
+  if (!user  || !accessToken) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
+  // 2. Logged, but unauthorized
+  if (!allowedRoles.includes(user.role)) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  // 3. OK
+  return <Outlet />;
 };
 
 export default RequireAuth;

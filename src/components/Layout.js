@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../app/providers/AuthProvider';
+import { UserContext } from "../app/providers/UserProvider";
+
+import { tokenService } from "../features/auth/services/tokenService";
+import { userDataService } from "../features/auth/services/userDataService";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
@@ -15,7 +19,9 @@ import EditProfilePanel from "./editProfile/EditProfilePanel"
 import Avatar from "./Avatar";
 
 const Layout = () => {
-    const { avatarUrl, email, username, userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
+    const { accessToken, refreshAccessToken} = useContext(AuthContext);
+    const { user, removeUser } = useContext(UserContext);
+
     const location = useLocation();
     const currentPath = location.pathname;
 
@@ -49,7 +55,7 @@ const Layout = () => {
     // Fetches all invitations
     const getInvitations = async () => {
         try {
-            const data = await axios.get(APIs.GET_INVITATIONS(userId), {
+            const data = await axios.get(APIs.GET_INVITATIONS(user?.userID), {
                 withCredentials: true,
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
@@ -129,9 +135,7 @@ const Layout = () => {
     // Menu bar
     // Sings out user - reset states, session Storage
     const signOut = () => {
-        sessionStorage.removeItem('refreshToken');
-        sessionStorage.removeItem('userInfo');
-        setAuth(null, '', '', '', '', '');
+        removeUser();
     };
 
     useEffect(() => {
@@ -141,14 +145,14 @@ const Layout = () => {
         }
 
         if (!accessToken) {
-            refreshAccessToken();
+            // refreshAccessToken();
         } else {
             if (currentPath == "/message") {
                 getInvitations();
             }
         }
 
-    }, [accessToken, username, currentPath]);
+    }, [accessToken, user?.username, currentPath]);
 
     return (
         <div id='mainMessagePage'>
@@ -174,7 +178,7 @@ const Layout = () => {
 
             {/* USER INFO PANEL */}
             {display.userInfoPanel && (
-                <UserInfoPanel avatarUrl={avatarUrl} username={username} fullname={null} email={email} togglePanel={togglePanel} />
+                <UserInfoPanel avatarUrl={user?.avatarUrl} username={user?.username} fullname={null} email={user?.email} togglePanel={togglePanel} />
             )}
 
             {/* EDIT PROFILE PANEL */}
@@ -199,8 +203,8 @@ const Layout = () => {
 
                     <button className='btn2' onClick={signOut}>Sign out</button>
                     <div className='profileInfoWrapper' onClick={() => togglePanel('userInfoPanel')}>
-                        {username}
-                        <Avatar url={avatarUrl} />
+                        {user?.username}
+                        <Avatar url={user?.avatarUrl} />
                     </div>
                 </div>
             </div>

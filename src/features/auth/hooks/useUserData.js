@@ -1,36 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
+import { tokenService } from "../services/tokenService";
+import { userDataService } from "../services/userDataService";
+import { mapUserToSessionStorage } from "../mappers/userSessionStorageMapper"
 
-export const useUserData = (setAuth) => {
+import { AuthContext } from "../../../app/providers/AuthProvider";
+
+export const useUserData = (setAccessToken) => {
     // get userInfo from sessionStorage
-    const [user, setUser] = useState(() => {
-        const stored = sessionStorage.getItem('userInfo');
-        return stored ? JSON.parse(stored) : null;
-    });
+    const { accessToken,  loading : tokenLoading } = useContext(AuthContext);
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const load = () => {
+        const stored = userDataService.load();
+        const userObj = stored ? JSON.parse(stored) : null;
+        setUser(userObj);
+    }
 
     const save = (userData) => {
-        setUser(userData);
-
         // save to sessionStorage
-        sessionStorage.setItem('refreshToken', userData.refreshToken);
-        sessionStorage.setItem('userInfo', JSON.stringify(userData));
-        // save to authProvider
-        if (setAuth) {
-            setAuth(
-                userData.avatarUrl,
-                userData.email,
-                userData.username,
-                userData.userID,
-                userData.role,
-                userData.accessToken
-            );
-        }
+        const refreshToken = userData.refreshToken;
+        tokenService.save(refreshToken);
+        const accessToken = userData.accessToken;
+        setAccessToken(accessToken);
+
+        // save user to localStorage
+        const userDataToSave = mapUserToSessionStorage(userData);
+        userDataService.save(userDataToSave);
+        // save user
+        setUser(userDataToSave);
+        
     };
 
     const remove = () => {
         setUser(null);
-        sessionStorage.removeItem('refreshToken');
-        sessionStorage.removeItem('userInfo');
+        tokenService.clear();
+        userDataService.clear();
     };
 
-    return { user, save, remove };
+    // get data when tokens are fetched
+    useEffect(() => {
+        const stored = userDataService.load();
+        const userObj = stored ? JSON.parse(stored) : null;
+        setUser(userObj);
+        setLoading(false);
+    }, [accessToken]);
+
+
+    return { user, save, remove, loading };
 };

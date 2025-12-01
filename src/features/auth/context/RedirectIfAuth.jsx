@@ -1,13 +1,15 @@
 import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../../../app/providers/AuthProvider';
+import { UserContext } from '../../../app/providers/UserProvider';
 
 const RedirectIfAuth = ({ children }) => {
-  const { userId, loading } = useContext(AuthContext);
+  const { accessToken, loading: authLoading } = useContext(AuthContext);
+  const { user, loading: userLoading } = useContext(UserContext);
 
-  if (loading) return null;
+  if (authLoading || userLoading) return null;
 
-  return userId ? <Navigate to="/message" replace /> : children;
+  return (user && accessToken) ? <Navigate to="/message" replace /> : children;
 };
 
 export default RedirectIfAuth;

@@ -14,12 +14,12 @@ import { submitLoginService } from "../../features/auth/services/loginService";
 const LoginPage = () => {
     const navigate = useNavigate();
     const popUpRef = useRef();
-    const { setAuth } = useContext(AuthContext);
+    const { setAccessToken } = useContext(AuthContext);
     const [formData, handleChange ,setFormData] = useNonValidatedForm(
         { email: "", password: ""},
         () => popUpRef.current?.hide()
     );
-    const {save: saveUserData} = useUserData(setAuth);
+    const {save: saveUserData} = useUserData(setAccessToken);
 
 
     const submitLogin = async (event) => submitLoginService(
