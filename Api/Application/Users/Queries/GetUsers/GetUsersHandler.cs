@@ -53,7 +53,7 @@ namespace Application.Users.Queries.GetUsers
             var userInvitationsIds = new HashSet<Guid>(userInvitations.Select(x => x.SenderId == canBeInvitedByUserId ? x.RecipientId : x.SenderId));
 
             var addableUsers = users
-                .Where(u => u.Id != canBeInvitedByUserId && !usersFriendsIds.Contains(u.Id))
+                .Where(u => u.Id != canBeInvitedByUserId && !usersFriendsIds.Contains(u.Id) && u.UserName.ToLower().Contains(request.Search.ToLower()))
                 .Select(x => new GetUsersReadModel(
                     Id: x.Id,
                     AvatarUrl: x.AvatarUrl is not null ? _avatarService.GetPublicAvatarUrl(x.AvatarUrl) : null,
