@@ -5,6 +5,7 @@ import PopUp from "../../components/PopUp";
 import NonValidatedInput from "../../features/auth/components/NonValidatedInput";
 
 import { AuthContext } from "../../app/providers/AuthProvider";
+import { ROUTES } from "../../app/router/routePaths";
 
 import { useNonValidatedForm } from "../../shared/hooks/forms/useNonValidatedForm";
 import { useUserData } from "../../features/auth/hooks/useUserData";
@@ -50,12 +51,12 @@ const LoginPage = () => {
 
                 <button className="btn" onClick={submitLogin}>Login</button><br /><br />
                 <div>Don't have an account? Sign up below</div>
-                <Link to="/register">Create an account</Link>
-                <Link to="/message">Message Page</Link>
+                <Link to={ROUTES.REGISTER}>Create an account</Link>
+                <Link to={ROUTES.MESSAGE}>Message Page</Link>
 
                 <br />
                 <div>Having trouble logging in?</div>
-                <Link to="/help">Troubleshooting center</Link>
+                <Link to={ROUTES.HELP}>Troubleshooting center</Link>
             </form>
 
             <div className="welcomeBlock">

@@ -9,7 +9,7 @@ const UserProvider = ({ children }) => {
     const { setAccessToken } = useContext(AuthContext);
     const { user, save, remove, loading } = useUserData(setAccessToken);
 
-    console.log("UserProvider user:", user, loading);
+    // console.log("UserProvider user:", user, loading);
 
     return (
         <UserContext.Provider value={{ user, saveUser: save, removeUser: remove, loading }}>

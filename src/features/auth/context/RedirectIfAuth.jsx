@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
+import { ROUTES } from '../../../app/router/routePaths';
+
 import { AuthContext } from '../../../app/providers/AuthProvider';
 import { UserContext } from '../../../app/providers/UserProvider';
 
@@ -9,7 +11,7 @@ const RedirectIfAuth = ({ children }) => {
 
   if (authLoading || userLoading) return null;
 
-  return (user && accessToken) ? <Navigate to="/message" replace /> : children;
+  return (user && accessToken) ? <Navigate to={ROUTES.MESSAGE} replace /> : children;
 };
 
 export default RedirectIfAuth;

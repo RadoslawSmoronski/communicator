@@ -1,5 +1,7 @@
 import React, { useContext} from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { ROUTES } from '../../../app/router/routePaths';
+
 import { AuthContext } from '../../../app/providers/AuthProvider';
 import { UserContext } from '../../../app/providers/UserProvider';
 
@@ -13,12 +15,12 @@ const RequireAuth = ({ allowedRoles }) => {
   // 1. If user == null → is not logged
   // or error refresh token
   if (!user  || !accessToken) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
   }
 
   // 2. Logged, but unauthorized
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/" state={{ from: location }} replace />;
+    return <Navigate to={ROUTES.HOME_REDIRECT} state={{ from: location }} replace />;
   }
 
   // 3. OK
