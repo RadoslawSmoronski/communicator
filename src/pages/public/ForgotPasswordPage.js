@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { Link, useLocation } from 'react-router-dom';
-import axios from "../../api/axios";
 
-import APIs from "../../api/ApiURL";
+import { ROUTES } from "../../app/router/routePaths"
 import ValidatedInput from "../../components/form/ValidatedInput";
+import { useValidatedForm } from "../../shared/hooks/forms/useValidatedForm";
+import { requestPasswordResetService } from "../../features/auth/services/requestPasswordResetService";
+
 import regexUtils from "../../shared/utils/regexUtils";
 import PopUp from "../../components/PopUp";
 
@@ -12,51 +14,35 @@ import { faUnlock } from "@fortawesome/free-solid-svg-icons";
 
 const ForgotPasswordPage = () => {
     const popUpRef = useRef();
-    const [email, setEmail] = useState("");
-    const [emailRegex, setEmailRegex] = useState(false);
-    const [emailFocus, setEmailFocus] = useState(false);
+    const initForm = { email: "" };
+    const validator = { email: regexUtils.EMAIL };
+
+    const {
+        fields,
+        valid,
+        focus,
+        handleFieldChange,
+        handleFieldFocus,
+        setFields,
+        setValid,
+        setFocus,
+        resetForm
+    } = useValidatedForm(
+        initForm, validator, () => popUpRef.current?.hide()
+    );
 
     const submitForm = async (event) => {
         event.preventDefault();
 
-        if (!email) {
-            popUpRef.current?.show("Email can't be empty.");
-            return;
-        }
-        else if (!emailRegex) {
-            popUpRef.current?.show("Email does not meet the criteria.");
-            return;
+        const result = await requestPasswordResetService(
+            fields.email, valid.email
+        );
+        if(result){
+            popUpRef.current?.show(result.message);
         }
 
-        try {
-            const data = await axios.post(APIs.REQUEST_PASSWORD_RESET,
-                JSON.stringify({
-                    email: email
-                }),
-                { headers: { 'Content-Type': 'application/json' } }
-            );
-
-            if (data.status === 200) {
-                popUpRef.current?.show("Password reset email sent successfully.");
-            }
-        } catch (err) {
-            popUpRef.current?.show(err.response?.data.detail || err.message);
-        }
-
-        setEmail("");
-        setEmailRegex(false);
+        resetForm();
     }
-
-    const handleChange = (e) => {
-        popUpRef.current?.hide();
-
-        setEmail(e.target.value);
-        setEmailRegex(regexUtils.EMAIL.test(e.target.value));
-    };
-
-    const handleFocusOn = (e) => {
-        setEmailFocus(true);
-    };
 
     return (
         <div id="mainregisterPage" style={{ justifyContent: 'right' }}>
@@ -70,11 +56,11 @@ const ForgotPasswordPage = () => {
                     <ValidatedInput
                         htmlName="email"
                         labelText="Email"
-                        formData={email}
-                        regexStatus={emailRegex}
-                        formFocus={emailFocus}
-                        handleChange={handleChange}
-                        handleFocusOn={handleFocusOn}
+                        formData={fields.email}
+                        regexStatus={valid.email}
+                        formFocus={focus.email}
+                        handleChange={handleFieldChange}
+                        handleFocusOn={handleFieldFocus}
                         inputType="email"
                         validationText={
                             <>
@@ -90,7 +76,7 @@ const ForgotPasswordPage = () => {
                 </div>
                 <PopUp ref={popUpRef} />
 
-                <Link to="/help" className="btn2 goBack">Back to help page</Link>
+                <Link to={ROUTES.HELP} className="btn2 goBack">Back to help page</Link>
             </form>
 
         </div>

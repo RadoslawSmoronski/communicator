@@ -16,16 +16,31 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const popUpRef = useRef();
     const { setAccessToken } = useContext(AuthContext);
-    const [formData, handleChange ,setFormData] = useNonValidatedForm(
+    const [formData, handleChange , resetForm] = useNonValidatedForm(
         { email: "", password: ""},
         () => popUpRef.current?.hide()
     );
     const {save: saveUserData} = useUserData(setAccessToken);
 
 
-    const submitLogin = async (event) => submitLoginService(
-        event, formData, setFormData, saveUserData, popUpRef.current?.show, navigate
-    );
+    const submitLogin = async (event) => {
+        event.preventDefault();
+
+        const result = await submitLoginService(formData)
+
+        resetForm();
+
+        if(result.errorMessage){
+            popUpRef.current?.show(result.errorMessage);
+            return;
+        }
+
+        // save user data
+        saveUserData(result.data);
+
+        // redirect
+        navigate("/message");
+    };
 
 
     return (

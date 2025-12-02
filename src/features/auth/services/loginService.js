@@ -1,12 +1,9 @@
 import { loginUser } from "./authService";
 
-export const submitLoginService = async (
-    event, formData, setFormData, saveUserData, showPopUp, navigate
-) => {
-    event.preventDefault();
+// returns errorMessage
+export const submitLoginService = async (formData) => {
     if (!formData.email || !formData.password) {
-        showPopUp?.("Email or Password can't be null");
-        return;
+        return {errorMessage : "Email or Password can't be null"};
     }
 
     try {
@@ -16,16 +13,9 @@ export const submitLoginService = async (
             Password: formData.password
         });
 
-        // save to sessionStorage and authProvider
-        saveUserData(userData); 
-
-        // redirect
-        navigate("/message");
-
+        return { data: userData }
     } catch (err) {
         console.error(err);
-        const message = err.response?.data?.title || "Invalid login request";
-        showPopUp?.(message);
+        return {errorMessage : err.response?.data?.title || "Invalid login request"};
     }
-    setFormData({ email: "", password: "" });
 };
