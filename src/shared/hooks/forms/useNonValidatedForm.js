@@ -23,5 +23,5 @@ export function useNonValidatedForm(initialState, onChangeCallback) {
         setFields(emptyState);
     }
 
-    return [fields, handleFieldChange, setFields, resetForm];
+    return [fields, handleFieldChange, resetForm];
 }

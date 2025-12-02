@@ -3,12 +3,12 @@ import APIs from "../../../api/ApiURL";
 
 // returns message
 export const requestPasswordResetService = async (
-    email, isValid
+    email, valid
 ) => {
     if(!email){
         return {message :"Email can't be null"};
     }
-    if(!isValid){
+    if(!valid){
         return {message :"Email does not meet the criteria."};
     }
 

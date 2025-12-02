@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
 
-export function useValidatedForm(initialState, validators = {}, onChangeCallback) {
+export function useValidatedForm(
+    initialState, validators = {}, onChangeCallback, validateAllFields= false 
+) {
     // for reset - return to init state
     const initialRef = useRef(initialState);
     
@@ -27,25 +29,41 @@ export function useValidatedForm(initialState, validators = {}, onChangeCallback
             [name]: value
         }));
 
-        // validation
-        if (validators[name]) {
-            const validator = validators[name];
+        const updatedFields = {
+            ...fields,
+            [name]: value
+        };
 
-            let isValid = false;
+
+        const validateSingleField = (fieldName) => {
+            const validator = validators[fieldName];
+            if (!validator) return null;
+
+            const fieldValue = updatedFields[fieldName];
 
             if (validator instanceof RegExp) {
-                isValid = validator.test(value);
-            } 
-            else if (typeof validator === "function") {
-                const result = validator(value);
-                isValid = result === true;
+                return validator.test(fieldValue);
+            } else if (typeof validator === "function") {
+                return validator(fieldValue, updatedFields);
             }
 
-            setValid(prev => ({
-                ...prev,
-                [name]: isValid
-            }));
+            return null;
+        };
+
+        let updatedValid = { ...valid };
+
+        
+        if (validateAllFields) {
+            // validate all fields
+            Object.keys(validators).forEach(fieldName => {
+                updatedValid[fieldName] = validateSingleField(fieldName);
+            });
+        } else {
+            // validate single field
+            updatedValid[name] = validateSingleField(name);
         }
+
+        setValid(updatedValid);
     };
 
     const handleFieldFocus = (e) => {
@@ -76,9 +94,6 @@ export function useValidatedForm(initialState, validators = {}, onChangeCallback
         focus,
         handleFieldChange,
         handleFieldFocus,
-        setFields,
-        setValid,
-        setFocus,
         resetForm
     };
 }

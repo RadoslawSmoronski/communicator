@@ -23,9 +23,6 @@ const ForgotPasswordPage = () => {
         focus,
         handleFieldChange,
         handleFieldFocus,
-        setFields,
-        setValid,
-        setFocus,
         resetForm
     } = useValidatedForm(
         initForm, validator, () => popUpRef.current?.hide()
