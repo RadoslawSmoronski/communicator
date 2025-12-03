@@ -26,7 +26,7 @@ const ResetPasswordPage = () => {
     const initForm = { password: "" , password2: "" };
     const validator = {
         password: regexUtils.PASSWORD ,
-        password2: (value, fields) => fields && value === fields.password
+        password2: (value, fields) => fields && value === fields.password && regexUtils.PASSWORD.test(value)
     }
 
     const {
@@ -50,11 +50,11 @@ const ResetPasswordPage = () => {
         if(result?.errorMessage){
             popUpRef.current?.show(result.errorMessage);
             
-        } else if (result?.success === true){
+        } else if (result?.success){
             setSuccess(true);
         }
 
-        if(result?.resetForm === true){
+        if(result?.resetForm){
             resetForm();
         }
     }
@@ -105,7 +105,11 @@ const ResetPasswordPage = () => {
                                     handleChange={handleFieldChange}
                                     handleFocusOn={handleFieldFocus}
                                     inputType="password"
-                                    validationText={<>Passwords have to match</>}
+                                    validationText={
+                                    <>
+                                        Passwords have to match<br />
+                                        And meet the criteria.
+                                    </>}
                                 />
 
                                 <button className="btn" onClick={resetPassword}>Reset Password</button>

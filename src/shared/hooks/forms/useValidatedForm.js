@@ -68,10 +68,17 @@ export function useValidatedForm(
 
     const handleFieldFocus = (e) => {
         const { name } = e.target;
-        setFocus(prev => ({
-            ...prev,
-            [name]: true
-        }));
+
+        setFocus(prev => {
+            const reset = Object.fromEntries(
+                Object.keys(prev).map(key => [key, false])
+            );
+
+            return {
+                ...reset,
+                [name]: true
+            };
+        });
     };
 
     const resetForm = () => {
@@ -94,6 +101,7 @@ export function useValidatedForm(
         focus,
         handleFieldChange,
         handleFieldFocus,
-        resetForm
+        resetForm,
+        setFields
     };
 }

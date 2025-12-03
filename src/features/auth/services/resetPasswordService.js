@@ -8,9 +8,9 @@ export const resetPasswordService = async (
     const { password: passIsValid, password2: pass2IsValid } = valid;
 
     if (!password || !password2) {
-        return {errorMessage: "Password cannot be empty", resetForm: false};
+        return {errorMessage: "Password cannot be empty"};
     } else if (!passIsValid) {
-        return {errorMessage:"Password does not meet the criteria.", resetForm: false};
+        return {errorMessage:"Password does not meet the criteria."};
     } else if (!pass2IsValid) {
         return {errorMessage:"The given passwords are different!", resetForm: true};
     }
