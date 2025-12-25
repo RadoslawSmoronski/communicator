@@ -22,21 +22,24 @@ import PersonTile from '../../components/tiles/PersonTile';
 import FriendDetailsPanel from '../../components/FriendDetailsPanel';
 import ConfirmationBox from '../../components/form/ConfirmationBox';
 
+import { UserContext } from '../../app/providers/UserProvider';
+
 const MessagePage = () => {
-    const { userId, accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
+    const { user: userData } = useContext(UserContext);
+    const { accessToken, refreshAccessToken, setAuth } = useContext(AuthContext);
     const scrollMessageBoxRef = useRef(null);
     const abortControllerRef = useRef(null);
 
     const [searchBar, setSearchBar] = useState('');
 
-    // const [user, setUser] = useState({
-    //     list: [],
-    //     findStatus: 'not typed'
-    // });
-    const { peopleResult, searchPeople } = useSearchPeople(userId);
+    const [user, setUser] = useState({
+        list: [],
+        findStatus: 'not typed'
+    });
+    // const { peopleResult, searchPeople } = useSearchPeople(userId);
 
     // zamiast useState:
-    const user = peopleResult;  
+    // const user = peopleResult;  
 
 
     const [friend, setFriend] = useState({
@@ -142,64 +145,64 @@ const MessagePage = () => {
 
     // People list
     // Searches people to invite
-    // const searchPeople = async (searchText) => {
-    //     // AbortController for canceling old requests
-    //     if (abortControllerRef.current) {
-    //         abortControllerRef.current.abort();
-    //     }
+    const searchPeople = async (searchText) => {
+        // AbortController for canceling old requests
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
 
-    //     const abortCtr = new AbortController();
-    //     abortControllerRef.current = abortCtr;
+        const abortCtr = new AbortController();
+        abortControllerRef.current = abortCtr;
 
-    //     if (searchText.trim() === '') {
-    //         setUser(prev => ({
-    //             ...prev,
-    //             findStatus: 'not typed',
-    //             list: [],
-    //         }));
-    //         return;
-    //     }
+        if (searchText.trim() === '') {
+            setUser(prev => ({
+                ...prev,
+                findStatus: 'not typed',
+                list: [],
+            }));
+            return;
+        }
 
-        // try {
-        //     const data = await axios.get(APIs.FIND_PEOPLE_TO_INVITE(searchText, userId), {
-        //         withCredentials: true,
-        //         headers: {
-        //             Authorization: `Bearer ${accessToken}`
-        //         },
-        //         signal: abortCtr.signal
-        //     });
+        try {
+            const data = await axios.get(APIs.FIND_PEOPLE_TO_INVITE(searchText, userData.userID), {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                },
+                signal: abortCtr.signal
+            });
 
-        //     if (data.status === 200) {
+            if (data.status === 200) {
 
-        //         if (data.data?.length) {
-        //             setUser(prev => ({
-        //                 ...prev,
-        //                 findStatus: 'found',
-        //                 list: data.data,
-        //             }));
-        //         } else {
-        //             setUser(prev => ({ ...prev, list: [], findStatus: 'not found' }));
-        //         }
+                if (data.data?.length) {
+                    setUser(prev => ({
+                        ...prev,
+                        findStatus: 'found',
+                        list: data.data,
+                    }));
+                } else {
+                    setUser(prev => ({ ...prev, list: [], findStatus: 'not found' }));
+                }
 
 
-        //     }
-        // } catch (err) {
-        //     if (err.name === 'CanceledError') { // cancel the request
-        //         return;
-        //     }
+            }
+        } catch (err) {
+            if (err.name === 'CanceledError') { // cancel the request
+                return;
+            }
 
-        //     if (err.response?.status === 401) {
-        //         await refreshAccessToken();
-        //         await searchPeople(searchText);
-        //     } else if (err.response?.status === 400) {
-        //         setUser(prev => ({ ...prev, findStatus: 'not typed' }));
-        //     } else if (err.response?.status === 404) {
-        //         // setUser(prev => ({ ...prev, findStatus: 'not found' }));
-        //     } else {
-        //         // console.error(err);
-        //     }
-        // }
-    // };
+            if (err.response?.status === 401) {
+                await refreshAccessToken();
+                await searchPeople(searchText);
+            } else if (err.response?.status === 400) {
+                setUser(prev => ({ ...prev, findStatus: 'not typed' }));
+            } else if (err.response?.status === 404) {
+                // setUser(prev => ({ ...prev, findStatus: 'not found' }));
+            } else {
+                // console.error(err);
+            }
+        }
+    };
 
     // Friend list
     // Fetches the user friend list
