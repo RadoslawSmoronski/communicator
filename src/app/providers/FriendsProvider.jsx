@@ -138,6 +138,7 @@ const FriendsProvider = ({ children }) => {
             friendList,
             friendListFiltered,
             setFriendList,
+            setFriendListFiltered,
             activeFriend,
             loading,
             error,

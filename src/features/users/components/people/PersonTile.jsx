@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 
-import { AuthContext } from '../../app/providers/AuthProvider';
-import axios from '../../api/axios';
-import APIs from '../../api/ApiURL';
-import Avatar from '../Avatar';
+import { AuthContext } from '../../../../app/providers/AuthProvider';
+import axios from '../../../../api/axios';
+import APIs from '../../../../api/ApiURL';
+import Avatar from '../../../../shared/components/Avatar';
 
 const PersonTile = ({ recipientId, username, isInvited, avatarUrl }) => {
     const { userId, accessToken, refreshAccessToken } = useContext(AuthContext);

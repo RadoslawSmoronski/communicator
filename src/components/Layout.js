@@ -16,10 +16,10 @@ import eventBus from "../shared/utils/eventBus";
 import InvitationTile from './tiles/InvitationTile';
 import UserInfoPanel from './UserInfoPanel';
 import EditProfilePanel from "./editProfile/EditProfilePanel"
-import Avatar from "./Avatar";
+import Avatar from "../shared/components/Avatar";
 
 const Layout = () => {
-    const { accessToken, refreshAccessToken} = useContext(AuthContext);
+    const { accessToken, refreshAccessToken } = useContext(AuthContext);
     const { user, removeUser } = useContext(UserContext);
 
     const location = useLocation();
@@ -98,18 +98,18 @@ const Layout = () => {
                     },
                 }
             ) :
-            await axios.delete(
-                APIs.DECELINE_INVITE(invitationId),
-                {
-                    withCredentials: true,
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-;
-            
+                await axios.delete(
+                    APIs.DECELINE_INVITE(invitationId),
+                    {
+                        withCredentials: true,
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+            ;
+
             if (data.status === 200 || data.status === 201) {
                 // delete invitation
                 setFriend(prev => ({

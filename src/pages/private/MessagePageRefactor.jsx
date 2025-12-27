@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 
-import PeopleAndFriends from '../../features/components/PeopleAndFriends'
+import PeopleAndFriends from '../../features/users/components/PeopleAndFriends'
 
 export const MessagePageRefactor = () => {
 

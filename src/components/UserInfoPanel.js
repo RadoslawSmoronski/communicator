@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import Avatar from './Avatar';
+import Avatar from '../shared/components/Avatar';
 
-const UserInfoPanel = ({ avatarUrl ,username, fullname, email, togglePanel }) => {
+const UserInfoPanel = ({ avatarUrl, username, fullname, email, togglePanel }) => {
     return (
         <div className='userInfoPanel'>
             <div className='imageAndNameWrapperIP'>

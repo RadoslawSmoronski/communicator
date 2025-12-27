@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react'
 
-import { FriendsContext } from '../../../app/providers/FriendsProvider';
-import FriendTile from '../../../components/tiles/FriendTile';
+import { FriendsContext } from '../../../../app/providers/FriendsProvider';
+import FriendTile from './FriendTile';
 
-const FriendList = () => {
+const FriendList = ({ searchQuery }) => {
     const {
         friendList,
         friendListFiltered,
@@ -17,11 +17,12 @@ const FriendList = () => {
     } = useContext(FriendsContext);
 
     return (
+
         <>
             {
                 friendList.length > 0 ? (
                     friendListFiltered.length > 0 ? (
-                        friendList
+                        friendListFiltered
                             .filter(f => f.friendshipId !== null)
                             .map(f => (
                                 <FriendTile
@@ -39,7 +40,7 @@ const FriendList = () => {
                                 />
                             ))
                     ) : (
-                        <div className='infoText'>There are no friends named {searchBar} ...</div>
+                        <div className='infoText'>There are no friends like {searchQuery} ...</div>
                     )
                 ) : (
                     <div className='infoText'>You have zero friends</div>

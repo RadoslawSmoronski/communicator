@@ -14,11 +14,11 @@ import eventBus from '../../shared/utils/eventBus';
 import listUtils from '../../shared/utils/listUtils';
 import eventUtils from '../../shared/utils/eventUtils';
 import cookieUtils from '../../shared/utils/cookieUtils';
-import Avatar from '../../components/Avatar';
+import Avatar from '../../shared/components/Avatar';
 
-import FriendTile from '../../components/tiles/FriendTile';
+import FriendTile from '../../features/users/components/friends/FriendTile';
 import MessageTile from '../../components/tiles/MessageTile';
-import PersonTile from '../../components/tiles/PersonTile';
+import PersonTile from '../../features/users/components/people/PersonTile'
 import FriendDetailsPanel from '../../components/FriendDetailsPanel';
 import ConfirmationBox from '../../components/form/ConfirmationBox';
 

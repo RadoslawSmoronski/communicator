@@ -4,11 +4,11 @@ import { AuthContext } from '../../app/providers/AuthProvider';
 
 import axios from '../../api/axios';
 import APIs from "../../api/ApiURL";
-import Avatar from "../Avatar";
+import Avatar from "../../shared/components/Avatar";
 import FeedbackText from "../form/FeedbackText";
 
 const EditAvatar = () => {
-    const { avatarUrl,userId ,setAvatarUrl, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
+    const { avatarUrl, userId, setAvatarUrl, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
     const [previewAvatarUrl, setPreviewAvatarUrl] = useState(null);
     const [file, setFile] = useState(null);
 
@@ -170,7 +170,7 @@ const EditAvatar = () => {
                     )}
                 </div>
             </div>
-            <FeedbackText  successText={feedback} failText={errorFeedback}/>
+            <FeedbackText successText={feedback} failText={errorFeedback} />
 
         </>
     )

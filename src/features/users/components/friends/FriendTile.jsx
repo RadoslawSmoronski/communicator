@@ -1,8 +1,8 @@
 import React from 'react';
 
-import Avatar from '../Avatar';
+import Avatar from '../../../../shared/components/Avatar';
 
-const FriendTile = ({ 
+const FriendTile = ({
     messTimestamp, mess, username, author,
     selected, onClick, newMessageNotify, avatarUrl,
     isOnline }) => {
@@ -37,8 +37,8 @@ const FriendTile = ({
 
     return (
         <div className={selected ? 'friendTile selectedChat' : 'friendTile'} onClick={onClick}>
-            <Avatar  url={avatarUrl}>
-                <div className={isOnline ? "onlineBadge online" : "onlineBadge offline"}/>
+            <Avatar url={avatarUrl}>
+                <div className={isOnline ? "onlineBadge online" : "onlineBadge offline"} />
             </Avatar>
             <div className="friendTileWrapper">
                 <div className="friendTileUserName">{username}</div>
@@ -50,7 +50,7 @@ const FriendTile = ({
                 }
 
                 {newMessageNotify && <div className="newMessageNotification" />}
-                
+
             </div>
         </div>
     );
