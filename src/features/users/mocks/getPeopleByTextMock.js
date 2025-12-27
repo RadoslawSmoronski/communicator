@@ -1,4 +1,4 @@
-export const mockUsersDtos = [
+export const usersDtoMock = [
     {
         id: "1",
         username: "Bartek",

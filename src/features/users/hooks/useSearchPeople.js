@@ -5,7 +5,7 @@ import { AuthContext } from "../../../app/providers/AuthProvider";
 import { mapPeopleList } from "../mappers/peopleMapper";
 import APIs from "../../../api/ApiURL";
 
-import { mockUsersDtos } from "../mocks/getPeopleByTextMock";
+import { usersDtoMock } from "../mocks/getPeopleByTextMock";
 
 export const useSearchPeople = (userId, useMock = false) => {
   const { accessToken } = useContext(AuthContext);
@@ -33,7 +33,7 @@ export const useSearchPeople = (userId, useMock = false) => {
     // API or Mock
     const fetchPeople = async () => {
       if (useMock) {
-        return { data: mockUsersDtos };
+        return { data: usersDtoMock };
       } else {
         return await api.get(APIs.FIND_PEOPLE_TO_INVITE(searchText, userId));
       }
