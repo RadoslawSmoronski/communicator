@@ -4,7 +4,7 @@ import { AuthContext } from '../../app/providers/AuthProvider';
 import axios from "../../api/axios";
 import APIs from "../../api/ApiURL";
 
-import ValidatedInput from "../form/ValidatedInput";
+import ValidatedInput from "../../shared/components/form/ValidatedInput";
 import regexUtils from "../../shared/utils/regexUtils";
 import FeedbackText from "../form/FeedbackText";
 

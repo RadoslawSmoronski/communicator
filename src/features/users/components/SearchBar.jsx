@@ -40,7 +40,7 @@ const SearchBar = ({ displayYourChats, setDisplayStatus, searchQuery, setSearchQ
         setDisplayStatus(flag);
 
         setFriendListFiltered(friendList); // reset filtering of friends
-        setSearchBarValue("");
+        setSearchQuery("");
     }
 
     return (

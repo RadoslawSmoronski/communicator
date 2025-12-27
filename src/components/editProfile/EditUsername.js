@@ -4,7 +4,7 @@ import { AuthContext } from '../../app/providers/AuthProvider';
 import axios from "../../api/axios";
 import APIs from "../../api/ApiURL";
 
-import ValidatedInput from "../form/ValidatedInput";
+import ValidatedInput from "../../shared/components/form/ValidatedInput"
 import regexUtils from "../../shared/utils/regexUtils";
 import FeedbackText from "../form/FeedbackText";
 
@@ -51,7 +51,7 @@ const EditUsername = () => {
         setIsEditing(false);
         setErrorFeedback(null);
         setFeedback(feedback);
-        saveToCookie({ _username: newUsername});
+        saveToCookie({ _username: newUsername });
     }
 
 
@@ -63,15 +63,15 @@ const EditUsername = () => {
         else if (!regexStatus) {
             setErrorFeedback("Username does not meet the criteria!");
             return;
-        } else if(formData === username){
+        } else if (formData === username) {
             return;
         }
 
         try {
             const res = await axios.patch(APIs.CHANGE_USERNAME(userId),
-            {
-                newUsername: formData
-            },
+                {
+                    newUsername: formData
+                },
                 {
                     withCredentials: true,
                     headers: {

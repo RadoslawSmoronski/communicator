@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 
 import PopUp from "../../components/PopUp";
-import ValidatedInput from "../../components/form/ValidatedInput";
+import ValidatedInput from "../../shared/components/form/ValidatedInput";
 
 import { ROUTES } from "../../app/router/routePaths";
 import regexUtils from "../../shared/utils/regexUtils";
@@ -23,9 +23,9 @@ const ResetPasswordPage = () => {
 
     const [success, setSuccess] = useState(false);
 
-    const initForm = { password: "" , password2: "" };
+    const initForm = { password: "", password2: "" };
     const validator = {
-        password: regexUtils.PASSWORD ,
+        password: regexUtils.PASSWORD,
         password2: (value, fields) => fields && value === fields.password && regexUtils.PASSWORD.test(value)
     }
 
@@ -47,14 +47,14 @@ const ResetPasswordPage = () => {
             fields, valid, userId, token
         );
 
-        if(result?.errorMessage){
+        if (result?.errorMessage) {
             popUpRef.current?.show(result.errorMessage);
-            
-        } else if (result?.success){
+
+        } else if (result?.success) {
             setSuccess(true);
         }
 
-        if(result?.resetForm){
+        if (result?.resetForm) {
             resetForm();
         }
     }
@@ -106,10 +106,10 @@ const ResetPasswordPage = () => {
                                     handleFocusOn={handleFieldFocus}
                                     inputType="password"
                                     validationText={
-                                    <>
-                                        Passwords have to match<br />
-                                        And meet the criteria.
-                                    </>}
+                                        <>
+                                            Passwords have to match<br />
+                                            And meet the criteria.
+                                        </>}
                                 />
 
                                 <button className="btn" onClick={resetPassword}>Reset Password</button>

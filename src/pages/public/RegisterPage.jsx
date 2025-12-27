@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { Link } from 'react-router-dom';
 
-import ValidatedInput from "../../components/form/ValidatedInput";
+import ValidatedInput from "../../shared/components/form/ValidatedInput"
 import regexUtils from "../../shared/utils/regexUtils";
 import PopUp from "../../components/PopUp";
 
@@ -22,7 +22,7 @@ const RegisterPage = () => {
   const validator = {
     email: regexUtils.EMAIL,
     username: regexUtils.USERNAME,
-    password: regexUtils.PASSWORD ,
+    password: regexUtils.PASSWORD,
     password2: (value, fields) => fields && value === fields.password && regexUtils.PASSWORD.test(value)
   };
 
@@ -35,7 +35,7 @@ const RegisterPage = () => {
     resetForm,
     setFields
   } = useValidatedForm(
-      initForm, validator, () => popUpRef.current?.hide(), true
+    initForm, validator, () => popUpRef.current?.hide(), true
   );
 
   const submitRegister = async (e) => {
@@ -43,13 +43,13 @@ const RegisterPage = () => {
 
     const result = await registerService(fields, valid);
 
-    if(result?.resetPasswordFields){
+    if (result?.resetPasswordFields) {
       setFields(prev => ({
-      ...prev,
-      password: "",
-      password2: ""
-    }))
-    } else if(result?.resetForm){
+        ...prev,
+        password: "",
+        password2: ""
+      }))
+    } else if (result?.resetForm) {
       resetForm();
     }
 
@@ -125,10 +125,10 @@ const RegisterPage = () => {
           handleFocusOn={handleFieldFocus}
           inputType="password"
           validationText={
-          <>
+            <>
               Passwords have to match<br />
               And meet the criteria.
-          </>}
+            </>}
         />
 
         <PopUp ref={popUpRef} />

@@ -1,10 +1,16 @@
 import axios from "../../api/axios";
-import { useAxiosAuth } from "../../features/auth/hooks/useAxiosAuth";
 
-export const useApi = () => {
-  const authAxios = useAxiosAuth();
+// use
+// api.get(URL, PARAMS, ISAUTH)
+export const useApi = (accessToken) => {
+  const client = axios.create({
+    withCredentials: true,
+    headers: accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : {},
+  });
 
-  const request = async (client, method, url, data) => {
+  const request = async (method, url, data) => {
     try {
       let response;
 
@@ -22,22 +28,11 @@ export const useApi = () => {
     }
   };
 
-  const api = {
-    get: (url, params = {}, isAuth = false) =>
-      request(isAuth ? authAxios : axios, "get", url, params),
-
-    post: (url, body = {}, isAuth = false) =>
-      request(isAuth ? authAxios : axios, "post", url, body),
-
-    put: (url, body = {}, isAuth = false) =>
-      request(isAuth ? authAxios : axios, "put", url, body),
-
-    patch: (url, body = {}, isAuth = false) =>
-      request(isAuth ? authAxios : axios, "patch", url, body),
-
-    delete: (url, body = {}, isAuth = false) =>
-      request(isAuth ? authAxios : axios, "delete", url, body),
+  return {
+    get: (url, params) => request("get", url, params),
+    post: (url, body) => request("post", url, body),
+    put: (url, body) => request("put", url, body),
+    patch: (url, body) => request("patch", url, body),
+    delete: (url, body) => request("delete", url, body),
   };
-
-  return api;
 };

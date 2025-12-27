@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { Link, useLocation } from 'react-router-dom';
 
 import { ROUTES } from "../../app/router/routePaths"
-import ValidatedInput from "../../components/form/ValidatedInput";
+import ValidatedInput from "../../shared/components/form/ValidatedInput";
 import { useValidatedForm } from "../../shared/hooks/forms/useValidatedForm";
 import { requestPasswordResetService } from "../../features/auth/services/requestPasswordResetService";
 
@@ -34,7 +34,7 @@ const ForgotPasswordPage = () => {
         const result = await requestPasswordResetService(
             fields.email, valid.email
         );
-        if(result){
+        if (result) {
             popUpRef.current?.show(result.message);
         }
 

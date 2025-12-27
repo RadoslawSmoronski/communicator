@@ -1,61 +1,86 @@
-import { useState, useCallback } from "react";
-import APIs from "../../../api/ApiURL";
+import { useState, useTransition, useContext } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
+import { AuthContext } from "../../../app/providers/AuthProvider";
 
-export const useSearchPeople = (userId) => {
-  const { callApi } = useApi();
+import { mapPeopleList } from "../mappers/peopleMapper";
+import APIs from "../../../api/ApiURL";
 
-  const [peopleResult, setPeopleResult] = useState({
-    list: [],
-    findStatus: "not typed",
-  });
+import { mockUsersDtos } from "../mocks/getPeopleByTextMock";
 
-  const searchPeople = useCallback(
-    async (searchText) => {
-      if (searchText.trim() === "") {
-        setPeopleResult({
-          list: [],
-          findStatus: "not typed",
-        });
-        return;
+export const useSearchPeople = (userId, useMock = false) => {
+  const { accessToken } = useContext(AuthContext);
+  const api = useApi(accessToken);
+
+  const [isPending, startTransition] = useTransition();
+
+  const [people, setPeople] = useState([]);
+  const [status, setStatus] = useState("idle");
+  // idle | typing | found | not-found | error
+
+  const clear = () => {
+    setPeople([]);
+    setStatus("idle");
+  };
+
+  const searchPeople = async (searchText) => {
+    if (!searchText || !searchText.trim()) {
+      clear();
+      return;
+    }
+
+    setStatus("typing");
+
+    // API or Mock
+    const fetchPeople = async () => {
+      if (useMock) {
+        return { data: mockUsersDtos };
+      } else {
+        return await api.get(APIs.FIND_PEOPLE_TO_INVITE(searchText, userId));
       }
+    };
 
-      const { data, error } = await callApi({
-        url: APIs.FIND_PEOPLE_TO_INVITE(searchText, userId),
-        method: "get",
-        isAuth: true,
-      });
+    try {
+      const { data, error } = await fetchPeople();
 
-      if (error) {
-        if (error.response?.status === 404) {
-          setPeopleResult({
-            list: [],
-            findStatus: "not found",
-          });
+      startTransition(() => {
+        if (error) {
+          if (error.response?.status === 400) {
+            setStatus("idle");
+            setPeople([]);
+            return;
+          }
+
+          if (error.response?.status === 404) {
+            setStatus("not-found");
+            setPeople([]);
+            return;
+          }
+
+          setStatus("error");
+          setPeople([]);
+          return;
         }
-        return;
-      }
 
-      if (!data || data.length === 0) {
-        setPeopleResult({
-          list: [],
-          findStatus: "not found",
-        });
-        return;
-      }
+        if (!data?.length) {
+          setStatus("not-found");
+          setPeople([]);
+          return;
+        }
 
-      setPeopleResult({
-        list: data,
-        findStatus: "found",
+        setPeople(mapPeopleList(data));
+        setStatus("found");
       });
-    },
-    [userId, callApi]
-  );
+    } catch (err) {
+      setStatus("error");
+      setPeople([]);
+    }
+  };
 
   return {
-    peopleResult,
+    people,
+    status,
+    isPending, // for spinner (isLoading)
     searchPeople,
+    clear,
   };
 };
-
-export default useSearchPeople;
