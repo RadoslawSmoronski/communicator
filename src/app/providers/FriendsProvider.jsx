@@ -16,6 +16,7 @@ const FriendsProvider = ({ children }) => {
         setFriendListFiltered,
         loading,
         error,
+        getChats
     } = useGetChats(true);
 
     const clearFriendList = () => {
@@ -24,7 +25,7 @@ const FriendsProvider = ({ children }) => {
     }
 
     const refreshFriendList = async () => {
-        await fetchFriends();
+        await getChats();
     }
 
     const selectFriend = (friend) => {
