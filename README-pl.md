@@ -13,12 +13,13 @@ Real‑time backend do komunikatora (chat 1‑na‑1) z rejestracją użytkownik
 4. [Funkcjonalności](#funkcjonalności)  
 5. [Struktura solution](#struktura-solution)  
 6. [Konfiguracja](#konfiguracja)  
-7. [Uruchomienie lokalne](#uruchomienie-lokalne)  
-8. [Testy](#testy)  
-9. [API / Dokumentacja](#api--dokumentacja)  
-10. [SignalR i komunikacja w czasie rzeczywistym](#signalr-i-komunikacja-w-czasie-rzeczywistym)  
-11. [Logowanie](#logowanie)  
-12. [Status projektu](#status-projektu)
+7. [Uruchamianie z Dockerem](#uruchamianie-z-dockerem)
+8. [Uruchomienie lokalne](#uruchomienie-lokalne)  
+9. [Testy](#testy)  
+10. [API / Dokumentacja](#api--dokumentacja)  
+11. [SignalR i komunikacja w czasie rzeczywistym](#signalr-i-komunikacja-w-czasie-rzeczywistym)  
+12. [Logowanie](#logowanie)  
+13. [Status projektu](#status-projektu)
 
 ---
 
@@ -255,11 +256,31 @@ Najważniejsze wartości do ustawienia przed uruchomieniem:
 - `CORS.AllowedOrigins` – adres(y) frontendu.  
 - `SmtpEmailSettings` – jeśli chcesz testować e‑maile.
 
+--
+
+## Uruchamianie z dockerem
+
+Potrzebne:
+
+- Docker
+- Docker Compose v2
+
+Z głównego folderu (Api/):
+
+```bash
+docker compose up --build
+```
+
+**Dostęp**
+
+- API: http://localhost:5205
+- Swagger UI (Development): http://localhost:5205/swagger
+
 ---
 
 ## Uruchomienie lokalne
 
-Zakładam, że masz zainstalowane:
+Potrzebne:
 
 - .NET 9 SDK  
 - PostgreSQL (lokalnie lub w Dockerze)

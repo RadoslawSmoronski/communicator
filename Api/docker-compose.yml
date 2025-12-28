@@ -1,0 +1,43 @@
+services:
+
+  db:
+    image: postgres:15
+    container_name: postgres_communicator
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: portfolio
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+
+  api:
+    build: .
+    container_name: api_communicator
+    ports:
+      - "5205:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=portfolio;Username=postgres;Password=password123"
+
+      JWTTokenSettings__Issuer: "chatcommunicator-dev"
+      JWTTokenSettings__Audience: "chatcommunicator-dev"
+      JWTTokenSettings__SigningKey: "DEV_SUPER_SECRET_SIGNING_KEY_1234567890"
+
+      CORS__AllowedOrigins__0: "http://localhost:3000"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+volumes:
+  pgdata:

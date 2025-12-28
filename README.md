@@ -13,13 +13,14 @@ Built with .NET 9, C# 13 and a Clean Architecture style.
 3. [Architecture](#architecture)  
 4. [Features](#features)  
 5. [Solution structure](#solution-structure)  
-6. [Configuration](#configuration)  
-7. [How to run locally](#how-to-run-locally)  
-8. [Tests](#tests)  
-9. [API / Documentation](#api--documentation)  
-10. [SignalR and real-time communication](#signalr-and-real-time-communication)  
-11. [Logging](#logging)  
-12. [Project status](#project-status)
+6. [Configuration](#configuration)
+7. [How to run with Docker](#how-to-run-with-docker)
+8. [How to run locally](#how-to-run-locally)  
+9. [Tests](#tests)  
+10. [API / Documentation](#api--documentation)  
+11. [SignalR and real-time communication](#signalr-and-real-time-communication)  
+12. [Logging](#logging)  
+13. [Project status](#project-status)
 
 ---
 
@@ -255,6 +256,26 @@ Before running the app, set:
 - `JWTTokenSettings` – `Issuer`, `Audience`, `SigningKey`.  
 - `CORS.AllowedOrigins` – frontend origin(s).  
 - `SmtpEmailSettings` – if you want to test emails.
+
+--
+
+## How to run with Docker
+
+You need:
+
+- Docker
+- Docker Compose v2
+
+From the project root directory (Api/):
+
+```bash
+docker compose up --build
+```
+
+**Access**
+
+- API: http://localhost:5205
+- Swagger UI (Development only): http://localhost:5205/swagger
 
 ---
 
