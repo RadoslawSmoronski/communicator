@@ -6,7 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <LangVersion>13</LangVersion>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="appsettings.Development.json">
+    <Content Update="appsettings.Development">
       <DependentUpon>appsettings.json</DependentUpon>
     </Content>
   </ItemGroup>

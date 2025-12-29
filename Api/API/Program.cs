@@ -21,6 +21,8 @@ namespace API
             var app = builder.Build();
 
             app.UseExceptionHandler();
+            
+            app.Services.ApplyMigrations();
 
             if (app.Environment.IsDevelopment())
             {

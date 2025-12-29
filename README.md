@@ -1,8 +1,8 @@
 🌐 [English](README.md) | 🇵🇱 [Polski](README-pl.md)
-# Chat Communicator – Backend (.NET 9)
+# Chat Communicator – Backend (.NET 10)
 
 Real-time backend for a chat application (1-to-1 conversations) with user registration, JWT authentication, friends, invitations and live messages. 
-Built with .NET 9, C# 13 and a Clean Architecture style.
+Built with .NET 10, C# 13 and a Clean Architecture style.
 
 ---
 
@@ -45,7 +45,7 @@ The project was created to learn and show good backend practices:
 
 ## Technologies
 
-- .NET 9, C# 13  
+- .NET 10, C# 13  
 - ASP.NET Core Web API  
 - MediatR (CQRS: Commands/Queries)  
 - SignalR (real-time communication)  
@@ -283,7 +283,7 @@ docker compose up --build
 
 You need:
 
-- .NET 9 SDK  
+- .NET 10 SDK  
 - PostgreSQL (locally or in Docker)
 
 1. **Clone the repository**
