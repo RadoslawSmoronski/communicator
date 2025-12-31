@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import Avatar from '../../shared/components/Avatar';
+import Avatar from '../../../shared/components/Avatar';
 
 const InvitationTile = ({ invitationId, senderId, username, invitationAction, avatarUrl }) => {
     const acceptInvitation = () => {

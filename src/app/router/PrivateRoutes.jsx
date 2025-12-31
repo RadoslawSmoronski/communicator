@@ -8,7 +8,6 @@ import { ROUTES } from "./routePaths";
 
 import RequireAuth from '../../features/auth/context/RequireAuth';
 
-import Layout from '../../components/Layout';
 import MessagePage from '../../pages/private/MessagePage'
 import MessageWrapper from "../../pages/private/MessageWrapper"
 
@@ -16,7 +15,7 @@ const PrivateRoutes = () => {
     return (
         <>
             {/* protected routes */}
-            <Route path="/" element={<Layout />}>
+            <Route path="/">
                 <Route element={<RequireAuth allowedRoles={['user']} />}>
                     <Route path={ROUTES.MESSAGE} element={<MessageWrapper />} />
                 </Route>
