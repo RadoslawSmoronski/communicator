@@ -2,13 +2,19 @@ import React, { useContext } from 'react'
 import InvitationTile from './InvitationTile'
 
 import { useFriendInvitations } from '../hooks/useFriendInvitations'
+import { useInvitationAction } from '../hooks/useInvitationAction'
 
 const InvitationList = ({ display }) => {
     const {
         invitationsList,
+        removeInvitationById,
         loading,
         error
     } = useFriendInvitations(true);
+
+    const { acceptInvitation, declineInvitation } =
+        useInvitationAction(removeInvitationById);
+
 
     return (
         <>
@@ -18,11 +24,10 @@ const InvitationList = ({ display }) => {
                         invitationsList.map(inv => (
                             <InvitationTile
                                 key={inv.id}
-                                invitationId={inv.id}
-                                senderId={inv.senderId}
                                 username={inv.username}
                                 avatarUrl={inv.avatarUrl}
-                            // invitationAction={invitationActions}
+                                acceptInvitation={() => acceptInvitation(inv.id)}
+                                declineInvitation={() => declineInvitation(inv.id)}
                             />
                         ))
                     ) : (

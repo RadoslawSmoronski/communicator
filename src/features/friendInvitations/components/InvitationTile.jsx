@@ -1,14 +1,10 @@
 import React, { useContext } from 'react';
 import Avatar from '../../../shared/components/Avatar';
 
-const InvitationTile = ({ invitationId, senderId, username, invitationAction, avatarUrl }) => {
-    const acceptInvitation = () => {
-        invitationAction('accept', invitationId, senderId);
-    };
-
-    const rejectInvitation = () => {
-        invitationAction('reject', invitationId, senderId);
-    };
+const InvitationTile = ({
+    username, avatarUrl,
+    acceptInvitation, declineInvitation
+}) => {
 
     return (
         <div className='friendTile invitationTile'>
@@ -18,8 +14,8 @@ const InvitationTile = ({ invitationId, senderId, username, invitationAction, av
                     <span className='highlightColor'>{username}</span> sent you an invitation
                 </div>
                 <div className='personBtnWrapper'>
-                    <div className='btnPerson btnInvitation' onClick={acceptInvitation}>Accept</div>
-                    <div className='btnPerson btnInvitation' onClick={rejectInvitation} style={{ backgroundColor: '#bf2d10' }}>Reject</div>
+                    <div className='btnPerson btnInvitation' onClick={() => acceptInvitation()}>Accept</div>
+                    <div className='btnPerson btnInvitation' onClick={() => declineInvitation()} style={{ backgroundColor: '#bf2d10' }}>Reject</div>
                 </div>
             </div>
         </div>

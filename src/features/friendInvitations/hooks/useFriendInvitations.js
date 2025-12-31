@@ -53,8 +53,15 @@ export const useFriendInvitations = (useMock = false) => {
         getInvitations();
     }, [accessToken, useMock]);
 
+    const removeInvitationById = (id) => {
+        setInvitationsList(prev =>
+            prev.filter(inv => inv.id !== id)
+        );
+    }
+
     return {
         invitationsList,
+        removeInvitationById,
         loading,
         error
     };
