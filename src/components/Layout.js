@@ -14,8 +14,8 @@ import APIs from "../api/ApiURL";
 import eventBus from "../shared/utils/eventBus";
 
 import InvitationTile from './tiles/InvitationTile';
-import UserInfoPanel from './UserInfoPanel';
-import EditProfilePanel from "./editProfile/EditProfilePanel"
+import UserInfoPanel from '../features/profile/UserInfoPanel';
+import EditProfilePanel from "../features/profile/EditProfilePanel"
 import Avatar from "../shared/components/Avatar";
 
 const Layout = () => {

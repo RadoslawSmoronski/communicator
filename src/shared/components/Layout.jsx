@@ -1,21 +1,54 @@
 import React, { useState, useContext, useEffect } from 'react'
 
+import InvitationsProvider from '../../features/friendInvitations/providers/InvitationsProvider';
+
 import InvitationList from '../../features/friendInvitations/components/InvitationList'
-import { UserContext } from '../../app/providers/UserProvider';
+import UserInfoPanel from '../../features/profile/UserInfoPanel';
+import EditProfilePanel from '../../features/profile/EditProfilePanel';
+import MenuBar from './MenuBar';
 
 const Layout = () => {
-    const { user, removeUser } = useContext(UserContext);
-
     const [display, setDisplay] = useState({
-        invitationList: true,
+        invitationList: false,
         userInfoPanel: false,
         editProfilePanel: false
     });
 
+    // Displays / hides given panel
+    const togglePanel = (panelName) => {
+        setDisplay(prev => {
+            const panelsState = {
+                invitationList: false,
+                userInfoPanel: false,
+                editProfilePanel: false,
+            };
+
+            panelsState[panelName] = !prev[panelName];
+            return panelsState;
+        });
+    };
 
     return (
         <>
-            <InvitationList display={display.invitationList} />
+            <InvitationsProvider>
+                <InvitationList display={display.invitationList} />
+                <MenuBar
+                    togglePanel={togglePanel}
+                />
+            </InvitationsProvider>
+
+
+            <UserInfoPanel
+                display={display.userInfoPanel}
+                togglePanel={togglePanel}
+            />
+
+            <EditProfilePanel
+                display={display.editProfilePanel}
+                togglePanel={togglePanel}
+            />
+
+
         </>
     )
 }

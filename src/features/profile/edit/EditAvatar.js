@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { AuthContext } from '../../app/providers/AuthProvider';
+import { AuthContext } from '../../../app/providers/AuthProvider';
 
-import axios from '../../api/axios';
-import APIs from "../../api/ApiURL";
-import Avatar from "../../shared/components/Avatar";
-import FeedbackText from "../form/FeedbackText";
+import axios from '../../../api/axios';
+import APIs from "../../../api/ApiURL";
+import Avatar from "../../../shared/components/Avatar";
+import FeedbackText from "../../../components/form/FeedbackText";
 
 const EditAvatar = () => {
     const { avatarUrl, userId, setAvatarUrl, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);

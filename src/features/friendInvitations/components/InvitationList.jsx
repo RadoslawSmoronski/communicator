@@ -1,16 +1,12 @@
 import React, { useContext } from 'react'
 import InvitationTile from './InvitationTile'
 
-import { useFriendInvitations } from '../hooks/useFriendInvitations'
 import { useInvitationAction } from '../hooks/useInvitationAction'
+import { InvitationsContext } from '../providers/InvitationsProvider'
 
 const InvitationList = ({ display }) => {
-    const {
-        invitationsList,
-        removeInvitationById,
-        loading,
-        error
-    } = useFriendInvitations(true);
+    const { invitationsList,
+        removeInvitationById } = useContext(InvitationsContext);
 
     const { acceptInvitation, declineInvitation } =
         useInvitationAction(removeInvitationById);

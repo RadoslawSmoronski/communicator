@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from '../../app/providers/AuthProvider';
+import { AuthContext } from '../../../app/providers/AuthProvider';
 
-import axios from "../../api/axios";
-import APIs from "../../api/ApiURL";
+import axios from "../../../api/axios";
+import APIs from "../../../api/ApiURL";
 
-import ValidatedInput from "../../shared/components/form/ValidatedInput"
-import regexUtils from "../../shared/utils/regexUtils";
-import FeedbackText from "../form/FeedbackText";
+import ValidatedInput from "../../../shared/components/form/ValidatedInput"
+import regexUtils from "../../../shared/utils/regexUtils";
+import FeedbackText from "../../../components/form/FeedbackText";
 
 const EditUsername = () => {
     const { userId, username, setUsername, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
