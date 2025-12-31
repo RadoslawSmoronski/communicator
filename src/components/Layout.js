@@ -68,8 +68,8 @@ const Layout = () => {
             }
         } catch (err) {
             if (err.response?.status === 401) {
-                await refreshAccessToken();
-                await getInvitations();
+                // await refreshAccessToken();
+                // await getInvitations();
             } else if (err.response?.status === 400) {
                 console.error("bad host id");
             } else if (err.response?.status === 404) {
@@ -122,8 +122,8 @@ const Layout = () => {
             }
         } catch (err) {
             if (err.response?.status === 401) {
-                await refreshAccessToken();
-                await invitationActions(action, invitationId, senderId);
+                // await refreshAccessToken();
+                // await invitationActions(action, invitationId, senderId);
             } else if (err.response?.status === 404) {
                 console.error("Invitation or RecipientUser doesn't exist");
             } else {

@@ -5,10 +5,12 @@ import axios from "../../api/axios";
 export const useApi = (accessToken) => {
   const client = axios.create({
     withCredentials: true,
-    headers: accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : {},
   });
+
+  if (accessToken) {
+    client.defaults.headers.common.Authorization =
+      `Bearer ${accessToken}`;
+  }
 
   const request = async (method, url, data) => {
     try {

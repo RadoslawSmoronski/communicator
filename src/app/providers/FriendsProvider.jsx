@@ -17,7 +17,7 @@ const FriendsProvider = ({ children }) => {
         loading,
         error,
         getChats
-    } = useGetChats(true);
+    } = useGetChats();
 
     const clearFriendList = () => {
         setFriendList([]);

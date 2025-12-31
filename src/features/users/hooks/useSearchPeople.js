@@ -6,6 +6,7 @@ import { mapPeopleList } from "../mappers/peopleMapper";
 import APIs from "../../../api/ApiURL";
 
 import { usersDtoMock } from "../mocks/getPeopleByTextMock";
+import axios from "../../../api/axios";
 
 export const useSearchPeople = (userId, useMock = false) => {
   const { accessToken } = useContext(AuthContext);

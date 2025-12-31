@@ -6,9 +6,7 @@ import { UserContext } from '../../../../app/providers/UserProvider';
 const PeopleList = ({ searchQuery }) => {
     const { user } = useContext(UserContext);
 
-    const {
-        searchPeople,
-        isPending, people } = useSearchPeople(user.userID, true);
+    const { searchPeople, isPending, people } = useSearchPeople(user.userID);
 
     useEffect(() => {
         searchPeople(searchQuery);
