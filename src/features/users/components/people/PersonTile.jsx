@@ -1,53 +1,22 @@
 import React, { useContext, useState } from 'react';
 
-import { AuthContext } from '../../../../app/providers/AuthProvider';
-import axios from '../../../../api/axios';
-import APIs from '../../../../api/ApiURL';
+import { useSendInvitation } from '../../../friendInvitations/hooks/useSendInvitation';
+
 import Avatar from '../../../../shared/components/Avatar';
 
 const PersonTile = ({ recipientId, username, isInvited, avatarUrl }) => {
-    const { userId, accessToken, refreshAccessToken } = useContext(AuthContext);
+    const { sendInvitation, loading, sent } = useSendInvitation();
+
     const [sendBtnIsActive, setSendBtnIsActive] = useState(!isInvited);
 
-    const sendInvitation = async () => {
-        console.log("My id: " + userId + " yours id: " + recipientId);
+    const handleSendInvitation = async () => {
+        const result = await sendInvitation(recipientId);
 
-        try {
-            const data = await axios.post(
-                APIs.SEND_INVITE,
-                JSON.stringify({
-                    senderId: userId,
-                    recipientId: recipientId
-                }),
-                {
-                    withCredentials: true,
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            if (data.status === 200) {
-                setSendBtnIsActive(false);
-            }
-
-        } catch (err) {
-            console.log(err);
-
-            if (err.response && err.response.status === 401) {
-                await refreshAccessToken();
-                await sendInvitation(); // retry
-            } else if (err.response?.status === 409) {
-                console.error("An invitation has already exist");
-                setSendBtnIsActive(false);
-            } else if (err.response?.status === 400) {
-                console.error("Validation error");
-            } else {
-                console.error(err);
-            }
+        if (result?.success || result?.reason === "ALREADY_EXISTS") {
+            setSendBtnIsActive(false);
         }
     };
+
 
     return (
         <div className='friendTile'>
@@ -56,7 +25,7 @@ const PersonTile = ({ recipientId, username, isInvited, avatarUrl }) => {
                 <div className='friendTileUserName'>{username}</div>
                 <div className='personBtnWrapper'>
                     {sendBtnIsActive ? (
-                        <div className='btnPerson' onClick={sendInvitation}>Add friend</div>
+                        <div className='btnPerson' onClick={handleSendInvitation}>Add friend</div>
                     ) : (
                         <div className='btnPerson btnDisabled'>invitation sent</div>
                     )}

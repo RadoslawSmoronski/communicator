@@ -9,7 +9,7 @@ const InvitationsProvider = ({ children }) => {
         removeInvitationById,
         loading,
         error
-    } = useFriendInvitations(true);
+    } = useFriendInvitations();
 
     return (
         <InvitationsContext.Provider value={{

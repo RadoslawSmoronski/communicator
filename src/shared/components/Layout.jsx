@@ -47,8 +47,6 @@ const Layout = () => {
                 display={display.editProfilePanel}
                 togglePanel={togglePanel}
             />
-
-
         </>
     )
 }
