@@ -1,13 +1,11 @@
 import React, { useState, useContext, useCallback } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
-import { AuthContext } from "../../../app/providers/AuthProvider";
 import { UserContext } from "../../../app/providers/UserProvider";
 import APIs from "../../../api/ApiURL";
 
 export const useSendInvitation = () => {
     const { user } = useContext(UserContext);
-    const { accessToken } = useContext(AuthContext);
-    const api = useApi(accessToken);
+    const api = useApi();
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

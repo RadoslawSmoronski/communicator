@@ -1,16 +1,22 @@
-import axios from "../../api/axios";
+import { useContext, useMemo } from "react";
+import { AuthContext } from "../../app/providers/AuthProvider";
+import authAxios from "../../api/authAxios";
 
 // use
 // api.get(URL, PARAMS, ISAUTH)
-export const useApi = (accessToken) => {
-  const client = axios.create({
-    withCredentials: true,
-  });
+export const useApi = () => {
+  const { accessToken } = useContext(AuthContext);
 
-  if (accessToken) {
-    client.defaults.headers.common.Authorization =
-      `Bearer ${accessToken}`;
-  }
+  const client = useMemo(() => {
+    const instance = authAxios;
+
+    if (accessToken) {
+      instance.defaults.headers.common.Authorization =
+        `Bearer ${accessToken}`;
+    }
+
+    return instance;
+  }, [accessToken]);
 
   const request = async (method, url, data) => {
     try {

@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
-import { AuthContext } from "../../../app/providers/AuthProvider";
 import { UserContext } from "../../../app/providers/UserProvider";
 import APIs from "../../../api/ApiURL";
 
@@ -9,9 +8,8 @@ import { mapInvitationList } from "../mappers/invitationMapper";
 
 
 export const useFriendInvitations = (useMock = false) => {
-    const { accessToken } = useContext(AuthContext);
     const { user } = useContext(UserContext);
-    const api = useApi(accessToken);
+    const api = useApi();
 
     const [invitationsList, setInvitationsList] = useState([]);
 
@@ -51,7 +49,7 @@ export const useFriendInvitations = (useMock = false) => {
 
     useEffect(() => {
         getInvitations();
-    }, [accessToken, useMock]);
+    }, [useMock]);
 
     const removeInvitationById = (id) => {
         setInvitationsList(prev =>

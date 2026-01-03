@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export function useValidatedForm(
-    initialState, validators = {}, onChangeCallback, validateAllFields= false 
+    initialState, validators = {}, onChangeCallback, validateAllFields = false, validateOnInit = false
 ) {
     // for reset - return to init state
     const initialRef = useRef(initialState);
-    
+
     const [fields, setFields] = useState(initialState);
 
     // regex validation state
@@ -18,52 +18,59 @@ export function useValidatedForm(
         Object.fromEntries(Object.keys(initialState).map(k => [k, false]))
     );
 
+    // validate action
+    const validateField = (fieldName, fieldsState) => {
+        const validator = validators[fieldName];
+        if (!validator) return null;
+
+        const value = fieldsState[fieldName];
+
+        if (validator instanceof RegExp) {
+            return validator.test(value);
+        }
+
+        if (typeof validator === "function") {
+            return validator(value, fieldsState);
+        }
+
+        return null;
+    };
+
+    const validateFields = (fieldsState) => {
+        const result = {};
+
+        Object.keys(validators).forEach(field => {
+            result[field] = validateField(field, fieldsState);
+        });
+
+        return result;
+    };
+
+    // init validation
+    useEffect(() => {
+        if (!validateOnInit) return;
+
+        setValid(prev => ({
+            ...prev,
+            ...validateFields(initialState)
+        }));
+    }, []);
 
     const handleFieldChange = (e) => {
         const { name, value } = e.target;
-        // pop up callback - hide
-        onChangeCallback?.(); 
+        onChangeCallback?.();
 
-        setFields(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setFields(prev => {
+            const updated = { ...prev, [name]: value };
 
-        const updatedFields = {
-            ...fields,
-            [name]: value
-        };
+            setValid(prevValid =>
+                validateAllFields
+                    ? { ...prevValid, ...validateFields(updated) } // validate all fields
+                    : { ...prevValid, [name]: validateField(name, updated) } // validate field
+            );
 
-
-        const validateSingleField = (fieldName) => {
-            const validator = validators[fieldName];
-            if (!validator) return null;
-
-            const fieldValue = updatedFields[fieldName];
-
-            if (validator instanceof RegExp) {
-                return validator.test(fieldValue);
-            } else if (typeof validator === "function") {
-                return validator(fieldValue, updatedFields);
-            }
-
-            return null;
-        };
-
-        let updatedValid = { ...valid };
-
-        
-        if (validateAllFields) {
-            // validate all fields
-            Object.keys(validators).forEach(fieldName => {
-                updatedValid[fieldName] = validateSingleField(fieldName);
-            });
-        } else {
-            // validate single field
-            updatedValid[name] = validateSingleField(name);
-        }
-
-        setValid(updatedValid);
+            return updated;
+        });
     };
 
     const handleFieldFocus = (e) => {
@@ -81,18 +88,25 @@ export function useValidatedForm(
         });
     };
 
-    const resetForm = () => {
+    const resetForm = (mode = RESET_MODE.CLEAR) => {
         const emptyState = initialRef.current;
 
         setFields(emptyState);
 
-        setValid(
-            Object.fromEntries(Object.keys(emptyState).map(k => [k, false]))
-        );
-
         setFocus(
             Object.fromEntries(Object.keys(emptyState).map(k => [k, false]))
         );
+
+        if (mode === RESET_MODE.INIT && validateOnInit) {
+            setValid(prev => ({
+                ...prev,
+                ...validateFields(emptyState)
+            }));
+        } else {
+            setValid(
+                Object.fromEntries(Object.keys(emptyState).map(k => [k, false]))
+            );
+        }
     };
 
     return {
@@ -102,6 +116,13 @@ export function useValidatedForm(
         handleFieldChange,
         handleFieldFocus,
         resetForm,
-        setFields
+        setFields,
+        RESET_MODE
     };
 }
+
+export const RESET_MODE = {
+    CLEAR: "clear",
+    INIT: "init"
+};
+

@@ -1,16 +1,13 @@
 import { useState, useTransition, useContext } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
-import { AuthContext } from "../../../app/providers/AuthProvider";
 
 import { mapPeopleList } from "../mappers/peopleMapper";
 import APIs from "../../../api/ApiURL";
 
 import { usersDtoMock } from "../mocks/getPeopleByTextMock";
-import axios from "../../../api/axios";
 
 export const useSearchPeople = (userId, useMock = false) => {
-  const { accessToken } = useContext(AuthContext);
-  const api = useApi(accessToken);
+  const api = useApi();
 
   const [isPending, startTransition] = useTransition();
 

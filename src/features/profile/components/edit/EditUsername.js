@@ -1,57 +1,65 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from '../../../app/providers/AuthProvider';
+import { AuthContext } from '../../../../app/providers/AuthProvider';
+import { UserContext } from "../../../../app/providers/UserProvider";
 
-import axios from "../../../api/axios";
-import APIs from "../../../api/ApiURL";
+import axios from "../../../../api/axios";
+import APIs from "../../../../api/ApiURL";
 
-import ValidatedInput from "../../../shared/components/form/ValidatedInput"
-import regexUtils from "../../../shared/utils/regexUtils";
-import FeedbackText from "../../../components/form/FeedbackText";
+import ValidatedInput from "../../../../shared/components/form/ValidatedInput"
+import { useValidatedForm } from "../../../../shared/hooks/forms/useValidatedForm";
+import regexUtils from "../../../../shared/utils/regexUtils";
+import FeedbackText from "../../../../components/form/FeedbackText";
 
 const EditUsername = () => {
-    const { userId, username, setUsername, accessToken, refreshAccessToken, saveToCookie } = useContext(AuthContext);
+    const { accessToken } = useContext(AuthContext);
+    const { user, saveUser } = useContext(UserContext);
 
-    const [formData, setFormData] = useState(username);
-    const [regexStatus, setRegexStatus] = useState(true);
+    const initForm = { username: user.username }
+    const validator = { username: regexUtils.USERNAME }
+
+    const onChangeAction = () => {
+        setErrorFeedback(null);
+        setFeedback(null);
+    }
+
+    const {
+        fields,
+        valid,
+        focus,
+        handleFieldChange,
+        handleFieldFocus,
+        resetForm,
+        RESET_MODE
+    } = useValidatedForm(
+        initForm, validator, onChangeAction, true, true
+    );
 
     const [isEditing, setIsEditing] = useState(false);
     const [feedback, setFeedback] = useState(null);
     const [errorFeedback, setErrorFeedback] = useState(null);
 
-    const handleChange = (e) => {
-        setErrorFeedback(null);
-        setFeedback(null);
-
-        if (isEditing) {
-            const { name, value } = e.target;
-
-            if (name === "username") {
-                setFormData(value);
-                setRegexStatus(regexUtils.USERNAME.test(value));
-            }
-        }
-    }
 
     const cancelAction = () => {
-        setErrorFeedback(null);
-        setFeedback(null);
+        onChangeAction();
         setIsEditing(false);
-        setFormData(username);
+
+        resetForm(RESET_MODE.INIT);
     }
 
     const edit = () => {
-        setRegexStatus(true);
+        onChangeAction();
         setIsEditing(true);
-        setErrorFeedback(null);
-        setFeedback(null);
     }
 
     const afterSaveAction = (newUsername, feedback) => {
-        setUsername(newUsername);
         setIsEditing(false);
         setErrorFeedback(null);
         setFeedback(feedback);
-        saveToCookie({ _username: newUsername });
+
+        saveUser({
+            ...user,
+            username: newUsername
+        });
     }
 
 
@@ -106,11 +114,11 @@ const EditUsername = () => {
                     <ValidatedInput
                         htmlName="username"
                         labelText="New username"
-                        formData={formData}
-                        regexStatus={regexStatus}
+                        formData={fields.username}
+                        regexStatus={valid.username}
                         formFocus={isEditing}
                         isDisabled={!isEditing}
-                        handleChange={handleChange}
+                        handleChange={handleFieldChange}
                         inputType="text"
                         addClassName="editProfile"
                         validationText={

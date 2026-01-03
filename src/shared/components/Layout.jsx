@@ -3,8 +3,8 @@ import React, { useState, useContext, useEffect } from 'react'
 import InvitationsProvider from '../../features/friendInvitations/providers/InvitationsProvider';
 
 import InvitationList from '../../features/friendInvitations/components/InvitationList'
-import UserInfoPanel from '../../features/profile/UserInfoPanel';
-import EditProfilePanel from '../../features/profile/EditProfilePanel';
+import UserInfoPanel from '../../features/profile/components/UserInfoPanel';
+import EditProfilePanel from '../../features/profile/components/EditProfilePanel';
 import MenuBar from './MenuBar';
 
 const Layout = () => {

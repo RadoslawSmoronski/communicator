@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 
-import Avatar from '../../shared/components/Avatar';
-import { UserContext } from '../../app/providers/UserProvider';
+import Avatar from '../../../shared/components/Avatar';
+import { UserContext } from '../../../app/providers/UserProvider';
 
 const UserInfoPanel = ({ display, togglePanel }) => {
     const { user } = useContext(UserContext);

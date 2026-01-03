@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from "react";
 import { useApi } from "../../../shared/hooks/useApi";
-import { AuthContext } from "../../../app/providers/AuthProvider";
 import { UserContext } from "../../../app/providers/UserProvider";
 import APIs from "../../../api/ApiURL";
 
@@ -10,9 +9,8 @@ import { chatDtoMock } from "../mocks/getChatsMock";
 import listUtils from "../../../shared/utils/listUtils";
 
 export const useGetChats = (useMock = false) => {
-    const { accessToken } = useContext(AuthContext);
     const { user } = useContext(UserContext);
-    const api = useApi(accessToken);
+    const api = useApi();
 
     const [friendList, setFriendList] = useState([]);
     const [friendListFiltered, setFriendListFiltered] = useState([]);
@@ -54,7 +52,7 @@ export const useGetChats = (useMock = false) => {
 
     useEffect(() => {
         getChats();
-    }, [accessToken, useMock]);
+    }, [useMock]);
 
     return {
         friendList,
