@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from '../../../../app/providers/AuthProvider';
 import { UserContext } from "../../../../app/providers/UserProvider";
-
-import axios from "../../../../api/axios";
-import APIs from "../../../../api/ApiURL";
 
 import ValidatedInput from "../../../../shared/components/form/ValidatedInput"
 import { useValidatedForm } from "../../../../shared/hooks/forms/useValidatedForm";
 import useChangeUsername from "../../hooks/useChangeUsername";
+import useEditableState from "../../hooks/useEditableState";
 
 import regexUtils from "../../../../shared/utils/regexUtils";
 import FeedbackText from "../../../../components/form/FeedbackText";
@@ -24,11 +21,6 @@ const EditUsername = () => {
     const initForm = { username: user.username }
     const validator = { username: regexUtils.USERNAME }
 
-    const onChangeAction = () => {
-        setError(null);
-        setFeedback(null);
-    }
-
     const {
         fields,
         valid,
@@ -40,28 +32,21 @@ const EditUsername = () => {
         initForm, validator, onChangeAction, true, true
     );
 
-    const [isEditing, setIsEditing] = useState(false);
-
-
-    const cancel = () => {
-        onChangeAction();
-        setIsEditing(false);
-
-        resetForm(RESET_MODE.INIT);
+    const onChangeAction = () => {
+        setError(null);
+        setFeedback(null);
     }
 
-    const edit = () => {
-        onChangeAction();
-        setIsEditing(true);
-    }
-
-    const onSuccess = (data) => {
-        // init new form data
-        setInitState({ username: data.newUsername });
-        // save username
-        saveUsername(data.newUsername);
-        setIsEditing(false);
-    }
+    const { isEditing, edit, cancel, onSuccess } = useEditableState({
+        onChangeAction,
+        cancelCallback: () => resetForm(RESET_MODE.INIT),
+        onSuccessCallback: (data) => {
+            // init new form data
+            setInitState({ username: data.newUsername });
+            // save username
+            saveUsername(data.newUsername);
+        }
+    });
 
     const saveChanges = () => changeUsername(fields.username, valid.username, onSuccess);
 
