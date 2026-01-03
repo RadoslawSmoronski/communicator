@@ -3,7 +3,7 @@ import { useApi } from '../../../shared/hooks/useApi'
 import { UserContext } from '../../../app/providers/UserProvider'
 import APIs from '../../../api/ApiURL'
 
-const useChangeUsername = () => {
+const useChangePassword = () => {
     const { user } = useContext(UserContext);
     const api = useApi();
 
@@ -11,22 +11,23 @@ const useChangeUsername = () => {
     const [feedback, setFeedback] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const changeUsername = useCallback(
+    const changePassword = useCallback(
         async (formData, valid, onSuccess) => {
             setError(null);
             setFeedback(null);
 
-            if (!formData) {
-                setError("Field can't be null!");
+            const { oldpass, newpass, newpass2 } = formData;
+            const { newpass: newpassValid, newpass2: newpass2Valid } = valid;
+
+            if (!oldpass || !newpass || !newpass2) {
+                setError("Fields cann't be null!");
                 return;
             }
-
-            if (!valid) {
-                setError("Username does not meet the criteria!");
+            else if (!newpassValid) {
+                setError("Password does not meet the criteria!");
                 return;
-            }
-
-            if (formData === user.username) {
+            } else if (!newpass2Valid) {
+                setError("Passwords are not the same!");
                 return;
             }
 
@@ -34,14 +35,16 @@ const useChangeUsername = () => {
 
             try {
                 const { data } = await api.patch(
-                    APIs.CHANGE_USERNAME(user.userID),
-                    { newUsername: formData }
+                    APIs.CHANGE_PASSWORD(user.userID),
+                    JSON.stringify({
+                        oldPassword: oldpass,
+                        newPassword: newpass
+                    })
                 );
 
                 if (onSuccess) onSuccess(data);
 
-                setFeedback("Username changed successfully!");
-
+                setFeedback("Password successfully changed.");
             } catch (err) {
                 setError(err.response?.data?.detail ?? "Something went wrong");
             } finally {
@@ -52,7 +55,7 @@ const useChangeUsername = () => {
     );
 
     return ({
-        changeUsername,
+        changePassword,
         error,
         setError,
         feedback,
@@ -61,4 +64,4 @@ const useChangeUsername = () => {
     })
 }
 
-export default useChangeUsername
+export default useChangePassword
