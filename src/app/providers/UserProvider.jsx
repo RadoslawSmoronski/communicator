@@ -7,12 +7,12 @@ export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const { setAccessToken } = useContext(AuthContext);
-    const { user, save, remove, loading } = useUserData(setAccessToken);
+    const { user, save, saveUsername, remove, loading } = useUserData(setAccessToken);
 
     // console.log("UserProvider user:", user, loading);
 
     return (
-        <UserContext.Provider value={{ user, saveUser: save, removeUser: remove, loading }}>
+        <UserContext.Provider value={{ user, saveUser: save, saveUsername, removeUser: remove, loading }}>
             {children}
         </UserContext.Provider>
     );

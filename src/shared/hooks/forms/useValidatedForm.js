@@ -18,6 +18,19 @@ export function useValidatedForm(
         Object.fromEntries(Object.keys(initialState).map(k => [k, false]))
     );
 
+    const setInitState = (newInitState) => {
+        initialRef.current = newInitState;
+
+        // update fields and valid
+        setFields(newInitState);
+        if (validateOnInit) {
+            setValid(prev => ({
+                ...prev,
+                ...validateFields(newInitState)
+            }));
+        }
+    };
+
     // validate action
     const validateField = (fieldName, fieldsState) => {
         const validator = validators[fieldName];
@@ -117,6 +130,7 @@ export function useValidatedForm(
         handleFieldFocus,
         resetForm,
         setFields,
+        setInitState,
         RESET_MODE
     };
 }

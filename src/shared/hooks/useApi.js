@@ -30,9 +30,9 @@ export const useApi = () => {
         response = await client[method](url, data);
       }
 
-      return { data: response.data, error: null };
+      return { data: response.data };
     } catch (error) {
-      return { data: null, error };
+      throw error;
     }
   };
 

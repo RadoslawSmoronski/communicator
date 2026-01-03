@@ -7,7 +7,7 @@ import { AuthContext } from "../../../app/providers/AuthProvider";
 
 export const useUserData = (setAccessToken) => {
     // get userInfo from sessionStorage
-    const { accessToken,  loading : tokenLoading } = useContext(AuthContext);
+    const { accessToken, loading: tokenLoading } = useContext(AuthContext);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -29,8 +29,23 @@ export const useUserData = (setAccessToken) => {
         userDataService.save(userDataToSave);
         // save user
         setUser(userDataToSave);
-        
+
     };
+
+    const saveUsername = (newUsername) => {
+        setUser(prev => {
+            if (!prev) return prev;
+
+            const updated = { ...prev, username: newUsername };
+
+            const userToSave = mapUserToSessionStorage(updated);
+            userDataService.save(userToSave);
+
+            return userToSave;
+        });
+    };
+
+
 
     const remove = () => {
         setUser(null);
@@ -47,5 +62,5 @@ export const useUserData = (setAccessToken) => {
     }, [accessToken]);
 
 
-    return { user, save, remove, loading };
+    return { user, save, saveUsername, remove, loading };
 };
