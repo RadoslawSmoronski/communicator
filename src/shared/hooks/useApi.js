@@ -1,14 +1,15 @@
 import { useContext, useMemo } from "react";
 import { AuthContext } from "../../app/providers/AuthProvider";
 import authAxios from "../../api/authAxios";
+import mediaAxios from "../../api/mediaAxios";
 
 // use
 // api.get(URL, PARAMS, ISAUTH)
-export const useApi = () => {
+export const useApi = ({ mediaContent = false } = {}) => {
   const { accessToken } = useContext(AuthContext);
 
   const client = useMemo(() => {
-    const instance = authAxios;
+    const instance = mediaContent ? mediaAxios : authAxios;
 
     if (accessToken) {
       instance.defaults.headers.common.Authorization =

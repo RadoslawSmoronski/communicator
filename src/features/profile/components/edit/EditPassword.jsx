@@ -6,7 +6,7 @@ import useEditableState from "../../hooks/useEditableState";
 import useChangePassword from "../../hooks/useChangePassword";
 
 import regexUtils from "../../../../shared/utils/regexUtils";
-import FeedbackText from "../../../../components/form/FeedbackText";
+import FeedbackText from "../FeedbackText";
 
 const EditPassword = () => {
     const {

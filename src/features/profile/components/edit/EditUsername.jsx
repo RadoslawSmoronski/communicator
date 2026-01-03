@@ -7,7 +7,7 @@ import useChangeUsername from "../../hooks/useChangeUsername";
 import useEditableState from "../../hooks/useEditableState";
 
 import regexUtils from "../../../../shared/utils/regexUtils";
-import FeedbackText from "../../../../components/form/FeedbackText";
+import FeedbackText from "../FeedbackText";
 
 const EditUsername = () => {
     const { user, saveUsername } = useContext(UserContext);

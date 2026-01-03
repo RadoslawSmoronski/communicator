@@ -45,7 +45,18 @@ export const useUserData = (setAccessToken) => {
         });
     };
 
+    const saveAvatarUrl = (newAvatarUrl) => {
+        setUser(prev => {
+            if (!prev) return prev;
 
+            const updated = { ...prev, avatarUrl: newAvatarUrl };
+
+            const userToSave = mapUserToSessionStorage(updated);
+            userDataService.save(userToSave);
+
+            return userToSave;
+        });
+    };
 
     const remove = () => {
         setUser(null);
@@ -62,5 +73,5 @@ export const useUserData = (setAccessToken) => {
     }, [accessToken]);
 
 
-    return { user, save, saveUsername, remove, loading };
+    return { user, save, saveUsername, saveAvatarUrl, remove, loading };
 };
