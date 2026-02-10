@@ -29,3 +29,14 @@ export const mapFriendsToInitialMessages = (friendList, currentUserId) => {
 
     return messagesMap;
 };
+
+export const mapDtoToMessage = (dto) => {
+    return createMessageModel({
+        messageId: dto.messageId,
+        conversationId: dto.conversationId,
+        senderId: dto.senderId,
+        content: dto.content,
+        timestamp: dto.timestamp,
+        isRead: dto.isRead || false
+    });
+};

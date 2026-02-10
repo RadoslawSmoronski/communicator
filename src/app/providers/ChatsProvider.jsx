@@ -1,6 +1,6 @@
 import React, { createContext, useState, useCallback } from "react";
 import { useContext } from "react";
-import { mapFriendsToInitialMessages } from "../../features/messages/mappers/messageMapper";
+import { mapFriendsToInitialMessages, mapDtoToMessage } from "../../features/messages/mappers/messageMapper";
 
 export const ChatsContext = createContext();
 
@@ -25,13 +25,33 @@ const ChatsProvider = ({ children }) => {
         console.log(messages);
     }, []);
 
-    const addMessage = () => {
+    // Add single message
+    const addMessage = useCallback((messageDto) => {
+        const newMessage = mapDtoToMessage(messageDto);
+        const { conversationId } = newMessage;
 
-    }
+        setMessages(prev => ({
+            ...prev,
+            [conversationId]: [
+                newMessage,
+                ...(prev[conversationId] || [])
+            ]
+        }));
+    }, []);
 
-    const addListOfMessages = () => {
+    // Add list of history messages
+    const addHistoryListOfMessages = useCallback((conversationId, messagesListDto) => {
+        const historyMessages = messagesListDto.map(mapDtoToMessage);
 
-    }
+        setMessages(prev => {
+            const currentChatMessages = prev[conversationId] || [];
+
+            return {
+                ...prev,
+                [conversationId]: [...currentChatMessages, ...historyMessages]
+            };
+        });
+    }, []);
 
     const removeListOfMessages = () => {
 
@@ -46,7 +66,8 @@ const ChatsProvider = ({ children }) => {
         <ChatsContext.Provider value={{
             messages,
             setUp,
-            addMessage
+            addMessage,
+            addHistoryListOfMessages
         }}>
             {children}
         </ChatsContext.Provider>
