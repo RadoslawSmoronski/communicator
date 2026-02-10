@@ -1,20 +1,40 @@
 import React, { useState, useContext, useEffect } from 'react'
 
 import { FriendsContext } from '../../../../app/providers/FriendsProvider';
+import { UserContext } from '../../../../app/providers/UserProvider';
+import { ChatsContext } from '../../../../app/providers/ChatsProvider';
+
 import FriendTile from './FriendTile';
 
+import { useLastOpenedChat } from '../../hooks/useLastOpenedChat';
+import { mapFriendToLastOpenedChat } from '../../mappers/chatMapper';
+
 const FriendList = ({ searchQuery }) => {
+    const { user } = useContext(UserContext);
     const {
         friendList,
         friendListFiltered,
-        setFriendList,
-        activeFriend,
-        loading,
-        error,
-        selectFriend,
-        refreshFriendList,
-        clearFriendList
+        selectFriend
     } = useContext(FriendsContext);
+    const {
+        selectedId: selectedChatId,
+        selectChat
+    } = useContext(ChatsContext);
+
+    const { updateLastOpenedChat } = useLastOpenedChat();
+
+    const handleClickingOnChat = (friend) => {
+        // save last opened chat
+        // to cookie
+        const lastOpenedChatData = mapFriendToLastOpenedChat(friend);
+        updateLastOpenedChat(user.userID, lastOpenedChatData);
+
+        // set active friend
+        selectFriend(friend);
+
+        // set active chatId and recipientId
+        selectChat(friend.conversationId, friend.friendId);
+    }
 
     return (
 
@@ -28,12 +48,11 @@ const FriendList = ({ searchQuery }) => {
                                 <FriendTile
                                     key={f.friendId}
                                     username={f.friendUsername}
-                                    onClick={() => handleClickingOnChat(f.conversationId, f.friendId, f.friendUsername, f.friendAvatarUrl, f.friendshipId)}
+                                    onClick={() => handleClickingOnChat(f)}
                                     author={f.isFriendSenderMessage ? '' : 'You: '}
                                     mess={f.lastMessageContent}
                                     messTimestamp={f.lastMessageTimestamp}
-                                    // selected={chat.selectedId === f.conversationId}
-                                    selected={null}
+                                    selected={selectedChatId === f.conversationId}
                                     newMessageNotify={f.newMessNotify}
                                     avatarUrl={f.friendAvatarUrl}
                                     isOnline={f.isFriendOnline}

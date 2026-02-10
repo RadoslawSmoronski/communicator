@@ -2,6 +2,8 @@ import React, { createContext, useState, useCallback } from "react";
 import { useContext } from "react";
 import { mapFriendsToInitialMessages, mapDtoToMessage } from "../../features/messages/mappers/messageMapper";
 
+import { lastOpenedChatService } from "../../features/users/services/lastOpenedChatService";
+
 export const ChatsContext = createContext();
 
 const ChatsProvider = ({ children }) => {
@@ -9,20 +11,28 @@ const ChatsProvider = ({ children }) => {
     const [messages, setMessages] = useState({});
     const [noNewMessagesFlag, setNoNewMessagesFlag] = useState({});
     const [lastReadMessageIds, setLastReadMessageIds] = useState({});
-    // object
-    const [lastOpenedChat, setLastOpenedChat] = useState({});
     // ids (string)
     const [selectedId, setSelectedId] = useState("");
-    const [activeReciepientId, setActiveReciepientId] = useState("");
+    const [activeRecipientId, setActiveRecipientId] = useState("");
 
-    // Inits hash map messages
-    // By result of api GET_CHATS
+    // Inits hash map messages by result of api GET_CHATS
+    // And restores last opened chat
     const setUp = useCallback((friendList, currentUserId) => {
+        // 1. Init messages hash map
         const initialMessages = mapFriendsToInitialMessages(friendList, currentUserId);
         setMessages(initialMessages);
 
         console.log("Messages:");
-        console.log(messages);
+        console.log(initialMessages);
+
+        // 2. Restore last opened chat
+        const savedChatSet = lastOpenedChatService.load();
+        const userSavedChat = savedChatSet[currentUserId];
+
+        if (userSavedChat) {
+            setSelectedId(userSavedChat.conversationId);
+            setActiveRecipientId(userSavedChat.friendId);
+        }
     }, []);
 
     // Add single message
@@ -53,21 +63,22 @@ const ChatsProvider = ({ children }) => {
         });
     }, []);
 
-    const removeListOfMessages = () => {
-
-    }
-
-    const setActiveChat = () => {
-
-    }
+    const selectChat = useCallback((conversationId, recipientId) => {
+        setSelectedId(conversationId);
+        setActiveRecipientId(recipientId);
+    }, []);
 
 
     return (
         <ChatsContext.Provider value={{
             messages,
+            selectedId,
+            activeRecipientId,
+
             setUp,
             addMessage,
-            addHistoryListOfMessages
+            addHistoryListOfMessages,
+            selectChat
         }}>
             {children}
         </ChatsContext.Provider>

@@ -16,3 +16,12 @@ export const mapChatDtoToFriend = (dto) => ({
 // list mapper
 export const mapFriendList = (dtoList) =>
     dtoList.map(mapChatDtoToFriend);
+
+// last opened chat
+export const mapFriendToLastOpenedChat = (friend) => ({
+    conversationId: friend.conversationId,
+    friendId: friend.friendId,
+    friendName: friend.friendUsername,
+    friendAvatarUrl: friend.friendAvatarUrl,
+    friendshipId: friend.friendshipId
+});
