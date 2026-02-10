@@ -9,11 +9,11 @@ import { MessagePageRefactor } from "./MessagePageRefactor";
 const MessageWrapper = () => {
     return (
         <SignalRProvider>
-            <FriendsProvider>
-                <ChatsProvider>
+            <ChatsProvider>
+                <FriendsProvider>
                     <MessagePageRefactor />
-                </ChatsProvider>
-            </FriendsProvider>
+                </FriendsProvider>
+            </ChatsProvider>
         </SignalRProvider>
     );
 };

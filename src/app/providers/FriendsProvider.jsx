@@ -3,7 +3,6 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import { useGetChats } from "../../features/users/hooks/useGetChats";
 import { mapFriendToActiveFriend } from "../../features/users/mappers/activeFriendMapper";
 
-
 export const FriendsContext = createContext();
 
 const FriendsProvider = ({ children }) => {

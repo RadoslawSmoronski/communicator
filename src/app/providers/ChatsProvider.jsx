@@ -1,5 +1,6 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useCallback } from "react";
 import { useContext } from "react";
+import { mapFriendsToInitialMessages } from "../../features/messages/mappers/messageMapper";
 
 export const ChatsContext = createContext();
 
@@ -14,9 +15,15 @@ const ChatsProvider = ({ children }) => {
     const [selectedId, setSelectedId] = useState("");
     const [activeReciepientId, setActiveReciepientId] = useState("");
 
-    const setUp = () => { // na podstawie get chats
+    // Inits hash map messages
+    // By result of api GET_CHATS
+    const setUp = useCallback((friendList, currentUserId) => {
+        const initialMessages = mapFriendsToInitialMessages(friendList, currentUserId);
+        setMessages(initialMessages);
 
-    }
+        console.log("Messages:");
+        console.log(messages);
+    }, []);
 
     const addMessage = () => {
 
@@ -37,7 +44,9 @@ const ChatsProvider = ({ children }) => {
 
     return (
         <ChatsContext.Provider value={{
-
+            messages,
+            setUp,
+            addMessage
         }}>
             {children}
         </ChatsContext.Provider>
