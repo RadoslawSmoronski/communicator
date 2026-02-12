@@ -15,7 +15,6 @@ export const useGetChats = (useMock = false) => {
     const api = useApi();
 
     const [friendList, setFriendList] = useState([]);
-    const [friendListFiltered, setFriendListFiltered] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -42,13 +41,10 @@ export const useGetChats = (useMock = false) => {
 
             // set friend list
             const mapped = mapFriendList(data);
-            const sorted = listUtils.returnSortedByLastMessDateFriendsList(mapped);
-
-            setFriendList(sorted);
-            setFriendListFiltered(sorted);
+            setFriendList(mapped);
 
             // set messages (hashmap)
-            setUp(sorted, user.userID);
+            setUp(mapped, user.userID);
 
         } catch (err) {
             console.error(err);
@@ -66,8 +62,6 @@ export const useGetChats = (useMock = false) => {
     return {
         friendList,
         setFriendList,
-        friendListFiltered,
-        setFriendListFiltered,
         loading,
         error,
         getChats,

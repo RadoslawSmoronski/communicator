@@ -9,25 +9,13 @@ import { FriendsContext } from '../../../app/providers/FriendsProvider';
 
 const SearchBar = ({ displayYourChats, setDisplayStatus, searchQuery, setSearchQuery }) => {
     const {
-        friendList,
-        friendListFiltered,
-        setFriendList,
-        setFriendListFiltered
+        friendList
     } = useContext(FriendsContext);
 
     // Search bar block
     // Actions when you type on search bar 
     const handleChangeTxt = async (event) => {
-        const { value } = event.target;
-
-        setSearchQuery(value);
-
-        if (displayYourChats) {
-            const filteredFriendsList = listUtils.returnFilteredFriends(
-                friendList, value
-            );
-            setFriendListFiltered(filteredFriendsList);
-        }
+        setSearchQuery(event.target.value);
     }
 
 
@@ -38,8 +26,6 @@ const SearchBar = ({ displayYourChats, setDisplayStatus, searchQuery, setSearchQ
         const flag = name === "yourChatsBtn";
 
         setDisplayStatus(flag);
-
-        setFriendListFiltered(friendList); // reset filtering of friends
         setSearchQuery("");
     }
 

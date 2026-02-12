@@ -3,9 +3,11 @@ import FriendList from './friends/FriendList';
 import PeopleList from './people/PeopleList';
 import SearchBar from './SearchBar';
 
+import { FriendsContext } from '../../../app/providers/FriendsProvider';
+
 const PeopleAndFriends = () => {
     const [displayYourChats, setDisplayYourChats] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
+    const { searchQuery, setSearchQuery } = useContext(FriendsContext);
 
     return (
         <>

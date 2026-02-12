@@ -39,7 +39,7 @@ const MessageBox = () => {
 
     // scroll bar logic
     const handleScrollMessageBox = (e) => {
-        // Tu dodasz logikę dociągania starszych wiadomości
+        // TODO fetch history of chat
     };
 
 
