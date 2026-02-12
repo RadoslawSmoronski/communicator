@@ -17,9 +17,9 @@ import cookieUtils from '../../shared/utils/cookieUtils';
 import Avatar from '../../shared/components/Avatar';
 
 import FriendTile from '../../features/users/components/friends/FriendTile';
-import MessageTile from '../../components/tiles/MessageTile';
+import MessageTile from '../../features/messages/components/messageBox/MessageTile';
 import PersonTile from '../../features/users/components/people/PersonTile'
-import FriendDetailsPanel from '../../components/FriendDetailsPanel';
+import FriendDetailsPanel from '../../features/messages/components/messageBox/FriendDetailsPanel';
 import ConfirmationBox from '../../components/form/ConfirmationBox';
 
 import { UserContext } from '../../app/providers/UserProvider';

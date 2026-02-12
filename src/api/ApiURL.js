@@ -2,19 +2,18 @@
 const APIs = {
     SERVER_URL: "http://localhost:5205",
 
-    LOGIN : "/api/auth/login",
-    REGISTER : "/api/users",
+    LOGIN: "/api/auth/login",
+    REGISTER: "/api/users",
     REFRESH_TOKEN: "/api/auth/refresh-token",
 
     GET_CHATS: (userId) => `/api/users/${userId}/chats?onlyFriends=true`,
     GET_MESSAGES: (conversationId, fromMessageId) => `api/chats/${conversationId}/messages?fromMessageId=${fromMessageId}`,
-    GET_MESSAGES_NULL_FROM_MESSAGE_ID: (conversationId) => `api/chats/${conversationId}/messages`,
 
     SEND_INVITE: "/api/friend-invitations",
     GET_INVITATIONS: (userId) => `/api/users/${userId}/friend-invitations`,
-    DECELINE_INVITE:(friendInvitationId) => `/api/friend-invitations/${friendInvitationId}`,
-    ACCEPT_INVITE: (friendInvitationId)=> `/api/friend-invitations/${friendInvitationId}/accept`,
-    FRIENDSHIP: (friendshipId)=> `/api/friendships/${friendshipId}`,
+    DECELINE_INVITE: (friendInvitationId) => `/api/friend-invitations/${friendInvitationId}`,
+    ACCEPT_INVITE: (friendInvitationId) => `/api/friend-invitations/${friendInvitationId}/accept`,
+    FRIENDSHIP: (friendshipId) => `/api/friendships/${friendshipId}`,
 
     FIND_PEOPLE_TO_INVITE: (text, userId) => `/api/users?search=${text}&canBeInvitedByUserId=${userId}`,
     GET_FRIENDS: (userId) => `/api/users/${userId}/friend`,

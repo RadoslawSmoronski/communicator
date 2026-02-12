@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
-import { AuthContext } from "../app/providers/AuthProvider";
+import { AuthContext } from "../../../../app/providers/AuthProvider";
 
-import axios from "../api/axios";
-import APIs from "../api/ApiURL";
-import cookieUtils from "../shared/utils/cookieUtils";
+import axios from "../../../../api/axios";
+import APIs from "../../../../api/ApiURL";
+import cookieUtils from "../../../../shared/utils/cookieUtils";
 
 const FriendDetailsPanel = ({
     friendName, friendshipId, setDisplay, showConfirmationBox, closeConfirmationBox, friendState, setFriend, setChat
@@ -12,11 +12,11 @@ const FriendDetailsPanel = ({
     const confText = `Do you want to remove ${friendName} from friendlist?`
 
     useEffect(() => {
-        setDisplay(prev => ({
-            ...prev,
-            confirmationBoxFunc: removeFriend,
-            confirmationBoxText: confText
-        }))
+        // setDisplay(prev => ({
+        //     ...prev,
+        //     confirmationBoxFunc: removeFriend,
+        //     confirmationBoxText: confText
+        // }))
     }, []);
 
     const removeFriend = async () => {
@@ -72,7 +72,7 @@ const FriendDetailsPanel = ({
             selectedId: null,
             activeReciepientId: null
         }))
-        setDisplay(prev =>({
+        setDisplay(prev => ({
             ...prev,
             friendDetailsPanel: false
         }))
@@ -81,7 +81,7 @@ const FriendDetailsPanel = ({
         let lastOpenedChatsSet = cookieUtils.get('lastOpenedChatSet') || {};
         delete lastOpenedChatsSet[userId];
         cookieUtils.set('lastOpenedChatSet', lastOpenedChatsSet);
-        
+
         closeConfirmationBox();
     }
 

@@ -9,8 +9,8 @@ export const ChatsContext = createContext();
 const ChatsProvider = ({ children }) => {
     // hashlist
     const [messages, setMessages] = useState({});
-    const [noNewMessagesFlag, setNoNewMessagesFlag] = useState({});
-    const [lastReadMessageIds, setLastReadMessageIds] = useState({});
+    const [noNewMessagesFlagsMap, setNoNewMessagesFlagsMap] = useState({});
+    const [lastReadMessageIdsMap, setLastReadMessageIdsMap] = useState({});
     // ids (string)
     const [selectedId, setSelectedId] = useState("");
     const [activeRecipientId, setActiveRecipientId] = useState("");
@@ -69,6 +69,20 @@ const ChatsProvider = ({ children }) => {
     }, []);
 
 
+    const setNoNewMessagesFlag = useCallback((conversationId, isFinished) => {
+        setNoNewMessagesFlagsMap(prev => ({
+            ...prev,
+            [conversationId]: isFinished
+        }));
+    }, []);
+
+    const setLastReadMessageIds = useCallback((conversationId, messageId) => {
+        setLastReadMessageIdsMap(prev => ({
+            ...prev,
+            [conversationId]: messageId
+        }));
+    }, []);
+
     return (
         <ChatsContext.Provider value={{
             messages,
@@ -78,7 +92,13 @@ const ChatsProvider = ({ children }) => {
             setUp,
             addMessage,
             addHistoryListOfMessages,
-            selectChat
+            selectChat,
+
+            noNewMessagesFlagsMap,
+            lastReadMessageIdsMap,
+
+            setNoNewMessagesFlag,
+            setLastReadMessageIds
         }}>
             {children}
         </ChatsContext.Provider>

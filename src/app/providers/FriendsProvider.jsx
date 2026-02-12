@@ -1,11 +1,19 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 
 import { useGetChats } from "../../features/users/hooks/useGetChats";
-import { mapFriendToActiveFriend } from "../../features/users/mappers/activeFriendMapper";
+import { lastOpenedChatService } from "../../features/users/services/lastOpenedChatService";
+
+import { mapFriendToActiveFriend, mapCookieToActiveFriend } from "../../features/users/mappers/activeFriendMapper";
+
+import { ChatsContext } from "./ChatsProvider";
+import { UserContext } from "./UserProvider";
 
 export const FriendsContext = createContext();
 
 const FriendsProvider = ({ children }) => {
+    const { activeRecipientId } = useContext(ChatsContext);
+    const { user } = useContext(UserContext);
+
     const [activeFriend, setActiveFriend] = useState(null);
 
     const {
@@ -31,8 +39,32 @@ const FriendsProvider = ({ children }) => {
         setActiveFriend(
             mapFriendToActiveFriend(friend)
         );
+
+        clearNotification(friend.conversationId);
     }
 
+    const clearNotification = (conversationId) => {
+        setFriendList(prev => prev.map(f =>
+            f.conversationId === conversationId
+                ? { ...f, newMessNotify: false }
+                : f
+        ));
+    };
+
+    // auto update selected friend
+    // after page refresh
+    useEffect(() => {
+        if (activeRecipientId && activeFriend == null && user) {
+            // load active friend from cookie
+            const savedChatMap = lastOpenedChatService.load();
+            const lastOpenedData = savedChatMap[user.userID];
+
+            if (lastOpenedData && lastOpenedData.friendId === activeRecipientId) {
+                const restoredFriend = mapCookieToActiveFriend(lastOpenedData);
+                setActiveFriend(restoredFriend);
+            }
+        }
+    }, [activeRecipientId]);
 
     return (
         <FriendsContext.Provider value={{
@@ -40,9 +72,11 @@ const FriendsProvider = ({ children }) => {
             friendListFiltered,
             setFriendList,
             setFriendListFiltered,
+
             activeFriend,
             loading,
             error,
+
             selectFriend,
             refreshFriendList,
             clearFriendList
