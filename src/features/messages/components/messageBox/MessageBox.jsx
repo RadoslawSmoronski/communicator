@@ -53,7 +53,15 @@ const MessageBox = () => {
 
     // scroll bar logic
     const handleScrollMessageBox = (e) => {
-        // TODO fetch history of chat
+        const box = scrollMessageBoxRef.current;
+        if (!box) return;
+
+        const isAtTop = box.clientHeight - box.scrollTop >= box.scrollHeight;
+
+        // fetch history messages
+        if (isAtTop && !hasNoMore && !loading) {
+            getMessagesForFriend(selectedChatId);
+        }
     };
 
 
