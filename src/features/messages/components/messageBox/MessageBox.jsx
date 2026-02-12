@@ -30,14 +30,26 @@ const MessageBox = () => {
 
     // fetch messages
     useEffect(() => {
-        console.log("Fetching chat for:" + selectedChatId)
+        if (!selectedChatId || hasNoMore || loading) return;
 
-        const noMessagesFetched = currentMessages.length === 1;
+        const checkAndFetch = async () => {
+            const box = scrollMessageBoxRef.current;
+            if (!box) return;
 
-        if (selectedChatId && noMessagesFetched && !hasNoMore) {
-            getMessagesForFriend(selectedChatId);
-        }
-    }, [selectedChatId]);
+            // 1. There is only one message (init fetch)
+            const isInitialFetch = currentMessages.length === 1;
+
+            // 2. Messages aren't filled up to the scroll box
+            const isNotScrollable = box.clientHeight >= box.scrollHeight;
+
+            if (isInitialFetch || isNotScrollable) {
+                await getMessagesForFriend(selectedChatId);
+            }
+        };
+
+        checkAndFetch();
+
+    }, [selectedChatId, currentMessages.length, hasNoMore, loading]);
 
     // scroll bar logic
     const handleScrollMessageBox = (e) => {
