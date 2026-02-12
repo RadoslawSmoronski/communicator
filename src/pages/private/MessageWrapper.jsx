@@ -1,6 +1,6 @@
 import React from "react";
 
-import SignalRProvider from "../../app/providers/SingalRProvider";
+import SignalRProvider from "../../app/providers/SignalRProvider";
 import FriendsProvider from "../../app/providers/FriendsProvider";
 import ChatsProvider from "../../app/providers/ChatsProvider";
 

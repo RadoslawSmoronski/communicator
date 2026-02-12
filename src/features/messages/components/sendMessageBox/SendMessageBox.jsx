@@ -3,8 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { ChatsContext } from '../../../../app/providers/ChatsProvider';
 
+import useSendMessage from '../../hooks/useSendMessage';
+
 const SendMessageBox = () => {
     const { selectedId } = useContext(ChatsContext);
+
+    const { sendMessage } = useSendMessage();
 
     const [messageInput, setMessageInput] = useState('');
 
@@ -12,12 +16,19 @@ const SendMessageBox = () => {
         setMessageInput(e.target.value);
     };
 
-    const sendMessageToFriend = () => {
+    const sendMessageToFriend = async () => {
         if (!messageInput.trim() || !selectedId) return;
 
         console.log("Sending message:", messageInput);
 
-        // TODO send message SignalR logic
+        // send message
+        try {
+            await sendMessage(messageInput);
+
+            setMessageInput('');
+        } catch (err) {
+            console.error("Error while sending message:", err);
+        }
 
         setMessageInput('');
     };
