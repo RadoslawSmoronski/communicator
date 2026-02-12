@@ -32,7 +32,9 @@ const MessageBox = () => {
     useEffect(() => {
         console.log("Fetching chat for:" + selectedChatId)
 
-        if (selectedChatId) {
+        const noMessagesFetched = currentMessages.length === 1;
+
+        if (selectedChatId && noMessagesFetched && !hasNoMore) {
             getMessagesForFriend(selectedChatId);
         }
     }, [selectedChatId]);
