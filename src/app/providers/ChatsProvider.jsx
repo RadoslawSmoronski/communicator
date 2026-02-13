@@ -25,8 +25,18 @@ const ChatsProvider = ({ children }) => {
         const userSavedChat = savedChatSet[currentUserId];
 
         if (userSavedChat) {
-            setSelectedId(userSavedChat.conversationId);
-            setActiveRecipientId(userSavedChat.friendId);
+            const friendExists = friendList.some(f => f.friendId === userSavedChat.friendId);
+
+            if (friendExists) {
+                setSelectedId(userSavedChat.conversationId);
+                setActiveRecipientId(userSavedChat.friendId);
+            } else {
+                console.warn("Last opened friend no longer in friend list. Cleaning up.");
+
+                const updatedChatSet = { ...savedChatSet };
+                delete updatedChatSet[currentUserId];
+                lastOpenedChatService.save(updatedChatSet);
+            }
         }
     }, []);
 

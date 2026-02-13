@@ -121,9 +121,6 @@ const FriendsProvider = ({ children }) => {
                     const restoredFriend = mapCookieToActiveFriend(lastOpenedData);
                     restoredFriend.isOnline = friendFromList.isFriendOnline;
                     setActiveFriend(restoredFriend);
-                } else {
-                    console.warn("Last opened friend not found in friend list. Cleaning up cookie.");
-                    removeLastOpenedChat(user.userID);
                 }
             }
         }
