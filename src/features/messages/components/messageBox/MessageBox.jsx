@@ -5,6 +5,7 @@ import { UserContext } from '../../../../app/providers/UserProvider';
 import { FriendsContext } from '../../../../app/providers/FriendsProvider';
 
 import { useGetMessages } from '../../hooks/useGetMessages';
+import useReadMessage from '../../hooks/useReadMessage';
 import MessageTile from './MessageTile';
 import FriendDetailsPanel from './FriendDetailsPanel';
 
@@ -19,6 +20,7 @@ const MessageBox = () => {
     } = useContext(ChatsContext);
 
     const { getMessagesForFriend, loading } = useGetMessages();
+    const { readMessage } = useReadMessage();
 
     // scroll bar ref
     const scrollMessageBoxRef = useRef(null);
@@ -50,6 +52,21 @@ const MessageBox = () => {
         checkAndFetch();
 
     }, [selectedChatId, currentMessages.length, hasNoMore, loading]);
+
+    // read message
+    useEffect(() => {
+        if (!selectedChatId || currentMessages.length === 0) return;
+
+        // read only friend message
+        const lastMessage = currentMessages[0];
+        const isLastFromFriend = lastMessage.senderId !== user.userID;
+
+        if (isLastFromFriend) {
+            readMessage();
+        }
+
+        // trigger when change chat or get new message
+    }, [selectedChatId, currentMessages.length]);
 
     // scroll bar logic
     const handleScrollMessageBox = (e) => {

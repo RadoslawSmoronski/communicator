@@ -19,8 +19,6 @@ const SendMessageBox = () => {
     const sendMessageToFriend = async () => {
         if (!messageInput.trim() || !selectedId) return;
 
-        console.log("Sending message:", messageInput);
-
         // send message
         try {
             await sendMessage(messageInput);

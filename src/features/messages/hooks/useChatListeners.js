@@ -14,8 +14,6 @@ const useChatListeners = () => {
     const { updateFriendFromMessage } = useContext(FriendsContext);
 
     useSignalREvent(SIGNALR_HUBS.RECEIVE_MESSAGE, (messageDto) => {
-        console.log("New message received via SignalR:", messageDto);
-
         // add message
         addMessage(messageDto);
 
@@ -23,12 +21,12 @@ const useChatListeners = () => {
         updateFriendFromMessage(messageDto);
     });
 
-    // useSignalREvent(SIGNALR_HUBS.READ_MESSAGE_GET, (lastReadMessageDto) => {
-    //     setLastReadMessageIds(
-    //         lastReadMessageDto.conversationId, 
-    //         lastReadMessageDto.messageId
-    //     );
-    // });
+    useSignalREvent(SIGNALR_HUBS.READ_MESSAGE_GET, (lastReadMessageDto) => {
+        setLastReadMessageIds(
+            lastReadMessageDto.conversationId,
+            lastReadMessageDto.messageId
+        );
+    });
 
     // useSignalREvent(SIGNALR_HUBS.FRIEND_CONNECT, (friendId) => {});
 };

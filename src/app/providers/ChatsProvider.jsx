@@ -22,9 +22,6 @@ const ChatsProvider = ({ children }) => {
         const initialMessages = mapFriendsToInitialMessages(friendList, currentUserId);
         setMessages(initialMessages);
 
-        console.log("Messages:");
-        console.log(initialMessages);
-
         // 2. Restore last opened chat
         const savedChatSet = lastOpenedChatService.load();
         const userSavedChat = savedChatSet[currentUserId];
