@@ -3,6 +3,7 @@ import React, { createContext, useState, useContext, useEffect, useMemo, useCall
 import listUtils from "../../shared/utils/listUtils";
 import { useGetChats } from "../../features/users/hooks/useGetChats";
 import { lastOpenedChatService } from "../../features/users/services/lastOpenedChatService";
+import { useLastOpenedChat } from "../../features/users/hooks/useLastOpenedChat";
 
 import { mapFriendToActiveFriend, mapCookieToActiveFriend } from "../../features/users/mappers/activeFriendMapper";
 
@@ -26,6 +27,7 @@ const FriendsProvider = ({ children }) => {
         error,
         getChats
     } = useGetChats();
+    const { removeLastOpenedChat } = useLastOpenedChat();
 
     // auto filter friend list
     const friendListFiltered = useMemo(() => {
@@ -110,16 +112,18 @@ const FriendsProvider = ({ children }) => {
             const lastOpenedData = savedChatMap[user.userID];
 
             if (lastOpenedData && lastOpenedData.friendId === activeRecipientId) {
-                const restoredFriend = mapCookieToActiveFriend(lastOpenedData);
 
-                // update online status
                 const friendFromList = friendList.find(f => f.friendId === activeRecipientId);
 
                 if (friendFromList) {
+                    // update online status
+                    const restoredFriend = mapCookieToActiveFriend(lastOpenedData);
                     restoredFriend.isOnline = friendFromList.isFriendOnline;
+                    setActiveFriend(restoredFriend);
+                } else {
+                    console.warn("Last opened friend not found in friend list. Cleaning up cookie.");
+                    removeLastOpenedChat(userDataService.userID);
                 }
-
-                setActiveFriend(restoredFriend);
             }
         }
     }, [activeRecipientId]);
