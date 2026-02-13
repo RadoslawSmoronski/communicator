@@ -83,6 +83,25 @@ const FriendsProvider = ({ children }) => {
         });
     }, [selectedChatId, user?.userID]);
 
+    // updates friend online status
+    // it updates online status of a friend
+    const updateFriendOnlineStatus = useCallback((friendId, isOnline) => {
+        // 1. Update status on the list
+        setFriendList(prev => prev.map(f =>
+            f.friendId === friendId
+                ? { ...f, isFriendOnline: isOnline }
+                : f
+        ));
+
+        // 2. Update activeFriend if it's the person user is currently chatting with
+        if (activeRecipientId === friendId) {
+            setActiveFriend(prev => {
+                return { ...prev, isOnline: isOnline };
+            });
+        }
+
+    }, [activeRecipientId]);
+
     // auto update selected friend
     // after page refresh
     useEffect(() => {
@@ -93,6 +112,14 @@ const FriendsProvider = ({ children }) => {
 
             if (lastOpenedData && lastOpenedData.friendId === activeRecipientId) {
                 const restoredFriend = mapCookieToActiveFriend(lastOpenedData);
+
+                // update online status
+                const friendFromList = friendList.find(f => f.friendId === activeRecipientId);
+
+                if (friendFromList) {
+                    restoredFriend.isOnline = friendFromList.isFriendOnline;
+                }
+
                 setActiveFriend(restoredFriend);
             }
         }
@@ -112,6 +139,7 @@ const FriendsProvider = ({ children }) => {
             refreshFriendList,
             clearFriendList,
             updateFriendFromMessage,
+            updateFriendOnlineStatus,
 
             searchQuery,
             setSearchQuery

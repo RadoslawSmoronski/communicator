@@ -11,8 +11,12 @@ const useChatListeners = () => {
         addMessage,
         setLastReadMessageIds,
     } = useContext(ChatsContext);
-    const { updateFriendFromMessage } = useContext(FriendsContext);
+    const {
+        updateFriendFromMessage,
+        updateFriendOnlineStatus
+    } = useContext(FriendsContext);
 
+    // listen for messages
     useSignalREvent(SIGNALR_HUBS.RECEIVE_MESSAGE, (messageDto) => {
         // add message
         addMessage(messageDto);
@@ -21,6 +25,7 @@ const useChatListeners = () => {
         updateFriendFromMessage(messageDto);
     });
 
+    // listen for read message
     useSignalREvent(SIGNALR_HUBS.READ_MESSAGE_GET, (lastReadMessageDto) => {
         setLastReadMessageIds(
             lastReadMessageDto.conversationId,
@@ -28,7 +33,13 @@ const useChatListeners = () => {
         );
     });
 
-    // useSignalREvent(SIGNALR_HUBS.FRIEND_CONNECT, (friendId) => {});
+    // listen for online status
+    useSignalREvent(SIGNALR_HUBS.FRIEND_CONNECT, (friendId) => {
+        updateFriendOnlineStatus(friendId, true);
+    });
+    useSignalREvent(SIGNALR_HUBS.FRIEND_DISCONNECT, (friendId) => {
+        updateFriendOnlineStatus(friendId, false);
+    });
 };
 
 export default useChatListeners;
