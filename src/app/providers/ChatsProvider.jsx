@@ -1,7 +1,5 @@
 import React, { createContext, useState, useCallback } from "react";
-import { useContext } from "react";
 import { mapFriendsToInitialMessages, mapDtoToMessage } from "../../features/messages/mappers/messageMapper";
-
 import { lastOpenedChatService } from "../../features/users/services/lastOpenedChatService";
 
 export const ChatsContext = createContext();

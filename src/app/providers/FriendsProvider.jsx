@@ -2,7 +2,6 @@ import React, { createContext, useState, useContext, useEffect, useMemo, useCall
 
 import listUtils from "../../shared/utils/listUtils";
 import { useGetChats } from "../../features/users/hooks/useGetChats";
-import { lastOpenedChatService } from "../../features/users/services/lastOpenedChatService";
 import { useLastOpenedChat } from "../../features/users/hooks/useLastOpenedChat";
 
 import { mapFriendToActiveFriend, mapCookieToActiveFriend } from "../../features/users/mappers/activeFriendMapper";
@@ -27,7 +26,10 @@ const FriendsProvider = ({ children }) => {
         error,
         getChats
     } = useGetChats();
-    const { removeLastOpenedChat } = useLastOpenedChat();
+    const {
+        getLastOpenedChatByUserId,
+        removeLastOpenedChat
+    } = useLastOpenedChat();
 
     // auto filter friend list
     const friendListFiltered = useMemo(() => {
@@ -108,8 +110,7 @@ const FriendsProvider = ({ children }) => {
     useEffect(() => {
         if (activeRecipientId && activeFriend == null && user) {
             // load active friend from cookie
-            const savedChatMap = lastOpenedChatService.load();
-            const lastOpenedData = savedChatMap[user.userID];
+            const lastOpenedData = getLastOpenedChatByUserId(user.userID);
 
             if (lastOpenedData && lastOpenedData.friendId === activeRecipientId) {
 
@@ -122,7 +123,7 @@ const FriendsProvider = ({ children }) => {
                     setActiveFriend(restoredFriend);
                 } else {
                     console.warn("Last opened friend not found in friend list. Cleaning up cookie.");
-                    removeLastOpenedChat(userDataService.userID);
+                    removeLastOpenedChat(user.userID);
                 }
             }
         }
