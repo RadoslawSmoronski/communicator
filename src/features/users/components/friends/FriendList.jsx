@@ -3,6 +3,7 @@ import React, { useState, useContext, useEffect } from 'react'
 import { FriendsContext } from '../../../../app/providers/FriendsProvider';
 import { UserContext } from '../../../../app/providers/UserProvider';
 import { ChatsContext } from '../../../../app/providers/ChatsProvider';
+import { ChatUIContext } from '../../../messages/providers/ChatUIProvider';
 
 import FriendTile from './FriendTile';
 
@@ -18,12 +19,16 @@ const FriendList = ({ searchQuery }) => {
     } = useContext(FriendsContext);
     const {
         selectedId: selectedChatId,
-        selectChat
+        selectChat,
+        activeRecipientId
     } = useContext(ChatsContext);
+    const { hideFriendDetails } = useContext(ChatUIContext);
 
     const { updateLastOpenedChat } = useLastOpenedChat();
 
     const handleClickingOnChat = (friend) => {
+        if (friend.friendId === activeRecipientId) return;
+
         // save last opened chat
         // to cookie
         const lastOpenedChatData = mapFriendToLastOpenedChat(friend);
@@ -34,6 +39,9 @@ const FriendList = ({ searchQuery }) => {
 
         // set active chatId and recipientId
         selectChat(friend.conversationId, friend.friendId);
+
+        // hide friend details panel
+        hideFriendDetails();
     }
 
     return (

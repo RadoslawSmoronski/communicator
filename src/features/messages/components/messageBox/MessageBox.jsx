@@ -3,6 +3,7 @@ import React, { useEffect, useContext, useRef } from 'react'
 import { ChatsContext } from '../../../../app/providers/ChatsProvider';
 import { UserContext } from '../../../../app/providers/UserProvider';
 import { FriendsContext } from '../../../../app/providers/FriendsProvider';
+import { ChatUIContext } from '../../providers/ChatUIProvider';
 
 import { useGetMessages } from '../../hooks/useGetMessages';
 import useReadMessage from '../../hooks/useReadMessage';
@@ -18,6 +19,7 @@ const MessageBox = () => {
         noNewMessagesFlagsMap,
         lastReadMessageIdsMap
     } = useContext(ChatsContext);
+    const { displayFriendDetails } = useContext(ChatUIContext);
 
     const { getMessagesForFriend, loading } = useGetMessages();
     const { readMessage } = useReadMessage();
@@ -118,15 +120,10 @@ const MessageBox = () => {
             </div>
 
             {/* TODO - create flag for displaying UI */}
-            {activeFriend &&
+            {displayFriendDetails && activeFriend &&
                 <FriendDetailsPanel
                     friendName={activeFriend.friendUsername}
                     friendshipId={activeFriend.friendshipId}
-                    setDisplay={null}
-                    showConfirmationBox={() => toggleUI("confirmationBox", true)}
-                    closeConfirmationBox={() => toggleUI("confirmationBox", false)}
-                    setFriend={null}
-                    setChat={null}
                     friendState={activeFriend}
                 />
             }

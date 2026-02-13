@@ -3,10 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 
 import { FriendsContext } from '../../../../app/providers/FriendsProvider';
+import { ChatUIContext } from '../../providers/ChatUIProvider';
 import Avatar from '../../../../shared/components/Avatar';
 
 const FriendBar = () => {
     const { activeFriend } = useContext(FriendsContext);
+    const { toggleFriendDetails } = useContext(ChatUIContext);
 
     return (
         <div id='friendBar'>
@@ -20,7 +22,9 @@ const FriendBar = () => {
                     <div className='friendBarUserName'>{activeFriend.username}</div>
                     <div className='friendBarRightBox'>
                         <FontAwesomeIcon icon={faPhone} className='friendBarIcon' />
-                        <FontAwesomeIcon icon={faCircleInfo} className='friendBarIcon' onClick={() => toggleUI("friendDetailsPanel", !display.friendDetailsPanel)} />
+                        <FontAwesomeIcon icon={faCircleInfo} className='friendBarIcon' onClick={() =>
+                            toggleFriendDetails()}
+                        />
                     </div>
                 </>
             }

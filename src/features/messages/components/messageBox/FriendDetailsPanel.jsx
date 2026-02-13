@@ -1,23 +1,20 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../../../../app/providers/AuthProvider";
+import { ChatUIContext } from "../../providers/ChatUIProvider";
 
 import axios from "../../../../api/axios";
 import APIs from "../../../../api/ApiURL";
 import cookieUtils from "../../../../shared/utils/cookieUtils";
 
 const FriendDetailsPanel = ({
-    friendName, friendshipId, setDisplay, showConfirmationBox, closeConfirmationBox, friendState, setFriend, setChat
+    friendName, friendshipId, friendState
 }) => {
-    const { accessToken, refreshAccessToken, userId } = useContext(AuthContext);
-    const confText = `Do you want to remove ${friendName} from friendlist?`
+    const { userId } = useContext(AuthContext);
+    const { setDisplayConfimationBox } = useContext(ChatUIContext);
 
-    useEffect(() => {
-        // setDisplay(prev => ({
-        //     ...prev,
-        //     confirmationBoxFunc: removeFriend,
-        //     confirmationBoxText: confText
-        // }))
-    }, []);
+    const showConfirmationBox = () => {
+        setDisplayConfimationBox(true)
+    }
 
     const removeFriend = async () => {
         console.log("friend removed!");
