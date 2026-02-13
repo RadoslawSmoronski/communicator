@@ -12,6 +12,16 @@ export const lastOpenedChatService = {
         return data || {};
     },
 
+    // remove by userId
+    remove: (userId) => {
+        const data = cookieUtils.get(COOKIE_NAME) || {};
+
+        if (data[userId]) {
+            delete data[userId];
+            cookieUtils.set(COOKIE_NAME, data);
+        }
+    },
+
     clear: () => {
         cookieUtils.remove(COOKIE_NAME);
     }

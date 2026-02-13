@@ -33,8 +33,7 @@ const FriendsProvider = ({ children }) => {
         return listUtils.returnSortedByLastMessDateFriendsList(filtered);
     }, [friendList, searchQuery]);
 
-    const clearFriendList = () => {
-        setFriendList([]);
+    const removeActiveFriend = () => {
         setActiveFriend(null);
     }
 
@@ -137,7 +136,7 @@ const FriendsProvider = ({ children }) => {
 
             selectFriend,
             refreshFriendList,
-            clearFriendList,
+            removeActiveFriend,
             updateFriendFromMessage,
             updateFriendOnlineStatus,
 

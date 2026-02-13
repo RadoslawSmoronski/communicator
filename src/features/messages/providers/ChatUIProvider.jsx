@@ -14,12 +14,21 @@ const ChatUIProvider = ({ children }) => {
         setDisplayFriendDetails(false);
     }
 
+    const showConfirmationBox = () => {
+        setDisplayConfimationBox(true);
+    }
+
+    const hideConfirmationBox = () => {
+        setDisplayConfimationBox(false);
+    }
+
     return (
         <ChatUIContext.Provider value={{
             displayConfirmationBox,
             displayFriendDetails,
 
-            setDisplayConfimationBox,
+            showConfirmationBox,
+            hideConfirmationBox,
             toggleFriendDetails,
             hideFriendDetails
         }}>

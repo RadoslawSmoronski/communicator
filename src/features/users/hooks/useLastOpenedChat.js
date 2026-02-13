@@ -18,6 +18,17 @@ export const useLastOpenedChat = () => {
         });
     }, []);
 
+    const removeLastOpenedChat = useCallback((userId) => {
+        setLastOpenedChatSet(prev => {
+            const newState = { ...prev };
+
+            delete newState[userId];
+            lastOpenedChatService.save(newState);
+
+            return newState;
+        });
+    }, []);
+
     // Clears cookie
     const clearLastOpenedChat = () => {
         lastOpenedChatService.clear();
@@ -33,6 +44,7 @@ export const useLastOpenedChat = () => {
     return {
         lastOpenedChatSet,
         updateLastOpenedChat,
+        removeLastOpenedChat,
         clearLastOpenedChat
     }
 }

@@ -6,9 +6,11 @@ import ChatContent from '../../features/messages/components/ChatContent';
 import ConfirmationBox from '../../shared/components/form/ConfirmationBox';
 
 import { FriendsContext } from '../../app/providers/FriendsProvider';
+import useRemoveFriend from '../../features/friendShips/hooks/useRemoveFriend';
 
 export const MessagePageRefactor = () => {
     const { activeFriend } = useContext(FriendsContext);
+    const { removeFriend, error } = useRemoveFriend();
 
     return (
         <div id='mainMessagePage'>
@@ -18,8 +20,8 @@ export const MessagePageRefactor = () => {
             <ChatContent />
 
             <ConfirmationBox
-                // confirmFunc={display.confirmationBoxFunc}
-                text={`Do you want to remove ${activeFriend?.username} from friendlist?`}
+                confirmFunc={() => removeFriend(activeFriend.friendshipId)}
+                text={error ?? `Do you want to remove ${activeFriend?.username} from friendlist?`}
             />
         </div>
     )

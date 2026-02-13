@@ -119,12 +119,9 @@ const MessageBox = () => {
                 </div>
             </div>
 
-            {/* TODO - create flag for displaying UI */}
             {displayFriendDetails && activeFriend &&
                 <FriendDetailsPanel
                     friendName={activeFriend.friendUsername}
-                    friendshipId={activeFriend.friendshipId}
-                    friendState={activeFriend}
                 />
             }
         </div>
