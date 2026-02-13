@@ -8,7 +8,6 @@ import { ROUTES } from "./routePaths";
 
 import RequireAuth from '../../features/auth/context/RequireAuth';
 
-import MessagePage from '../../pages/private/MessagePage'
 import MessageWrapper from "../../pages/private/MessageWrapper"
 
 const PrivateRoutes = () => {

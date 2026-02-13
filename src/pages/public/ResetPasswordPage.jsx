@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 
-import PopUp from "../../components/PopUp";
+import PopUp from "../../shared/components/PopUp";
 import ValidatedInput from "../../shared/components/form/ValidatedInput";
 
 import { ROUTES } from "../../app/router/routePaths";

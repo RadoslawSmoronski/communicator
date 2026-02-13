@@ -7,7 +7,7 @@ import { useValidatedForm } from "../../shared/hooks/forms/useValidatedForm";
 import { requestPasswordResetService } from "../../features/auth/services/requestPasswordResetService";
 
 import regexUtils from "../../shared/utils/regexUtils";
-import PopUp from "../../components/PopUp";
+import PopUp from "../../shared/components/PopUp";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUnlock } from "@fortawesome/free-solid-svg-icons";

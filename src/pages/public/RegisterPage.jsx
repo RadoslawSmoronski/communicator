@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import ValidatedInput from "../../shared/components/form/ValidatedInput"
 import regexUtils from "../../shared/utils/regexUtils";
-import PopUp from "../../components/PopUp";
+import PopUp from "../../shared/components/PopUp";
 
 import { ROUTES } from "../../app/router/routePaths";
 import { useValidatedForm } from "../../shared/hooks/forms/useValidatedForm";

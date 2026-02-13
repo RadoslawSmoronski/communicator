@@ -1,7 +1,7 @@
 import React, { useContext, useRef } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 
-import PopUp from "../../components/PopUp";
+import PopUp from "../../shared/components/PopUp";
 import NonValidatedInput from "../../features/auth/components/NonValidatedInput";
 
 import { AuthContext } from "../../app/providers/AuthProvider";
@@ -16,11 +16,11 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const popUpRef = useRef();
     const { setAccessToken } = useContext(AuthContext);
-    const [formData, handleChange , resetForm] = useNonValidatedForm(
-        { email: "", password: ""},
+    const [formData, handleChange, resetForm] = useNonValidatedForm(
+        { email: "", password: "" },
         () => popUpRef.current?.hide()
     );
-    const {save: saveUserData} = useUserData(setAccessToken);
+    const { save: saveUserData } = useUserData(setAccessToken);
 
 
     const submitLogin = async (event) => {
@@ -30,7 +30,7 @@ const LoginPage = () => {
 
         resetForm();
 
-        if(result.errorMessage){
+        if (result.errorMessage) {
             popUpRef.current?.show(result.errorMessage);
             return;
         }
