@@ -12,8 +12,6 @@ const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     const refreshAccessToken = async () => {
-        console.log("Refreshuje token");
-
         try {
             const refreshToken = tokenService.load();
             if (!refreshToken) return;
@@ -28,18 +26,20 @@ const AuthProvider = ({ children }) => {
             // save access token
             setAccessToken(tokens.accessToken);
 
+            return tokens.accessToken;
         } catch (err) {
             console.error("Error refreshing token:", err);
             tokenService.clear();
             userDataService.clear();
-
+            setAccessToken(null);
+            throw err;
         }
     }
 
     const didInitRun = useRef(false);
 
     useEffect(() => {
-        if(didInitRun.current) return;
+        if (didInitRun.current) return;
         didInitRun.current = true;
 
         const initAuth = async () => {
@@ -51,13 +51,6 @@ const AuthProvider = ({ children }) => {
                 return;
             }
 
-            // try refresh token only if there is user is logged
-            // if (tokenService.isExpired(refreshToken)) {
-            //     tokenService.clear();
-            //     userDataService.clear();
-            //     setLoading(false);
-            //     return;
-            // }
             console.log("initAuth");
             await refreshAccessToken();
             setLoading(false);

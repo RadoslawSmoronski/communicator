@@ -67,7 +67,6 @@ const LoginPage = () => {
                 <button className="btn" onClick={submitLogin}>Login</button><br /><br />
                 <div>Don't have an account? Sign up below</div>
                 <Link to={ROUTES.REGISTER}>Create an account</Link>
-                <Link to={ROUTES.MESSAGE}>Message Page</Link>
 
                 <br />
                 <div>Having trouble logging in?</div>
