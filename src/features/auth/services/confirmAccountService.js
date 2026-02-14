@@ -12,10 +12,10 @@ export const confirmAccountService = async (userId, token) => {
     try {
         const response = await axios.post(
             APIs.CONFIRM_ACCOUNT,
-            JSON.stringify({
+            {
                 userId: userId,
                 confirmationToken: token
-            })
+            }
         );
 
         return {
@@ -24,18 +24,23 @@ export const confirmAccountService = async (userId, token) => {
         };
 
     } catch (err) {
+        const status = err.response?.status;
+        let message = "An error occurred while activating the account.";
 
-        if (err.response?.status === 400) {
-            return {
-                success: false,
-                message: "The address contains incorrect data."
-            };
+        if (status === 400) {
+            message = "The activation link is invalid.";
+        } else if (status === 404) {
+            message = "Account not found or already activated.";
+        } else if (status === 410) {
+            message = "This activation link has expired. Please request a new one.";
+        }
+        else if (status >= 500) {
+            message = "Server error. Please try again later.";
         }
 
-        console.error(err);
         return {
             success: false,
-            message: "An error occurred while activating the account."
+            message: message
         };
     }
 };

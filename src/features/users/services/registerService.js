@@ -19,11 +19,11 @@ export const registerService = async (
 
   try {
     const response = await axios.post(APIs.REGISTER,
-      JSON.stringify({
+      {
         email: email,
         username: username,
         password: password
-      })
+      }
     );
 
     return { message: "User successfully created.", resetForm: true };

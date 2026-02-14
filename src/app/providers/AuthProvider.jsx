@@ -59,10 +59,6 @@ const AuthProvider = ({ children }) => {
         initAuth();
     }, []);
 
-
-
-
-
     return (
         <AuthContext.Provider value={{
             accessToken,
