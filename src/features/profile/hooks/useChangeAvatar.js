@@ -39,9 +39,24 @@ const useChangeAvatar = () => {
 
                 setFeedback(`Avatar ${isPost ? "added" : "updated"} successively!`);
             } catch (err) {
-                setError(
-                    err.response?.data?.detail ?? "Avatar operation failed"
-                );
+                const status = err.response?.status;
+                let message = "Avatar operation failed.";
+
+                if (status === 400) {
+                    message = "The provided file is invalid or too large.";
+                } else if (status === 403) {
+                    message = "You don't have permission to change this avatar.";
+                } else if (status === 404) {
+                    message = "User account not found.";
+                } else if (status === 415) {
+                    message = "Unsupported file format. Please use JPG, JPEG, PNG, GIF.";
+                } else if (status === 413) {
+                    message = "The file is too large for the server to process.";
+                } else if (status >= 500) {
+                    message = "Server error. Please try again later.";
+                }
+
+                setError(message);
             }
         }, [mediaApi]
     );
@@ -55,9 +70,18 @@ const useChangeAvatar = () => {
 
                 setFeedback(`Avatar deleted successively!`);
             } catch (err) {
-                setError(
-                    err.response?.data?.detail ?? "Avatar operation failed"
-                );
+                const status = err.response?.status;
+                let message = "Avatar operation failed.";
+
+                if (status === 403) {
+                    message = "You don't have permission to delete this avatar.";
+                } else if (status === 404) {
+                    message = "User account not found.";
+                } else if (status >= 500) {
+                    message = "Server error. Please try again later.";
+                }
+
+                setError(message);
             }
         }, [api]
     )

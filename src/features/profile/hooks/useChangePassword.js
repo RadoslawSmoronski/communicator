@@ -46,7 +46,22 @@ const useChangePassword = () => {
 
                 setFeedback("Password successfully changed.");
             } catch (err) {
-                setError(err.response?.data?.detail ?? "Something went wrong");
+                const status = err.response?.status;
+                let message = "An error occurred while changing username.";
+
+                if (status === 400) {
+                    message = "Password does not meet the criteria.";
+                } else if (status === 401) {
+                    message = "Wrong password. Can't change password.";
+                } else if (status === 403) {
+                    message = "You are not authorized to change password.";
+                } else if (status === 404) {
+                    message = "User account not found.";
+                } else if (status >= 500) {
+                    message = "Server error. Please try again later.";
+                }
+
+                setError(message);
             } finally {
                 setLoading(false);
             }

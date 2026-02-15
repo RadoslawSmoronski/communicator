@@ -16,7 +16,7 @@ export const resetPasswordService = async (
     }
 
     try {
-        const responce = await axios.post(APIs.RESET_PASSWORD,
+        const response = await axios.post(APIs.RESET_PASSWORD,
             {
                 userId: userId,
                 codedToken: token,

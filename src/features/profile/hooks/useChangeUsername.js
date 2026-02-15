@@ -43,7 +43,22 @@ const useChangeUsername = () => {
                 setFeedback("Username changed successfully!");
 
             } catch (err) {
-                setError(err.response?.data?.detail ?? "Something went wrong");
+                const status = err.response?.status;
+                let message = "An error occurred while changing username.";
+
+                if (status === 400) {
+                    message = "Username does not meet the criteria.";
+                } else if (status === 403) {
+                    message = "You are not authorized to change this username.";
+                } else if (status === 404) {
+                    message = "User account not found.";
+                } else if (status === 409) {
+                    message = "This username is already taken. Please try another one.";
+                } else if (status >= 500) {
+                    message = "Server error. Please try again later.";
+                }
+
+                setError(message);
             } finally {
                 setLoading(false);
             }
