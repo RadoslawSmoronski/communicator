@@ -5,7 +5,7 @@ import FriendsProvider from "../../app/providers/FriendsProvider";
 import ChatsProvider from "../../app/providers/ChatsProvider";
 import ChatUIProvider from "../../features/messages/providers/ChatUIProvider";
 
-import { MessagePageRefactor } from "./MessagePageRefactor";
+import { MessagePage } from "./MessagePage";
 
 const MessageWrapper = () => {
     return (
@@ -13,7 +13,7 @@ const MessageWrapper = () => {
             <ChatsProvider>
                 <ChatUIProvider>
                     <FriendsProvider>
-                        <MessagePageRefactor />
+                        <MessagePage />
                     </FriendsProvider>
                 </ChatUIProvider>
             </ChatsProvider>

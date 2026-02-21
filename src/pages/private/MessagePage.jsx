@@ -9,7 +9,7 @@ import { FriendsContext } from '../../app/providers/FriendsProvider';
 import { ChatUIContext } from '../../features/messages/providers/ChatUIProvider';
 import useRemoveFriend from '../../features/friendShips/hooks/useRemoveFriend';
 
-export const MessagePageRefactor = () => {
+export const MessagePage = () => {
     const { activeFriend } = useContext(FriendsContext);
     const { mobileActiveChat } = useContext(ChatUIContext);
     const { removeFriend, error } = useRemoveFriend();
