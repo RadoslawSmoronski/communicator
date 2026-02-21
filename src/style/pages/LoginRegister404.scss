@@ -8,30 +8,19 @@ body,
     margin: 0;
     font-family: "Gill Sans", sans-serif;
     overflow-x: hidden;
-    overflow-y: hidden;
 }
 
 
 #mainloginPage {
     height: 100vh;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
     background-color: vars.$bk-color;
     color: vars.$secondary-color;
 
 
     position: relative;
-}
-
-#mainregisterPage {
-    height: 100%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    flex-direction: column-reverse;
-    background-color: vars.$bk-color;
-    color: vars.$secondary-color;
 }
 
 .welcomeBlock {

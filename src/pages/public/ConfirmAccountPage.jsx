@@ -20,7 +20,7 @@ const ConfirmAccountPage = () => {
         : <FontAwesomeIcon icon={faCircleXmark} />;
 
     return (
-        <div id="mainregisterPage" style={{ justifyContent: 'right' }}>
+        <div id="mainFormPage">
             <div id="logo" className="confirmAccount" />
             <div className="confirmAccountBody">
 

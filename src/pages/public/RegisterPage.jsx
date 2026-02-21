@@ -65,7 +65,7 @@ const RegisterPage = () => {
 
 
   return (
-    <div id="mainregisterPage">
+    <div id="mainloginPage">
       <form className="loginPanel">
         <ValidatedInput
           htmlName="username"

@@ -6,7 +6,7 @@ import { faKitMedical } from "@fortawesome/free-solid-svg-icons";
 
 const LoggingHelpPage = () => {
   return (
-    <div id="mainregisterPage" style={{ justifyContent: 'right' }}>
+    <div id="mainFormPage">
       <div id="logo" className="confirmAccount" />
       <div className="loggingHelpBody">
         <div className="loggingHelp mainText">

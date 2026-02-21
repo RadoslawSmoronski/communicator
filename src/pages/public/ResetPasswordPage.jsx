@@ -77,7 +77,7 @@ const ResetPasswordPage = () => {
     }, []);
 
     return (
-        <div id="mainregisterPage" style={{ justifyContent: 'right' }}>
+        <div id="mainFormPage">
             <div id="logo" className="confirmAccount" />
             <form className="loginPanel small">
                 {
