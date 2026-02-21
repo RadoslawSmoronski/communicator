@@ -9,15 +9,12 @@ import { usersDtoMock } from "../mocks/getPeopleByTextMock";
 export const useSearchPeople = (userId, useMock = false) => {
   const api = useApi();
 
-  const [isPending, startTransition] = useTransition();
+  const [loading, startTransition] = useTransition();
 
   const [people, setPeople] = useState([]);
-  const [status, setStatus] = useState("idle");
-  // idle | typing | found | not-found | error
 
   const clear = () => {
     setPeople([]);
-    setStatus("idle");
   };
 
   const searchPeople = async (searchText) => {
@@ -26,7 +23,6 @@ export const useSearchPeople = (userId, useMock = false) => {
       return;
     }
 
-    setStatus("typing");
 
     // API or Mock
     const fetchPeople = async () => {
@@ -41,43 +37,16 @@ export const useSearchPeople = (userId, useMock = false) => {
       const { data, error } = await fetchPeople();
 
       startTransition(() => {
-        if (error) {
-          if (error.response?.status === 400) {
-            setStatus("idle");
-            setPeople([]);
-            return;
-          }
-
-          if (error.response?.status === 404) {
-            setStatus("not-found");
-            setPeople([]);
-            return;
-          }
-
-          setStatus("error");
-          setPeople([]);
-          return;
-        }
-
-        if (!data?.length) {
-          setStatus("not-found");
-          setPeople([]);
-          return;
-        }
-
         setPeople(mapPeopleList(data));
-        setStatus("found");
       });
     } catch (err) {
-      setStatus("error");
       setPeople([]);
     }
   };
 
   return {
     people,
-    status,
-    isPending, // for spinner (isLoading)
+    loading,
     searchPeople,
     clear,
   };

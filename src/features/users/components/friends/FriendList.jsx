@@ -6,6 +6,7 @@ import { ChatsContext } from '../../../../app/providers/ChatsProvider';
 import { ChatUIContext } from '../../../messages/providers/ChatUIProvider';
 
 import FriendTile from './FriendTile';
+import Spinner from '../../../../shared/components/Spinner';
 
 import { useLastOpenedChat } from '../../hooks/useLastOpenedChat';
 import { mapFriendToLastOpenedChat } from '../../mappers/chatMapper';
@@ -15,7 +16,8 @@ const FriendList = ({ searchQuery }) => {
     const {
         friendList,
         friendListFiltered,
-        selectFriend
+        selectFriend,
+        loading
     } = useContext(FriendsContext);
     const {
         selectedId: selectedChatId,
@@ -44,8 +46,9 @@ const FriendList = ({ searchQuery }) => {
         hideFriendDetails();
     }
 
-    return (
+    if (loading) return <Spinner />
 
+    return (
         <>
             {
                 friendList.length > 0 ? (

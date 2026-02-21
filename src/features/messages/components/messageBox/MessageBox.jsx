@@ -9,6 +9,7 @@ import { useGetMessages } from '../../hooks/useGetMessages';
 import useReadMessage from '../../hooks/useReadMessage';
 import MessageTile from './MessageTile';
 import FriendDetailsPanel from './FriendDetailsPanel';
+import Spinner from '../../../../shared/components/Spinner';
 
 const MessageBox = () => {
     const { user } = useContext(UserContext);
@@ -83,7 +84,6 @@ const MessageBox = () => {
         }
     };
 
-
     return (
         <div
             id='messageBox'
@@ -115,7 +115,7 @@ const MessageBox = () => {
                         <span className='textCenter'>--- Select a chat to start messaging ---</span>
                     )}
 
-                    {loading && <div className="spinner">Loading messages...</div>}
+                    {loading && <Spinner />}
                 </div>
             </div>
 

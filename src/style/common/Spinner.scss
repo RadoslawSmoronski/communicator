@@ -1,0 +1,23 @@
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite !important;
+    color: #3498db;
+    /* Możesz zmienić kolor na dowolny */
+    font-size: 2rem;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

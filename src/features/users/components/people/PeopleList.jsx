@@ -1,17 +1,20 @@
 import React, { useState, useContext, useEffect } from 'react'
+
 import PersonTile from './PersonTile';
+import Spinner from '../../../../shared/components/Spinner';
 import { useSearchPeople } from '../../hooks/useSearchPeople';
 import { UserContext } from '../../../../app/providers/UserProvider';
 
 const PeopleList = ({ searchQuery }) => {
     const { user } = useContext(UserContext);
 
-    const { searchPeople, isPending, people } = useSearchPeople(user.userID);
+    const { searchPeople, loading, people } = useSearchPeople(user.userID);
 
     useEffect(() => {
         searchPeople(searchQuery);
     }, [searchQuery]);
 
+    if (loading) return <Spinner />
 
     return (
         <>
