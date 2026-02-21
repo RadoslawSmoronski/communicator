@@ -25,6 +25,7 @@
     justify-content: flex-start;
     align-items: stretch;
     overflow-y: auto;
+    overflow-x: hidden;
 
     background-color: vars.$bk-msg-page-color;
 
@@ -52,7 +53,7 @@
 .friendTileIcon.editProfileAvatar {
     width: 150px;
     height: 150px;
-    border-radius: 75px;
+    border-radius: 50%;
 }
 
 .editProfileBtnWrapper {
@@ -76,17 +77,17 @@
     filter: brightness(1.5);
 }
 
-.editProfileBtnInfo.success{
+.editProfileBtnInfo.success {
     color: vars.$font-success-color;
 }
 
-.editProfileBtnInfo.fail{
+.editProfileBtnInfo.fail {
     color: vars.$font-fail-color;
 }
 
 .editPanelBtn {
     background-color: vars.$bk-msg-page-color;
-    border: none ;
+    border: none;
     border-radius: 10px;
     font-size: 16px;
     padding: 4px 30px 4px 30px;
@@ -103,7 +104,8 @@
     user-select: none;
     cursor: pointer;
 }
-.editPanelBtn:hover{
+
+.editPanelBtn:hover {
     filter: brightness(1.5);
 }
 
@@ -120,13 +122,34 @@
     color: vars.$btn-details-color;
 }
 
-.editPanelInputWrapper{
+.editPanelInputWrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-.editPanelInputWrapper.rows{
+.editPanelInputWrapper.rows {
     flex-direction: row;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+@media (max-width: vars.$mobile-width) {
+    .editProfilePanel {
+        width: calc(100vw - 10px);
+        height: calc(100vh - 40px);
+
+        box-sizing: border-box;
+    }
+
+    .friendTileIcon.editProfileAvatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .editProfileTitle {
+        margin: 10px 0 5px 0;
+    }
 }

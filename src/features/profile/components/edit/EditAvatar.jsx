@@ -67,7 +67,10 @@ const EditAvatar = () => {
             <div className="editProfileTitle">Avatar</div>
             <div className="editProfileElement">
                 <div>
-                    <Avatar url={(previewAvatarUrl && file) ? previewAvatarUrl : user.avatarUrl} size={150} />
+                    <Avatar
+                        url={(previewAvatarUrl && file) ? previewAvatarUrl : user.avatarUrl}
+                        className="editProfileAvatar"
+                    />
                     {isEditing &&
                         <input type="file" onChange={handleFileChange} />
                     }

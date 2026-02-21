@@ -141,3 +141,12 @@
 .confirmationBoxBtn:hover {
     filter: brightness(1.1);
 }
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+@media (max-width: vars.$mobile-width) {
+    .validationBox {
+        max-width: 220px;
+    }
+}

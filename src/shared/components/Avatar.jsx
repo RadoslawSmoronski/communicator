@@ -1,11 +1,13 @@
 import React from 'react'
 
-const Avatar = ({ url, size, children }) => {
+const Avatar = ({ url, size, children, className = "" }) => {
+
+    const combinedClasses = `friendTileIcon ${className}`.trim();
 
     return (
         url != null ?
             (
-                <div className="friendTileIcon"
+                <div className={combinedClasses}
                     style={{
                         backgroundImage: `url(${url})`,
                         width: `${size}px`,
@@ -17,7 +19,7 @@ const Avatar = ({ url, size, children }) => {
                 </div>
             )
             :
-            (<div className="friendTileIcon"
+            (<div className={combinedClasses}
                 style={{
                     width: `${size}px`,
                     height: `${size}px`,

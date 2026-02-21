@@ -141,7 +141,7 @@ body,
 /* =========================
    MOBILE (phones)
    ========================= */
-@media (max-width: 768px) {
+@media (max-width: vars.$mobile-width) {
     #logo {
         height: 200px;
         width: 375px;
