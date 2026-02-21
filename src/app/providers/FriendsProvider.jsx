@@ -60,22 +60,11 @@ const FriendsProvider = ({ children }) => {
 
     // clears notifitions
     const clearNotification = (conversationId) => {
-        setFriendList(prev => {
-            const updatedList = prev.map(f =>
-                f.conversationId === conversationId
-                    ? { ...f, newMessNotify: false }
-                    : f
-            );
-
-            // back btn notify
-            const hasAnyNotifications = updatedList.some(f => f.newMessNotify === true);
-
-            if (!hasAnyNotifications) {
-                setNewNotificationBackBtn(false);
-            }
-
-            return updatedList;
-        });
+        setFriendList(prev => prev.map(f =>
+            f.conversationId === conversationId
+                ? { ...f, newMessNotify: false }
+                : f
+        ));
     };
 
     // it updates last message on friend tile
@@ -137,6 +126,8 @@ const FriendsProvider = ({ children }) => {
                 const friendFromList = friendList.find(f => f.friendId === activeRecipientId);
 
                 if (friendFromList) {
+                    // clear notification from active chat
+                    clearNotification(friendFromList.conversationId);
                     // update online status
                     const restoredFriend = mapCookieToActiveFriend(lastOpenedData);
                     restoredFriend.isOnline = friendFromList.isFriendOnline;
@@ -146,6 +137,15 @@ const FriendsProvider = ({ children }) => {
             }
         }
     }, [activeRecipientId]);
+
+
+    // auto update notification for back btn
+    useEffect(() => {
+        const hasAnyNotifications = friendList.some(f => f.newMessNotify === true);
+
+        setNewNotificationBackBtn(hasAnyNotifications);
+    }, [friendList, setNewNotificationBackBtn]);
+
 
     return (
         <FriendsContext.Provider value={{
