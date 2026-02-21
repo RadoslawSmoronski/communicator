@@ -16,7 +16,7 @@ export const useGetChats = (useMock = false) => {
 
     const [friendList, setFriendList] = useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const getChats = async () => {

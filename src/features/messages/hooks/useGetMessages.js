@@ -31,6 +31,7 @@ export const useGetMessages = () => {
                 const lastMessageId = currentChatMessages[chatLength - 1].messageId;
                 response = await api.get(APIs.GET_MESSAGES(conversationId, lastMessageId));
             } else {
+                setLoading(false);
                 return;
             }
 

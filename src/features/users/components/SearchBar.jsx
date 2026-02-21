@@ -3,14 +3,8 @@ import React, { useState, useContext } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
-import listUtils from '../../../shared/utils/listUtils';
-import { FriendsContext } from '../../../app/providers/FriendsProvider';
-
 
 const SearchBar = ({ displayYourChats, setDisplayStatus, searchQuery, setSearchQuery }) => {
-    const {
-        friendList
-    } = useContext(FriendsContext);
 
     // Search bar block
     // Actions when you type on search bar 
