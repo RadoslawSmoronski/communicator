@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from 'react-router-dom';
+import Spinner from "../../shared/components/Spinner";
 
 import { ROUTES } from "../../app/router/routePaths";
 import useRawQueryParam from "../../shared/hooks/useRawQueryParam";
@@ -17,7 +18,7 @@ const ConfirmAccountPage = () => {
     const icon = success
         ? <FontAwesomeIcon icon={faCircleCheck} />
         : <FontAwesomeIcon icon={faCircleXmark} />;
-        
+
     return (
         <div id="mainregisterPage" style={{ justifyContent: 'right' }}>
             <div id="logo" className="confirmAccount" />
@@ -32,7 +33,7 @@ const ConfirmAccountPage = () => {
                 }
                 <div className={success != null ? (success ? "successText" : "errorText") : ""}>
                     {loading
-                        ? "Wait..."
+                        ? <Spinner size="3em" containerPadding="2px" />
                         : <>{icon} {message}</>
                     }
                 </div>

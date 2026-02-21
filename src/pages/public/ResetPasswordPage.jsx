@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import PopUp from "../../shared/components/PopUp";
 import ValidatedInput from "../../shared/components/form/ValidatedInput";
+import Spinner from "../../shared/components/Spinner";
 
 import { ROUTES } from "../../app/router/routePaths";
 import regexUtils from "../../shared/utils/regexUtils";
@@ -22,6 +23,7 @@ const ResetPasswordPage = () => {
     const token = useRawQueryParam("token");
 
     const [success, setSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const initForm = { password: "", password2: "" };
     const validator = {
@@ -42,21 +44,30 @@ const ResetPasswordPage = () => {
 
     const resetPassword = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
-        const result = await resetPasswordService(
-            fields, valid, userId, token
-        );
+        try {
+            const result = await resetPasswordService(
+                fields, valid, userId, token
+            );
 
-        if (result?.errorMessage) {
-            popUpRef.current?.show(result.errorMessage);
+            if (result?.errorMessage) {
+                popUpRef.current?.show(result.errorMessage);
 
-        } else if (result?.success) {
-            setSuccess(true);
+            } else if (result?.success) {
+                setSuccess(true);
+            }
+
+            if (result?.resetForm) {
+                resetForm();
+            }
+        } catch (error) {
+            popUpRef.current?.show("Something went wrong!");
+        } finally {
+            setLoading(false);
         }
 
-        if (result?.resetForm) {
-            resetForm();
-        }
+
     }
 
     useEffect(() => {
@@ -112,7 +123,18 @@ const ResetPasswordPage = () => {
                                         </>}
                                 />
 
-                                <button className="btn" onClick={resetPassword}>Reset Password</button>
+                                <button
+                                    className="btn with-spinner"
+                                    style={{ minWidth: "200px" }}
+                                    onClick={resetPassword}
+                                    disabled={loading}
+                                >
+                                    {loading ?
+                                        <Spinner size="18px" containerPadding="3px" />
+                                        :
+                                        <>Reset Password</>
+                                    }
+                                </button>
 
                             </div>
                             <PopUp ref={popUpRef} />

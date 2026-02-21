@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Link, useLocation } from 'react-router-dom';
 
 import { ROUTES } from "../../app/router/routePaths"
@@ -8,6 +8,7 @@ import { requestPasswordResetService } from "../../features/auth/services/reques
 
 import regexUtils from "../../shared/utils/regexUtils";
 import PopUp from "../../shared/components/PopUp";
+import Spinner from "../../shared/components/Spinner";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUnlock } from "@fortawesome/free-solid-svg-icons";
@@ -28,17 +29,26 @@ const ForgotPasswordPage = () => {
         initForm, validator, () => popUpRef.current?.hide()
     );
 
+    const [loading, setLoading] = useState(false);
+
     const submitForm = async (event) => {
         event.preventDefault();
+        setLoading(true);
 
-        const result = await requestPasswordResetService(
-            fields.email, valid.email
-        );
-        if (result) {
-            popUpRef.current?.show(result.message);
+        try {
+            const result = await requestPasswordResetService(
+                fields.email, valid.email
+            );
+            if (result) {
+                popUpRef.current?.show(result.message);
+            }
+
+            resetForm();
+        } catch (error) {
+            popUpRef.current?.show("Something went wrong!");
+        } finally {
+            setLoading(false);
         }
-
-        resetForm();
     }
 
     return (
@@ -68,7 +78,17 @@ const ForgotPasswordPage = () => {
                         }
                     />
 
-                    <button className="btn" onClick={submitForm}>Send</button>
+                    <button
+                        className="btn with-spinner"
+                        onClick={submitForm}
+                        disabled={loading}
+                    >
+                        {loading ?
+                            <Spinner size="18px" containerPadding="3px" />
+                            :
+                            <>Send</>
+                        }
+                    </button>
 
                 </div>
                 <PopUp ref={popUpRef} />
