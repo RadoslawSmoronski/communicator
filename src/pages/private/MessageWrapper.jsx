@@ -11,11 +11,11 @@ const MessageWrapper = () => {
     return (
         <SignalRProvider>
             <ChatsProvider>
-                <FriendsProvider>
-                    <ChatUIProvider>
+                <ChatUIProvider>
+                    <FriendsProvider>
                         <MessagePageRefactor />
-                    </ChatUIProvider>
-                </FriendsProvider>
+                    </FriendsProvider>
+                </ChatUIProvider>
             </ChatsProvider>
         </SignalRProvider>
     );

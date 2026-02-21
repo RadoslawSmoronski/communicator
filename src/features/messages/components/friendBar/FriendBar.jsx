@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhone, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faPhone, faCircleInfo, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 import { FriendsContext } from '../../../../app/providers/FriendsProvider';
 import { ChatUIContext } from '../../providers/ChatUIProvider';
@@ -8,12 +8,17 @@ import Avatar from '../../../../shared/components/Avatar';
 
 const FriendBar = () => {
     const { activeFriend } = useContext(FriendsContext);
-    const { toggleFriendDetails } = useContext(ChatUIContext);
+    const { toggleFriendDetails, showMobileFriendList } = useContext(ChatUIContext);
 
     return (
         <div id='friendBar'>
             {activeFriend &&
                 <>
+                    <div className='backArrowCointainer'>
+                        <div className='friendBarIcon backArrow' onClick={showMobileFriendList}>
+                            <FontAwesomeIcon icon={faArrowLeft} />
+                        </div>
+                    </div>
                     <div className='friendBarIconBox'>
                         <Avatar url={activeFriend.avatarUrl} >
                             <div className={activeFriend.isOnline ? "onlineBadge online" : "onlineBadge offline"} />

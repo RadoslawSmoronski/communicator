@@ -5,7 +5,7 @@ export const ChatUIContext = createContext();
 const ChatUIProvider = ({ children }) => {
     const [displayConfirmationBox, setDisplayConfimationBox] = useState(false);
     const [displayFriendDetails, setDisplayFriendDetails] = useState(false);
-    const [mobileActiveChat, setMobileActiveChat] = useState(true);
+    const [mobileActiveChat, setMobileActiveChat] = useState(false);
 
     const toggleFriendDetails = () => {
         setDisplayFriendDetails(!displayFriendDetails);

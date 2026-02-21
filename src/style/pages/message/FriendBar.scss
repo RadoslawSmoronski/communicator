@@ -80,6 +80,16 @@
     }
 }
 
+// back btn
+.backArrow {
+    display: none;
+}
+
+.backArrowCointainer {
+    display: flex;
+    align-items: center;
+}
+
 /* =========================
    MOBILE (phones)
    ========================= */
@@ -99,4 +109,12 @@
         width: 90px;
         margin-right: 30px;
     }
+
+    .backArrow {
+        display: block;
+        font-size: 22px;
+        text-align: center;
+        margin: 0 5px 0 10px;
+    }
+
 }

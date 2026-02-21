@@ -154,20 +154,4 @@
             display: none;
         }
     }
-
-    .mobile-back-btn {
-        display: block;
-        margin-right: 15px;
-        background: none;
-        border: none;
-        color: vars.$secondary-color;
-        font-size: 16px;
-        cursor: pointer;
-    }
-}
-
-@media (min-width: vars.$desktop-width) {
-    .mobile-back-btn {
-        display: none;
-    }
 }

@@ -7,12 +7,16 @@ import { useLastOpenedChat } from "../../features/users/hooks/useLastOpenedChat"
 import { mapFriendToActiveFriend, mapCookieToActiveFriend } from "../../features/users/mappers/activeFriendMapper";
 
 import { ChatsContext } from "./ChatsProvider";
+import { ChatUIContext } from "../../features/messages/providers/ChatUIProvider";
 import { UserContext } from "./UserProvider";
 
 export const FriendsContext = createContext();
 
 const FriendsProvider = ({ children }) => {
-    const { activeRecipientId, selectedId: selectedChatId } = useContext(ChatsContext);
+    const {
+        activeRecipientId, selectedId: selectedChatId
+    } = useContext(ChatsContext);
+    const { showMobileChat } = useContext(ChatUIContext);
     const { user } = useContext(UserContext);
 
     const [activeFriend, setActiveFriend] = useState(null);
@@ -121,6 +125,7 @@ const FriendsProvider = ({ children }) => {
                     const restoredFriend = mapCookieToActiveFriend(lastOpenedData);
                     restoredFriend.isOnline = friendFromList.isFriendOnline;
                     setActiveFriend(restoredFriend);
+                    showMobileChat(); // show chat if mobile
                 }
             }
         }

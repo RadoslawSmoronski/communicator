@@ -24,11 +24,13 @@ const FriendList = ({ searchQuery }) => {
         selectChat,
         activeRecipientId
     } = useContext(ChatsContext);
-    const { hideFriendDetails } = useContext(ChatUIContext);
+    const { hideFriendDetails, showMobileChat } = useContext(ChatUIContext);
 
     const { updateLastOpenedChat } = useLastOpenedChat();
 
     const handleClickingOnChat = (friend) => {
+        showMobileChat(); // mobile
+
         if (friend.friendId === activeRecipientId) return;
 
         // save last opened chat
