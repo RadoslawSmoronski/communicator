@@ -36,13 +36,13 @@ const SendMessageBox = () => {
         }
     };
 
-    const isChatSelected = !!selectedId;
+    const isChatSelected = selectedId != "";
 
     return (
         <div id='sendMessageBox'>
             <input
                 className='textInput2 sendMessageInput'
-                placeholder={isChatSelected ? 'Select chat...' : 'Type a message...'}
+                placeholder={isChatSelected ? 'Type a message...' : 'Select chat...'}
                 value={messageInput}
                 onChange={handleChangeTxt}
                 onKeyDown={handleKeyDown}
@@ -53,7 +53,7 @@ const SendMessageBox = () => {
             />
             <FontAwesomeIcon
                 icon={faPaperPlane}
-                className={`friendBarIcon ${(!isChatSelected || !messageInput) ? 'disabledSendButton' : ''}`}
+                className={`friendBarIcon sendIcon ${(!isChatSelected || !messageInput) ? 'disabledSendButton' : ''}`}
                 onClick={isChatSelected ? sendMessageToFriend : null}
             />
         </div>

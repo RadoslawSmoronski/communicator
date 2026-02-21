@@ -2,7 +2,7 @@
 
 //----- FRIEND BAR --------
 
-.friendBarIconBox{
+.friendBarIconBox {
     width: 75px;
     height: 75px;
     display: flex;
@@ -10,7 +10,7 @@
     justify-content: center;
 }
 
-.friendBarUserName{
+.friendBarUserName {
     font-size: 22px;
     font-weight: 600;
     display: flex;
@@ -18,14 +18,14 @@
     margin-left: 30px;
 }
 
-.friendBarUserName:hover{
+.friendBarUserName:hover {
     color: vars.$primary-color ;
 }
 
-.friendBarRightBox{
+.friendBarRightBox {
     height: 75px;
     width: 150px;
-    margin-left: auto; 
+    margin-left: auto;
     margin-right: 30px;
     display: flex;
     justify-content: space-between;
@@ -33,16 +33,18 @@
     align-items: center;
 }
 
-.friendBarIcon{
+.friendBarIcon {
     height: 30px;
     width: 30px;
     color: vars.$primary-color;
     cursor: pointer;
 }
-.friendBarIcon:hover{
+
+.friendBarIcon:hover {
     color: vars.$icon-hover-color ;
 }
-.friendBarIcon:active{
+
+.friendBarIcon:active {
     color: vars.$primary-color;
     filter: brightness(0.7);
 }
@@ -67,6 +69,34 @@
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+
+@media (max-width: vars.$mobile-width) {
+    .friendBarUserName {
+        font-size: 18px;
+        margin-left: 5px;
+    }
+
+    .friendBarIcon {
+        height: 22px;
+        width: 22px;
+    }
+
+    .friendBarRightBox {
+        width: 90px;
+        margin-right: 30px;
+    }
+}

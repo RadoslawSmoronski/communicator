@@ -6,14 +6,16 @@ import ChatContent from '../../features/messages/components/ChatContent';
 import ConfirmationBox from '../../shared/components/form/ConfirmationBox';
 
 import { FriendsContext } from '../../app/providers/FriendsProvider';
+import { ChatUIContext } from '../../features/messages/providers/ChatUIProvider';
 import useRemoveFriend from '../../features/friendShips/hooks/useRemoveFriend';
 
 export const MessagePageRefactor = () => {
     const { activeFriend } = useContext(FriendsContext);
+    const { mobileActiveChat } = useContext(ChatUIContext);
     const { removeFriend, error } = useRemoveFriend();
 
     return (
-        <div id='mainMessagePage'>
+        <div id='mainMessagePage' className={mobileActiveChat ? 'mobile-chat-open' : ''}>
 
             <Layout />
             <PeopleAndFriends />

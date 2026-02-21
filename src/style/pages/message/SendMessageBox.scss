@@ -2,7 +2,7 @@
 
 // ------- SEND MESSAGE BOX
 
-.sendMessageInput{
+.sendMessageInput {
     width: 70%;
     text-align: left;
     margin-left: 10px;
@@ -10,11 +10,29 @@
     padding-left: 30px;
 }
 
-.disabledSendButton{
-    cursor:not-allowed;
+.disabledSendButton {
+    cursor: not-allowed;
 }
 
-.disabledSendButton:hover, .disabledSendButton:active{
+.disabledSendButton:hover,
+.disabledSendButton:active {
     color: vars.$primary-color;
     filter: brightness(1);
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+
+@media (max-width: vars.$mobile-width) {
+    .sendMessageInput {
+        margin-left: 0px;
+        margin-right: 10px;
+        padding-left: 30px;
+    }
+
+    .friendBarIcon.sendIcon {
+        height: 30px;
+        width: 30px;
+    }
 }

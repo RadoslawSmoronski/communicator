@@ -33,7 +33,9 @@ const MenuBar = ({ togglePanel }) => {
 
                 <button className='btn2 sing-out' onClick={signOut}>Sign out</button>
                 <div className='profileInfoWrapper' onClick={() => togglePanel('userInfoPanel')}>
-                    {user.username}
+                    <div className='profileUsername'>
+                        {user.username}
+                    </div>
                     <Avatar url={user.avatarUrl} />
                 </div>
             </div>

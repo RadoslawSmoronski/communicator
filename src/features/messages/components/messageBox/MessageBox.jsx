@@ -121,7 +121,7 @@ const MessageBox = () => {
 
             {displayFriendDetails && activeFriend &&
                 <FriendDetailsPanel
-                    friendName={activeFriend.friendUsername}
+                    friendName={activeFriend.username}
                 />
             }
         </div>
