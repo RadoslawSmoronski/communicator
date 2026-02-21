@@ -2,7 +2,7 @@
 
 // -------- INVITATIONS BOX
 
-#invitationsList{
+#invitationsList {
     position: absolute;
     top: 75px;
     right: 10%;
@@ -22,30 +22,30 @@
     z-index: 20;
 }
 
-.friendTile.invitationTile{
+.friendTile.invitationTile {
     width: 95%;
 }
 
-.friendTileWrapper.invitationWrapper{
+.friendTileWrapper.invitationWrapper {
     width: 80%;
 }
 
-.friendTileUserName.invitationTileText{
+.friendTileUserName.invitationTileText {
     font-size: 17px;
 }
 
-.btnPerson.btnInvitation{
+.btnPerson.btnInvitation {
     height: 15px;
     width: 30%;
 
 }
 
-.infoText{
+.infoText {
     text-align: center;
     padding-top: 20px;
 }
 
-.bellWrapper{
+.bellWrapper {
     position: relative;
     display: inline-block;
 }
@@ -65,4 +65,19 @@
 
     user-select: none;
     -webkit-user-select: none;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+
+@media (max-width: vars.$mobile-width) {
+    #invitationsList {
+        right: 0;
+        max-width: 98vw;
+        height: 50%;
+        border: solid 1px vars.$secondary-color;
+
+        border-radius: 1%;
+    }
 }
