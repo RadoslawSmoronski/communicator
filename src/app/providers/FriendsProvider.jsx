@@ -16,7 +16,7 @@ const FriendsProvider = ({ children }) => {
     const {
         activeRecipientId, selectedId: selectedChatId
     } = useContext(ChatsContext);
-    const { showMobileChat } = useContext(ChatUIContext);
+    const { showMobileChat, setNewNotificationBackBtn } = useContext(ChatUIContext);
     const { user } = useContext(UserContext);
 
     const [activeFriend, setActiveFriend] = useState(null);
@@ -60,18 +60,31 @@ const FriendsProvider = ({ children }) => {
 
     // clears notifitions
     const clearNotification = (conversationId) => {
-        setFriendList(prev => prev.map(f =>
-            f.conversationId === conversationId
-                ? { ...f, newMessNotify: false }
-                : f
-        ));
+        setFriendList(prev => {
+            const updatedList = prev.map(f =>
+                f.conversationId === conversationId
+                    ? { ...f, newMessNotify: false }
+                    : f
+            );
+
+            // back btn notify
+            const hasAnyNotifications = updatedList.some(f => f.newMessNotify === true);
+
+            if (!hasAnyNotifications) {
+                setNewNotificationBackBtn(false);
+            }
+
+            return updatedList;
+        });
     };
 
     // it updates last message on friend tile
     const updateFriendFromMessage = useCallback((messageDto) => {
         const isInTheCurrentChat = messageDto.conversationId === selectedChatId;
         const isFromFriend = messageDto.senderId !== user.userID;
+        const isNotification = !isInTheCurrentChat && isFromFriend
 
+        // update friend tile
         setFriendList(prev => {
             const updated = prev.map(f => {
                 if (f.conversationId === messageDto.conversationId) {
@@ -80,7 +93,7 @@ const FriendsProvider = ({ children }) => {
                         isFriendSenderMessage: isFromFriend,
                         lastMessageContent: messageDto.content,
                         lastMessageTimestamp: messageDto.timestamp,
-                        newMessNotify: !isInTheCurrentChat && isFromFriend,
+                        newMessNotify: isNotification,
                     };
                 }
                 return f;
@@ -88,6 +101,9 @@ const FriendsProvider = ({ children }) => {
 
             return listUtils.returnSortedByLastMessDateFriendsList(updated);
         });
+        // update mobile back btn
+        setNewNotificationBackBtn(isNotification);
+
     }, [selectedChatId, user?.userID]);
 
     // updates friend online status

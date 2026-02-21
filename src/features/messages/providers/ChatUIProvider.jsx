@@ -6,6 +6,7 @@ const ChatUIProvider = ({ children }) => {
     const [displayConfirmationBox, setDisplayConfimationBox] = useState(false);
     const [displayFriendDetails, setDisplayFriendDetails] = useState(false);
     const [mobileActiveChat, setMobileActiveChat] = useState(false);
+    const [newNotificationBackBtn, setNewNotificationBackBtn] = useState(false);
 
     const toggleFriendDetails = () => {
         setDisplayFriendDetails(!displayFriendDetails);
@@ -36,13 +37,15 @@ const ChatUIProvider = ({ children }) => {
             displayConfirmationBox,
             displayFriendDetails,
             mobileActiveChat,
+            newNotificationBackBtn,
 
             showConfirmationBox,
             hideConfirmationBox,
             toggleFriendDetails,
             hideFriendDetails,
             showMobileChat,
-            showMobileFriendList
+            showMobileFriendList,
+            setNewNotificationBackBtn
         }}>
             {children}
         </ChatUIContext.Provider>

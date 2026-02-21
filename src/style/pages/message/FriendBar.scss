@@ -53,7 +53,7 @@
     position: absolute;
     top: -10px;
     left: -60px;
-    background-color: blue;
+    background-color: vars.$primary-color;
     color: white;
     font-size: 12px;
     width: 18px;
@@ -110,11 +110,24 @@
         margin-right: 30px;
     }
 
-    .backArrow {
+    .friendBarIcon.backArrow {
         display: block;
         font-size: 22px;
         text-align: center;
         margin: 0 5px 0 10px;
+
+        position: relative;
     }
 
+    .newMessageNotificationBackBtn {
+        position: absolute;
+        top: 20px;
+        left: 15px;
+        background-color: vars.$primary-color;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+
+        animation: blink 2s forwards;
+    }
 }

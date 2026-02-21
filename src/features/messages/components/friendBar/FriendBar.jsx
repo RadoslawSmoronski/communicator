@@ -8,7 +8,11 @@ import Avatar from '../../../../shared/components/Avatar';
 
 const FriendBar = () => {
     const { activeFriend } = useContext(FriendsContext);
-    const { toggleFriendDetails, showMobileFriendList } = useContext(ChatUIContext);
+    const {
+        toggleFriendDetails,
+        showMobileFriendList,
+        newNotificationBackBtn,
+    } = useContext(ChatUIContext);
 
     return (
         <div id='friendBar'>
@@ -17,6 +21,9 @@ const FriendBar = () => {
                     <div className='backArrowCointainer'>
                         <div className='friendBarIcon backArrow' onClick={showMobileFriendList}>
                             <FontAwesomeIcon icon={faArrowLeft} />
+                            {newNotificationBackBtn &&
+                                <div className="newMessageNotificationBackBtn" />
+                            }
                         </div>
                     </div>
                     <div className='friendBarIconBox'>
