@@ -2,16 +2,16 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
-const Spinner = ({ size = '2x', color = '#3498db' }) => {
+const Spinner = ({ size = '2em', containerPadding = '20px', color = '#3498db' }) => {
     return (
-        <div className="spinner-container">
+        <div className="spinner-container"
+            style={{ padding: containerPadding }}>
             <FontAwesomeIcon
                 icon={faCircleNotch}
                 className="spinner"
-                style={{ color: color }}
-                size={size}
+                style={{ color: color, fontSize: size }}
             />
-        </div>
+        </div >
     );
 };
 

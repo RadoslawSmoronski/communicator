@@ -1,8 +1,9 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 
 import PopUp from "../../shared/components/PopUp";
 import NonValidatedInput from "../../features/auth/components/NonValidatedInput";
+import Spinner from "../../shared/components/Spinner";
 
 import { AuthContext } from "../../app/providers/AuthProvider";
 import { ROUTES } from "../../app/router/routePaths";
@@ -21,25 +22,32 @@ const LoginPage = () => {
         () => popUpRef.current?.hide()
     );
     const { save: saveUserData } = useUserData(setAccessToken);
+    const [loading, setLoading] = useState(false);
 
+    const submitLogin = async (e) => {
+        e.preventDefault();
+        if (loading) return;
+        setLoading(true);
 
-    const submitLogin = async (event) => {
-        event.preventDefault();
+        try {
+            const result = await submitLoginService(formData)
 
-        const result = await submitLoginService(formData)
+            resetForm();
 
-        resetForm();
+            if (!result.errorMessage) {
+                // save user data
+                saveUserData(result.data);
 
-        if (result.errorMessage) {
-            popUpRef.current?.show(result.errorMessage);
-            return;
+                // redirect
+                navigate("/message");
+            } else {
+                popUpRef.current?.show(result.errorMessage);
+            }
+        } catch (error) {
+            popUpRef.current?.show("Something went wrong!");
+        } finally {
+            setLoading(false);
         }
-
-        // save user data
-        saveUserData(result.data);
-
-        // redirect
-        navigate("/message");
     };
 
 
@@ -64,7 +72,18 @@ const LoginPage = () => {
 
                 <PopUp ref={popUpRef} />
 
-                <button className="btn" onClick={submitLogin}>Login</button><br /><br />
+                <button
+                    className="btn with-spinner"
+                    onClick={submitLogin}
+                    disabled={loading}
+                >
+                    {loading ?
+                        <Spinner size="18px" containerPadding="3px" />
+                        :
+                        <>Login</>
+                    }
+                </button>
+                <br /><br />
                 <div>Don't have an account? Sign up below</div>
                 <Link to={ROUTES.REGISTER}>Create an account</Link>
 

@@ -6,9 +6,8 @@
 }
 
 .spinner {
-    animation: spin 1s linear infinite !important;
+    animation: spin 1s linear infinite;
     color: #3498db;
-    /* Możesz zmienić kolor na dowolny */
     font-size: 2rem;
 }
 
@@ -20,4 +19,16 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+.btn.with-spinner {
+    min-width: 130px;
+    height: 35px;
+}
+
+.btn.with-spinner:disabled {
+    filter: 0.9;
+    cursor: not-allowed;
+    opacity: 0.8;
+    transform: none !important;
 }

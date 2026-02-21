@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Link } from 'react-router-dom';
 
 import ValidatedInput from "../../shared/components/form/ValidatedInput"
 import regexUtils from "../../shared/utils/regexUtils";
 import PopUp from "../../shared/components/PopUp";
+import Spinner from "../../shared/components/Spinner";
 
 import { ROUTES } from "../../app/router/routePaths";
 import { useValidatedForm } from "../../shared/hooks/forms/useValidatedForm";
@@ -38,22 +39,28 @@ const RegisterPage = () => {
     initForm, validator, () => popUpRef.current?.hide(), true
   );
 
+  const [loading, setLoading] = useState(false);
+
   const submitRegister = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    setLoading(true);
 
-    const result = await registerService(fields, valid);
+    try {
+      const result = await registerService(fields, valid);
 
-    if (result?.resetPasswordFields) {
-      setFields(prev => ({
-        ...prev,
-        password: "",
-        password2: ""
-      }))
-    } else if (result?.resetForm) {
-      resetForm();
+      if (result?.resetPasswordFields) {
+        setFields(prev => ({ ...prev, password: "", password2: "" }));
+      } else if (result?.resetForm) {
+        resetForm();
+      }
+
+      popUpRef.current?.show(result.message);
+    } catch (error) {
+      popUpRef.current?.show("Something went wrong!");
+    } finally {
+      setLoading(false);
     }
-
-    popUpRef.current?.show(result.message);
   };
 
 
@@ -132,7 +139,17 @@ const RegisterPage = () => {
         />
 
         <PopUp ref={popUpRef} />
-        <button className="btn" onClick={submitRegister}>Register</button><br /><br />
+        <button
+          className="btn with-spinner"
+          onClick={submitRegister}
+          disabled={loading}
+        >
+          {loading ?
+            <Spinner size="18px" containerPadding="3px" />
+            :
+            <>Register</>
+          }
+        </button><br /><br />
         <div>Already have an account? Log in below</div>
         <Link to={ROUTES.LOGIN}>Log in</Link>
       </form>
