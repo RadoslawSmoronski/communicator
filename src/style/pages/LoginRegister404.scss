@@ -1,33 +1,40 @@
 @use './../variables' as vars;
 
-html, body, #root {
+html,
+body,
+#root {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     margin: 0;
     font-family: "Gill Sans", sans-serif;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 
-#mainloginPage{
-    height: 100%;
+#mainloginPage {
+    height: 100vh;
     display: flex;
-    justify-content: right;
+    justify-content: flex-end;
     align-items: center;
     background-color: vars.$bk-color;
     color: vars.$secondary-color;
+
+
+    position: relative;
 }
 
-#mainregisterPage{
+#mainregisterPage {
     height: 100%;
     display: flex;
-    justify-content: right;
+    justify-content: flex-end;
     align-items: center;
     flex-direction: column-reverse;
     background-color: vars.$bk-color;
     color: vars.$secondary-color;
 }
 
-.welcomeBlock{
+.welcomeBlock {
     margin-left: 5px;
     width: 70%;
     height: 100%;
@@ -38,55 +45,59 @@ html, body, #root {
     align-items: center;
 }
 
-#logo{
+#logo {
     background-image: url("../../../gfx/logo.png");
     height: 300px;
     width: 750px;
-    background-position: center; 
+    background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-.bottomText{
+.bottomText {
     position: absolute;
     top: 100%;
     transform: translate(0, -300%);
     margin: 30px;
 }
 
-.logoAndText{
+.logoAndText {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     width: 60%;
     height: 60%;
 }
-.highlightColor{
+
+.highlightColor {
     color: vars.$primary-color;
 }
 
-.highlightText{
+.highlightText {
     font-size: 25px;
     color: vars.$primary-color;
 }
 
 @media (min-width: 200px) {
-    #mainloginPage{
+    #mainloginPage {
         flex-direction: column-reverse;
     }
+
     .welcomeBlock {
         display: none;
     }
+
     #welcomeBlockSmall {
         display: block;
     }
 }
 
 @media (min-width: 1300px) {
-    #mainloginPage{
+    #mainloginPage {
         flex-direction: row;
     }
-    .welcomeBlock{
+
+    .welcomeBlock {
         margin-left: 5px;
         width: 70%;
         height: 100%;
@@ -96,6 +107,7 @@ html, body, #root {
         justify-content: center;
         align-items: center;
     }
+
     #welcomeBlockSmall {
         display: none;
     }
@@ -103,10 +115,12 @@ html, body, #root {
 
 
 .loginPanel {
-    width: 500px;
-    height: 450px;
+    max-width: 500px;
+    max-height: 450px;
+    padding: 60px;
+
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     background-color: vars.$panel-color;
@@ -114,23 +128,38 @@ html, body, #root {
     border-radius: 15px;
 }
 
-.panel404{
+.panel404 {
     width: 800px;
     height: 500px;
-    justify-content:center;
+    justify-content: center;
     background-color: transparent;
 }
 
-.errorFont{
+.errorFont {
     font-size: 150px;
     margin: 10px;
 }
 
-.btn2.btn404{
+.btn2.btn404 {
     margin-top: 30px;
-    text-decoration: none;  
+    text-decoration: none;
 }
 
-.btn2.goBack{
-    text-decoration: none;  
+.btn2.goBack {
+    text-decoration: none;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+@media (max-width: 768px) {
+    #logo {
+        height: 200px;
+        width: 375px;
+    }
+
+    .loginPanel {
+        background-color: transparent;
+        padding: 30px;
+    }
 }
