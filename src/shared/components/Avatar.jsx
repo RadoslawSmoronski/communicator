@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Avatar = ({ url, size = 50, children }) => {
+const Avatar = ({ url, size, children }) => {
 
     return (
         url != null ?

@@ -4,7 +4,13 @@ import Avatar from '../../../shared/components/Avatar';
 import { UserContext } from '../../../app/providers/UserProvider';
 
 const UserInfoPanel = ({ display, togglePanel }) => {
-    const { user } = useContext(UserContext);
+    const { user, removeUser } = useContext(UserContext);
+
+    // Sings out user - reset states, session Storage
+    const signOut = () => {
+        removeUser();
+    };
+
 
     return (
         <>
@@ -34,6 +40,9 @@ const UserInfoPanel = ({ display, togglePanel }) => {
 
                     <button className='btn2' onClick={() => togglePanel('editProfilePanel')}>
                         Edit the profile
+                    </button>
+                    <button className='btn2' onClick={() => signOut()}>
+                        Sign out
                     </button>
                 </div>
             }

@@ -4,7 +4,7 @@
 
 .friendTile {
     display: flex;
-    width: 300px;
+    width: 95%;
     height: 80px;
     background-color: rgba(0, 0, 0, 0);
     border-radius: 5px;
@@ -104,10 +104,20 @@
     border-radius: 50%;
 }
 
-.onlineBadge.online{
+.onlineBadge.online {
     background-color: green;
 }
 
-.onlineBadge.offline{
+.onlineBadge.offline {
     background-color: gray;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+
+@media (max-width: vars.$mobile-width) {
+    .friendTileIcon {
+        margin: 0 8px;
+    }
 }

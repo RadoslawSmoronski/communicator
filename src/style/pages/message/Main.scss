@@ -7,7 +7,7 @@
 @use './SearchBox.scss';
 @use './SendMessageBox.scss';
 
-#mainMessagePage{
+#mainMessagePage {
     height: 100%;
     width: 100%;
     display: grid;
@@ -22,7 +22,7 @@
 }
 
 
-#menuBar{
+#menuBar {
     grid-area: 1 / 1 / 2 / 7;
     display: flex;
     justify-content: space-between;
@@ -33,7 +33,7 @@
     z-index: 10;
 }
 
-#searchBar{
+#searchBar {
     grid-area: 2 / 1 / 4 / 2;
     display: flex;
     flex-direction: column;
@@ -42,7 +42,7 @@
     align-items: center;
 }
 
-#friendsList{
+#friendsList {
     grid-area: 4 / 1 / 10 / 2;
     display: flex;
     flex-direction: column;
@@ -53,14 +53,14 @@
     overflow-x: hidden;
 }
 
-#friendBar{
+#friendBar {
     grid-area: 2 / 2 / 3 / 7;
     border-bottom: solid 1px vars.$secondary-color;
     display: flex;
     flex-direction: row;
 }
 
-#messageBox{
+#messageBox {
     grid-area: 3 / 2 / 9 / 7;
     display: flex;
     position: relative;
@@ -69,36 +69,105 @@
 .messageBoxContent::-webkit-scrollbar,
 #friendsList::-webkit-scrollbar,
 #invitationsList::-webkit-scrollbar {
-    width: 10px; /* Szerokość paska przewijania */
+    width: 10px;
 }
 
 .messageBoxContent::-webkit-scrollbar-thumb,
 #friendsList::-webkit-scrollbar-thumb,
 #invitationsList::-webkit-scrollbar-thumb {
-    background: #999; /* Kolor uchwytu */
-    border-radius: 10px; /* Zaokrąglenie uchwytu */
+    background: #999;
+    border-radius: 10px;
 }
 
 
 .messageBoxContent::-webkit-scrollbar-track,
 #friendsList::-webkit-scrollbar-track,
 #invitationsList::-webkit-scrollbar-track {
-    background: #333; /* Kolor tła paska przewijania */
-    border-radius: 10px; /* Zaokrąglenie tła (efekt może być ograniczony) */
+    background: #333;
+    border-radius: 10px;
 }
 
-/* Możliwe dodatkowe style */
 .messageBoxContent::-webkit-scrollbar-thumb:hover,
 #friendsList::-webkit-scrollbar-thumb:hover,
 #invitationsList::-webkit-scrollbar-thumb:hover {
-    background: #666666; /* Kolor uchwytu podczas najechania */
+    background: #666666;
 }
 
 
-#sendMessageBox{
+#sendMessageBox {
     grid-area: 9 / 2 / 10 / 7;
     display: flex;
     justify-content: center;
     align-items: center;
     border-top: solid 1px vars.$secondary-color;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+
+@media (max-width: vars.$mobile-width) {
+    #mainMessagePage {
+        grid-template-columns: 1fr;
+        grid-template-rows: 75px 75px 75px 1fr 75px;
+    }
+
+    #mainMessagePage:not(.mobile-chat-open) {
+        #menuBar {
+            grid-area: 1 / 1 / 2 / 2;
+        }
+
+        #searchBar {
+            grid-area: 2 / 1 / 4 / 2;
+        }
+
+        #friendsList {
+            grid-area: 4 / 1 / 6 / 2;
+        }
+
+        #friendBar,
+        #messageBox,
+        #sendMessageBox {
+            display: none;
+        }
+    }
+
+    #mainMessagePage.mobile-chat-open {
+        #menuBar {
+            grid-area: 1 / 1 / 2 / 2;
+        }
+
+        #friendBar {
+            grid-area: 2 / 1 / 3 / 2;
+        }
+
+        #messageBox {
+            grid-area: 3 / 1 / 4 / 2;
+        }
+
+        #sendMessageBox {
+            grid-area: 4 / 1 / 5 / 2;
+        }
+
+        #searchBar,
+        #friendsList {
+            display: none;
+        }
+    }
+
+    .mobile-back-btn {
+        display: block;
+        margin-right: 15px;
+        background: none;
+        border: none;
+        color: vars.$secondary-color;
+        font-size: 16px;
+        cursor: pointer;
+    }
+}
+
+@media (min-width: vars.$desktop-width) {
+    .mobile-back-btn {
+        display: none;
+    }
 }

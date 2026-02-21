@@ -24,14 +24,14 @@ const MenuBar = ({ togglePanel }) => {
             <div id='profileBox'>
 
                 <div className='bellWrapper' onClick={() => togglePanel('invitationList')}>
-                    <FontAwesomeIcon icon={faBell} className='friendBarIcon' />
+                    <FontAwesomeIcon icon={faBell} className='friendBarIcon bell' />
                     {invitationsList && numberOfInvitations > 0 && (
                         <div className='notificationBadge'>{numberOfInvitations}</div>
                     )}
                 </div>
 
 
-                <button className='btn2' onClick={signOut}>Sign out</button>
+                <button className='btn2 sing-out' onClick={signOut}>Sign out</button>
                 <div className='profileInfoWrapper' onClick={() => togglePanel('userInfoPanel')}>
                     {user.username}
                     <Avatar url={user.avatarUrl} />
