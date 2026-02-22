@@ -4,6 +4,7 @@ import SignalRProvider from "../../app/providers/SignalRProvider";
 import FriendsProvider from "../../app/providers/FriendsProvider";
 import ChatsProvider from "../../app/providers/ChatsProvider";
 import ChatUIProvider from "../../features/messages/providers/ChatUIProvider";
+import PanelUIProvider from "../../app/providers/PanelUIProvider";
 
 import { MessagePage } from "./MessagePage";
 
@@ -12,9 +13,11 @@ const MessageWrapper = () => {
         <SignalRProvider>
             <ChatsProvider>
                 <ChatUIProvider>
-                    <FriendsProvider>
-                        <MessagePage />
-                    </FriendsProvider>
+                    <PanelUIProvider>
+                        <FriendsProvider>
+                            <MessagePage />
+                        </FriendsProvider>
+                    </PanelUIProvider>
                 </ChatUIProvider>
             </ChatsProvider>
         </SignalRProvider>

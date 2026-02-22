@@ -7,26 +7,10 @@ import UserInfoPanel from '../../features/profile/components/UserInfoPanel';
 import EditProfilePanel from '../../features/profile/components/EditProfilePanel';
 import MenuBar from './MenuBar';
 
+import { PanelUIContext } from '../../app/providers/PanelUIProvider';
+
 const Layout = () => {
-    const [display, setDisplay] = useState({
-        invitationList: false,
-        userInfoPanel: false,
-        editProfilePanel: false
-    });
-
-    // Displays / hides given panel
-    const togglePanel = (panelName) => {
-        setDisplay(prev => {
-            const panelsState = {
-                invitationList: false,
-                userInfoPanel: false,
-                editProfilePanel: false,
-            };
-
-            panelsState[panelName] = !prev[panelName];
-            return panelsState;
-        });
-    };
+    const { display, togglePanel } = useContext(PanelUIContext);
 
     return (
         <>

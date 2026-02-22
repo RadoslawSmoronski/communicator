@@ -4,6 +4,7 @@ import { FriendsContext } from '../../../../app/providers/FriendsProvider';
 import { UserContext } from '../../../../app/providers/UserProvider';
 import { ChatsContext } from '../../../../app/providers/ChatsProvider';
 import { ChatUIContext } from '../../../messages/providers/ChatUIProvider';
+import { PanelUIContext } from '../../../../app/providers/PanelUIProvider';
 
 import FriendTile from './FriendTile';
 import Spinner from '../../../../shared/components/Spinner';
@@ -25,11 +26,14 @@ const FriendList = ({ searchQuery }) => {
         activeRecipientId
     } = useContext(ChatsContext);
     const { hideFriendDetails, showMobileChat } = useContext(ChatUIContext);
+    const { hidePanels } = useContext(PanelUIContext);
 
     const { updateLastOpenedChat } = useLastOpenedChat();
 
     const handleClickingOnChat = (friend) => {
-        showMobileChat(); // mobile
+        // mobile
+        showMobileChat();
+        hidePanels();
 
         if (friend.friendId === activeRecipientId) return;
 

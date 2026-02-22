@@ -22,7 +22,8 @@ const useRemoveFriend = () => {
     } = useContext(ChatsContext);
     const {
         hideFriendDetails,
-        hideConfirmationBox
+        hideConfirmationBox,
+        showMobileFriendList
     } = useContext(ChatUIContext);
 
     const { removeLastOpenedChat } = useLastOpenedChat();
@@ -42,6 +43,7 @@ const useRemoveFriend = () => {
         // Close UI panels
         hideFriendDetails();
         hideConfirmationBox();
+        showMobileFriendList();
 
         // Delete from cookie
         removeLastOpenedChat(user.userId);
