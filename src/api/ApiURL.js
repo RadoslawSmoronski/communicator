@@ -1,6 +1,6 @@
 
 const APIs = {
-    SERVER_URL: "http://localhost:5205",
+    SERVER_URL: "",
 
     LOGIN: "/api/auth/login",
     REGISTER: "/api/users",

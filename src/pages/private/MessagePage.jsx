@@ -7,7 +7,7 @@ import ConfirmationBox from '../../shared/components/form/ConfirmationBox';
 
 import { FriendsContext } from '../../app/providers/FriendsProvider';
 import { ChatUIContext } from '../../features/messages/providers/ChatUIProvider';
-import useRemoveFriend from '../../features/friendShips/hooks/useRemoveFriend';
+import useRemoveFriend from '../../features/friendships/hooks/useRemoveFriend';
 
 export const MessagePage = () => {
     const { activeFriend } = useContext(FriendsContext);
