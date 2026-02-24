@@ -107,7 +107,7 @@ const MessageBox = () => {
                 ))}
 
                 {/* info inside chat */}
-                <div className="status-container" style={{ textAlign: 'center', padding: '10px' }}>
+                <div className="status-container">
                     {selectedChatId ? (
                         currentMessages.length > 0 ? (
                             hasNoMore && <span className='textCenter'>--- End of conversation ---</span>
@@ -118,7 +118,9 @@ const MessageBox = () => {
                         <span className='textCenter'>--- Select a chat to start messaging ---</span>
                     )}
 
-                    {loading && <Spinner />}
+                    <div style={{ visibility: loading ? 'visible' : 'hidden' }}>
+                        <Spinner />
+                    </div>
                 </div>
             </div>
 
