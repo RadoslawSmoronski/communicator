@@ -76,10 +76,13 @@ const MessageBox = () => {
         const box = scrollMessageBoxRef.current;
         if (!box) return;
 
-        const isAtTop = box.clientHeight - box.scrollTop >= box.scrollHeight;
+        const BUFFER = 2;
+
+        const distanceFromTop = Math.abs(box.scrollHeight + box.scrollTop - box.clientHeight);
+        const isNearTop = distanceFromTop <= BUFFER;
 
         // fetch history messages
-        if (isAtTop && !hasNoMore && !loading) {
+        if (isNearTop && !hasNoMore && !loading) {
             getMessagesForFriend(selectedChatId);
         }
     };
