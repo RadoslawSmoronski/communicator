@@ -42,11 +42,18 @@ namespace Application.Chats.Queries.GetPagedMessages
                 ? conversation.User2LastReadMessageId
                 : conversation.User1LastReadMessageId;
 
-            var setUserLastMessageResult = await _messageService.SetAndGetUserLastReadMessageAsync(request.UserId, request.ConversationId);
-            if (!setUserLastMessageResult.IsSuccess)
-                return setUserLastMessageResult.Error!;
+            var userReadMessageId = Guid.Empty;
 
-            var userReadMessageId = setUserLastMessageResult.Value;
+            var setUserLastMessageResult = await _messageService.SetAndGetUserLastReadMessageAsync(request.UserId, request.ConversationId);
+            if (setUserLastMessageResult.IsSuccess)
+            {
+                userReadMessageId = setUserLastMessageResult.Value;
+            }
+            else if (setUserLastMessageResult.Error?.ErrorType != ErrorType.NotFound)
+            {
+                return setUserLastMessageResult.Error!;
+            }
+
 
             var recipientId = conversation.User1Id == request.UserId
                 ? conversation.User2Id

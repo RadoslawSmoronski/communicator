@@ -84,8 +84,13 @@ namespace API.Hubs
             if (result.IsSuccess)
             {
                 await NotifyClients(null, recipientId,
-                    (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadEvent(MessageId: result.Value, ConversationId: conversationId )),
+                    (clients, connections) => clients.Clients(connections).MessageRead(new MessageReadEvent(MessageId: result.Value, ConversationId: conversationId)),
                     "reading message");
+            }
+            else if (result.Error?.Code == "Message.NotFound")
+            {
+                _logger.LogDebug("ReadMessage skipped: no friend message to mark as read yet. UserId: {UserId}, ConversationId: {ConversationId}",
+                    userId, conversationId);
             }
             else
             {

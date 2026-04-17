@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Api/ChatCommunicator.API/bin/Debug/net9.0/ChatCommunicator.API.dll",
+            "program": "${workspaceFolder}/Api/API/bin/Debug/net10.0/API.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Api/ChatCommunicator.API",
+            "cwd": "${workspaceFolder}/Api/API",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
@@ -20,7 +20,8 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5205"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
