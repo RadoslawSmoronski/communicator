@@ -1,0 +1,8 @@
+# Visual Studio
+.vs/
+
+# VS Code (local settings; keep team defaults in repo if you use .vscode shared)
+.vscode/
+
+# macOS
+.DS_Store
