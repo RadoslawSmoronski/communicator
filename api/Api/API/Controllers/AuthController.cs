@@ -1,0 +1,211 @@
+﻿using System.ComponentModel.DataAnnotations;
+using API.Contracts.Auth.ConfirmEmail;
+using API.Contracts.Auth.Login;
+using API.Contracts.Auth.RefreshAccessToken;
+using API.Contracts.Auth.RequestPasswordReset;
+using API.Contracts.ResetPassword;
+using Application.Auth.Commands.ConfirmEmail;
+using Application.Auth.Commands.LoginUser;
+using Application.Auth.Commands.RefreshAccessToken;
+using Application.Auth.Commands.RequestPasswordReset;
+using Application.Auth.Commands.ResetPassword;
+using AutoMapper;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace API.Controllers
+{
+    [Route("api/auth")]
+    [ApiController]
+    public class AuthController(ILogger<AuthController> logger, IMapper mapper, ISender sender) : BaseController(mapper, sender)
+    {
+        private readonly ILogger<AuthController> _logger = logger;
+
+        /// <summary>
+        /// Login user
+        /// </summary>
+        /// <param name="req">
+        /// The login request payload containing the user's email and password. Both fields are required and validated for format and length.
+        /// </param>
+        /// <returns>
+        /// Returns 200 OK with a <see cref="LoginResponse"/>/>.
+        /// </returns>
+        /// <remarks>
+        /// Route: POST api/auth/login
+        /// Authorization: Anonymous (no bearer token required).
+        /// Request body:
+        /// {
+        ///   "email": "user@example.com",
+        ///   "password": "Secret123"
+        /// }
+        /// </remarks>
+        /// <response code="200">Login successful. Authentication data returned.</response>
+        /// <response code="400">Validation failure (e.g. malformed email, missing fields) or business rule violation.</response>
+        /// <response code="401">Invalid credentials.</response>
+        /// <response code="403">Access forbidden (unlikely for this endpoint unless additional constraints apply).</response>
+        /// <response code="500">Unexpected server error.</response>
+        [HttpPost("login")] 
+        [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest req)
+        {
+            _logger.LogInformation("[AuthController - LoginAsync] Login attempt for email: {Email}", req.Email);
+
+            var command = new LoginUserCommand(req.Email, req.Password);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[AuthController - LoginAsync] Login successful for email: {Email}", req.Email);
+                return Ok(_mapper.Map<LoginResponse>(result.Value));
+            }
+
+            return HandleError(result, "AuthController - LoginAsync", _logger);
+        }
+
+        /// <summary>
+        /// Refresh user's accessToken
+        /// </summary>
+        /// <param name="req">The refresh token request containing the refresh token to be exchanged. See <see cref="RefreshAccessTokenRequest"/>.</param>
+        /// <returns>
+        /// Returns 200 OK with a <see cref="RefreshAccessTokenResponse"/> when the refresh token is valid and a new access token is issued.
+        /// </returns>
+        /// <remarks>
+        /// Route: POST api/auth/refresh-token
+        /// This endpoint logs refresh attempts and results. Authentication is not required to call this endpoint because the refresh token is supplied in the request body.
+        /// </remarks>
+        /// <response code="200">Refresh succeeded and returns new tokens in a <see cref="RefreshAccessTokenResponse"/>.</response>
+        /// <response code="400">The request payload is invalid.</response>
+        /// <response code="401">The provided refresh token is invalid, expired, or revoked.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
+        [HttpPost("refresh-token")]
+        [ProducesResponseType(typeof(RefreshAccessTokenResponse), StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        public async Task<IActionResult> RefreshAccessTokenAsync([FromBody] RefreshAccessTokenRequest req)
+        {
+            _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token attempt: {RefreshToken}", req.RefreshToken);
+
+            var command = new RefreshAccessTokenCommand(req.RefreshToken);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("[AuthController - RefreshAccessTokenAsync] Refresh token successful for: {RefreshToken}", req.RefreshToken);
+                return Ok(_mapper.Map<RefreshAccessTokenResponse>(result.Value));
+            }
+
+            return HandleError(result, "AuthController - RefreshAccessTokenAsync", _logger);
+        }
+        
+        /// <summary>
+        /// Confirm user's email.
+        /// </summary>
+        /// <param name="req">
+        /// The request body containing the user's identifier and confirmation token.
+        /// See <see cref="ConfirmEmailRequest"/>. Expected JSON:
+        /// {
+        ///   "userId": "user-id",
+        ///   "confirmationToken": "token"
+        /// }
+        /// </param>
+        /// <returns>
+        /// Returns 200 OK when the email is successfully confirmed; otherwise an error response produced by <c>HandleError</c>.
+        /// </returns>
+        /// <remarks>
+        /// Route: POST api/auth/confirm-email
+        /// Both <c>userId</c> and <c>confirmationToken</c> are expected in the JSON request body (see <see cref="ConfirmEmailRequest"/>).
+        /// Authentication: Not required.
+        /// </remarks>
+        /// <response code="200">Email confirmed successfully.</response>
+        /// <response code="400">Invalid request payload or malformed/invalid token.</response>
+        /// <response code="404">User not found.</response>
+        /// <response code="410">Token expired or already used.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
+        [HttpPost("confirm-email")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest req)
+        {
+            var command = new ConfirmEmailCommand(req.UserId, req.ConfirmationToken);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+
+            return HandleError(result, "AuthController - ConfirmEmailAsync", _logger);
+        }
+
+        /// <summary>
+        /// Request user's password reset
+        /// </summary>
+        /// <param name="req">The request containing the email address to initiate the password reset.</param>
+        /// <returns>
+        /// Returns 200 OK when the request is accepted; otherwise an error response.
+        /// </returns>
+        /// <remarks>
+        /// Route: POST api/auth/request-password-reset
+        /// Authentication: Not required.
+        /// This endpoint does not disclose whether the email exists to prevent account enumeration.
+        /// </remarks>
+        /// <response code="200">Request accepted. If an account exists for the email, a reset message is sent.</response>
+        /// <response code="400">Invalid request payload.</response>
+        /// <response code="403">The user account is not activated.</response>
+        /// <response code="500">An unexpected server error occurred.</response>
+        [HttpPost("request-password-reset")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        public async Task<IActionResult> RequestPasswordResetAsync([FromBody] RequestPasswordResetRequest req)
+        {
+            _logger.LogInformation("[AuthController - RequestPasswordResetAsync] Password reset requested for email: {Email}", req.Email);
+
+            var command = new RequestPasswordResetCommand(req.Email);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {          
+                return Ok(result.Value); // refactor: delete if not development mode
+            }
+        
+            return HandleError(result, "AuthController - RequestPasswordResetAsync", _logger);
+        }
+
+        /// <summary>
+        /// Reset user's password
+        /// </summary>
+        /// <param name="req">
+        /// The request containing the <see cref="ResetPasswordRequest.UserId"/>, the coded (encoded/hashed) reset token,
+        /// and the new password to set.
+        /// </param>
+        /// <returns>
+        /// Returns 200 OK when the password reset succeeds; otherwise an error response.
+        /// </returns>
+        /// <remarks>
+        /// Route: POST api/auth/password-reset
+        /// Authentication: Not required (token-based validation).
+        /// The value returned in development mode is for debugging only and will be removed in production.
+        /// </remarks>
+        /// <response code="200">Password reset succeeded.</response>
+        /// <response code="400">Invalid request payload or password policy violation.</response>
+        /// <response code="401">Invalid or malformed reset token.</response>
+        /// <response code="404">User not found.</response>
+        /// <response code="410">Reset token expired or already used.</response>
+        /// <response code="500">Unexpected server error.</response>
+        [HttpPost("password-reset")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest req)
+        {
+            var command = new ResetPasswordCommand(req.UserId, req.CodedToken, req.NewPassword);
+            var result = await _sender.Send(command);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value); // refactor: delete if not development mode
+            }
+
+            return HandleError(result, "AuthController - ResetPasswordAsync", _logger);
+        }
+    }
+}

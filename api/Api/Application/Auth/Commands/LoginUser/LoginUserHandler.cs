@@ -1,0 +1,39 @@
+﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces.Users;
+using MediatR;
+using Shared.Result;
+
+namespace Application.Auth.Commands.LoginUser
+{
+    public class LoginUserHandler(IUserService userService, ITokenService tokenService, IUserAvatarService avatarService) : IRequestHandler<LoginUserCommand, Result<LoginUserReadModel>>
+    {
+        private readonly IUserService _userService = userService;
+        private readonly ITokenService _tokenService = tokenService;
+        private readonly IUserAvatarService _avatarService = avatarService;
+
+        public async Task<Result<LoginUserReadModel>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
+        {
+            var loggedUserResult = await _userService.LoginAsync(request.Email, request.Password);
+            if (!loggedUserResult.IsSuccess)
+                return loggedUserResult.Error!;
+
+            var user = loggedUserResult.Value;
+
+            var accessToken = await _tokenService.CreateAccessTokenAsync(loggedUserResult.Value.Id);
+            if (!accessToken.IsSuccess)
+                return accessToken.Error!;
+
+            var refreshToken = await _tokenService.CreateRefreshTokenAsync(loggedUserResult.Value.Id);
+            if (!refreshToken.IsSuccess)
+                return refreshToken.Error!;
+
+            return new LoginUserReadModel(
+                Id: user.Id,
+                UserName: user.UserName,
+                AvatarUrl: user.AvatarUrl is not null ? _avatarService.GetPublicAvatarUrl(user.AvatarUrl) : null,
+                AccessToken: accessToken.Value,
+                RefreshToken: refreshToken.Value
+                );
+        }
+    }
+}

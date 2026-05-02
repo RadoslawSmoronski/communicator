@@ -1,0 +1,11 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0-preview
+
+WORKDIR /src
+
+RUN dotnet tool install --global dotnet-ef --version 9.0.9
+
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+COPY . .
+
+ENTRYPOINT ["dotnet", "ef"]
