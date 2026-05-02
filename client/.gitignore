@@ -1,0 +1,55 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# VS Code settings
+.vscode/
+
+# dotenv
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Sass cache
+.sass-cache/
+
+# Coverage reports
+coverage/
+
+# IDE files
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Optional: if you're using TypeScript
+*.tsbuildinfo
+
+# ASP.NET / C# backend
+**/bin/
+**/obj/
+*.user
+*.vspscc
+*.vssscc
+
+# Local dev files
+*.log
+*.local.js
+*.local.json
