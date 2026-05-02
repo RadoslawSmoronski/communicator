@@ -1,0 +1,148 @@
+@use './../variables' as vars;
+
+#mainFormPage {
+    height: 100vh;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    flex-direction: column-reverse;
+    background-color: vars.$bk-color;
+    color: vars.$secondary-color;
+
+
+    position: relative;
+}
+
+// confirm account
+
+.confirmAccountBody {
+    position: relative;
+    display: flex;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    padding: 40px;
+    margin-top: 80px;
+    max-width: 800px;
+    width: 100%;
+}
+
+#logo.confirmAccount {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    height: 80px;
+    width: 200px;
+    background-image: url("../../../gfx/logo.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.confirmAccount.icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.confirmAccount.thanks {
+    font-weight: bold;
+    font-size: 10px;
+    margin-bottom: 10px;
+}
+
+.confirmAccount.mainText {
+    font-size: 3rem;
+    text-align: center;
+    font-weight: 600;
+    color: vars.$btn-color;
+    margin: 50px;
+}
+
+.errorText {
+    color: red;
+}
+
+.successText {
+    color: green;
+}
+
+// logging help
+
+.loggingHelpBody {
+    background-color: vars.$panel-color;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    margin-top: 80px;
+    max-width: 600px;
+    border-radius: 15px;
+    width: 100%;
+}
+
+.loggingHelp.mainText {
+    font-size: 18px;
+    text-align: center;
+}
+
+.loggingHelp.btnWrapper {
+    margin-top: 25px;
+}
+
+.btn2.link {
+    margin: 2px;
+}
+
+.btn2.link:hover {
+    background: none;
+}
+
+.loginPanel.small {
+    margin-top: 80px;
+    padding: 0px 60px;
+    justify-content: space-around;
+    height: 35vh;
+    max-height: 450px;
+}
+
+.loggingHelp.formWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+@media (max-width: 768px) {
+    .loggingHelpBody {
+        margin-top: 0px;
+    }
+
+    #mainFormPage {
+        justify-content: center;
+    }
+
+    .loginPanel.small {
+        margin-top: 0px;
+    }
+
+    .confirmAccountBody {
+        margin: 0px;
+        max-width: 90vw;
+    }
+
+    .confirmAccount.mainText {
+        font-size: 2.5em;
+    }
+
+    .confirmAccount.icon {
+        font-size: 2.5em;
+    }
+}

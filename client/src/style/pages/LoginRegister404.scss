@@ -1,0 +1,155 @@
+@use './../variables' as vars;
+
+html,
+body,
+#root {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    font-family: "Gill Sans", sans-serif;
+    overflow-x: hidden;
+    background-color: vars.$bk-color;
+}
+
+
+#mainloginPage {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: vars.$bk-color;
+    color: vars.$secondary-color;
+
+
+    position: relative;
+}
+
+.welcomeBlock {
+    margin-left: 5px;
+    width: 70%;
+    height: 100%;
+    background-color: vars.$panel-trans-color;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#logo {
+    background-image: url("../../../gfx/logo.png");
+    height: 300px;
+    width: 750px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.bottomText {
+    // position: absolute;
+    top: 100%;
+    transform: translate(0, 100%);
+    margin: 30px;
+}
+
+.logoAndText {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 80%;
+    height: 60%;
+}
+
+.highlightColor {
+    color: vars.$primary-color;
+}
+
+.highlightText {
+    font-size: 25px;
+    color: vars.$primary-color;
+}
+
+@media (min-width: 200px) {
+    #mainloginPage {
+        flex-direction: column-reverse;
+    }
+
+    .welcomeBlock {
+        display: none;
+    }
+
+    #welcomeBlockSmall {
+        display: block;
+    }
+}
+
+@media (min-width: 1300px) {
+    #mainloginPage {
+        flex-direction: row;
+    }
+
+    .welcomeBlock {
+        margin-left: 5px;
+        width: 70%;
+        height: 100%;
+        background-color: vars.$panel-trans-color;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #welcomeBlockSmall {
+        display: none;
+    }
+}
+
+
+.loginPanel {
+    max-width: 500px;
+    max-height: 450px;
+    padding: 60px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: vars.$panel-color;
+
+    border-radius: 15px;
+}
+
+.panel404 {
+    width: 800px;
+    height: 500px;
+    justify-content: center;
+    background-color: transparent;
+}
+
+.errorFont {
+    font-size: 150px;
+    margin: 10px;
+}
+
+.btn2.btn404 {
+    margin-top: 30px;
+    text-decoration: none;
+}
+
+.btn2.goBack {
+    text-decoration: none;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+@media (max-width: vars.$mobile-width) {
+    #logo {
+        height: 200px;
+        width: 375px;
+    }
+
+    .loginPanel {
+        background-color: transparent;
+        padding: 30px;
+    }
+}

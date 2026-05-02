@@ -1,0 +1,78 @@
+@use './../../variables' as vars;
+
+// ----- SEARCH BOX --------
+
+.textInput2{
+    border: none 2px ;
+    border-radius: 35px;
+    transition: 0.5s;
+    height: 35px;
+    width: 275px;
+    text-align: center; 
+    outline: none;
+    font-size: 18px;
+    background-color: vars.$input-bk-color;
+    color: vars.$secondary-color;
+}
+
+.textInput2::placeholder{
+    color: vars.$secondary-color;
+    opacity: 0.5;
+}
+
+.textInput2:focus::placeholder{
+    opacity: 0.2;
+}
+
+#buttonsSearchBar{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn2{
+    background-color: rgba(0, 0, 0, 0);
+    border: none ;
+    border-radius: 20px;
+    font-size: 18px;
+    padding: 4px 30px 4px 30px;
+    font-weight: 500;
+    height: 40px;
+    color: vars.$btn-color;
+    transition: 0.2s;
+
+    display: flex;
+    align-items: center;
+
+    user-select: none;
+    cursor: pointer;
+}
+
+.btn2:hover{
+    background-color: rgba(66, 66, 66, 0.9);
+}
+
+.btn2:active{
+    filter: brightness(0.9);
+}
+
+.btn2Active{
+    background-color: vars.$btn-active-color;
+}
+.btn2Active:hover{
+    background-color: vars.$btn-hover-color;
+}
+
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+.inputIcon {
+    position: absolute;
+    left: 20px; 
+    color: vars.$secondary-color; 
+}

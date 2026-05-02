@@ -1,0 +1,70 @@
+@use './../variables' as vars;
+
+.textInput {
+    border: solid 2px vars.$icon-hover-color;
+    border-radius: 10px;
+    transition: 0.5s;
+    height: 25px;
+    width: 225px;
+    text-align: center; 
+    outline: none;
+    font-size: 18px;
+    background-color: vars.$bk-color;
+    color: vars.$secondary-color;
+}
+
+.textInput:focus, .textInput:hover {
+    border: solid 2px vars.$primary-color;
+}
+
+.textInput:disabled {
+    user-select: none;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.textInput.editProfile {
+    border: solid 2px vars.$input-border-color;
+}
+
+.textInput.editProfile:focus, .textInput.editProfile:hover {
+    border: solid 2px vars.$primary-color;
+}
+
+
+a{
+    color: vars.$link-color;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+a:hover{
+    color: vars.$primary-color;
+}
+
+.btn{
+    border: none ;
+    border-radius: 3px;
+    font-size: 18px;
+    padding: 4px 30px 4px 30px;
+    font-weight: 500;
+    color: vars.$btn-color;
+    background-color: vars.$icon-hover-color;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.btn:hover{
+    background-color: vars.$primary-color;
+    color: vars.$bk-color;
+}
+
+.btn:active{
+    filter: brightness(0.8);
+}
+
+label {
+    font-size: 12px;
+    font-style:italic;
+}
+

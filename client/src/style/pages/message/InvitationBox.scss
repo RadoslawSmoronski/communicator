@@ -1,0 +1,83 @@
+@use './../../variables' as vars;
+
+// -------- INVITATIONS BOX
+
+#invitationsList {
+    position: absolute;
+    top: 75px;
+    right: 10%;
+    width: 400px;
+    height: 50%;
+    border: solid 2px vars.$secondary-color;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+
+    background-color: vars.$bk-msg-page-color;
+    border-radius: 2%;
+    z-index: 20;
+}
+
+.friendTile.invitationTile {
+    width: 95%;
+}
+
+.friendTileWrapper.invitationWrapper {
+    width: 80%;
+}
+
+.friendTileUserName.invitationTileText {
+    font-size: 17px;
+}
+
+.btnPerson.btnInvitation {
+    height: 15px;
+    width: 30%;
+
+}
+
+.infoText {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.bellWrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.notificationBadge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 18px;
+
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+
+@media (max-width: vars.$mobile-width) {
+    #invitationsList {
+        right: 0;
+        max-width: 98vw;
+        height: 50%;
+        border: solid 1px vars.$secondary-color;
+
+        border-radius: 1%;
+    }
+}

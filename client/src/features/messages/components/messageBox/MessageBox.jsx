@@ -1,0 +1,136 @@
+import React, { useEffect, useContext, useRef } from 'react'
+
+import { ChatsContext } from '../../../../app/providers/ChatsProvider';
+import { UserContext } from '../../../../app/providers/UserProvider';
+import { FriendsContext } from '../../../../app/providers/FriendsProvider';
+import { ChatUIContext } from '../../providers/ChatUIProvider';
+
+import { useGetMessages } from '../../hooks/useGetMessages';
+import useReadMessage from '../../hooks/useReadMessage';
+import MessageTile from './MessageTile';
+import FriendDetailsPanel from './FriendDetailsPanel';
+import Spinner from '../../../../shared/components/Spinner';
+
+const MessageBox = () => {
+    const { user } = useContext(UserContext);
+    const { activeFriend } = useContext(FriendsContext);
+    const {
+        selectedId: selectedChatId,
+        messages,
+        noNewMessagesFlagsMap,
+        lastReadMessageIdsMap
+    } = useContext(ChatsContext);
+    const { displayFriendDetails } = useContext(ChatUIContext);
+
+    const { getMessagesForFriend, loading } = useGetMessages();
+    const { readMessage } = useReadMessage();
+
+    // scroll bar ref
+    const scrollMessageBoxRef = useRef(null);
+
+    // UI variables
+    const currentMessages = messages?.[selectedChatId] || [];
+    const hasNoMore = noNewMessagesFlagsMap?.[selectedChatId];
+    const lastReadId = lastReadMessageIdsMap?.[selectedChatId];
+
+    // fetch messages
+    useEffect(() => {
+        if (!selectedChatId || hasNoMore || loading) return;
+
+        const checkAndFetch = async () => {
+            const box = scrollMessageBoxRef.current;
+            if (!box) return;
+
+            // 1. There is only one message (init fetch)
+            const isInitialFetch = currentMessages.length === 1;
+
+            // 2. Messages aren't filled up to the scroll box
+            const isNotScrollable = box.clientHeight >= box.scrollHeight;
+
+            if (isInitialFetch || isNotScrollable) {
+                await getMessagesForFriend(selectedChatId);
+            }
+        };
+
+        checkAndFetch();
+
+    }, [selectedChatId, currentMessages.length, hasNoMore, loading]);
+
+    // read message
+    useEffect(() => {
+        if (!selectedChatId || currentMessages.length === 0) return;
+
+        // read only friend message
+        const lastMessage = currentMessages[0];
+        const isLastFromFriend = lastMessage.senderId !== user.userID;
+
+        if (isLastFromFriend) {
+            readMessage();
+        }
+
+        // trigger when change chat or get new message
+    }, [selectedChatId, currentMessages.length]);
+
+    // scroll bar logic
+    const handleScrollMessageBox = (e) => {
+        const box = scrollMessageBoxRef.current;
+        if (!box) return;
+
+        const BUFFER = 2;
+
+        const distanceFromTop = Math.abs(box.scrollHeight + box.scrollTop - box.clientHeight);
+        const isNearTop = distanceFromTop <= BUFFER;
+
+        // fetch history messages
+        if (isNearTop && !hasNoMore && !loading) {
+            getMessagesForFriend(selectedChatId);
+        }
+    };
+
+    return (
+        <div
+            id='messageBox'
+        >
+            <div className='messageBoxContent'
+                ref={scrollMessageBoxRef}
+                onScroll={handleScrollMessageBox}
+            >
+                {/* Message list */}
+                {currentMessages.length > 0 && currentMessages.map((message) => (
+                    <MessageTile
+                        key={message.messageId}
+                        mess={message.content}
+                        yours={message.senderId === user.userID}
+                        time={message.timestamp}
+                        isLastReadByFriend={lastReadId === message.messageId}
+                    />
+                ))}
+
+                {/* info inside chat */}
+                <div className="status-container">
+                    {selectedChatId ? (
+                        currentMessages.length > 0 ? (
+                            hasNoMore && <span className='textCenter'>--- End of conversation ---</span>
+                        ) : (
+                            !loading && <span className='textCenter'>--- Start a conversation ---</span>
+                        )
+                    ) : (
+                        <span className='textCenter'>--- Select a chat to start messaging ---</span>
+                    )}
+
+                    <div style={{ visibility: loading ? 'visible' : 'hidden' }}>
+                        <Spinner />
+                    </div>
+                </div>
+            </div>
+
+            {displayFriendDetails && activeFriend &&
+                <FriendDetailsPanel
+                    friendName={activeFriend.username}
+                />
+            }
+        </div>
+    )
+}
+
+export default MessageBox

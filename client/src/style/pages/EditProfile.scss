@@ -1,0 +1,155 @@
+@use './../variables' as vars;
+
+.offFocusBK {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+
+    background-color: vars.$bk-off-focus-color;
+
+    z-index: 1000;
+}
+
+.editProfilePanel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 800px;
+    border: solid 2px vars.$secondary-color;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    background-color: vars.$bk-msg-page-color;
+
+    padding: 5px;
+    border-radius: 2%;
+    z-index: 1001;
+}
+
+.editProfileElement {
+    justify-content: space-between;
+    display: flex;
+    flex-direction: row;
+    margin-top: 15px;
+}
+
+.editProfileTitle {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid vars.$secondary-color;
+    width: 100%;
+    padding-bottom: 8px;
+    margin: 30px 0 5px 0;
+}
+
+.friendTileIcon.editProfileAvatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+}
+
+.editProfileBtnWrapper {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.editProfileBtnInfo {
+    background-color: vars.$bk-msg-page-color;
+    border-radius: 5px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin: 10px;
+    filter: brightness(1.1);
+}
+
+.editProfileBtnInfo:hover {
+    filter: brightness(1.5);
+}
+
+.editProfileBtnInfo.success {
+    color: vars.$font-success-color;
+}
+
+.editProfileBtnInfo.fail {
+    color: vars.$font-fail-color;
+}
+
+.editPanelBtn {
+    background-color: vars.$bk-msg-page-color;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    padding: 4px 30px 4px 30px;
+    margin: 5px;
+    font-weight: 500;
+    height: 30px;
+    color: vars.$btn-color;
+    transition: 0.2s;
+
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    user-select: none;
+    cursor: pointer;
+}
+
+.editPanelBtn:hover {
+    filter: brightness(1.5);
+}
+
+
+.editPanelBtn.default {
+    color: vars.$btn-active-color;
+}
+
+.editPanelBtn.delete {
+    color: vars.$btn-delete-color;
+}
+
+.editPanelBtn.save {
+    color: vars.$btn-details-color;
+}
+
+.editPanelInputWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.editPanelInputWrapper.rows {
+    flex-direction: row;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+@media (max-width: vars.$mobile-width) {
+    .editProfilePanel {
+        width: calc(100vw - 10px);
+        height: calc(100vh - 40px);
+
+        box-sizing: border-box;
+    }
+
+    .friendTileIcon.editProfileAvatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .editProfileTitle {
+        margin: 10px 0 5px 0;
+    }
+}

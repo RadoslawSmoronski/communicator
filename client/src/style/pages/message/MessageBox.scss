@@ -1,0 +1,145 @@
+@use './../../variables' as vars;
+
+// ------ MESSAGE BOX ---------
+
+.messageBoxContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+
+    align-items: stretch;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 0 30px 0 30px;
+}
+
+.messageTileRight {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.messageTileLeft {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    position: relative;
+}
+
+.messageTileWrapperRight {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.messageTileWrapperLeft {
+    display: flex;
+    flex-direction: row;
+}
+
+.messageCloud {
+    background-color: vars.$primary-color;
+    border-radius: 15px;
+    color: wheat;
+    font-size: 20px;
+    padding: 10px 30px 10px 30px;
+    margin: 10px;
+    width: fit-content;
+
+    overflow-wrap: break-word;
+    //word-break:break-all;
+}
+
+.messageCloudLeft {
+    background-color: rgba(66, 66, 66, 0.8);
+}
+
+.messageTileTime {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+.messageCloudCheckMark {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: -5px;
+    bottom: 0px;
+}
+
+.friendDetailsPanel {
+    flex-shrink: 0;
+    width: max(20%, 150px);
+    background-color: vars.$bk-msg-page-color;
+    border: solid vars.$secondary-color;
+    border-width: 0px 0px 0px 2px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn2.delete {
+    color: vars.$btn-delete-color;
+    width: 150px;
+}
+
+.status-container {
+    text-align: center;
+    padding: 10px;
+    min-height: 50px;
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+
+@media (max-width: vars.$mobile-width) {
+    #messageBox {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .messageBoxContent {
+        flex: 1;
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: flex-start;
+
+        align-items: stretch;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        padding: 0 8px;
+    }
+
+    .friendDetailsPanel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        padding-left: 0;
+
+        border-width: 0;
+        z-index: 3;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+
+        overflow-y: auto;
+    }
+
+    .messageTileTime {
+        font-size: 11px;
+    }
+}

@@ -1,0 +1,30 @@
+
+const APIs = {
+    SERVER_URL: "",
+
+    LOGIN: "/api/auth/login",
+    REGISTER: "/api/users",
+    REFRESH_TOKEN: "/api/auth/refresh-token",
+
+    GET_CHATS: (userId) => `/api/users/${userId}/chats?onlyFriends=true`,
+    GET_MESSAGES: (conversationId, fromMessageId) => `api/chats/${conversationId}/messages?fromMessageId=${fromMessageId}`,
+
+    SEND_INVITE: "/api/friend-invitations",
+    GET_INVITATIONS: (userId) => `/api/users/${userId}/friend-invitations`,
+    DECELINE_INVITE: (friendInvitationId) => `/api/friend-invitations/${friendInvitationId}`,
+    ACCEPT_INVITE: (friendInvitationId) => `/api/friend-invitations/${friendInvitationId}/accept`,
+    FRIENDSHIP: (friendshipId) => `/api/friendships/${friendshipId}`,
+
+    FIND_PEOPLE_TO_INVITE: (text, userId) => `/api/users?search=${text}&canBeInvitedByUserId=${userId}`,
+    GET_FRIENDS: (userId) => `/api/users/${userId}/friend`,
+
+    AVATAR: (userId) => `/api/users/${userId}/avatar`,
+    CHANGE_USERNAME: (userId) => `/api/users/${userId}/username`,
+    CHANGE_PASSWORD: (userId) => `/api/users/${userId}/password`,
+
+    CONFIRM_ACCOUNT: "/api/auth/confirm-email",
+    REQUEST_PASSWORD_RESET: "/api/auth/request-password-reset",
+    RESET_PASSWORD: "/api/auth/password-reset"
+}
+
+export default APIs;

@@ -1,0 +1,11 @@
+services:
+  web-app-react:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    container_name: communicator-frontend
+    ports:
+      - "3010:80"
+    env_file:
+      - .env
+    restart: always

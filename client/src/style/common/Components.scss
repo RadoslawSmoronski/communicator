@@ -1,0 +1,152 @@
+@use 'sass:color';
+@use './../variables' as vars;
+
+@use './FormsButtons.scss';
+@use './MenuBar.scss';
+@use './Spinner.scss';
+
+.popUp {
+    position: absolute;
+    transform: translate(100%, -100%);
+    z-index: 100;
+
+    border-radius: 9px;
+    border-color: vars.$btn-color;
+    border-width: 2px;
+    border-style: solid;
+    font-size: 14px;
+
+    min-height: 80px;
+    width: 90%;
+    max-width: 250px;
+    margin: 10px;
+
+    color: vars.$btn-color;
+    background-color: vars.$link-hover-color;
+}
+
+@media (max-width: 768px) {
+    .popUp {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+
+.closeBtn::after {
+    height: 20px;
+    width: 20px;
+    font-size: 25px;
+    display: inline-block;
+    content: "\00d7";
+    cursor: pointer;
+}
+
+.closeBtn:hover {
+    color: vars.$bk-color;
+}
+
+.closeBtnBox {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.closeBtnBox.confBox {
+    background-color: vars.$secondary-color;
+}
+
+.closeBtn.confBox {
+    color: vars.$bk-msg-page-color;
+}
+
+.closeBtn.confBox:hover {
+    color: vars.$bk-color;
+}
+
+.validationBox {
+    width: 325px;
+    text-align: center;
+    color: vars.$btn-color;
+    background-color: vars.$link-hover-color;
+    margin: 10px;
+    border-radius: 9px;
+    font-size: 14px;
+    padding: 4px;
+}
+
+.correctValidation {
+    color: green;
+}
+
+.wrongValidation {
+    color: red;
+}
+
+.textCenter {
+    color: vars.$secondary-color;
+    text-align: center;
+    margin: 20px;
+}
+
+.confirmationBox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 190px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow: hidden;
+
+    background-color: vars.$bk-msg-page-color;
+    color: vars.$btn-color;
+    border: 2px vars.$secondary-color solid;
+
+    border-radius: 2%;
+    z-index: 1001;
+}
+
+.confirmationBoxText {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.confirmationBoxBtn {
+    border: none;
+    border-radius: 5%;
+    font-size: 16px;
+    margin: 5px;
+    font-weight: 700;
+    height: 30px;
+    width: 100px;
+
+    align-items: center;
+    text-align: center;
+
+    user-select: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+
+    color: vars.$bk-msg-page-color;
+    background-color: vars.$secondary-color;
+}
+
+.confirmationBoxBtn:hover {
+    filter: brightness(1.1);
+}
+
+/* =========================
+   MOBILE (phones)
+   ========================= */
+@media (max-width: vars.$mobile-width) {
+    .validationBox {
+        max-width: 220px;
+    }
+}
